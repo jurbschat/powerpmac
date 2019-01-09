@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="ASCII"?>
+<pogoDsl:PogoSystem xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:pogoDsl="http://www.esrf.fr/tango/pogo/PogoDsl">
+  <multiClasses pogoRevision="9.6" name="PowerPMAC" sourcePath="/home/urbschaj/dev/projects/ppmac" description="" filestogenerate="XMI   file,Code files,Makefile,Protected Regions">
+    <classes classname="AxisController" sourcePath="./axis_controller">
+      <inheritances classname="Device_Impl" sourcePath=""/>
+    </classes>
+    <classes classname="BrickLVAmp" sourcePath="./bricklv_amp">
+      <inheritances classname="Device_Impl" sourcePath=""/>
+    </classes>
+    <preferences makefileHome="$(TANGO_HOME)"/>
+  </multiClasses>
+</pogoDsl:PogoSystem>
