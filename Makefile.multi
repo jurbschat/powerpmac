@@ -12,11 +12,9 @@
 #=============================================================================
 #
 #
-# MAKE_ENV is the path to find common environment to build project
+# MAKE_ENV is the path to find common environment to buil project
 #
-#MAKE_ENV = $(TANGO_HOME)
 MAKE_ENV = /usr/share/pogo/preferences
-#$(info $$MAKE_ENV is [${MAKE_ENV}])
 
 #=============================================================================
 # PACKAGE_NAME is the name of the library/device/exe you want to build
@@ -47,7 +45,8 @@ OUTPUT_TYPE = DEVICE
 #=============================================================================
 # OUTPUT_DIR  is the directory which contains the build result.
 # if not set, the standard location is :
-#	- ./lib   if OUTPUT_TYPE is SHARED_LIB or STATIC_LIB
+#	- ./shlib if OUTPUT_TYPE is SHARED_LIB
+#	- ./lib   if OUTPUT_TYPE is STATIC_LIB
 #	- ./bin for others
 #
 #OUTPUT_DIR =
@@ -55,11 +54,20 @@ OUTPUT_TYPE = DEVICE
 #=============================================================================
 # Tango Class list used by project
 #
-AXISCONTROLLER_CLASS = AxisController
-AXISCONTROLLER_HOME  = ./axis_controller
+POWERPMAC_IO_CLASS = PowerPMAC_IO
+POWERPMAC_IO_HOME  = ./powerpmac_io
 
-BRICKLVAMP_CLASS = BrickLVAmp
-BRICKLVAMP_HOME  = ./bricklv_amp
+POWERPMAC_COORDINATESYSTEMS_CLASS = PowerPMAC_CoordinateSystems
+POWERPMAC_COORDINATESYSTEMS_HOME  = ./powerpmac_coordinatesystems
+
+POWERPMAC_MOTOR_CLASS = PowerPMAC_Motor
+POWERPMAC_MOTOR_HOME  = ./powerpmac_motor
+
+POWERPMAC_PROGRAMS_CLASS = PowerPMAC_Programs
+POWERPMAC_PROGRAMS_HOME  = ./powerpmac_programs
+
+POWERPMAC_GLOBAL_CLASS = PowerPMAC_Global
+POWERPMAC_GLOBAL_HOME  = ./powerpmac_global
 
 
 #=============================================================================
@@ -68,8 +76,11 @@ BRICKLVAMP_HOME  = ./bricklv_amp
 #   - '-I ../include' and '-I .' are automatically appended in all cases
 #
 INC_DIR_USER= -I . \
-              -I $(AXISCONTROLLER_HOME)\
-              -I $(BRICKLVAMP_HOME)
+              -I $(POWERPMAC_IO_HOME)\
+              -I $(POWERPMAC_COORDINATESYSTEMS_HOME)\
+              -I $(POWERPMAC_MOTOR_HOME)\
+              -I $(POWERPMAC_PROGRAMS_HOME)\
+              -I $(POWERPMAC_GLOBAL_HOME)
 
 #=============================================================================
 # LIB_DIR_USER is the list of user library directories
@@ -126,22 +137,43 @@ include $(MAKE_ENV)/tango.opt
 #=============================================================================
 # SVC_OBJS is the list of all objects needed to make the output
 #
-SVC_OBJS =  $(SVC_AXISCONTROLLER_OBJS) \
-            $(SVC_BRICKLVAMP_OBJS) \
+SVC_OBJS =  $(SVC_POWERPMAC_IO_OBJS) \
+            $(SVC_POWERPMAC_COORDINATESYSTEMS_OBJS) \
+            $(SVC_POWERPMAC_MOTOR_OBJS) \
+            $(SVC_POWERPMAC_PROGRAMS_OBJS) \
+            $(SVC_POWERPMAC_GLOBAL_OBJS) \
             $(OBJDIR)/MultiClassesFactory.o \
             $(OBJDIR)/main.o
 
-#------------  Object files for AxisController class  ------------
-SVC_AXISCONTROLLER_OBJS = \
-		$(OBJDIR)/AxisController.o \
-		$(OBJDIR)/AxisControllerClass.o \
-		$(OBJDIR)/AxisControllerStateMachine.o
+#------------  Object files for PowerPMAC_IO class  ------------
+SVC_POWERPMAC_IO_OBJS = \
+		$(OBJDIR)/PowerPMAC_IO.o \
+		$(OBJDIR)/PowerPMAC_IOClass.o \
+		$(OBJDIR)/PowerPMAC_IOStateMachine.o
 
-#------------  Object files for BrickLVAmp class  ------------
-SVC_BRICKLVAMP_OBJS = \
-		$(OBJDIR)/BrickLVAmp.o \
-		$(OBJDIR)/BrickLVAmpClass.o \
-		$(OBJDIR)/BrickLVAmpStateMachine.o
+#------------  Object files for PowerPMAC_CoordinateSystems class  ------------
+SVC_POWERPMAC_COORDINATESYSTEMS_OBJS = \
+		$(OBJDIR)/PowerPMAC_CoordinateSystems.o \
+		$(OBJDIR)/PowerPMAC_CoordinateSystemsClass.o \
+		$(OBJDIR)/PowerPMAC_CoordinateSystemsStateMachine.o
+
+#------------  Object files for PowerPMAC_Motor class  ------------
+SVC_POWERPMAC_MOTOR_OBJS = \
+		$(OBJDIR)/PowerPMAC_Motor.o \
+		$(OBJDIR)/PowerPMAC_MotorClass.o \
+		$(OBJDIR)/PowerPMAC_MotorStateMachine.o
+
+#------------  Object files for PowerPMAC_Programs class  ------------
+SVC_POWERPMAC_PROGRAMS_OBJS = \
+		$(OBJDIR)/PowerPMAC_Programs.o \
+		$(OBJDIR)/PowerPMAC_ProgramsClass.o \
+		$(OBJDIR)/PowerPMAC_ProgramsStateMachine.o
+
+#------------  Object files for PowerPMAC_Global class  ------------
+SVC_POWERPMAC_GLOBAL_OBJS = \
+		$(OBJDIR)/PowerPMAC_Global.o \
+		$(OBJDIR)/PowerPMAC_GlobalClass.o \
+		$(OBJDIR)/PowerPMAC_GlobalStateMachine.o
 
 
 #=============================================================================
@@ -153,26 +185,64 @@ include $(MAKE_ENV)/common_target.opt
 #=============================================================================
 # Following are dependancies of the classes used by project
 #
-#------------  Object files dependancies for AxisController class  ------------
-AXISCONTROLLER_INCLUDES = \
-		$(AXISCONTROLLER_HOME)/AxisController.h \
-		$(AXISCONTROLLER_HOME)/AxisControllerClass.h
+#------------  Object files dependancies for PowerPMAC_IO class  ------------
+POWERPMAC_IO_INCLUDES = \
+		$(POWERPMAC_IO_HOME)/PowerPMAC_IO.h \
+		$(POWERPMAC_IO_HOME)/PowerPMAC_IOClass.h
 
-$(OBJDIR)/AxisController.o:  $(AXISCONTROLLER_HOME)/AxisController.cpp $(AXISCONTROLLER_INCLUDES)
-	$(CXX) $(CXXFLAGS) -c $< -o $(OBJDIR)/AxisController.o
-$(OBJDIR)/AxisControllerClass.o:  $(AXISCONTROLLER_HOME)/AxisControllerClass.cpp $(AXISCONTROLLER_INCLUDES)
-	$(CXX) $(CXXFLAGS) -c $< -o $(OBJDIR)/AxisControllerClass.o
-$(OBJDIR)/AxisControllerStateMachine.o:  $(AXISCONTROLLER_HOME)/AxisControllerStateMachine.cpp $(AXISCONTROLLER_INCLUDES)
-	$(CXX) $(CXXFLAGS) -c $< -o $(OBJDIR)/AxisControllerStateMachine.o
+$(OBJDIR)/PowerPMAC_IO.o:  $(POWERPMAC_IO_HOME)/PowerPMAC_IO.cpp $(POWERPMAC_IO_INCLUDES)
+	$(CXX) $(CXXFLAGS) -c $< -o $(OBJDIR)/PowerPMAC_IO.o
+$(OBJDIR)/PowerPMAC_IOClass.o:  $(POWERPMAC_IO_HOME)/PowerPMAC_IOClass.cpp $(POWERPMAC_IO_INCLUDES)
+	$(CXX) $(CXXFLAGS) -c $< -o $(OBJDIR)/PowerPMAC_IOClass.o
+$(OBJDIR)/PowerPMAC_IOStateMachine.o:  $(POWERPMAC_IO_HOME)/PowerPMAC_IOStateMachine.cpp $(POWERPMAC_IO_INCLUDES)
+	$(CXX) $(CXXFLAGS) -c $< -o $(OBJDIR)/PowerPMAC_IOStateMachine.o
 
-#------------  Object files dependancies for BrickLVAmp class  ------------
-BRICKLVAMP_INCLUDES = \
-		$(BRICKLVAMP_HOME)/BrickLVAmp.h \
-		$(BRICKLVAMP_HOME)/BrickLVAmpClass.h
+#------------  Object files dependancies for PowerPMAC_CoordinateSystems class  ------------
+POWERPMAC_COORDINATESYSTEMS_INCLUDES = \
+		$(POWERPMAC_COORDINATESYSTEMS_HOME)/PowerPMAC_CoordinateSystems.h \
+		$(POWERPMAC_COORDINATESYSTEMS_HOME)/PowerPMAC_CoordinateSystemsClass.h
 
-$(OBJDIR)/BrickLVAmp.o:  $(BRICKLVAMP_HOME)/BrickLVAmp.cpp $(BRICKLVAMP_INCLUDES)
-	$(CXX) $(CXXFLAGS) -c $< -o $(OBJDIR)/BrickLVAmp.o
-$(OBJDIR)/BrickLVAmpClass.o:  $(BRICKLVAMP_HOME)/BrickLVAmpClass.cpp $(BRICKLVAMP_INCLUDES)
-	$(CXX) $(CXXFLAGS) -c $< -o $(OBJDIR)/BrickLVAmpClass.o
-$(OBJDIR)/BrickLVAmpStateMachine.o:  $(BRICKLVAMP_HOME)/BrickLVAmpStateMachine.cpp $(BRICKLVAMP_INCLUDES)
-	$(CXX) $(CXXFLAGS) -c $< -o $(OBJDIR)/BrickLVAmpStateMachine.o
+$(OBJDIR)/PowerPMAC_CoordinateSystems.o:  $(POWERPMAC_COORDINATESYSTEMS_HOME)/PowerPMAC_CoordinateSystems.cpp $(POWERPMAC_COORDINATESYSTEMS_INCLUDES)
+	$(CXX) $(CXXFLAGS) -c $< -o $(OBJDIR)/PowerPMAC_CoordinateSystems.o
+$(OBJDIR)/PowerPMAC_CoordinateSystemsClass.o:  $(POWERPMAC_COORDINATESYSTEMS_HOME)/PowerPMAC_CoordinateSystemsClass.cpp $(POWERPMAC_COORDINATESYSTEMS_INCLUDES)
+	$(CXX) $(CXXFLAGS) -c $< -o $(OBJDIR)/PowerPMAC_CoordinateSystemsClass.o
+$(OBJDIR)/PowerPMAC_CoordinateSystemsStateMachine.o:  $(POWERPMAC_COORDINATESYSTEMS_HOME)/PowerPMAC_CoordinateSystemsStateMachine.cpp $(POWERPMAC_COORDINATESYSTEMS_INCLUDES)
+	$(CXX) $(CXXFLAGS) -c $< -o $(OBJDIR)/PowerPMAC_CoordinateSystemsStateMachine.o
+
+#------------  Object files dependancies for PowerPMAC_Motor class  ------------
+POWERPMAC_MOTOR_INCLUDES = \
+		$(POWERPMAC_MOTOR_HOME)/PowerPMAC_Motor.h \
+		$(POWERPMAC_MOTOR_HOME)/PowerPMAC_MotorClass.h
+
+$(OBJDIR)/PowerPMAC_Motor.o:  $(POWERPMAC_MOTOR_HOME)/PowerPMAC_Motor.cpp $(POWERPMAC_MOTOR_INCLUDES)
+	$(CXX) $(CXXFLAGS) -c $< -o $(OBJDIR)/PowerPMAC_Motor.o
+$(OBJDIR)/PowerPMAC_MotorClass.o:  $(POWERPMAC_MOTOR_HOME)/PowerPMAC_MotorClass.cpp $(POWERPMAC_MOTOR_INCLUDES)
+	$(CXX) $(CXXFLAGS) -c $< -o $(OBJDIR)/PowerPMAC_MotorClass.o
+$(OBJDIR)/PowerPMAC_MotorStateMachine.o:  $(POWERPMAC_MOTOR_HOME)/PowerPMAC_MotorStateMachine.cpp $(POWERPMAC_MOTOR_INCLUDES)
+	$(CXX) $(CXXFLAGS) -c $< -o $(OBJDIR)/PowerPMAC_MotorStateMachine.o
+
+#------------  Object files dependancies for PowerPMAC_Programs class  ------------
+POWERPMAC_PROGRAMS_INCLUDES = \
+		$(POWERPMAC_PROGRAMS_HOME)/PowerPMAC_Programs.h \
+		$(POWERPMAC_PROGRAMS_HOME)/PowerPMAC_ProgramsClass.h
+
+$(OBJDIR)/PowerPMAC_Programs.o:  $(POWERPMAC_PROGRAMS_HOME)/PowerPMAC_Programs.cpp $(POWERPMAC_PROGRAMS_INCLUDES)
+	$(CXX) $(CXXFLAGS) -c $< -o $(OBJDIR)/PowerPMAC_Programs.o
+$(OBJDIR)/PowerPMAC_ProgramsClass.o:  $(POWERPMAC_PROGRAMS_HOME)/PowerPMAC_ProgramsClass.cpp $(POWERPMAC_PROGRAMS_INCLUDES)
+	$(CXX) $(CXXFLAGS) -c $< -o $(OBJDIR)/PowerPMAC_ProgramsClass.o
+$(OBJDIR)/PowerPMAC_ProgramsStateMachine.o:  $(POWERPMAC_PROGRAMS_HOME)/PowerPMAC_ProgramsStateMachine.cpp $(POWERPMAC_PROGRAMS_INCLUDES)
+	$(CXX) $(CXXFLAGS) -c $< -o $(OBJDIR)/PowerPMAC_ProgramsStateMachine.o
+
+#------------  Object files dependancies for PowerPMAC_Global class  ------------
+POWERPMAC_GLOBAL_INCLUDES = \
+		$(POWERPMAC_GLOBAL_HOME)/PowerPMAC_Global.h \
+		$(POWERPMAC_GLOBAL_HOME)/PowerPMAC_GlobalClass.h
+
+$(OBJDIR)/PowerPMAC_Global.o:  $(POWERPMAC_GLOBAL_HOME)/PowerPMAC_Global.cpp $(POWERPMAC_GLOBAL_INCLUDES)
+	$(CXX) $(CXXFLAGS) -c $< -o $(OBJDIR)/PowerPMAC_Global.o
+$(OBJDIR)/PowerPMAC_GlobalClass.o:  $(POWERPMAC_GLOBAL_HOME)/PowerPMAC_GlobalClass.cpp $(POWERPMAC_GLOBAL_INCLUDES)
+	$(CXX) $(CXXFLAGS) -c $< -o $(OBJDIR)/PowerPMAC_GlobalClass.o
+$(OBJDIR)/PowerPMAC_GlobalStateMachine.o:  $(POWERPMAC_GLOBAL_HOME)/PowerPMAC_GlobalStateMachine.cpp $(POWERPMAC_GLOBAL_INCLUDES)
+	$(CXX) $(CXXFLAGS) -c $< -o $(OBJDIR)/PowerPMAC_GlobalStateMachine.o
+
+

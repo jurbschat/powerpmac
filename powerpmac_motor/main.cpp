@@ -1,13 +1,14 @@
+/*----- PROTECTED REGION ID(PowerPMAC_Motor::main.cpp) ENABLED START -----*/
 //=============================================================================
 //
 // file :        main.cpp
 //
-// description : C++ source for the PowerPMAC device server main.
+// description : C++ source for the PowerPMAC_Motor device server main.
 //               The main rule is to initialise (and create) the Tango
 //               system and to create the DServerClass singleton.
 //               The main should be the same for every Tango device server.
 //
-// project :     null
+// project :     
 //
 // This file is part of Tango device class.
 // 
@@ -31,7 +32,6 @@
 //        (Program Obviously used to Generate tango Object)
 //=============================================================================
 #include <tango.h>
-#include "ppmaccoreinterface.h"
 
 // Check if crash reporting is used.
 #if defined(ENABLE_CRASH_REPORT)
@@ -45,10 +45,6 @@ DECLARE_CRASH_HANDLER;
 
 int main(int argc,char *argv[])
 {
-	ppmac::ppmaccoreinterface& ppi = ppmac::GetCoreObject();
-	ppi.initialize();
-	exit(0);
-
 	INSTALL_CRASH_HANDLER
 	try
 	{
@@ -81,3 +77,5 @@ int main(int argc,char *argv[])
 	Tango::Util::instance()->server_cleanup();
 	return(0);
 }
+
+/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::main.cpp

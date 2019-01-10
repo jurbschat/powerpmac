@@ -1,11 +1,9 @@
+/*----- PROTECTED REGION ID(PowerPMAC_MotorStateMachine.cpp) ENABLED START -----*/
 //=============================================================================
 //
-// file :        MultiClassessFactory.cpp
+// file :        PowerPMAC_MotorStateMachine.cpp
 //
-// description : C++ source for the class_factory method of the DServer
-//               device class. This method is responsible for the creation of
-//               all class singleton for a device server. It is called
-//               at device server startup.
+// description : State machine file for the PowerPMAC_Motor class
 //
 // project :     
 //
@@ -31,22 +29,31 @@
 //        (Program Obviously used to Generate tango Object)
 //=============================================================================
 
-#include <tango.h>
-#include <PowerPMAC_IOClass.h>
-#include <PowerPMAC_CoordinateSystemsClass.h>
-#include <PowerPMAC_MotorClass.h>
-#include <PowerPMAC_ProgramsClass.h>
-#include <PowerPMAC_GlobalClass.h>
+#include <PowerPMAC_Motor.h>
 
-/**
- *	Create Class singletons and store them in DServer object.
- */
+/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::PowerPMAC_MotorStateMachine.cpp
 
-void Tango::DServer::class_factory()
+//================================================================
+//  States  |  Description
+//================================================================
+
+
+namespace PowerPMAC_Motor_ns
 {
-	add_class(PowerPMAC_IO_ns::PowerPMAC_IOClass::init("PowerPMAC_IO"));
-	add_class(PowerPMAC_CoordinateSystems_ns::PowerPMAC_CoordinateSystemsClass::init("PowerPMAC_CoordinateSystems"));
-	add_class(PowerPMAC_Motor_ns::PowerPMAC_MotorClass::init("PowerPMAC_Motor"));
-	add_class(PowerPMAC_Programs_ns::PowerPMAC_ProgramsClass::init("PowerPMAC_Programs"));
-	add_class(PowerPMAC_Global_ns::PowerPMAC_GlobalClass::init("PowerPMAC_Global"));
-}
+//=================================================
+//		Attributes Allowed Methods
+//=================================================
+
+
+//=================================================
+//		Commands Allowed Methods
+//=================================================
+
+
+/*----- PROTECTED REGION ID(PowerPMAC_Motor::PowerPMAC_MotorStateAllowed.AdditionalMethods) ENABLED START -----*/
+
+//	Additional Methods
+
+/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::PowerPMAC_MotorStateAllowed.AdditionalMethods
+
+}	//	End of namespace

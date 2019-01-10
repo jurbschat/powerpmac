@@ -1,0 +1,10 @@
+cmake_minimum_required(VERSION 3.13)
+
+project(myprojectname)
+
+#add_custom_target(target_name ALL build_command build_arg1 build_arg2 WORKING_DIRECTORY /some/path)
+
+add_custom_target(PowerPMAC
+        ALL
+        make TANGO_DIR=$ENV{TANGO_DIR} TANGO_CLASSES=$ENV{TANGO_CLASSES}
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
