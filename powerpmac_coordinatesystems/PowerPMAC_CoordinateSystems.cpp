@@ -36,7 +36,11 @@
 
 #include <PowerPMAC_CoordinateSystems.h>
 #include <PowerPMAC_CoordinateSystemsClass.h>
-#include "ppmaccoreinterface.h"
+#include "coreinterface.h"
+#include "libs/unique_resource.h"
+#include "handletype.h"
+#include "genericdeleter.h"
+#include <memory>
 
 /*----- PROTECTED REGION END -----*/	//	PowerPMAC_CoordinateSystems.cpp
 
@@ -113,8 +117,6 @@ void PowerPMAC_CoordinateSystems::delete_device()
 	DEBUG_STREAM << "PowerPMAC_CoordinateSystems::delete_device() " << device_name << endl;
 	/*----- PROTECTED REGION ID(PowerPMAC_CoordinateSystems::delete_device) ENABLED START -----*/
 	
-	//	Delete device allocated objects
-	
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_CoordinateSystems::delete_device
 }
 
@@ -128,18 +130,29 @@ void PowerPMAC_CoordinateSystems::init_device()
 {
 	DEBUG_STREAM << "PowerPMAC_CoordinateSystems::init_device() create device " << device_name << endl;
 	/*----- PROTECTED REGION ID(PowerPMAC_CoordinateSystems::init_device_before) ENABLED START -----*/
-	
-	//	Initialization before get_device_property() call
+
+	core = &ppmac::GetCoreObject();
+	set_state(Tango::OFF);
 	
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_CoordinateSystems::init_device_before
 	
 	//	No device property to be read from database
 	
 	/*----- PROTECTED REGION ID(PowerPMAC_CoordinateSystems::init_device) ENABLED START -----*/
-	
-	//	Initialize device
 
-	
+	establishedHandle = sr::unique_resource{
+		core->RegisterConnectionEstablished([this](){ OnConnectionEstablished(); }),
+		ppmac::genericdeleter([this](ppmac::HandleType handle){ core->UnregisterConnectionEstablished(handle); })
+	};
+
+	lostHandle = sr::unique_resource{
+			core->RegisterConnectionLost([this](const std::string& reason){ OnConnectionLost(reason); }),
+			ppmac::genericdeleter([this](ppmac::HandleType handle){ core->UnregisterConnectionLost(handle); })
+	};
+
+	if(core->IsConnected()) {
+		set_state(Tango::ON);
+	}
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_CoordinateSystems::init_device
 }
 
@@ -211,7 +224,16 @@ void PowerPMAC_CoordinateSystems::add_dynamic_commands()
 
 /*----- PROTECTED REGION ID(PowerPMAC_CoordinateSystems::namespace_ending) ENABLED START -----*/
 
-//	Additional Methods
+void PowerPMAC_CoordinateSystems::OnConnectionEstablished() {
+	set_state(Tango::ON);
+	set_status(Tango::StatusNotSet);
+}
+
+void PowerPMAC_CoordinateSystems::OnConnectionLost(const std::string& reason) {
+	(void)reason;
+	set_state(Tango::OFF);
+	set_status(reason);
+}
 
 /*----- PROTECTED REGION END -----*/	//	PowerPMAC_CoordinateSystems::namespace_ending
 } //	namespace

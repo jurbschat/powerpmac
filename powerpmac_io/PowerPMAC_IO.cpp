@@ -36,6 +36,7 @@
 
 #include <PowerPMAC_IO.h>
 #include <PowerPMAC_IOClass.h>
+#include "coreinterface.h"
 
 /*----- PROTECTED REGION END -----*/	//	PowerPMAC_IO.cpp
 
@@ -135,8 +136,16 @@ void PowerPMAC_IO::init_device()
 	//	No device property to be read from database
 	
 	/*----- PROTECTED REGION ID(PowerPMAC_IO::init_device) ENABLED START -----*/
-	
-	//	Initialize device
+
+	ppmac::CoreInterface& ci = ppmac::GetCoreObject();
+
+	ci.RegisterConnectionEstablished([](){
+
+	});
+	ci.RegisterConnectionLost([](const std::string& reason){
+		(void)reason;
+	});
+
 	
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_IO::init_device
 }

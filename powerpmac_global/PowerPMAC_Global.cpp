@@ -36,6 +36,8 @@
 
 #include <PowerPMAC_Global.h>
 #include <PowerPMAC_GlobalClass.h>
+#include "coreinterface.h"
+#include "exception.h"
 
 /*----- PROTECTED REGION END -----*/	//	PowerPMAC_Global.cpp
 
@@ -132,15 +134,84 @@ void PowerPMAC_Global::init_device()
 	
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Global::init_device_before
 	
-	//	No device property to be read from database
+
+	//	Get the device properties from database
+	get_device_property();
 	
 	/*----- PROTECTED REGION ID(PowerPMAC_Global::init_device) ENABLED START -----*/
-	
-	//	Initialize device
+
+	ppmac::CoreInterface& ci = ppmac::GetCoreObject();
+
+	// we set the power pmac address and start the automatic
+	// connect/reconnect machinery.
+	ci.Initialize("192.168.56.96", 22);
+
+	if(ci.IsConnected()) {
+		// startup server
+	}
+
+	ci.RegisterConnectionEstablished([](){
+		// startup server
+	});
+	ci.RegisterConnectionLost([](const std::string& reason){
+		// shutdown server
+		(void)reason;
+	});
 	
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Global::init_device
 }
 
+//--------------------------------------------------------
+/**
+ *	Method      : PowerPMAC_Global::get_device_property()
+ *	Description : Read database to initialize property data members.
+ */
+//--------------------------------------------------------
+void PowerPMAC_Global::get_device_property()
+{
+	/*----- PROTECTED REGION ID(PowerPMAC_Global::get_device_property_before) ENABLED START -----*/
+	
+	//	Initialize property data members
+	
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Global::get_device_property_before
+
+
+	//	Read device properties from database.
+	Tango::DbData	dev_prop;
+	dev_prop.push_back(Tango::DbDatum("host"));
+
+	//	is there at least one property to be read ?
+	if (dev_prop.size()>0)
+	{
+		//	Call database and extract values
+		if (Tango::Util::instance()->_UseDb==true)
+			get_db_device()->get_property(dev_prop);
+	
+		//	get instance on PowerPMAC_GlobalClass to get class property
+		Tango::DbDatum	def_prop, cl_prop;
+		PowerPMAC_GlobalClass	*ds_class =
+			(static_cast<PowerPMAC_GlobalClass *>(get_device_class()));
+		int	i = -1;
+
+		//	Try to initialize host from class property
+		cl_prop = ds_class->get_class_property(dev_prop[++i].name);
+		if (cl_prop.is_empty()==false)	cl_prop  >>  host;
+		else {
+			//	Try to initialize host from default device value
+			def_prop = ds_class->get_default_device_property(dev_prop[i].name);
+			if (def_prop.is_empty()==false)	def_prop  >>  host;
+		}
+		//	And try to extract host value from database
+		if (dev_prop[i].is_empty()==false)	dev_prop[i]  >>  host;
+
+	}
+
+	/*----- PROTECTED REGION ID(PowerPMAC_Global::get_device_property_after) ENABLED START -----*/
+	
+	//	Check device property data members init
+	
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Global::get_device_property_after
+}
 
 //--------------------------------------------------------
 /**

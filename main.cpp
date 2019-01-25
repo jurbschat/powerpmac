@@ -31,25 +31,10 @@
 //        (Program Obviously used to Generate tango Object)
 //=============================================================================
 #include <tango.h>
-#include "ppmaccoreinterface.h"
-
-// Check if crash reporting is used.
-#if defined(ENABLE_CRASH_REPORT)
-#  include <crashreporting/crash_report.h>
-#else
-#  define DECLARE_CRASH_HANDLER
-#  define INSTALL_CRASH_HANDLER
-#endif
-
-DECLARE_CRASH_HANDLER;
+#include "coreinterface.h"
 
 int main(int argc,char *argv[])
 {
-	ppmac::ppmaccoreinterface& ppi = ppmac::GetCoreObject();
-	ppi.initialize();
-	exit(0);
-
-	INSTALL_CRASH_HANDLER
 	try
 	{
 		// Initialise the device server

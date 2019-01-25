@@ -51,6 +51,240 @@ namespace PowerPMAC_Motor_ns
 
 /*----- PROTECTED REGION END -----*/	//	PowerPMAC_MotorClass::classes for dynamic creation
 
+//=========================================
+//	Define classes for attributes
+//=========================================
+//	Attribute position class definition
+class positionAttrib: public Tango::Attr
+{
+public:
+	positionAttrib():Attr("position",
+			Tango::DEV_FLOAT, Tango::READ_WRITE) {};
+	~positionAttrib() {};
+	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
+		{(static_cast<PowerPMAC_Motor *>(dev))->read_position(att);}
+	virtual void write(Tango::DeviceImpl *dev,Tango::WAttribute &att)
+		{(static_cast<PowerPMAC_Motor *>(dev))->write_position(att);}
+	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
+		{return (static_cast<PowerPMAC_Motor *>(dev))->is_position_allowed(ty);}
+};
+
+//	Attribute acceleration class definition
+class accelerationAttrib: public Tango::Attr
+{
+public:
+	accelerationAttrib():Attr("acceleration",
+			Tango::DEV_FLOAT, Tango::READ_WRITE) {};
+	~accelerationAttrib() {};
+	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
+		{(static_cast<PowerPMAC_Motor *>(dev))->read_acceleration(att);}
+	virtual void write(Tango::DeviceImpl *dev,Tango::WAttribute &att)
+		{(static_cast<PowerPMAC_Motor *>(dev))->write_acceleration(att);}
+	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
+		{return (static_cast<PowerPMAC_Motor *>(dev))->is_acceleration_allowed(ty);}
+};
+
+//	Attribute maxvelocity class definition
+class maxvelocityAttrib: public Tango::Attr
+{
+public:
+	maxvelocityAttrib():Attr("maxvelocity",
+			Tango::DEV_FLOAT, Tango::READ_WRITE) {};
+	~maxvelocityAttrib() {};
+	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
+		{(static_cast<PowerPMAC_Motor *>(dev))->read_maxvelocity(att);}
+	virtual void write(Tango::DeviceImpl *dev,Tango::WAttribute &att)
+		{(static_cast<PowerPMAC_Motor *>(dev))->write_maxvelocity(att);}
+	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
+		{return (static_cast<PowerPMAC_Motor *>(dev))->is_maxvelocity_allowed(ty);}
+};
+
+//	Attribute sl_cw class definition
+class sl_cwAttrib: public Tango::Attr
+{
+public:
+	sl_cwAttrib():Attr("sl_cw",
+			Tango::DEV_FLOAT, Tango::READ_WRITE) {};
+	~sl_cwAttrib() {};
+	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
+		{(static_cast<PowerPMAC_Motor *>(dev))->read_sl_cw(att);}
+	virtual void write(Tango::DeviceImpl *dev,Tango::WAttribute &att)
+		{(static_cast<PowerPMAC_Motor *>(dev))->write_sl_cw(att);}
+	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
+		{return (static_cast<PowerPMAC_Motor *>(dev))->is_sl_cw_allowed(ty);}
+};
+
+//	Attribute sl_ccw class definition
+class sl_ccwAttrib: public Tango::Attr
+{
+public:
+	sl_ccwAttrib():Attr("sl_ccw",
+			Tango::DEV_FLOAT, Tango::READ_WRITE) {};
+	~sl_ccwAttrib() {};
+	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
+		{(static_cast<PowerPMAC_Motor *>(dev))->read_sl_ccw(att);}
+	virtual void write(Tango::DeviceImpl *dev,Tango::WAttribute &att)
+		{(static_cast<PowerPMAC_Motor *>(dev))->write_sl_ccw(att);}
+	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
+		{return (static_cast<PowerPMAC_Motor *>(dev))->is_sl_ccw_allowed(ty);}
+};
+
+//	Attribute sl_cw_fault class definition
+class sl_cw_faultAttrib: public Tango::Attr
+{
+public:
+	sl_cw_faultAttrib():Attr("sl_cw_fault",
+			Tango::DEV_BOOLEAN, Tango::READ) {};
+	~sl_cw_faultAttrib() {};
+	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
+		{(static_cast<PowerPMAC_Motor *>(dev))->read_sl_cw_fault(att);}
+	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
+		{return (static_cast<PowerPMAC_Motor *>(dev))->is_sl_cw_fault_allowed(ty);}
+};
+
+//	Attribute sl_ccw_fault class definition
+class sl_ccw_faultAttrib: public Tango::Attr
+{
+public:
+	sl_ccw_faultAttrib():Attr("sl_ccw_fault",
+			Tango::DEV_BOOLEAN, Tango::READ) {};
+	~sl_ccw_faultAttrib() {};
+	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
+		{(static_cast<PowerPMAC_Motor *>(dev))->read_sl_ccw_fault(att);}
+	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
+		{return (static_cast<PowerPMAC_Motor *>(dev))->is_sl_ccw_fault_allowed(ty);}
+};
+
+//	Attribute limit_cw_fault class definition
+class limit_cw_faultAttrib: public Tango::Attr
+{
+public:
+	limit_cw_faultAttrib():Attr("limit_cw_fault",
+			Tango::DEV_BOOLEAN, Tango::READ) {};
+	~limit_cw_faultAttrib() {};
+	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
+		{(static_cast<PowerPMAC_Motor *>(dev))->read_limit_cw_fault(att);}
+	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
+		{return (static_cast<PowerPMAC_Motor *>(dev))->is_limit_cw_fault_allowed(ty);}
+};
+
+//	Attribute limit_ccw_fault class definition
+class limit_ccw_faultAttrib: public Tango::Attr
+{
+public:
+	limit_ccw_faultAttrib():Attr("limit_ccw_fault",
+			Tango::DEV_BOOLEAN, Tango::READ) {};
+	~limit_ccw_faultAttrib() {};
+	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
+		{(static_cast<PowerPMAC_Motor *>(dev))->read_limit_ccw_fault(att);}
+	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
+		{return (static_cast<PowerPMAC_Motor *>(dev))->is_limit_ccw_fault_allowed(ty);}
+};
+
+//	Attribute invert_direction class definition
+class invert_directionAttrib: public Tango::Attr
+{
+public:
+	invert_directionAttrib():Attr("invert_direction",
+			Tango::DEV_BOOLEAN, Tango::READ_WRITE) {};
+	~invert_directionAttrib() {};
+	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
+		{(static_cast<PowerPMAC_Motor *>(dev))->read_invert_direction(att);}
+	virtual void write(Tango::DeviceImpl *dev,Tango::WAttribute &att)
+		{(static_cast<PowerPMAC_Motor *>(dev))->write_invert_direction(att);}
+	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
+		{return (static_cast<PowerPMAC_Motor *>(dev))->is_invert_direction_allowed(ty);}
+};
+
+//	Attribute invert_encoder class definition
+class invert_encoderAttrib: public Tango::Attr
+{
+public:
+	invert_encoderAttrib():Attr("invert_encoder",
+			Tango::DEV_BOOLEAN, Tango::READ_WRITE) {};
+	~invert_encoderAttrib() {};
+	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
+		{(static_cast<PowerPMAC_Motor *>(dev))->read_invert_encoder(att);}
+	virtual void write(Tango::DeviceImpl *dev,Tango::WAttribute &att)
+		{(static_cast<PowerPMAC_Motor *>(dev))->write_invert_encoder(att);}
+	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
+		{return (static_cast<PowerPMAC_Motor *>(dev))->is_invert_encoder_allowed(ty);}
+};
+
+
+//=========================================
+//	Define classes for commands
+//=========================================
+//	Command PhaseMotor class definition
+class PhaseMotorClass : public Tango::Command
+{
+public:
+	PhaseMotorClass(const char   *name,
+	               Tango::CmdArgType in,
+				   Tango::CmdArgType out,
+				   const char        *in_desc,
+				   const char        *out_desc,
+				   Tango::DispLevel  level)
+	:Command(name,in,out,in_desc,out_desc, level)	{};
+
+	PhaseMotorClass(const char   *name,
+	               Tango::CmdArgType in,
+				   Tango::CmdArgType out)
+	:Command(name,in,out)	{};
+	~PhaseMotorClass() {};
+	
+	virtual CORBA::Any *execute (Tango::DeviceImpl *dev, const CORBA::Any &any);
+	virtual bool is_allowed (Tango::DeviceImpl *dev, const CORBA::Any &any)
+	{return (static_cast<PowerPMAC_Motor *>(dev))->is_PhaseMotor_allowed(any);}
+};
+
+//	Command HomeMotor class definition
+class HomeMotorClass : public Tango::Command
+{
+public:
+	HomeMotorClass(const char   *name,
+	               Tango::CmdArgType in,
+				   Tango::CmdArgType out,
+				   const char        *in_desc,
+				   const char        *out_desc,
+				   Tango::DispLevel  level)
+	:Command(name,in,out,in_desc,out_desc, level)	{};
+
+	HomeMotorClass(const char   *name,
+	               Tango::CmdArgType in,
+				   Tango::CmdArgType out)
+	:Command(name,in,out)	{};
+	~HomeMotorClass() {};
+	
+	virtual CORBA::Any *execute (Tango::DeviceImpl *dev, const CORBA::Any &any);
+	virtual bool is_allowed (Tango::DeviceImpl *dev, const CORBA::Any &any)
+	{return (static_cast<PowerPMAC_Motor *>(dev))->is_HomeMotor_allowed(any);}
+};
+
+//	Command Calibrate class definition
+class CalibrateClass : public Tango::Command
+{
+public:
+	CalibrateClass(const char   *name,
+	               Tango::CmdArgType in,
+				   Tango::CmdArgType out,
+				   const char        *in_desc,
+				   const char        *out_desc,
+				   Tango::DispLevel  level)
+	:Command(name,in,out,in_desc,out_desc, level)	{};
+
+	CalibrateClass(const char   *name,
+	               Tango::CmdArgType in,
+				   Tango::CmdArgType out)
+	:Command(name,in,out)	{};
+	~CalibrateClass() {};
+	
+	virtual CORBA::Any *execute (Tango::DeviceImpl *dev, const CORBA::Any &any);
+	virtual bool is_allowed (Tango::DeviceImpl *dev, const CORBA::Any &any)
+	{return (static_cast<PowerPMAC_Motor *>(dev))->is_Calibrate_allowed(any);}
+};
+
+
 /**
  *	The PowerPMAC_MotorClass singleton definition
  */

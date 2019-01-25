@@ -60,6 +60,10 @@ class PowerPMAC_Global : public TANGO_BASE_CLASS
 
 /*----- PROTECTED REGION END -----*/	//	PowerPMAC_Global::Data Members
 
+//	Device property data members
+public:
+	//	host:	
+	string	host;
 
 
 //	Constructors and destructors
@@ -102,6 +106,10 @@ public:
 	 *	Initialize the device
 	 */
 	virtual void init_device();
+	/*
+	 *	Read the device properties from database
+	 */
+	void get_device_property();
 	/*
 	 *	Always executed method before execution command method.
 	 */

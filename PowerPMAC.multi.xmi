@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="ASCII"?>
 <pogoDsl:PogoSystem xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:pogoDsl="http://www.esrf.fr/tango/pogo/PogoDsl">
-  <multiClasses pogoRevision="9.4" name="PowerPMAC" sourcePath="/home/urbschaj/dev/tango-servers/ppmac" description="POOOWAAAA!!!" filestogenerate="XMI   file,Makefile,Protected Regions">
+  <multiClasses pogoRevision="9.4" name="PowerPMAC" sourcePath="/home/urbschaj/dev/tango-servers/ppmac" description="POOOWAAAA!!!" filestogenerate="XMI   file,Code files,Makefile,Protected Regions">
+    <classes classname="PowerPMAC_Global" sourcePath="./powerpmac_global">
+      <inheritances classname="Device_Impl" sourcePath=""/>
+    </classes>
     <classes classname="PowerPMAC_IO" sourcePath="./powerpmac_io">
-      <inheritances classname="Device_Impl" sourcePath=""/>
-    </classes>
-    <classes classname="PowerPMAC_CoordinateSystems" sourcePath="./powerpmac_coordinatesystems">
-      <inheritances classname="Device_Impl" sourcePath=""/>
-    </classes>
-    <classes classname="PowerPMAC_Motor" sourcePath="./powerpmac_motor">
       <inheritances classname="Device_Impl" sourcePath=""/>
     </classes>
     <classes classname="PowerPMAC_Programs" sourcePath="./powerpmac_programs">
       <inheritances classname="Device_Impl" sourcePath=""/>
     </classes>
-    <classes classname="PowerPMAC_Global" sourcePath="./powerpmac_global">
+    <classes classname="PowerPMAC_Motor" sourcePath="./powerpmac_motor">
+      <inheritances classname="Device_Impl" sourcePath=""/>
+    </classes>
+    <classes classname="PowerPMAC_CoordinateSystems" sourcePath="./powerpmac_coordinatesystems">
       <inheritances classname="Device_Impl" sourcePath=""/>
     </classes>
     <preferences makefileHome="/usr/share/pogo/preferences"/>

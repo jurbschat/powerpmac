@@ -60,7 +60,24 @@ class PowerPMAC_Motor : public TANGO_BASE_CLASS
 
 /*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::Data Members
 
+//	Device property data members
+public:
+	//	motorIndex:	the index of the motor
+	Tango::DevULong	motorIndex;
 
+//	Attribute data members
+public:
+	Tango::DevFloat	*attr_position_read;
+	Tango::DevFloat	*attr_acceleration_read;
+	Tango::DevFloat	*attr_maxvelocity_read;
+	Tango::DevFloat	*attr_sl_cw_read;
+	Tango::DevFloat	*attr_sl_ccw_read;
+	Tango::DevBoolean	*attr_sl_cw_fault_read;
+	Tango::DevBoolean	*attr_sl_ccw_fault_read;
+	Tango::DevBoolean	*attr_limit_cw_fault_read;
+	Tango::DevBoolean	*attr_limit_ccw_fault_read;
+	Tango::DevBoolean	*attr_invert_direction_read;
+	Tango::DevBoolean	*attr_invert_encoder_read;
 
 //	Constructors and destructors
 public:
@@ -103,6 +120,10 @@ public:
 	 */
 	virtual void init_device();
 	/*
+	 *	Read the device properties from database
+	 */
+	void get_device_property();
+	/*
 	 *	Always executed method before execution command method.
 	 */
 	virtual void always_executed_hook();
@@ -117,6 +138,120 @@ public:
 	 */
 	//--------------------------------------------------------
 	virtual void read_attr_hardware(vector<long> &attr_list);
+	//--------------------------------------------------------
+	/*
+	 *	Method      : PowerPMAC_Motor::write_attr_hardware()
+	 *	Description : Hardware writing for attributes.
+	 */
+	//--------------------------------------------------------
+	virtual void write_attr_hardware(vector<long> &attr_list);
+
+/**
+ *	Attribute position related methods
+ *	Description: 
+ *
+ *	Data type:	Tango::DevFloat
+ *	Attr type:	Scalar
+ */
+	virtual void read_position(Tango::Attribute &attr);
+	virtual void write_position(Tango::WAttribute &attr);
+	virtual bool is_position_allowed(Tango::AttReqType type);
+/**
+ *	Attribute acceleration related methods
+ *	Description: 
+ *
+ *	Data type:	Tango::DevFloat
+ *	Attr type:	Scalar
+ */
+	virtual void read_acceleration(Tango::Attribute &attr);
+	virtual void write_acceleration(Tango::WAttribute &attr);
+	virtual bool is_acceleration_allowed(Tango::AttReqType type);
+/**
+ *	Attribute maxvelocity related methods
+ *	Description: 
+ *
+ *	Data type:	Tango::DevFloat
+ *	Attr type:	Scalar
+ */
+	virtual void read_maxvelocity(Tango::Attribute &attr);
+	virtual void write_maxvelocity(Tango::WAttribute &attr);
+	virtual bool is_maxvelocity_allowed(Tango::AttReqType type);
+/**
+ *	Attribute sl_cw related methods
+ *	Description: 
+ *
+ *	Data type:	Tango::DevFloat
+ *	Attr type:	Scalar
+ */
+	virtual void read_sl_cw(Tango::Attribute &attr);
+	virtual void write_sl_cw(Tango::WAttribute &attr);
+	virtual bool is_sl_cw_allowed(Tango::AttReqType type);
+/**
+ *	Attribute sl_ccw related methods
+ *	Description: 
+ *
+ *	Data type:	Tango::DevFloat
+ *	Attr type:	Scalar
+ */
+	virtual void read_sl_ccw(Tango::Attribute &attr);
+	virtual void write_sl_ccw(Tango::WAttribute &attr);
+	virtual bool is_sl_ccw_allowed(Tango::AttReqType type);
+/**
+ *	Attribute sl_cw_fault related methods
+ *	Description: 
+ *
+ *	Data type:	Tango::DevBoolean
+ *	Attr type:	Scalar
+ */
+	virtual void read_sl_cw_fault(Tango::Attribute &attr);
+	virtual bool is_sl_cw_fault_allowed(Tango::AttReqType type);
+/**
+ *	Attribute sl_ccw_fault related methods
+ *	Description: 
+ *
+ *	Data type:	Tango::DevBoolean
+ *	Attr type:	Scalar
+ */
+	virtual void read_sl_ccw_fault(Tango::Attribute &attr);
+	virtual bool is_sl_ccw_fault_allowed(Tango::AttReqType type);
+/**
+ *	Attribute limit_cw_fault related methods
+ *	Description: 
+ *
+ *	Data type:	Tango::DevBoolean
+ *	Attr type:	Scalar
+ */
+	virtual void read_limit_cw_fault(Tango::Attribute &attr);
+	virtual bool is_limit_cw_fault_allowed(Tango::AttReqType type);
+/**
+ *	Attribute limit_ccw_fault related methods
+ *	Description: 
+ *
+ *	Data type:	Tango::DevBoolean
+ *	Attr type:	Scalar
+ */
+	virtual void read_limit_ccw_fault(Tango::Attribute &attr);
+	virtual bool is_limit_ccw_fault_allowed(Tango::AttReqType type);
+/**
+ *	Attribute invert_direction related methods
+ *	Description: 
+ *
+ *	Data type:	Tango::DevBoolean
+ *	Attr type:	Scalar
+ */
+	virtual void read_invert_direction(Tango::Attribute &attr);
+	virtual void write_invert_direction(Tango::WAttribute &attr);
+	virtual bool is_invert_direction_allowed(Tango::AttReqType type);
+/**
+ *	Attribute invert_encoder related methods
+ *	Description: 
+ *
+ *	Data type:	Tango::DevBoolean
+ *	Attr type:	Scalar
+ */
+	virtual void read_invert_encoder(Tango::Attribute &attr);
+	virtual void write_invert_encoder(Tango::WAttribute &attr);
+	virtual bool is_invert_encoder_allowed(Tango::AttReqType type);
 
 
 	//--------------------------------------------------------
@@ -132,6 +267,27 @@ public:
 
 //	Command related methods
 public:
+	/**
+	 *	Command PhaseMotor related method
+	 *	Description: 
+	 *
+	 */
+	virtual void phase_motor();
+	virtual bool is_PhaseMotor_allowed(const CORBA::Any &any);
+	/**
+	 *	Command HomeMotor related method
+	 *	Description: 
+	 *
+	 */
+	virtual void home_motor();
+	virtual bool is_HomeMotor_allowed(const CORBA::Any &any);
+	/**
+	 *	Command Calibrate related method
+	 *	Description: 
+	 *
+	 */
+	virtual void calibrate();
+	virtual bool is_Calibrate_allowed(const CORBA::Any &any);
 
 
 	//--------------------------------------------------------

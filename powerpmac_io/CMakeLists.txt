@@ -13,10 +13,10 @@ add_library(PowerPMAC_IO STATIC PowerPMAC_IO.cpp
         PowerPMAC_IOStateMachine.cpp)
 
 # all other includeded cmake files will have this
-include_directories(PUBLIC /usr/include/tango)
-target_include_directories(PowerPMAC_IO PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+include_directories(PUBLIC SYSTEM /usr/include/tango)
+target_include_directories(PowerPMAC_IO PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ../ppmac_core ../wise_enum-master)
 
 link_directories(PUBLIC /usr/lib/x86_64-linux-gnu/ /usr/lib/)
 
 #-ltango -lomniDynamic4 -lCOS4 -lomniORB4 -lomnithread -llog4tango -lzmq -ldl -lpthread -lstdc++
-target_link_libraries(PowerPMAC_IO PRIVATE tango omniDynamic4 COS4 omniORB4 omnithread log4tango zmq dl pthread stdc++)
+target_link_libraries(PowerPMAC_IO PRIVATE tango omniDynamic4 COS4 omniORB4 omnithread log4tango zmq dl pthread stdc++ ppmac_core)

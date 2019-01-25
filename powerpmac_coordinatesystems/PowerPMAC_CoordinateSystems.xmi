@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="ASCII"?>
 <pogoDsl:PogoSystem xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:pogoDsl="http://www.esrf.fr/tango/pogo/PogoDsl">
   <classes name="PowerPMAC_CoordinateSystems" pogoRevision="9.4">
-    <description description="" title="" sourcePath="/home/urbschaj/dev/tango-servers/ppmac/powerpmac_coordinatesystems" language="Cpp" filestogenerate="XMI   file,Code files,Makefile,Protected Regions" license="GPL" copyright="" hasMandatoryProperty="false" hasConcreteProperty="false" hasAbstractCommand="false" hasAbstractAttribute="false">
+    <description description="" title="" sourcePath="/home/urbschaj/dev/tango-servers/ppmac/powerpmac_coordinatesystems" language="Cpp" filestogenerate="XMI   file,Code files,Protected Regions" license="GPL" copyright="" hasMandatoryProperty="false" hasConcreteProperty="false" hasAbstractCommand="false" hasAbstractAttribute="false">
       <inheritances classname="Device_Impl" sourcePath=""/>
       <identification contact="at desy.de - jakob.urbschat" author="jakob.urbschat" emailDomain="desy.de" classFamily="Motion" siteSpecific="" platform="All Platforms" bus="TCP/UDP" manufacturer="DeltaTau" reference=""/>
     </description>
@@ -23,6 +23,15 @@
       </argout>
       <status abstract="true" inherited="true" concrete="true"/>
     </commands>
+    <states name="ON" description="">
+      <status abstract="false" inherited="false" concrete="true" concreteHere="true"/>
+    </states>
+    <states name="OFF" description="">
+      <status abstract="false" inherited="false" concrete="true" concreteHere="true"/>
+    </states>
+    <states name="FAULT" description="">
+      <status abstract="false" inherited="false" concrete="true" concreteHere="true"/>
+    </states>
     <preferences docHome="./doc_html" makefileHome="/usr/share/pogo/preferences"/>
   </classes>
 </pogoDsl:PogoSystem>
