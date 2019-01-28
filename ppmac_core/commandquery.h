@@ -33,14 +33,14 @@ namespace ppmac::query {
 	}
 
 	inline auto MotorGetPositionRange(MotorID::TYPE first, MotorID::TYPE last) {
-		//cmd::detail::ValidateRange(first, last);
+		cmd::detail::ValidateIdentifierRange(first, last);
 		fmt::memory_buffer buffer = cmd::detail::MakeMotorRangeCommand("#", "p", first, last);
 		return CommandQuery{buffer, convert::from_enum(first), &MotorInfo::position};
 	}
 
 	//TODO: this is a bug, add v to get two values
 	inline auto MotorGetInfoRange(MotorID::TYPE first, MotorID::TYPE last) {
-		//cmd::detail::ValidateRange(first, last);
+		cmd::detail::ValidateIdentifierRange(first, last);
 		fmt::memory_buffer buffer = cmd::detail::MakeMotorRangeCommand("#", "p", first, last);
 		return CommandQuery{buffer, convert::from_enum(first), &MotorInfo::position, &MotorInfo::acceleration};
 	}

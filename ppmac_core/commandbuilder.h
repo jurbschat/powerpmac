@@ -18,16 +18,16 @@ namespace ppmac::cmd {
 	namespace detail {
 
 		template<typename T>
-		void ValidateRange(T first, T last) {
+		void ValidateIdentifierRange(T first, T last) {
 			int32_t from = convert::from_enum(first);
 			int32_t to = convert::from_enum(last);
-			if(from > to) {
+			if(from < 0 || from > to) {
 				THROW_RUNTIME_ERROR("invalid range [{}:{}]", from, to);
 			}
 		}
 
 		template<typename... Args>
-		void ValidateList(Args... args) {
+		void ValidateIdentifierList(Args... args) {
 			bool sorted = PackIsSorted(args...);
 			if(!sorted) {
 				auto values = PackAsArray<int32_t>(args...);
@@ -64,7 +64,7 @@ namespace ppmac::cmd {
 		}
 
 		inline fmt::memory_buffer MakeMotorRangeCommand(const std::string& prefix, const std::string& postfix, MotorID::TYPE first, MotorID::TYPE last) {
-			ValidateRange(first, last);
+			ValidateIdentifierRange(first, last);
 			fmt::memory_buffer buffer;
 			int32_t from = convert::from_enum(first);
 			int32_t to = convert::from_enum(last);
@@ -86,43 +86,43 @@ namespace ppmac::cmd {
 	}
 
 	template<typename... motor_ids>
-	fmt::memory_buffer MotorPhase(motor_ids... motors) {
-		detail::ValidateList(motors...);
-		return detail::MakeMotorCommand("#", "$", motors...);
+	std::string MotorPhase(motor_ids... motors) {
+		detail::ValidateIdentifierList(motors...);
+		return fmt::to_string(detail::MakeMotorCommand("#", "$", motors...));
 	}
 
 	template<typename... motor_ids>
-	fmt::memory_buffer MotorKill(motor_ids... motors) {
-		detail::ValidateList(motors...);
-		return detail::MakeMotorCommand("#", "k", motors...);
+	std::string MotorKill(motor_ids... motors) {
+		detail::ValidateIdentifierList(motors...);
+		return fmt::to_string(detail::MakeMotorCommand("#", "k", motors...));
 	}
 
 	template<typename... motor_ids>
-	fmt::memory_buffer MotorAbort(motor_ids... motors) {
-		detail::ValidateList(motors...);
-		return detail::MakeMotorCommand("#", "a", motors...);
+	std::string MotorAbort(motor_ids... motors) {
+		detail::ValidateIdentifierList(motors...);
+		return fmt::to_string(detail::MakeMotorCommand("#", "a", motors...));
 	}
 
 	template<typename... motor_ids>
-	fmt::memory_buffer MotorJogToPosition(float position, motor_ids... motors) {
-		detail::ValidateList(motors...);
+	std::string MotorJogToPosition(float position, motor_ids... motors) {
+		detail::ValidateIdentifierList(motors...);
 		fmt::memory_buffer buffer = detail::MakeMotorCommand("#", "", motors...);
 		fmt::format_to(buffer, "jog={}", position);
-		return buffer;
+		return fmt::to_string(buffer);
 	}
 
 	template<typename... motor_ids>
-	fmt::memory_buffer MotorGetPosition(motor_ids... motors) {
-		detail::ValidateList(motors...);
+	std::string MotorGetPosition(motor_ids... motors) {
+		detail::ValidateIdentifierList(motors...);
 		fmt::memory_buffer buffer = detail::MakeMotorCommand("#", "p", motors...);
-		return buffer;
+		return fmt::to_string(buffer);
 	}
 
 	template<typename... motor_ids>
-	fmt::memory_buffer MotorGetVelocity(motor_ids... motors) {
-		detail::ValidateList(motors...);
+	std::string MotorGetVelocity(motor_ids... motors) {
+		detail::ValidateIdentifierList(motors...);
 		fmt::memory_buffer buffer = detail::MakeMotorCommand("#", "v", motors...);
-		return buffer;
+		return fmt::to_string(buffer);
 	}
 }
 

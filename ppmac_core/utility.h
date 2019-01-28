@@ -76,7 +76,7 @@ namespace ppmac {
 	};
 
 	template<typename... Args>
-	constexpr bool PackIsSorted(Args... args) {
+	bool PackIsSorted(Args... args) {
 		return (static_cast<int>(args) < ...);
 	}
 
