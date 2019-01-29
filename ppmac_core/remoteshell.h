@@ -31,7 +31,7 @@ namespace ppmac {
 			NoTerminatorFound,
 			InvalidWriteReadResponse,
 			ConnectionRefused
-	);
+	)
 
 
 	class RemoteShell

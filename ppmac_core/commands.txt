@@ -1,0 +1,33 @@
+[pmac commands]
+
+- motor states
+    #{x}?
+    Motor[x].Status[0/1]
+
+- motor values
+    #{x}pvf (position/velocity/follow error)
+
+- move motor
+    #{x}j=pos
+    #{x}a (stops the motor)
+    #{x}k (kills the motor/disables amp)
+
+- motor home/phase
+    #{x}$ (phase)
+    #{1}hm (move home)
+    #{1}hmz (set home position)
+
+- set encoder direction
+    Gate3[0].Chan[0].EncCtrl=7/3 (for quadruple encoders)
+
+- set output direction (never tested)
+    Gate3[0].Chan[0].OutputPol
+
+- set job speed
+    Motor[0].JogSpeed
+    Motor[0].JogTa (start/stop speed)
+    Motor[0].JogTs (irgendwas mit übergängen ^^)
+
+- motor limits
+    Motor[0].MaxPos / Motor[0].MinPos
+

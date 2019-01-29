@@ -8,41 +8,57 @@
 #include "commandbuilder.h"
 #include "utility.h"
 #include "pmac/datastructures.h"
+#include "libs/span.hpp"
 #include <vector>
 #include <tuple>
 
 namespace ppmac::query {
 
-	template<typename... Args>
+	template<typename T, typename... Args>
+	struct ObjectPointers {
+		ObjectPointers(stdext::span<T> data, Args&&... args)
+				: data(data),
+				  memberPointer(std::forward<Args>(args)...)
+		{}
+		stdext::span<T> data;
+		std::tuple<Args...> memberPointer;
+	};
+
+	template<typename T, typename... Args>
 	struct CommandQuery
 	{
-		CommandQuery(const fmt::memory_buffer& buffer, int32_t first, Args&&... args)
-			: command(fmt::to_string(buffer)),
-			first(first),
-			targets(std::forward<Args>(args)...)
+		CommandQuery(const std::string& cmd, int32_t rangeStart, stdext::span<T> data, Args&&... args)
+			: command(cmd),
+			  rangeStart(rangeStart),
+			  pointers{data, std::forward<Args>(args)...}
 		{}
 
 		std::string command;
-		int32_t first;
-		std::tuple<Args...> targets;
+		size_t rangeStart;
+		ObjectPointers<T, Args...> pointers;
 	};
 
-	inline auto GeneralGetInfo() {
-		fmt::memory_buffer buffer = cmd::detail::MakePlain("Sys.MaxMotors;Sys.maxCoords;Sys.pAbortAll");
-		return CommandQuery{buffer, 0, &GlobalInfo::maxMotors, &GlobalInfo::maxCoords, &GlobalInfo::abortAll};
+	inline auto GeneralGetInfo(stdext::span<GlobalInfo> data) {
+		fmt::memory_buffer buffer = cmd::detail::MakePlain("Sys.MaxMotors; Sys.maxCoords; Sys.pAbortAll; PowerBrick[0].PhaseFreq; PowerBrick[1].PhaseFreq");
+		return CommandQuery{fmt::to_string(buffer), 0, data,
+					  &GlobalInfo::maxMotors,
+					  &GlobalInfo::maxCoords,
+					  &GlobalInfo::abortAll,
+					  &GlobalInfo::Gate30,
+					  &GlobalInfo::Gate31
+		};
 	}
 
-	inline auto MotorGetPositionRange(MotorID::TYPE first, MotorID::TYPE last) {
+	inline auto MotorGetPositionRange(stdext::span<MotorInfo> data, MotorID::TYPE first, MotorID::TYPE last) {
 		cmd::detail::ValidateIdentifierRange(first, last);
-		fmt::memory_buffer buffer = cmd::detail::MakeMotorRangeCommand("#", "p", first, last);
-		return CommandQuery{buffer, convert::from_enum(first), &MotorInfo::position};
+		fmt::memory_buffer buffer = cmd::detail::MakeMotorRangeCommand("#", "pvf", first, last);
+		return CommandQuery{fmt::to_string(buffer), first, data, &MotorInfo::position, &MotorInfo::velocity, &MotorInfo::followingError};
 	}
 
-	//TODO: this is a bug, add v to get two values
-	inline auto MotorGetInfoRange(MotorID::TYPE first, MotorID::TYPE last) {
+	inline auto MotorGetStatusRange(stdext::span<MotorInfo> data,MotorID::TYPE first, MotorID::TYPE last) {
 		cmd::detail::ValidateIdentifierRange(first, last);
-		fmt::memory_buffer buffer = cmd::detail::MakeMotorRangeCommand("#", "p", first, last);
-		return CommandQuery{buffer, convert::from_enum(first), &MotorInfo::position, &MotorInfo::acceleration};
+		fmt::memory_buffer buffer = cmd::detail::MakeMotorRangeCommand("#", "?", first, last);
+		return CommandQuery{fmt::to_string(buffer), first, data, &MotorInfo::status};
 	}
 
 }

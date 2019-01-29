@@ -9,53 +9,124 @@
 #include <boost/algorithm/string.hpp>
 #include <string>
 
-namespace ppmac::cmd {
+namespace ppmac::parser {
 
-	template<typename T>
+	namespace detail {
+		inline bool CheckForError(const std::string& str) {
+			auto pos = str.find_first_of("error");
+			return pos != std::string::npos;
+		}
+
+		inline void ThrowIfError(const std::string& str) {
+			if(CheckForError(str)) {
+				THROW_RUNTIME_ERROR("response contained error: '{}'", str);
+			}
+		}
+	}
+
+	// target = result type e.g. float, int etc. could also be int to inverse and parse bytes to string
+	// Tag is used to distinguish if the result type needs to be parsed in different manners depending
+	// on what was queried. e.g. a gate returns with $f0000001
+	template<typename Target, typename Tag = void>
 	struct parser_traits;
 
 	template<>
 	struct parser_traits<float> {
-		static float convert(const std::string& s) {
-			return std::stof(s);
+		using result_type = float;
+		static result_type convert(const std::string& s) {
+			try {
+				return std::stof(s);
+			} catch(std::exception) {
+				RETHROW_RUNTIME_ERROR("unable to parse float '{}'", s);
+			}
 		}
 	};
 
-	template<typename T>
-	T ParseValueResult(const std::string &str) {
-		return parser_traits<T>::convert(str);
+	template<>
+	struct parser_traits<int32_t> {
+		using result_type = int32_t;
+		static result_type convert(const std::string& s) {
+			long result = std::stoll(s);
+			if (result > std::numeric_limits<int32_t>::max()) {
+				THROW_RUNTIME_ERROR("out of range '{}' for int32_t", s);
+			}
+			return result;
+		}
 	};
 
-	template<typename T, size_t VALUE_COUNT = 32>
-	boost::container::small_vector<T, VALUE_COUNT> ParseLineResult(const std::string &str) {
+	template<>
+	struct parser_traits<uint32_t> {
+		using result_type = uint32_t;
+		static result_type convert(const std::string& s) {
+			long result = std::stoull(s);
+			if (result > std::numeric_limits<uint32_t>::max()) {
+				THROW_RUNTIME_ERROR("out of range '{}' for uint32_t", s);
+			}
+			return result;
+		}
+	};
+
+	struct parser_gate_tag;
+
+	template<>
+	struct parser_traits<uint32_t, parser_gate_tag> {
+		using result_type = uint32_t;
+		static result_type convert(const std::string& s) {
+			long result = std::stoull(s.substr(1), nullptr, 16);
+			if (result > std::numeric_limits<uint32_t>::max()) {
+				THROW_RUNTIME_ERROR("out of range '{}' for uint32_t", s);
+			}
+			return result;
+		}
+	};
+
+	template<>
+	struct parser_traits<uint64_t, parser_gate_tag> {
+		using result_type = uint64_t;
+		static result_type convert(const std::string& s) {
+			return std::stoull(s.substr(1), nullptr, 16);
+		}
+	};
+
+	using FloatParser = parser_traits<float>;
+	using IntParser = parser_traits<int32_t>;
+	using UIntParser = parser_traits<uint32_t>;
+	using Hex32Parser = parser_traits<uint32_t, parser_gate_tag>;
+	using Hex64Parser = parser_traits<uint64_t, parser_gate_tag>;
+
+	template<typename Parser, size_t VALUE_COUNT = 32>
+	boost::container::small_vector<typename Parser::result_type, VALUE_COUNT>
+	ParseLineResult(const std::string &str)
+	{
+		detail::ThrowIfError(str);
 		boost::container::small_vector<std::string, VALUE_COUNT> splitVector;
-		boost::container::small_vector<T, VALUE_COUNT> resultVector;
+		boost::container::small_vector<typename Parser::result_type, VALUE_COUNT> resultVector;
 		boost::algorithm::split(splitVector, str, boost::is_space(), boost::token_compress_on);
 		if(splitVector.empty()) {
-			THROW_RUNTIME_ERROR("unable to parse result. str: {}", str);
+			THROW_RUNTIME_ERROR("unable to parse '{}' as line", str);
 		}
 		for(auto& s : splitVector) {
-			resultVector.push_back(ParseValueResult<T>(s));
+			resultVector.push_back(Parser::convert(s));
 		}
 		return resultVector;
 	}
 
-	template<typename T, size_t LINE_COUNT = 4, size_t VALUE_COUNT = 32>
-	boost::container::small_vector<boost::container::small_vector<T, LINE_COUNT>, VALUE_COUNT> ParseMultilineResult(const std::string &str)
+	template<typename Parser, size_t LINE_COUNT = 4, size_t VALUE_COUNT = 32>
+	boost::container::small_vector<boost::container::small_vector<typename Parser::result_type, LINE_COUNT>, VALUE_COUNT>
+	ParseMultilineResult(const std::string &str)
 	{
-		boost::container::small_vector<boost::container::small_vector<T, LINE_COUNT>, VALUE_COUNT> resultVector;
+		detail::ThrowIfError(str);
+		boost::container::small_vector<boost::container::small_vector<typename Parser::result_type, LINE_COUNT>, VALUE_COUNT> resultVector;
 		boost::container::small_vector<std::string, VALUE_COUNT> splitVector;
 		boost::algorithm::split(splitVector, str, boost::is_any_of("\r\n"), boost::token_compress_on);
 		if(splitVector.empty()) {
-			THROW_RUNTIME_ERROR("unable to parse result. str: {}", str);
+			THROW_RUNTIME_ERROR("unable to parse '{}' as multiline", str);
 		}
 		for(auto& l : splitVector) {
-			resultVector.emplace_back(ParseLineResult<T, VALUE_COUNT>(l));
+			resultVector.emplace_back(ParseLineResult<Parser, VALUE_COUNT>(l));
 		}
 		return resultVector;
 	}
-
-
 
 
 }

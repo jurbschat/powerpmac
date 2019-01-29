@@ -36,6 +36,7 @@ namespace ppmac {
 		int line;
 		std::string msg;
 	};
+
 }
 
 #endif //POWERPMAC_EXCEPTION_H

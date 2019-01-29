@@ -40,7 +40,7 @@ namespace ppmac {
 			if(connect != RemoteShellErrorCode::Ok) {
 				return connect;
 			}
-			SPDLOG_DEBUG("Connection established, starting 'gpascii -2'");
+			SPDLOG_DEBUG("Connection established, starting 'gpascii -f -2'");
 			auto gpa = rs.ChannelWrite("gpascii -2");
 			if(gpa != RemoteShellErrorCode::Ok) {
 				return gpa;
@@ -100,7 +100,8 @@ namespace ppmac {
 
 		auto result = establishConnection();
 		pmacStateHolder.Start();
-		//std::this_thread::sleep_for(std::chrono::seconds(600));
+		std::this_thread::sleep_for(std::chrono::seconds(3));
+		exit(0);
 
 		return result;
 	}
@@ -146,11 +147,11 @@ namespace ppmac {
 	}
 
 	void Core::QueryMotors() {
-		pmacStateHolder.UpdateMotors();
+		pmacStateHolder.UpdateMotorValues();
 	}
 
 	void Core::QueryStates() {
-		pmacStateHolder.UpdateStates();
+		pmacStateHolder.UpdateMotorStates();
 	}
 
 	void Core::QueryPorts() {

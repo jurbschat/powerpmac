@@ -1,21 +1,17 @@
 cmake_minimum_required(VERSION 3.8)
 
 project(ppmac_core VERSION 1.0 DESCRIPTION "power pmac core classes" LANGUAGES CXX)
+project(ppmac_core_test VERSION 1.0 DESCRIPTION "power pmac core classes" LANGUAGES CXX)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -fasynchronous-unwind-tables -fexceptions -grecord-gcc-switches")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -pedantic -Wredundant-decls -Wcast-align -Wmissing-declarations -Wmissing-include-dirs -Wswitch-enum -Winvalid-pch")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wformat=2 -Wmissing-format-attribute -Wformat-nonliteral -Wodr -Wpointer-arith -Wshadow -Wcast-qual -Wstrict-aliasing=1")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Woverloaded-virtual -Werror=return-type -Wsign-compare -Wnull-dereference") #-Wduplicated-branches (gcc 7+)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wold-style-cast ") #-Wself-assign"
-
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
-
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-gnu-zero-variadic-macro-arguments") # supported by gcc/clang/msvc
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wold-style-cast -Wno-gnu-zero-variadic-macro-arguments") #-Wself-assign"
 
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_FORTIFY_SOURCE=2 -D_GLIBCXX_DEBUG")
 
-add_definitions(-DSPDLOG_FMT_EXTERNAL)
-add_compile_definitions(SPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_TRACE)
+add_compile_definitions(SPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_TRACE SPDLOG_FMT_EXTERNAL)
 
 # gcc only options
 if(CMAKE_CXX_COMPILER MATCHES GNU)
@@ -32,13 +28,19 @@ add_library(ppmac_core STATIC coreinterface.cpp
         remoteshell.cpp
         receivebuffer.cpp
         utility.cpp
-        test.cpp
+        test-main.cpp
         pmac/defines.cpp)
 
-target_include_directories(ppmac_core PRIVATE SYSTEM ../fmt-5.3.0/include ../spdlog-1.3.0/include ../wise_enum-master ../catch2-master/single_include)
-
-# all other includeded cmake files will have this
-#include_directories(PUBLIC /usr/include/tango)
-#link_directories(PUBLIC /usr/lib/x86_64-linux-gnu/ /usr/lib/)
-
+target_include_directories(ppmac_core SYSTEM PRIVATE ../fmt-5.3.0/include ../spdlog-1.3.0/include ../wise_enum-master ../catch2-master/single_include)
 target_link_libraries(ppmac_core PRIVATE stdc++ fmt spdlog ssh2 ) #ssh2 rt pthread libPowerPmacControl boost_system crypto ssl
+
+# test stuff
+
+add_executable(ppmac_core_test test-main.cpp test-tests.cpp)
+target_include_directories(ppmac_core_test SYSTEM PRIVATE ../fmt-5.3.0/include ../spdlog-1.3.0/include ../wise_enum-master ../catch2-master/single_include)
+target_link_libraries(ppmac_core_test PRIVATE stdc++ fmt spdlog ssh2 ppmac_core)
+set_target_properties(ppmac_core_test PROPERTIES COMPILE_FLAGS -DMUH)
+
+add_executable(ppmac_core_profile main.cpp)
+target_include_directories(ppmac_core_profile SYSTEM PRIVATE ../fmt-5.3.0/include ../spdlog-1.3.0/include ../wise_enum-master ../catch2-master/single_include)
+target_link_libraries(ppmac_core_profile PRIVATE stdc++ fmt spdlog ssh2 ppmac_core pthread)

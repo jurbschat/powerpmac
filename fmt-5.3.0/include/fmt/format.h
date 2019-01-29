@@ -25,8 +25,8 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wswitch-enum"
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wswitch-enum"
 
 #ifndef FMT_FORMAT_H_
 #define FMT_FORMAT_H_
@@ -3557,4 +3557,4 @@ FMT_END_NAMESPACE
 
 #endif  // FMT_FORMAT_H_
 
-#pragma clang diagnostic pop
+#pragma GCC diagnostic pop

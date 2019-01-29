@@ -9,6 +9,9 @@ http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0122r7.pdf
 //    (See accompanying file ../../LICENSE_1_0.txt or copy at
 //          https://www.boost.org/LICENSE_1_0.txt)
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wshadow"
+
 #ifndef TCB_SPAN_HPP_INCLUDED
 #define TCB_SPAN_HPP_INCLUDED
 
@@ -765,3 +768,5 @@ struct tuple_element<N, TCB_SPAN_NAMESPACE_NAME::span<E, S>> {
 #endif // TCB_SPAN_STD_COMPLIANT_MODE
 
 #endif // TCB_SPAN_HPP_INCLUDED
+
+#pragma GCC diagnostic pop

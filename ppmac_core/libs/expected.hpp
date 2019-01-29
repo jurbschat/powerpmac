@@ -91,7 +91,7 @@ namespace stdext {
 #endif
 
 #define TL_EXPECTED_IS_TRIVIALLY_COPY_CONSTRUCTIBLE(T)                                     \
-  tl::detail::is_trivially_copy_constructible<T>
+  stdext::detail::is_trivially_copy_constructible<T>
 #define TL_EXPECTED_IS_TRIVIALLY_COPY_ASSIGNABLE(T)                                        \
   std::is_trivially_copy_assignable<T>
 #define TL_EXPECTED_IS_TRIVIALLY_DESTRUCTIBLE(T) std::is_trivially_destructible<T>

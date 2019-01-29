@@ -22,12 +22,26 @@ namespace ppmac {
 		}
 
 		void start() noexcept {
-			started = Clock::now();
+			if(!started) {
+				started = Clock::now();
+			}
 			stopped = TimePoint{};
 		}
 
 		void stop() noexcept {
-			stopped = Clock::now();
+			if(!stopped) {
+				stopped = Clock::now();
+			}
+		}
+
+		void restart() {
+			started = Clock::now();
+			stopped = TimePoint{};
+		}
+
+		void reset() noexcept {
+			started = TimePoint{};
+			stopped = TimePoint{};
 		}
 
 		TimeUnit elapsed() noexcept {
@@ -38,11 +52,6 @@ namespace ppmac {
 				return std::chrono::duration_cast<TimeUnit>(Clock::now() - *started);
 			}
 			return TimeUnit{};
-		}
-
-		void reset() noexcept {
-			started = TimePoint{};
-			stopped = TimePoint{};
 		}
 
 	private:

@@ -56,6 +56,7 @@ namespace ppmac::cmd {
 
 		template<typename... motor_ids>
 		fmt::memory_buffer MakeMotorCommand(const std::string& prefix, const std::string& postfix, motor_ids... motors) {
+			ValidateIdentifierList(motors...);
 			fmt::memory_buffer buffer;
 			fmt::format_to(buffer, "{}", prefix);
 			MakeMotorCommandInternal(buffer, motors...);
@@ -87,25 +88,21 @@ namespace ppmac::cmd {
 
 	template<typename... motor_ids>
 	std::string MotorPhase(motor_ids... motors) {
-		detail::ValidateIdentifierList(motors...);
 		return fmt::to_string(detail::MakeMotorCommand("#", "$", motors...));
 	}
 
 	template<typename... motor_ids>
 	std::string MotorKill(motor_ids... motors) {
-		detail::ValidateIdentifierList(motors...);
 		return fmt::to_string(detail::MakeMotorCommand("#", "k", motors...));
 	}
 
 	template<typename... motor_ids>
 	std::string MotorAbort(motor_ids... motors) {
-		detail::ValidateIdentifierList(motors...);
 		return fmt::to_string(detail::MakeMotorCommand("#", "a", motors...));
 	}
 
 	template<typename... motor_ids>
 	std::string MotorJogToPosition(float position, motor_ids... motors) {
-		detail::ValidateIdentifierList(motors...);
 		fmt::memory_buffer buffer = detail::MakeMotorCommand("#", "", motors...);
 		fmt::format_to(buffer, "jog={}", position);
 		return fmt::to_string(buffer);
@@ -113,14 +110,12 @@ namespace ppmac::cmd {
 
 	template<typename... motor_ids>
 	std::string MotorGetPosition(motor_ids... motors) {
-		detail::ValidateIdentifierList(motors...);
 		fmt::memory_buffer buffer = detail::MakeMotorCommand("#", "p", motors...);
 		return fmt::to_string(buffer);
 	}
 
 	template<typename... motor_ids>
 	std::string MotorGetVelocity(motor_ids... motors) {
-		detail::ValidateIdentifierList(motors...);
 		fmt::memory_buffer buffer = detail::MakeMotorCommand("#", "v", motors...);
 		return fmt::to_string(buffer);
 	}
