@@ -84,19 +84,19 @@ public:
 		{return (static_cast<PowerPMAC_Motor *>(dev))->is_acceleration_allowed(ty);}
 };
 
-//	Attribute maxvelocity class definition
-class maxvelocityAttrib: public Tango::Attr
+//	Attribute max_velocity class definition
+class max_velocityAttrib: public Tango::Attr
 {
 public:
-	maxvelocityAttrib():Attr("maxvelocity",
+	max_velocityAttrib():Attr("max_velocity",
 			Tango::DEV_FLOAT, Tango::READ_WRITE) {};
-	~maxvelocityAttrib() {};
+	~max_velocityAttrib() {};
 	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
-		{(static_cast<PowerPMAC_Motor *>(dev))->read_maxvelocity(att);}
+		{(static_cast<PowerPMAC_Motor *>(dev))->read_max_velocity(att);}
 	virtual void write(Tango::DeviceImpl *dev,Tango::WAttribute &att)
-		{(static_cast<PowerPMAC_Motor *>(dev))->write_maxvelocity(att);}
+		{(static_cast<PowerPMAC_Motor *>(dev))->write_max_velocity(att);}
 	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
-		{return (static_cast<PowerPMAC_Motor *>(dev))->is_maxvelocity_allowed(ty);}
+		{return (static_cast<PowerPMAC_Motor *>(dev))->is_max_velocity_allowed(ty);}
 };
 
 //	Attribute sl_cw class definition
@@ -179,6 +179,21 @@ public:
 		{(static_cast<PowerPMAC_Motor *>(dev))->read_limit_ccw_fault(att);}
 	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
 		{return (static_cast<PowerPMAC_Motor *>(dev))->is_limit_ccw_fault_allowed(ty);}
+};
+
+//	Attribute conversion_factor class definition
+class conversion_factorAttrib: public Tango::Attr
+{
+public:
+	conversion_factorAttrib():Attr("conversion_factor",
+			Tango::DEV_FLOAT, Tango::READ_WRITE) {};
+	~conversion_factorAttrib() {};
+	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
+		{(static_cast<PowerPMAC_Motor *>(dev))->read_conversion_factor(att);}
+	virtual void write(Tango::DeviceImpl *dev,Tango::WAttribute &att)
+		{(static_cast<PowerPMAC_Motor *>(dev))->write_conversion_factor(att);}
+	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
+		{return (static_cast<PowerPMAC_Motor *>(dev))->is_conversion_factor_allowed(ty);}
 };
 
 //	Attribute invert_direction class definition

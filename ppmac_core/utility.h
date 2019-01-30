@@ -5,15 +5,18 @@
 #ifndef POWERPMAC_UTILITY_H
 #define POWERPMAC_UTILITY_H
 
-#include "pmac/defines.h"
 #include <cstdint>
 #include <tuple>
 #include <array>
+#include <chrono>
+#include <type_traits>
 
 namespace ppmac {
 
 	namespace detail
 	{
+		// foreach in tuple
+
 		template<int... Is>
 		struct seq { };
 
@@ -29,6 +32,34 @@ namespace ppmac {
 			//auto l = { (f(std::get<Is>(t), Is), 0)... };
 			((f(std::get<Is>(t), Is), 0), ...);
 		}
+
+		// runtime tuple index
+
+		template <std::size_t...Is> struct index_sequence {};
+
+		template <std::size_t N, std::size_t...Is>
+		struct build : public build<N - 1, N - 1, Is...> {};
+
+		template <std::size_t...Is>
+		struct build<0, Is...> {
+			using type = index_sequence<Is...>;
+		};
+
+		template <std::size_t N>
+		using make_index_sequence = typename build<N>::type;
+
+		template <typename T>
+		using remove_reference_t = typename std::remove_reference<T>::type;
+
+		template <class Tuple, class F, std::size_t...Is>
+		void tuple_switch(const std::size_t i, Tuple&& t, F&& f, index_sequence<Is...>) {
+			[](...){}(
+					(i == Is && (
+							(void)std::forward<F>(f)(std::get<Is>(std::forward<Tuple>(t))), false))...
+			);
+		}
+
+		// constexpr filename
 
 		constexpr const char* str_end(const char *str) {
 			return *str ? str_end(str + 1) : str;
@@ -53,6 +84,12 @@ namespace ppmac {
 	void for_each_in_tuple(std::tuple<Ts...> const& t, F f)
 	{
 		detail::for_each(t, f, detail::gen_seq<sizeof...(Ts)>());
+	}
+
+	template <class Tuple, class F>
+	void tuple_switch(const std::size_t i, Tuple&& t, F&& f) {
+		static constexpr auto N = std::tuple_size<detail::remove_reference_t<Tuple>>::value;
+		detail::tuple_switch(i, std::forward<Tuple>(t), std::forward<F>(f), detail::make_index_sequence<N>{});
 	}
 
 	// checks at compiletime if non template type parameters are a sorted integer list
@@ -94,6 +131,10 @@ namespace ppmac {
 	// gets a filename from path at compiletime
 	constexpr const char* file_name(const char* str) {
 		return detail::str_slant(str) ? detail::r_slant(detail::str_end(str)) : str;
+	}
+
+	namespace time {
+		static constexpr std::chrono::seconds zero = std::chrono::seconds::zero();
 	}
 
 }

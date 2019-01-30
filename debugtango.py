@@ -8,3 +8,5 @@ power_pmac.set_timeout_millis(600000)
 print(power_pmac.ping())
 print(power_pmac.state())
 print(power_pmac.position)
+power_pmac.position = 100
+print(power_pmac.position)

@@ -1,5 +1,3 @@
-[pmac commands]
-
 - motor states
     #{x}?
     Motor[x].Status[0/1]

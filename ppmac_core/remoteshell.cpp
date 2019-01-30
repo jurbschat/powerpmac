@@ -34,12 +34,12 @@ namespace ppmac {
 		RemoteShellErrorCode ReceiveToBuffer(Channel& channel, std::chrono::milliseconds timeout, DataCallback cb) {
 			std::array<char, 4096> recvBuffer;
 
-			bool useTimeout = timeout > std::chrono::milliseconds{0};
+			bool useTimeout = timeout > time::zero;
 			StopWatch sw(true);
 			while(true) {
 				ssize_t rc = libssh2_channel_read(channel.get(), recvBuffer.data(), recvBuffer.size());
 				while(rc == LIBSSH2_ERROR_EAGAIN) {
-					if(useTimeout && sw.elapsed() > timeout) {
+					if(useTimeout && sw.Elapsed() > timeout) {
 						//SPDLOG_DEBUG("read command timeout");
 						return RemoteShellErrorCode::CommandTimeout;
 					}
@@ -191,7 +191,7 @@ namespace ppmac {
 		while(bytesWritten < static_cast<ssize_t>(writeBuffer.size())) {
 			ssize_t rc = libssh2_channel_write(channel.get(), writeBuffer.data() + bytesWritten, writeBuffer.size() - bytesWritten);
 			if(rc == LIBSSH2_ERROR_EAGAIN) {
-				if(timeout > std::chrono::milliseconds{0} && sw.elapsed() > timeout) {
+				if(timeout > time::zero && sw.Elapsed() > timeout) {
 					AddTimeout();
 					SPDLOG_DEBUG("write command timeout");
 					return RemoteShellErrorCode::CommandTimeout;

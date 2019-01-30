@@ -46,7 +46,7 @@ public:
 private:
 	void LoggingSetup();
 	void MainLoop();
-	RemoteShellErrorCode ConnectToPMAC(const std::string& host, int port);
+	RemoteShellErrorCode SetupRemoteShell(const std::string &host, int port);
 	void OnConnectionEstablished();
 	void OnConnectionLost();
 	RemoteShell rs;

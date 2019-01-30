@@ -33,6 +33,7 @@
 #ifndef PowerPMAC_Motor_H
 #define PowerPMAC_Motor_H
 
+#include "pmac/defines.h"
 #include <tango.h>
 
 
@@ -57,6 +58,8 @@ class PowerPMAC_Motor : public TANGO_BASE_CLASS
 /*----- PROTECTED REGION ID(PowerPMAC_Motor::Data Members) ENABLED START -----*/
 
 //	Add your own data members
+private:
+	ppmac::MotorID::TYPE motorId;
 
 /*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::Data Members
 
@@ -69,13 +72,14 @@ public:
 public:
 	Tango::DevFloat	*attr_position_read;
 	Tango::DevFloat	*attr_acceleration_read;
-	Tango::DevFloat	*attr_maxvelocity_read;
+	Tango::DevFloat	*attr_max_velocity_read;
 	Tango::DevFloat	*attr_sl_cw_read;
 	Tango::DevFloat	*attr_sl_ccw_read;
 	Tango::DevBoolean	*attr_sl_cw_fault_read;
 	Tango::DevBoolean	*attr_sl_ccw_fault_read;
 	Tango::DevBoolean	*attr_limit_cw_fault_read;
 	Tango::DevBoolean	*attr_limit_ccw_fault_read;
+	Tango::DevFloat	*attr_conversion_factor_read;
 	Tango::DevBoolean	*attr_invert_direction_read;
 	Tango::DevBoolean	*attr_invert_encoder_read;
 
@@ -167,15 +171,15 @@ public:
 	virtual void write_acceleration(Tango::WAttribute &attr);
 	virtual bool is_acceleration_allowed(Tango::AttReqType type);
 /**
- *	Attribute maxvelocity related methods
+ *	Attribute max_velocity related methods
  *	Description: 
  *
  *	Data type:	Tango::DevFloat
  *	Attr type:	Scalar
  */
-	virtual void read_maxvelocity(Tango::Attribute &attr);
-	virtual void write_maxvelocity(Tango::WAttribute &attr);
-	virtual bool is_maxvelocity_allowed(Tango::AttReqType type);
+	virtual void read_max_velocity(Tango::Attribute &attr);
+	virtual void write_max_velocity(Tango::WAttribute &attr);
+	virtual bool is_max_velocity_allowed(Tango::AttReqType type);
 /**
  *	Attribute sl_cw related methods
  *	Description: 
@@ -232,6 +236,16 @@ public:
  */
 	virtual void read_limit_ccw_fault(Tango::Attribute &attr);
 	virtual bool is_limit_ccw_fault_allowed(Tango::AttReqType type);
+/**
+ *	Attribute conversion_factor related methods
+ *	Description: 
+ *
+ *	Data type:	Tango::DevFloat
+ *	Attr type:	Scalar
+ */
+	virtual void read_conversion_factor(Tango::Attribute &attr);
+	virtual void write_conversion_factor(Tango::WAttribute &attr);
+	virtual bool is_conversion_factor_allowed(Tango::AttReqType type);
 /**
  *	Attribute invert_direction related methods
  *	Description: 

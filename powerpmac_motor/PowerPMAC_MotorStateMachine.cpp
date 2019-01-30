@@ -91,21 +91,21 @@ bool PowerPMAC_Motor::is_acceleration_allowed(TANGO_UNUSED(Tango::AttReqType typ
 
 //--------------------------------------------------------
 /**
- *	Method      : PowerPMAC_Motor::is_maxvelocity_allowed()
- *	Description : Execution allowed for maxvelocity attribute
+ *	Method      : PowerPMAC_Motor::is_max_velocity_allowed()
+ *	Description : Execution allowed for max_velocity attribute
  */
 //--------------------------------------------------------
-bool PowerPMAC_Motor::is_maxvelocity_allowed(TANGO_UNUSED(Tango::AttReqType type))
+bool PowerPMAC_Motor::is_max_velocity_allowed(TANGO_UNUSED(Tango::AttReqType type))
 {
-	//	Not any excluded states for maxvelocity attribute in Write access.
-	/*----- PROTECTED REGION ID(PowerPMAC_Motor::maxvelocityStateAllowed_WRITE) ENABLED START -----*/
+	//	Not any excluded states for max_velocity attribute in Write access.
+	/*----- PROTECTED REGION ID(PowerPMAC_Motor::max_velocityStateAllowed_WRITE) ENABLED START -----*/
 	
-	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::maxvelocityStateAllowed_WRITE
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::max_velocityStateAllowed_WRITE
 
-	//	Not any excluded states for maxvelocity attribute in read access.
-	/*----- PROTECTED REGION ID(PowerPMAC_Motor::maxvelocityStateAllowed_READ) ENABLED START -----*/
+	//	Not any excluded states for max_velocity attribute in read access.
+	/*----- PROTECTED REGION ID(PowerPMAC_Motor::max_velocityStateAllowed_READ) ENABLED START -----*/
 	
-	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::maxvelocityStateAllowed_READ
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::max_velocityStateAllowed_READ
 	return true;
 }
 
@@ -210,6 +210,26 @@ bool PowerPMAC_Motor::is_limit_ccw_fault_allowed(TANGO_UNUSED(Tango::AttReqType 
 	/*----- PROTECTED REGION ID(PowerPMAC_Motor::limit_ccw_faultStateAllowed_READ) ENABLED START -----*/
 	
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::limit_ccw_faultStateAllowed_READ
+	return true;
+}
+
+//--------------------------------------------------------
+/**
+ *	Method      : PowerPMAC_Motor::is_conversion_factor_allowed()
+ *	Description : Execution allowed for conversion_factor attribute
+ */
+//--------------------------------------------------------
+bool PowerPMAC_Motor::is_conversion_factor_allowed(TANGO_UNUSED(Tango::AttReqType type))
+{
+	//	Not any excluded states for conversion_factor attribute in Write access.
+	/*----- PROTECTED REGION ID(PowerPMAC_Motor::conversion_factorStateAllowed_WRITE) ENABLED START -----*/
+	
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::conversion_factorStateAllowed_WRITE
+
+	//	Not any excluded states for conversion_factor attribute in read access.
+	/*----- PROTECTED REGION ID(PowerPMAC_Motor::conversion_factorStateAllowed_READ) ENABLED START -----*/
+	
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::conversion_factorStateAllowed_READ
 	return true;
 }
 

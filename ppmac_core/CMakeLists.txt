@@ -32,7 +32,7 @@ add_library(ppmac_core STATIC coreinterface.cpp
         pmac/defines.cpp)
 
 target_include_directories(ppmac_core SYSTEM PRIVATE ../fmt-5.3.0/include ../spdlog-1.3.0/include ../wise_enum-master ../catch2-master/single_include)
-target_link_libraries(ppmac_core PRIVATE stdc++ fmt spdlog ssh2 ) #ssh2 rt pthread libPowerPmacControl boost_system crypto ssl
+target_link_libraries(ppmac_core PRIVATE stdc++ fmt spdlog ssh2 boost_system pthread) #ssh2 rt pthread libPowerPmacControl boost_system crypto ssl
 
 # test stuff
 

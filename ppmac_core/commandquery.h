@@ -11,6 +11,7 @@
 #include "libs/span.hpp"
 #include <vector>
 #include <tuple>
+#include <boost/container/small_vector.hpp>
 
 namespace ppmac::query {
 
@@ -51,14 +52,24 @@ namespace ppmac::query {
 
 	inline auto MotorGetPositionRange(stdext::span<MotorInfo> data, MotorID::TYPE first, MotorID::TYPE last) {
 		cmd::detail::ValidateIdentifierRange(first, last);
-		fmt::memory_buffer buffer = cmd::detail::MakeMotorRangeCommand("#", "pvf", first, last);
+		fmt::memory_buffer buffer = cmd::detail::MakePrefixPostfixRangeCommand("#", "pvf", first, last);
 		return CommandQuery{fmt::to_string(buffer), first, data, &MotorInfo::position, &MotorInfo::velocity, &MotorInfo::followingError};
 	}
 
 	inline auto MotorGetStatusRange(stdext::span<MotorInfo> data,MotorID::TYPE first, MotorID::TYPE last) {
 		cmd::detail::ValidateIdentifierRange(first, last);
-		fmt::memory_buffer buffer = cmd::detail::MakeMotorRangeCommand("#", "?", first, last);
+		fmt::memory_buffer buffer = cmd::detail::MakePrefixPostfixRangeCommand("#", "?", first, last);
 		return CommandQuery{fmt::to_string(buffer), first, data, &MotorInfo::status};
+	}
+
+	inline auto MotorGetOtherRange(stdext::span<MotorInfo> data,MotorID::TYPE first, MotorID::TYPE last) {
+		cmd::detail::ValidateIdentifierRange(first, last);
+		boost::container::small_vector<std::tuple<int>, 32> tuples;
+		for(int i = first; i < (last - first); i++) {
+			tuples.push_back((std::make_tuple(i)));
+		}
+		fmt::memory_buffer buffer = cmd::detail::MakeMultiCommand("Motor[{}].PosSf", stdext::make_span(tuples));
+		return CommandQuery{fmt::to_string(buffer), first, data, &MotorInfo::conversion};
 	}
 
 }

@@ -9,49 +9,72 @@
 
 namespace ppmac {
 
+	template<typename TimeUnit = std::chrono::milliseconds, typename Clock = std::chrono::high_resolution_clock>
 	class StopWatch {
 	public:
-		using TimeUnit = std::chrono::milliseconds;
-		using Clock = std::chrono::high_resolution_clock;
+		//using TimeUnit = std::chrono::milliseconds;
+		//using Clock = std::chrono::high_resolution_clock;
 		using TimePoint = std::experimental::optional<std::chrono::time_point<Clock>>;
+		using DoubleDuration = std::chrono::duration<double>;
 
 		StopWatch(bool _start = false) noexcept {
 			if(_start) {
-				start();
+				Start();
 			}
 		}
 
-		void start() noexcept {
+		void Start() noexcept {
 			if(!started) {
 				started = Clock::now();
 			}
 			stopped = TimePoint{};
 		}
 
-		void stop() noexcept {
+		void Stop() noexcept {
 			if(!stopped) {
 				stopped = Clock::now();
 			}
 		}
 
-		void restart() {
+		void Restart() {
 			started = Clock::now();
 			stopped = TimePoint{};
 		}
 
-		void reset() noexcept {
+		void Reset() noexcept {
 			started = TimePoint{};
 			stopped = TimePoint{};
 		}
 
-		TimeUnit elapsed() noexcept {
+		template<typename ReportTu = TimeUnit>
+		ReportTu Elapsed() noexcept {
 			if(started && stopped) {
-				return std::chrono::duration_cast<TimeUnit>(*stopped - *started);
+				auto duration = *stopped - *started;
+				return std::chrono::duration_cast<ReportTu>(duration);
 			}
 			else if(started) {
-				return std::chrono::duration_cast<TimeUnit>(Clock::now() - *started);
+				auto duration = Clock::now() - *started;
+				return std::chrono::duration_cast<ReportTu>(duration);
 			}
-			return TimeUnit{};
+			return std::chrono::seconds::zero();
+		}
+
+		template<>
+		double Elapsed<double>() noexcept {
+			if(started && stopped) {
+				auto duration = *stopped - *started;
+				return std::chrono::duration_cast<DoubleDuration>(duration).count();
+			}
+			else if(started) {
+				auto duration = Clock::now() - *started;
+				return std::chrono::duration_cast<DoubleDuration>(duration).count();
+			}
+			return 0;
+		}
+
+		template<typename TU>
+		static double ToDouble(TU t) {
+			return std::chrono::duration_cast<DoubleDuration>(t).count();
 		}
 
 	private:

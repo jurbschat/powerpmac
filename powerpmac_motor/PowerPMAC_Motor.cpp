@@ -64,17 +64,18 @@
 //================================================================
 //  Attributes managed are:
 //================================================================
-//  position          |  Tango::DevFloat	Scalar
-//  acceleration      |  Tango::DevFloat	Scalar
-//  maxvelocity       |  Tango::DevFloat	Scalar
-//  sl_cw             |  Tango::DevFloat	Scalar
-//  sl_ccw            |  Tango::DevFloat	Scalar
-//  sl_cw_fault       |  Tango::DevBoolean	Scalar
-//  sl_ccw_fault      |  Tango::DevBoolean	Scalar
-//  limit_cw_fault    |  Tango::DevBoolean	Scalar
-//  limit_ccw_fault   |  Tango::DevBoolean	Scalar
-//  invert_direction  |  Tango::DevBoolean	Scalar
-//  invert_encoder    |  Tango::DevBoolean	Scalar
+//  position           |  Tango::DevFloat	Scalar
+//  acceleration       |  Tango::DevFloat	Scalar
+//  max_velocity       |  Tango::DevFloat	Scalar
+//  sl_cw              |  Tango::DevFloat	Scalar
+//  sl_ccw             |  Tango::DevFloat	Scalar
+//  sl_cw_fault        |  Tango::DevBoolean	Scalar
+//  sl_ccw_fault       |  Tango::DevBoolean	Scalar
+//  limit_cw_fault     |  Tango::DevBoolean	Scalar
+//  limit_ccw_fault    |  Tango::DevBoolean	Scalar
+//  conversion_factor  |  Tango::DevFloat	Scalar
+//  invert_direction   |  Tango::DevBoolean	Scalar
+//  invert_encoder     |  Tango::DevBoolean	Scalar
 //================================================================
 
 namespace PowerPMAC_Motor_ns
@@ -134,13 +135,14 @@ void PowerPMAC_Motor::delete_device()
 	
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::delete_device
 	delete[] attr_acceleration_read;
-	delete[] attr_maxvelocity_read;
+	delete[] attr_max_velocity_read;
 	delete[] attr_sl_cw_read;
 	delete[] attr_sl_ccw_read;
 	delete[] attr_sl_cw_fault_read;
 	delete[] attr_sl_ccw_fault_read;
 	delete[] attr_limit_cw_fault_read;
 	delete[] attr_limit_ccw_fault_read;
+	delete[] attr_conversion_factor_read;
 	delete[] attr_invert_direction_read;
 	delete[] attr_invert_encoder_read;
 }
@@ -165,13 +167,14 @@ void PowerPMAC_Motor::init_device()
 	get_device_property();
 	
 	attr_acceleration_read = new Tango::DevFloat[1];
-	attr_maxvelocity_read = new Tango::DevFloat[1];
+	attr_max_velocity_read = new Tango::DevFloat[1];
 	attr_sl_cw_read = new Tango::DevFloat[1];
 	attr_sl_ccw_read = new Tango::DevFloat[1];
 	attr_sl_cw_fault_read = new Tango::DevBoolean[1];
 	attr_sl_ccw_fault_read = new Tango::DevBoolean[1];
 	attr_limit_cw_fault_read = new Tango::DevBoolean[1];
 	attr_limit_ccw_fault_read = new Tango::DevBoolean[1];
+	attr_conversion_factor_read = new Tango::DevFloat[1];
 	attr_invert_direction_read = new Tango::DevBoolean[1];
 	attr_invert_encoder_read = new Tango::DevBoolean[1];
 	/*----- PROTECTED REGION ID(PowerPMAC_Motor::init_device) ENABLED START -----*/
@@ -238,6 +241,7 @@ void PowerPMAC_Motor::get_device_property()
 	/*----- PROTECTED REGION ID(PowerPMAC_Motor::get_device_property_after) ENABLED START -----*/
 	
 	//	Check device property data members init
+	motorId = static_cast<ppmac::MotorID::TYPE>(motorIndex);
 	
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::get_device_property_after
 }
@@ -306,7 +310,7 @@ void PowerPMAC_Motor::read_position(Tango::Attribute &attr)
 
 	ppmac::CoreInterface& ci = ppmac::GetCoreObject();
 	try {
-		float pos = ci.GetMotorInfo(static_cast<ppmac::MotorID::TYPE>(motorIndex)).position;
+		float pos = ci.GetMotorInfo(motorId).position;
 		attr.set_value(&pos);
 	}
 	catch(ppmac::RuntimeError& e) {
@@ -334,7 +338,7 @@ void PowerPMAC_Motor::write_position(Tango::WAttribute &attr)
 
 	ppmac::CoreInterface& ci = ppmac::GetCoreObject();
 	try {
-		auto cmd = ppmac::cmd::MotorJogToPosition(w_val, static_cast<ppmac::MotorID::TYPE>(motorIndex));
+		auto cmd = ppmac::cmd::MotorJogToPosition(motorId, w_val);
 		ci.ExecuteCommand(fmt::to_string(cmd));
 	}
 	catch(ppmac::RuntimeError& e) {
@@ -383,41 +387,41 @@ void PowerPMAC_Motor::write_acceleration(Tango::WAttribute &attr)
 }
 //--------------------------------------------------------
 /**
- *	Read attribute maxvelocity related method
+ *	Read attribute max_velocity related method
  *	Description: 
  *
  *	Data type:	Tango::DevFloat
  *	Attr type:	Scalar
  */
 //--------------------------------------------------------
-void PowerPMAC_Motor::read_maxvelocity(Tango::Attribute &attr)
+void PowerPMAC_Motor::read_max_velocity(Tango::Attribute &attr)
 {
-	DEBUG_STREAM << "PowerPMAC_Motor::read_maxvelocity(Tango::Attribute &attr) entering... " << endl;
-	/*----- PROTECTED REGION ID(PowerPMAC_Motor::read_maxvelocity) ENABLED START -----*/
+	DEBUG_STREAM << "PowerPMAC_Motor::read_max_velocity(Tango::Attribute &attr) entering... " << endl;
+	/*----- PROTECTED REGION ID(PowerPMAC_Motor::read_max_velocity) ENABLED START -----*/
 	//	Set the attribute value
-	attr.set_value(attr_maxvelocity_read);
+	attr.set_value(attr_max_velocity_read);
 	
-	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::read_maxvelocity
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::read_max_velocity
 }
 //--------------------------------------------------------
 /**
- *	Write attribute maxvelocity related method
+ *	Write attribute max_velocity related method
  *	Description: 
  *
  *	Data type:	Tango::DevFloat
  *	Attr type:	Scalar
  */
 //--------------------------------------------------------
-void PowerPMAC_Motor::write_maxvelocity(Tango::WAttribute &attr)
+void PowerPMAC_Motor::write_max_velocity(Tango::WAttribute &attr)
 {
-	DEBUG_STREAM << "PowerPMAC_Motor::write_maxvelocity(Tango::WAttribute &attr) entering... " << endl;
+	DEBUG_STREAM << "PowerPMAC_Motor::write_max_velocity(Tango::WAttribute &attr) entering... " << endl;
 	//	Retrieve write value
 	Tango::DevFloat	w_val;
 	attr.get_write_value(w_val);
-	/*----- PROTECTED REGION ID(PowerPMAC_Motor::write_maxvelocity) ENABLED START -----*/
+	/*----- PROTECTED REGION ID(PowerPMAC_Motor::write_max_velocity) ENABLED START -----*/
 	
 	
-	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::write_maxvelocity
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::write_max_velocity
 }
 //--------------------------------------------------------
 /**
@@ -566,6 +570,61 @@ void PowerPMAC_Motor::read_limit_ccw_fault(Tango::Attribute &attr)
 	attr.set_value(attr_limit_ccw_fault_read);
 	
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::read_limit_ccw_fault
+}
+//--------------------------------------------------------
+/**
+ *	Read attribute conversion_factor related method
+ *	Description: 
+ *
+ *	Data type:	Tango::DevFloat
+ *	Attr type:	Scalar
+ */
+//--------------------------------------------------------
+void PowerPMAC_Motor::read_conversion_factor(Tango::Attribute &attr)
+{
+	DEBUG_STREAM << "PowerPMAC_Motor::read_conversion_factor(Tango::Attribute &attr) entering... " << endl;
+	/*----- PROTECTED REGION ID(PowerPMAC_Motor::read_conversion_factor) ENABLED START -----*/
+	//	Set the attribute value
+
+	ppmac::CoreInterface& ci = ppmac::GetCoreObject();
+	try {
+		float conversion = ci.GetMotorInfo(motorId).conversion;
+		attr.set_value(&conversion);
+	}
+	catch(ppmac::RuntimeError& e) {
+		tu::TranslateException(e);
+	}
+	
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::read_conversion_factor
+}
+//--------------------------------------------------------
+/**
+ *	Write attribute conversion_factor related method
+ *	Description: 
+ *
+ *	Data type:	Tango::DevFloat
+ *	Attr type:	Scalar
+ */
+//--------------------------------------------------------
+void PowerPMAC_Motor::write_conversion_factor(Tango::WAttribute &attr)
+{
+	DEBUG_STREAM << "PowerPMAC_Motor::write_conversion_factor(Tango::WAttribute &attr) entering... " << endl;
+	//	Retrieve write value
+	Tango::DevFloat	w_val;
+	attr.get_write_value(w_val);
+	/*----- PROTECTED REGION ID(PowerPMAC_Motor::write_conversion_factor) ENABLED START -----*/
+
+	ppmac::CoreInterface& ci = ppmac::GetCoreObject();
+	try {
+		auto cmd = ppmac::cmd::MotorSetConversion(w_val, motorId);
+		ci.ExecuteCommand(fmt::to_string(cmd));
+	}
+	catch(ppmac::RuntimeError& e) {
+		tu::TranslateException(e);
+	}
+	
+	
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::write_conversion_factor
 }
 //--------------------------------------------------------
 /**

@@ -38,87 +38,154 @@ namespace ppmac {
 		}
 	}
 
-	using MotorStatus = union StatusUnion{
-		StatusUnion() {
-			memset( this, 0, sizeof( StatusUnion ));
+	union MotorStatusUnion{
+		MotorStatusUnion() {
+			memset( this, 0, sizeof( MotorStatusUnion ));
 		}
-		StatusUnion(uint64_t value)
-			: value(detail::FixByteOrder(value))
+		MotorStatusUnion(uint64_t value)
+			: registerValue(detail::FixByteOrder(value))
 		{}
 		struct {
 			uint32_t status1;
 			uint32_t status0;
-		} state;
+		} status;
 		struct {
-			// second
-			uint8_t bit1_0 : 1;
-			uint8_t bit1_1 : 1;
-			uint8_t bit1_2 : 1;
-			uint8_t bit1_3 : 1;
-			uint8_t bit1_4 : 1;
-			uint8_t bit1_5 : 1;
-			uint8_t bit1_6 : 1;
-			uint8_t bit1_7 : 1;
-			uint8_t bit1_8 : 1;
-			uint8_t bit1_9 : 1;
-			uint8_t bit1_10 : 1;
-			uint8_t bit1_11 : 1;
-			uint8_t bit1_12 : 1;
-			uint8_t bit1_13 : 1;
-			uint8_t bit1_14 : 1;
-			uint8_t bit1_15 : 1;
-			uint8_t bit1_16 : 1;
-			uint8_t bit1_17 : 1;
-			uint8_t bit1_18 : 1;
-			uint8_t bit1_19 : 1;
-			uint8_t bit1_20 : 1;
-			uint8_t bit1_21 : 1;
-			uint8_t bit1_22 : 1;
-			uint8_t bit1_23 : 1;
-			uint8_t bit1_24 : 1;
-			uint8_t bit1_25 : 1;
-			uint8_t bit1_26 : 1;
-			uint8_t bit1_27 : 1;
-			uint8_t bit1_28 : 1;
-			uint8_t bit1_29 : 1;
-			uint8_t bit1_30 : 1;
-			uint8_t bit1_31 : 1;
-			// first
-			uint8_t bit0_0 : 1;
-			uint8_t bit0_1 : 1;
-			uint8_t bit0_2 : 1;
-			uint8_t bit0_3 : 1;
-			uint8_t bit0_4 : 1;
-			uint8_t bit0_5 : 1;
-			uint8_t bit0_6 : 1;
-			uint8_t bit0_7 : 1;
+			// Motor[x].Status[1]
+			uint8_t RESERVED_1_0 : 1;
+			uint8_t RESERVED_1_1 : 1;
+			uint8_t RESERVED_1_2 : 1;
+			uint8_t RESERVED_1_3 : 1;
+			uint8_t RESERVED_1_4 : 1;
+			uint8_t RESERVED_1_5 : 1;
+			uint8_t RESERVED_1_6 : 1;
+			uint8_t RESERVED_1_7 : 1;
+			uint8_t RESERVED_1_8 : 1;
+			uint8_t RESERVED_1_9 : 1;
+			uint8_t RESERVED_1_10 : 1;
+			uint8_t RESERVED_1_11 : 1;
+			uint8_t RESERVED_1_12 : 1;
+			uint8_t RESERVED_1_13 : 1;
+			uint8_t RESERVED_1_14 : 1;
+			uint8_t RESERVED_1_15 : 1;
+			uint8_t RESERVED_1_16 : 1;
+			uint8_t RESERVED_1_17 : 1;
+			uint8_t RESERVED_1_18 : 1;
+			uint8_t RESERVED_1_19 : 1;
+			uint8_t RESERVED_1_20 : 1;
+			uint8_t RESERVED_1_21 : 1;
+			uint8_t RESERVED_1_22 : 1;
+			uint8_t RESERVED_1_23 : 1;
+			uint8_t RESERVED_1_24 : 1;
+			uint8_t RESERVED_1_25 : 1;
+			uint8_t RESERVED_1_26 : 1;
+			uint8_t SoftLimitDir : 1;
+			uint8_t BlDir : 1;
+			uint8_t DacLimit : 1;
+			uint8_t SoftLimit : 1;
+			uint8_t Csolve : 1;
+			// Motor[x].Status[0]
+			uint8_t RESERVED_0_0 : 1;
+			uint8_t RESERVED_0_1 : 1;
+			uint8_t RESERVED_0_2 : 1;
+			uint8_t RESERVED_0_3 : 1;
+			uint8_t SpindleMotor0 : 1;
+			uint8_t SpindleMotor1 : 1;
+			uint8_t GantryHomed : 1;
+			uint8_t TriggerSpeedSel : 1;
 			uint8_t PhaseFound : 1;
-			uint8_t bit0_9 : 1;
-			uint8_t bit0_10 : 1;
-			uint8_t bit0_11 : 1;
-			uint8_t bit0_12 : 1;
-			uint8_t bit0_13 : 1;
+			uint8_t BlockRequest : 1;
+			uint8_t RESERVED_10 : 1;
+			uint8_t InPos : 1;
+			uint8_t AmpEna : 1;
+			uint8_t ClosedLoop : 1;
 			uint8_t DestVelZero : 1;
-			uint8_t bit0_15 : 1;
-			uint8_t bit0_16 : 1;
-			uint8_t bit0_17 : 1;
-			uint8_t bit0_18 : 1;
-			uint8_t bit0_19 : 1;
-			uint8_t bit0_20 : 1;
-			uint8_t bit0_21 : 1;
-			uint8_t bit0_22 : 1;
-			uint8_t bit0_23 : 1;
+			uint8_t HomeComplete : 1;
+			uint8_t RESERVED_16 : 1;
+			uint8_t AuxFault : 1;
+			uint8_t EncLoss : 1;
+			uint8_t AmpWarn : 1;
+			uint8_t TriggerNotFound : 1;
+			uint8_t I2tFault : 1;
+			uint8_t SoftPlusLimit : 1;
+			uint8_t SoftMinusLimit : 1;
 			uint8_t AmpFault : 1;
-			uint8_t bit0_25 : 1;
-			uint8_t bit0_26 : 1;
-			uint8_t bit0_27 : 1;
-			uint8_t bit0_28 : 1;
-			uint8_t bit0_29 : 1;
-			uint8_t bit0_30 : 1;
-			uint8_t bit0_31 : 1;
-
+			uint8_t LimitStop : 1;
+			uint8_t FeWarn : 1;
+			uint8_t FeFatal : 1;
+			uint8_t PlusLimit : 1;
+			uint8_t MinusLimit : 1;
+			uint8_t HomeInProgress : 1;
+			uint8_t TriggerMove : 1;
 		} named;
-		uint64_t value;
+		uint64_t registerValue;
+	};
+
+	union CoordStatusUnion{
+		CoordStatusUnion() {
+			memset( this, 0, sizeof( CoordStatusUnion ));
+		}
+		CoordStatusUnion(uint64_t value)
+				: registerValue(detail::FixByteOrder(value))
+		{}
+		struct {
+			uint32_t status1;
+			uint32_t status0;
+		} status;
+		struct {
+			// Motor[x].Status[1]
+			uint8_t AddedDwellDis : 1; // bit 0
+			uint8_t SharpCornerStop : 1;
+			uint8_t CC3Active : 1;
+			uint8_t EndDelayActive : 1;
+			uint8_t CCMoveType0 : 1;
+			uint8_t CCMoveType1 : 1;
+			uint8_t CCOffReq : 1;
+			uint8_t CCAddedArc : 1;
+			uint8_t LHStatus : 8;
+			uint8_t SegStopReq : 1;
+			uint8_t SegEnabled : 1;
+			uint8_t SegMoveDccel : 1;
+			uint8_t SegMoveAccel : 1;
+			uint8_t SegMove0 : 1;
+			uint8_t SegMove1 : 1;
+			uint8_t MoveMode0 : 1;
+			uint8_t MoveMode1 : 1;
+			uint8_t CCMode0 : 1;
+			uint8_t CCMode1: 1;
+			uint8_t ContMotion: 1;
+			uint8_t BlockAcive : 1;
+			uint8_t FeedHold0 : 1;
+			uint8_t FeedHold1 : 1;
+			uint8_t LinToPvtBuf : 1;
+			uint8_t Csolve : 1; // bit 31
+			// Coord[x].Status[0]
+			uint8_t ErrorStatus : 8; // bit 0
+			uint8_t TimersEnabled : 1;
+			uint8_t BlockRequest : 1;
+			uint8_t RESERVED_10 : 1;
+			uint8_t InPos : 1;
+			uint8_t AmpEna : 1;
+			uint8_t ClosedLoop : 1;
+			uint8_t DestVelZero : 1;
+			uint8_t HomeComplete : 1;
+			uint8_t TimerEnabled : 1;
+			uint8_t AuxFault : 1;
+			uint8_t EncLoss : 1;
+			uint8_t AmpWarn : 1;
+			uint8_t TriggerNotFound : 1;
+			uint8_t I2tFault : 1;
+			uint8_t SoftPlusLimit : 1;
+			uint8_t SoftMinusLimit : 1;
+			uint8_t AmpFault : 1;
+			uint8_t LimitStop : 1;
+			uint8_t FeFatal : 1;
+			uint8_t FeWarn : 1;
+			uint8_t PlusLimit : 1;
+			uint8_t MinusLimit : 1;
+			uint8_t HomeInProgress : 1;
+			uint8_t TriggerMove : 1; // bit 31
+		} named;
+		uint64_t registerValue;
 	};
 
 	struct MotorInfo {
@@ -127,15 +194,20 @@ namespace ppmac {
 		float followingError;
 		float maxVelocity;
 		float acceleration;
+		float conversion;
 		float slCw;
 		float slCcw;
 		bool invertDirection;
 		bool invertEncoder;
-		MotorStatus status;
+		MotorStatusUnion status;
+	};
+
+	struct CoordInfo {
+		CoordStatusUnion status;
 	};
 
 	struct PortInfo {
-		uint32_t value;
+		// something
 	};
 
 	struct GlobalInfo {

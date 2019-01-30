@@ -398,7 +398,7 @@ void PowerPMAC_MotorClass::attribute_factory(vector<Tango::Attr *> &att_list)
 	Tango::UserDefaultAttrProp	position_prop;
 	//	description	not set for position
 	//	label	not set for position
-	//	unit	not set for position
+	position_prop.set_unit("motor units");
 	//	standard_unit	not set for position
 	//	display_unit	not set for position
 	//	format	not set for position
@@ -422,7 +422,7 @@ void PowerPMAC_MotorClass::attribute_factory(vector<Tango::Attr *> &att_list)
 	Tango::UserDefaultAttrProp	acceleration_prop;
 	//	description	not set for acceleration
 	//	label	not set for acceleration
-	//	unit	not set for acceleration
+	acceleration_prop.set_unit("motor units / msec^2");
 	//	standard_unit	not set for acceleration
 	//	display_unit	not set for acceleration
 	//	format	not set for acceleration
@@ -441,29 +441,29 @@ void PowerPMAC_MotorClass::attribute_factory(vector<Tango::Attr *> &att_list)
 	//	Not Memorized
 	att_list.push_back(acceleration);
 
-	//	Attribute : maxvelocity
-	maxvelocityAttrib	*maxvelocity = new maxvelocityAttrib();
-	Tango::UserDefaultAttrProp	maxvelocity_prop;
-	//	description	not set for maxvelocity
-	//	label	not set for maxvelocity
-	//	unit	not set for maxvelocity
-	//	standard_unit	not set for maxvelocity
-	//	display_unit	not set for maxvelocity
-	//	format	not set for maxvelocity
-	//	max_value	not set for maxvelocity
-	//	min_value	not set for maxvelocity
-	//	max_alarm	not set for maxvelocity
-	//	min_alarm	not set for maxvelocity
-	//	max_warning	not set for maxvelocity
-	//	min_warning	not set for maxvelocity
-	//	delta_t	not set for maxvelocity
-	//	delta_val	not set for maxvelocity
+	//	Attribute : max_velocity
+	max_velocityAttrib	*max_velocity = new max_velocityAttrib();
+	Tango::UserDefaultAttrProp	max_velocity_prop;
+	//	description	not set for max_velocity
+	//	label	not set for max_velocity
+	max_velocity_prop.set_unit("motor units / msec");
+	//	standard_unit	not set for max_velocity
+	//	display_unit	not set for max_velocity
+	//	format	not set for max_velocity
+	//	max_value	not set for max_velocity
+	//	min_value	not set for max_velocity
+	//	max_alarm	not set for max_velocity
+	//	min_alarm	not set for max_velocity
+	//	max_warning	not set for max_velocity
+	//	min_warning	not set for max_velocity
+	//	delta_t	not set for max_velocity
+	//	delta_val	not set for max_velocity
 	
-	maxvelocity->set_default_properties(maxvelocity_prop);
+	max_velocity->set_default_properties(max_velocity_prop);
 	//	Not Polled
-	maxvelocity->set_disp_level(Tango::OPERATOR);
+	max_velocity->set_disp_level(Tango::OPERATOR);
 	//	Not Memorized
-	att_list.push_back(maxvelocity);
+	att_list.push_back(max_velocity);
 
 	//	Attribute : sl_cw
 	sl_cwAttrib	*sl_cw = new sl_cwAttrib();
@@ -608,6 +608,30 @@ void PowerPMAC_MotorClass::attribute_factory(vector<Tango::Attr *> &att_list)
 	limit_ccw_fault->set_disp_level(Tango::OPERATOR);
 	//	Not Memorized
 	att_list.push_back(limit_ccw_fault);
+
+	//	Attribute : conversion_factor
+	conversion_factorAttrib	*conversion_factor = new conversion_factorAttrib();
+	Tango::UserDefaultAttrProp	conversion_factor_prop;
+	//	description	not set for conversion_factor
+	//	label	not set for conversion_factor
+	//	unit	not set for conversion_factor
+	//	standard_unit	not set for conversion_factor
+	//	display_unit	not set for conversion_factor
+	//	format	not set for conversion_factor
+	//	max_value	not set for conversion_factor
+	//	min_value	not set for conversion_factor
+	//	max_alarm	not set for conversion_factor
+	//	min_alarm	not set for conversion_factor
+	//	max_warning	not set for conversion_factor
+	//	min_warning	not set for conversion_factor
+	//	delta_t	not set for conversion_factor
+	//	delta_val	not set for conversion_factor
+	
+	conversion_factor->set_default_properties(conversion_factor_prop);
+	//	Not Polled
+	conversion_factor->set_disp_level(Tango::OPERATOR);
+	//	Not Memorized
+	att_list.push_back(conversion_factor);
 
 	//	Attribute : invert_direction
 	invert_directionAttrib	*invert_direction = new invert_directionAttrib();
