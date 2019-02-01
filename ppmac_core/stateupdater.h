@@ -34,7 +34,6 @@ namespace ppmac {
 		{
 			state.motors.resize(MAX_MOTORS);
 			state.ports.resize(MAX_PORTS);
-			//TODO: get initial stuff e.g. max motors/coords
 		}
 
 		~PmacStateHolder() {
@@ -62,7 +61,7 @@ namespace ppmac {
 		}
 
 		MotorInfo GetMotorInfo(MotorID::TYPE id) const {
-			int32_t idx = convert::from_enum(id);
+			int32_t idx = from_enum(id);
 			if(idx >= static_cast<int32_t>(state.motors.size())) {
 				THROW_RUNTIME_ERROR("invalid motor index");
 			}
@@ -70,38 +69,32 @@ namespace ppmac {
 		}
 
 		PortInfo GetPortInfo(PortID::TYPE id) const {
-			int32_t idx = convert::from_enum(id);
+			int32_t idx = from_enum(id);
 			if(idx >= static_cast<int32_t>(state.ports.size())) {
 				THROW_RUNTIME_ERROR("invalid port index");
 			}
 			return state.ports[idx];
 		}
 
-		void UpdateAllState() {
-			UpdateGeneralInfo();
-			UpdateMotorValues();
-			UpdateMotorStates();
-		}
-
 		void UpdateGeneralInfo() {
 			// general status
-			auto generalQuery = query::GeneralGetInfo(stdext::span<GlobalInfo>(&state.global, static_cast<ptrdiff_t>(0)));
-			auto generalResult = rs.ChannelWriteRead(generalQuery.command);
-			if(generalResult) {
-				auto parseResult = parser::ParseMultilineResult<parser::FloatParser>(*generalResult);
-				UpdateFromLineResult(parseResult, generalQuery);
+			auto query = query::GeneralGetInfo(stdext::span<GlobalInfo>(&state.global, 1));
+			auto result = rs.ChannelWriteRead(query.command);
+			if(result) {
+				auto parserResult = query.parser(*result);
+				Update1D(parserResult, query);
 			}
 		}
 
 		void UpdateMotorOther() {
 			// motor status
-			auto motorQuery = query::MotorGetOtherRange(stdext::make_span(state.motors),
+			auto query = query::MotorGetOtherRange(stdext::make_span(state.motors),
 					static_cast<MotorID::TYPE>(0),
 					static_cast<MotorID::TYPE>(state.global.maxMotors - 1));
-			auto motorResult = rs.ChannelWriteRead(motorQuery.command);
-			if(motorResult) {
-				auto parseResult = parser::ParseMultilineResult<parser::FloatParser>(*motorResult);
-				UpdateFromLineResult(parseResult, motorQuery);
+			auto result = rs.ChannelWriteRead(query.command);
+			if(result) {
+				auto parserResult = query.parser(*result);
+				Update1D(parserResult, query);
 			}
 		}
 
@@ -112,34 +105,36 @@ namespace ppmac {
 					static_cast<MotorID::TYPE>(state.global.maxMotors - 1));
 			auto motorResult = rs.ChannelWriteRead(motorQuery.command);
 			if(motorResult) {
-				auto parseResult = parser::ParseMultilineResult<parser::FloatParser>(*motorResult);
-				UpdateFromLineResult(parseResult, motorQuery);
+				auto parserResult = motorQuery.parser(*motorResult);
+				Update2D(parserResult, motorQuery);
 			}
 		}
 
 		void UpdateMotorStates() {
-			auto stateQuery = query::MotorGetStatusRange(stdext::make_span(state.motors),
+			auto query = query::MotorGetStatusRange(stdext::make_span(state.motors),
 					static_cast<MotorID::TYPE>(0),
 					static_cast<MotorID::TYPE>(state.global.maxMotors - 1));
-			auto stateResult = rs.ChannelWriteRead(stateQuery.command);
-			if(stateResult) {
-				auto parseResult = parser::ParseMultilineResult<parser::Hex64Parser >(*stateResult);
-				UpdateFromLineResult(parseResult, stateQuery);
+			auto result = rs.ChannelWriteRead(query.command);
+			if(result) {
+				auto parserResult = query.parser(*result);
+				Update1D(parserResult, query);
 			}
+
+			// we need to check if we got into an error state
 		}
 
 		template<typename T, typename U>
 		/*
-		 * needs parser results in the form of (1 to x lines)
-		 * 0 0 0 0 0 0 0 0
-		 * 1 2 3 4 5 6 7 8
-		 * .....
+		 * needs parser results in the form of (1 to x lines with 1.x values in each line)
+		 * [0] 0 0 0 0 0 0 0 0
+		 * [1] 1 2 3 4 5 6 7 8
+		 * ...
 		 * each line corresponds to an actual attribute in the specified
 		 * struct (through a member pointer). each value will be mapped
 		 * to an array index that is defined by the query range in the
 		 * querybuilder.
 		 */
-		void UpdateFromLineResult(const T &parseResult, const U &query) {
+		void Update2D(const T &parseResult, const U &query) {
 			// check if we have as many member pointers as we have result lines
 			if(std::tuple_size<decltype(query.pointers.memberPointer)>::value != parseResult.size()) {
 				THROW_RUNTIME_ERROR("unable to match parsed data to internal state, size mismatch state:{} != result:{}",
@@ -148,24 +143,30 @@ namespace ppmac {
 			}
 			// we iterate over each member pointer in the queries tuple and match those
 			// to the actual structs that we want to update
-			for_each_in_tuple(query.pointers.memberPointer, [&parseResult, &query](auto target, size_t tupleIndex) {
+			for_each_in_tuple(query.pointers.memberPointer, [&parseResult, &query](auto target, size_t tupleIndex)
+			{
+				auto& lineResultVector = parseResult[tupleIndex];
+				if(lineResultVector.size() + query.rangeStart > static_cast<size_t>(query.pointers.data.size())) {
+					THROW_RUNTIME_ERROR("result to large {} > {}, unable to update target range",
+							lineResultVector.size() + query.rangeStart,
+							query.pointers.data.size());
+				}
 				// first we get the parsed result for the first index
 				// then we take each object and apply the current value
 				// to the sturcts member pointer e.g.:
 				// for each member in list (MotorInfo::position, MotorInfo::velocity)
 				//     for each motor in motors
 				//         motor.<either position or velocity> = value
-				auto& lineResultVector = parseResult[tupleIndex];
 				for(size_t i = 0; i < lineResultVector.size(); i++) {
 					auto value = lineResultVector[i]; // decltype(getPointerType(target))
 					size_t offset = query.rangeStart + i;
 					// check if the offset of our line result fits into the size of the actual
 					// objects we hold as state
-					if(offset > static_cast<size_t>(query.pointers.data.size())) {
+					/*if(offset > static_cast<size_t>(query.pointers.data.size())) {
 						THROW_RUNTIME_ERROR("data offset for value update is out of range size:{}, offset:{}",
 								query.pointers.data.size(),
 								offset);
-					}
+					}*/
 					// explicitly cast, we assume this is possible. if not there is s mismatch between parser type and specified struct types
 					(query.pointers.data.data() + offset)->*target = value;
 				}
@@ -173,45 +174,44 @@ namespace ppmac {
 		}
 
 		template<typename T, typename U>
-		void UpdateFromRowResult(const T &parseResult, const U &query)
+		/*
+		 * need parser results in the form of
+		 * [0] value1 <- start of object
+		 * [1] value2
+		 * [..] ...
+		 * [5] value1 <- start of next object
+		 * [6] value2
+		 * ... (many more but always in the same order)
+		 * where each X items (denoted as the member pointers in the query)
+		 * belong to one object, size % pointerCount yields the result size
+		 */
+		void Update1D(const T &parseResult, const U &query)
 		{
-			//
-			for(size_t i = 0; i < parseResult.size(); i++)
-			{
-				auto& line = parseResult[i];
-				// we expect there to be only one result,
-				if(std::tuple_size<decltype(query.pointers.memberPointer)>::value != line.size()) {
-					THROW_RUNTIME_ERROR("unable to match parsed data to internal state, size mismatch state:{} != result:{}",
-							std::tuple_size<decltype(query.pointers.memberPointer)>::value,
-							parseResult.size());
-				}
-
-				//tuple_switch(i, 0, print);
+			constexpr size_t packSize = std::tuple_size<decltype(query.pointers.memberPointer)>::value;
+			if(parseResult.size() % packSize != 0) {
+				THROW_RUNTIME_ERROR("unable to match data to query, {} is not a multiple of {}",
+						parseResult.size(),
+						packSize);
 			}
+			size_t outputSize = static_cast<size_t>(query.pointers.data.size());
+			if((parseResult.size() / packSize) + query.rangeStart > outputSize) {
+				THROW_RUNTIME_ERROR("resul to large {} > {}, unable to update target range",
+						(parseResult.size() / packSize) + query.rangeStart,
+						query.pointers.data.size());
 
-			// we iterate over each member pointer in the queries tuple and match those
-			// to the actual structs that we want to update
-			for_each_in_tuple(query.pointers.memberPointer, [&parseResult, &query](auto target, size_t tupleIndex) {
-				// first we get the parsed result for the first index
-				// then we take each object and apply the current value
-				// to the sturcts member pointer e.g.:
-				// for each member in list (MotorInfo::position, MotorInfo::velocity)
-				//     for each motor in motors
-				//         motor.<either position or velocity> = value
-				auto& lineResultVector = parseResult[tupleIndex];
-
-					size_t offset = query.rangeStart + i;
-					// check if the offset of our line result fits into the size of the actual
-					// objects we hold as state
-					if(offset > static_cast<size_t>(query.pointers.data.size())) {
-						THROW_RUNTIME_ERROR("data offset for value update is out of range size:{}, offset:{}",
-								query.pointers.data.size(),
-								offset);
-					}
-					// explicitly cast, we assume this is possible. if not there is s mismatch between parser type and specified struct types
-					(query.pointers.data.data() + offset)->*target = value;
-				}
-			});
+			}
+			// this is the amount of objects we need to iterate about. the objValueStartIndex always points to the
+			// first value in the parsers result that starts a new object
+			size_t objectsInResult = parseResult.size() / packSize;
+			for(size_t objectIndex = 0; objectIndex < objectsInResult; objectIndex++)
+			{
+				for_each_in_tuple(query.pointers.memberPointer, [&](auto target, size_t tupleIndex) {
+					size_t valueOffset = (objectIndex * packSize) + tupleIndex;
+					size_t objectOffset = objectIndex + query.rangeStart;
+					auto& value = parseResult[valueOffset];
+					(query.pointers.data.data() + objectOffset)->*target = value;
+				});
+			}
 		}
 
 	private:
@@ -240,12 +240,12 @@ namespace ppmac {
 			timeout.AddTimer(UpdateTime{std::chrono::milliseconds{10}, [&, this](){
 				(void)this;
 				_10msUpdates++;
+				UpdateMotorValues();
 			}});
 
 			timeout.AddTimer(UpdateTime{std::chrono::milliseconds{1}, [&, this](){
 				_1msUpdates++;
 				UpdateMotorStates();
-				UpdateMotorValues();
 			}});
 
 			running = true;
