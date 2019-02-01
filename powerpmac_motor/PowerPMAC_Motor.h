@@ -34,6 +34,7 @@
 #define PowerPMAC_Motor_H
 
 #include "pmac/defines.h"
+#include "libs/sigs.h"
 #include <tango.h>
 
 
@@ -60,28 +61,31 @@ class PowerPMAC_Motor : public TANGO_BASE_CLASS
 //	Add your own data members
 private:
 	ppmac::MotorID::TYPE motorId;
+	sigs::Connection connectionEstablished;
+	sigs::Connection connectionLost;
+	sigs::Connection motorStateChanged;
 
 /*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::Data Members
 
 //	Device property data members
 public:
-	//	motorIndex:	the index of the motor
+	//	MotorIndex:	the index of the motor
 	Tango::DevULong	motorIndex;
+	//	DisableHardLimits:	
+	Tango::DevBoolean	disableHardLimits;
 
 //	Attribute data members
 public:
-	Tango::DevFloat	*attr_position_read;
-	Tango::DevFloat	*attr_acceleration_read;
-	Tango::DevFloat	*attr_max_velocity_read;
-	Tango::DevFloat	*attr_sl_cw_read;
-	Tango::DevFloat	*attr_sl_ccw_read;
-	Tango::DevBoolean	*attr_sl_cw_fault_read;
-	Tango::DevBoolean	*attr_sl_ccw_fault_read;
-	Tango::DevBoolean	*attr_limit_cw_fault_read;
-	Tango::DevBoolean	*attr_limit_ccw_fault_read;
-	Tango::DevFloat	*attr_conversion_factor_read;
-	Tango::DevBoolean	*attr_invert_direction_read;
-	Tango::DevBoolean	*attr_invert_encoder_read;
+	Tango::DevFloat	*attr_Position_read;
+	Tango::DevFloat	*attr_Acceleration_read;
+	Tango::DevFloat	*attr_Velocity_read;
+	Tango::DevFloat	*attr_SoftCwLimit_read;
+	Tango::DevFloat	*attr_SoftCcwLimit_read;
+	Tango::DevBoolean	*attr_EnableSoftLimit_read;
+	Tango::DevBoolean	*attr_SoftCwLimitFault_read;
+	Tango::DevBoolean	*attr_SoftCcwLimitFault_read;
+	Tango::DevBoolean	*attr_CwLimitFault_read;
+	Tango::DevBoolean	*attr_CcwLimitFault_read;
 
 //	Constructors and destructors
 public:
@@ -151,121 +155,101 @@ public:
 	virtual void write_attr_hardware(vector<long> &attr_list);
 
 /**
- *	Attribute position related methods
+ *	Attribute Position related methods
  *	Description: 
  *
  *	Data type:	Tango::DevFloat
  *	Attr type:	Scalar
  */
-	virtual void read_position(Tango::Attribute &attr);
-	virtual void write_position(Tango::WAttribute &attr);
-	virtual bool is_position_allowed(Tango::AttReqType type);
+	virtual void read_Position(Tango::Attribute &attr);
+	virtual void write_Position(Tango::WAttribute &attr);
+	virtual bool is_Position_allowed(Tango::AttReqType type);
 /**
- *	Attribute acceleration related methods
+ *	Attribute Acceleration related methods
  *	Description: 
  *
  *	Data type:	Tango::DevFloat
  *	Attr type:	Scalar
  */
-	virtual void read_acceleration(Tango::Attribute &attr);
-	virtual void write_acceleration(Tango::WAttribute &attr);
-	virtual bool is_acceleration_allowed(Tango::AttReqType type);
+	virtual void read_Acceleration(Tango::Attribute &attr);
+	virtual void write_Acceleration(Tango::WAttribute &attr);
+	virtual bool is_Acceleration_allowed(Tango::AttReqType type);
 /**
- *	Attribute max_velocity related methods
+ *	Attribute Velocity related methods
  *	Description: 
  *
  *	Data type:	Tango::DevFloat
  *	Attr type:	Scalar
  */
-	virtual void read_max_velocity(Tango::Attribute &attr);
-	virtual void write_max_velocity(Tango::WAttribute &attr);
-	virtual bool is_max_velocity_allowed(Tango::AttReqType type);
+	virtual void read_Velocity(Tango::Attribute &attr);
+	virtual void write_Velocity(Tango::WAttribute &attr);
+	virtual bool is_Velocity_allowed(Tango::AttReqType type);
 /**
- *	Attribute sl_cw related methods
+ *	Attribute SoftCwLimit related methods
  *	Description: 
  *
  *	Data type:	Tango::DevFloat
  *	Attr type:	Scalar
  */
-	virtual void read_sl_cw(Tango::Attribute &attr);
-	virtual void write_sl_cw(Tango::WAttribute &attr);
-	virtual bool is_sl_cw_allowed(Tango::AttReqType type);
+	virtual void read_SoftCwLimit(Tango::Attribute &attr);
+	virtual void write_SoftCwLimit(Tango::WAttribute &attr);
+	virtual bool is_SoftCwLimit_allowed(Tango::AttReqType type);
 /**
- *	Attribute sl_ccw related methods
+ *	Attribute SoftCcwLimit related methods
  *	Description: 
  *
  *	Data type:	Tango::DevFloat
  *	Attr type:	Scalar
  */
-	virtual void read_sl_ccw(Tango::Attribute &attr);
-	virtual void write_sl_ccw(Tango::WAttribute &attr);
-	virtual bool is_sl_ccw_allowed(Tango::AttReqType type);
+	virtual void read_SoftCcwLimit(Tango::Attribute &attr);
+	virtual void write_SoftCcwLimit(Tango::WAttribute &attr);
+	virtual bool is_SoftCcwLimit_allowed(Tango::AttReqType type);
 /**
- *	Attribute sl_cw_fault related methods
+ *	Attribute EnableSoftLimit related methods
  *	Description: 
  *
  *	Data type:	Tango::DevBoolean
  *	Attr type:	Scalar
  */
-	virtual void read_sl_cw_fault(Tango::Attribute &attr);
-	virtual bool is_sl_cw_fault_allowed(Tango::AttReqType type);
+	virtual void read_EnableSoftLimit(Tango::Attribute &attr);
+	virtual void write_EnableSoftLimit(Tango::WAttribute &attr);
+	virtual bool is_EnableSoftLimit_allowed(Tango::AttReqType type);
 /**
- *	Attribute sl_ccw_fault related methods
+ *	Attribute SoftCwLimitFault related methods
  *	Description: 
  *
  *	Data type:	Tango::DevBoolean
  *	Attr type:	Scalar
  */
-	virtual void read_sl_ccw_fault(Tango::Attribute &attr);
-	virtual bool is_sl_ccw_fault_allowed(Tango::AttReqType type);
+	virtual void read_SoftCwLimitFault(Tango::Attribute &attr);
+	virtual bool is_SoftCwLimitFault_allowed(Tango::AttReqType type);
 /**
- *	Attribute limit_cw_fault related methods
+ *	Attribute SoftCcwLimitFault related methods
  *	Description: 
  *
  *	Data type:	Tango::DevBoolean
  *	Attr type:	Scalar
  */
-	virtual void read_limit_cw_fault(Tango::Attribute &attr);
-	virtual bool is_limit_cw_fault_allowed(Tango::AttReqType type);
+	virtual void read_SoftCcwLimitFault(Tango::Attribute &attr);
+	virtual bool is_SoftCcwLimitFault_allowed(Tango::AttReqType type);
 /**
- *	Attribute limit_ccw_fault related methods
+ *	Attribute CwLimitFault related methods
  *	Description: 
  *
  *	Data type:	Tango::DevBoolean
  *	Attr type:	Scalar
  */
-	virtual void read_limit_ccw_fault(Tango::Attribute &attr);
-	virtual bool is_limit_ccw_fault_allowed(Tango::AttReqType type);
+	virtual void read_CwLimitFault(Tango::Attribute &attr);
+	virtual bool is_CwLimitFault_allowed(Tango::AttReqType type);
 /**
- *	Attribute conversion_factor related methods
- *	Description: 
- *
- *	Data type:	Tango::DevFloat
- *	Attr type:	Scalar
- */
-	virtual void read_conversion_factor(Tango::Attribute &attr);
-	virtual void write_conversion_factor(Tango::WAttribute &attr);
-	virtual bool is_conversion_factor_allowed(Tango::AttReqType type);
-/**
- *	Attribute invert_direction related methods
+ *	Attribute CcwLimitFault related methods
  *	Description: 
  *
  *	Data type:	Tango::DevBoolean
  *	Attr type:	Scalar
  */
-	virtual void read_invert_direction(Tango::Attribute &attr);
-	virtual void write_invert_direction(Tango::WAttribute &attr);
-	virtual bool is_invert_direction_allowed(Tango::AttReqType type);
-/**
- *	Attribute invert_encoder related methods
- *	Description: 
- *
- *	Data type:	Tango::DevBoolean
- *	Attr type:	Scalar
- */
-	virtual void read_invert_encoder(Tango::Attribute &attr);
-	virtual void write_invert_encoder(Tango::WAttribute &attr);
-	virtual bool is_invert_encoder_allowed(Tango::AttReqType type);
+	virtual void read_CcwLimitFault(Tango::Attribute &attr);
+	virtual bool is_CcwLimitFault_allowed(Tango::AttReqType type);
 
 
 	//--------------------------------------------------------
@@ -315,6 +299,9 @@ public:
 /*----- PROTECTED REGION ID(PowerPMAC_Motor::Additional Method prototypes) ENABLED START -----*/
 
 //	Additional Method prototypes
+	void StartMotor();
+	void StopMotor();
+	void MotorStateChanged();
 
 /*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::Additional Method prototypes
 };

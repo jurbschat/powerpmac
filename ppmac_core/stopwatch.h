@@ -59,7 +59,7 @@ namespace ppmac {
 			return std::chrono::seconds::zero();
 		}
 
-		template<>
+		/*template<>
 		double Elapsed<double>() noexcept {
 			if(started && stopped) {
 				auto duration = *stopped - *started;
@@ -70,11 +70,19 @@ namespace ppmac {
 				return std::chrono::duration_cast<DoubleDuration>(duration).count();
 			}
 			return 0;
-		}
+		}*/
 
 		template<typename TU>
 		static double ToDouble(TU t) {
 			return std::chrono::duration_cast<DoubleDuration>(t).count();
+		}
+
+		TimePoint GetStarted() {
+			return started;
+		}
+
+		TimePoint GetStopped() {
+			return stopped;
 		}
 
 	private:

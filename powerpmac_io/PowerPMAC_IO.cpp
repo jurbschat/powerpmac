@@ -139,15 +139,30 @@ void PowerPMAC_IO::init_device()
 
 	ppmac::CoreInterface& ci = ppmac::GetCoreObject();
 
-	ci.RegisterConnectionEstablished([](){
+	connectionEstablished = ci.GetSignal(ppmac::SignalType::ConnectionEstablished)->connect([this](){
+		StartIO();
+	});
 
+	connectionLost = ci.GetSignal(ppmac::SignalType::ConnectionLost)->connect([this](){
+		StopIO();
 	});
-	ci.RegisterConnectionLost([](const std::string& reason){
-		(void)reason;
-	});
+
+	if(ci.IsConnected()) {
+		StartIO();
+	} else {
+		set_state(Tango::OFF);
+	}
 
 	
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_IO::init_device
+}
+
+void PowerPMAC_IO::StartIO() {
+
+}
+
+void PowerPMAC_IO::StopIO() {
+
 }
 
 

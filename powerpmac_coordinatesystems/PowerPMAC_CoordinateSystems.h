@@ -34,10 +34,7 @@
 #define PowerPMAC_CoordinateSystems_H
 
 #include <tango.h>
-#include <coreinterface.h>
-#include "libs/unique_resource.h"
-#include "genericdeleter.h"
-
+#include "libs/sigs.h"
 
 /*----- PROTECTED REGION END -----*/	//	PowerPMAC_CoordinateSystems.h
 
@@ -61,9 +58,8 @@ class PowerPMAC_CoordinateSystems : public TANGO_BASE_CLASS
 
 	// this is bound to exists but cant be a reference as pogo regenerates the
 	// initializer list on each run. yeah who needs an initializer list...
-	ppmac::CoreInterface* core;
-	sr::unique_resource<ppmac::HandleType, ppmac::genericdeleter> establishedHandle;
-	sr::unique_resource<ppmac::HandleType, ppmac::genericdeleter> lostHandle;
+	sigs::Connection connectionEstablished;
+	sigs::Connection connectionLost;
 
 
 /*----- PROTECTED REGION END -----*/	//	PowerPMAC_CoordinateSystems::Data Members
@@ -152,8 +148,8 @@ public:
 
 /*----- PROTECTED REGION ID(PowerPMAC_CoordinateSystems::Additional Method prototypes) ENABLED START -----*/
 
-	void OnConnectionEstablished();
-	void OnConnectionLost(const std::string& reason);
+	void StartCoordinateSystem();
+	void StopCoordinateSystem();
 
 /*----- PROTECTED REGION END -----*/	//	PowerPMAC_CoordinateSystems::Additional Method prototypes
 };

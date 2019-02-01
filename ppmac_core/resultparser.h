@@ -5,6 +5,8 @@
 #ifndef POWERPMAC_COMMANDPARSER_H
 #define POWERPMAC_COMMANDPARSER_H
 
+#include "throw.h"
+
 #include <boost/container/small_vector.hpp>
 #include <boost/algorithm/string.hpp>
 #include <string>
@@ -94,14 +96,14 @@ namespace ppmac::parser {
 	using Hex32Parser = parser_traits<uint32_t, parser_gate_tag>;
 	using Hex64Parser = parser_traits<uint64_t, parser_gate_tag>;
 
-	template<typename Parser, size_t VALUE_COUNT = 32>
+	template<typename Parser, typename SepPred, size_t VALUE_COUNT = 32>
 	boost::container::small_vector<typename Parser::result_type, VALUE_COUNT>
-	ParseLineResult(const std::string &str)
+	Parse1D(const std::string &str, SepPred pred)
 	{
 		detail::ThrowIfError(str);
 		boost::container::small_vector<std::string, VALUE_COUNT> splitVector;
 		boost::container::small_vector<typename Parser::result_type, VALUE_COUNT> resultVector;
-		boost::algorithm::split(splitVector, str, boost::is_space(), boost::token_compress_on);
+		boost::algorithm::split(splitVector, str, pred, boost::token_compress_on);
 		if(splitVector.empty()) {
 			THROW_RUNTIME_ERROR("unable to parse '{}' as line", str);
 		}
@@ -111,22 +113,37 @@ namespace ppmac::parser {
 		return resultVector;
 	}
 
-	template<typename Parser, size_t LINE_COUNT = 4, size_t VALUE_COUNT = 32>
+	template<typename Parser, typename SepPred1, typename SepPred2 = boost::algorithm::detail::is_any_ofF<char>, size_t LINE_COUNT = 4, size_t VALUE_COUNT = 32>
 	boost::container::small_vector<boost::container::small_vector<typename Parser::result_type, LINE_COUNT>, VALUE_COUNT>
-	ParseMultilineResult(const std::string &str)
+	Parse2D(const std::string &str, SepPred1 pred1, SepPred2 pred2)
 	{
 		detail::ThrowIfError(str);
 		boost::container::small_vector<boost::container::small_vector<typename Parser::result_type, LINE_COUNT>, VALUE_COUNT> resultVector;
 		boost::container::small_vector<std::string, VALUE_COUNT> splitVector;
-		boost::algorithm::split(splitVector, str, boost::is_any_of("\r\n"), boost::token_compress_on);
+		boost::algorithm::split(splitVector, str, pred1, boost::token_compress_on);
 		if(splitVector.empty()) {
 			THROW_RUNTIME_ERROR("unable to parse '{}' as multiline", str);
 		}
 		for(auto& l : splitVector) {
-			resultVector.emplace_back(ParseLineResult<Parser, VALUE_COUNT>(l));
+			resultVector.emplace_back(Parse1D<Parser, SepPred2, VALUE_COUNT>(l, pred2));
 		}
 		return resultVector;
 	}
+
+	template<typename SepPred>
+	struct parse_1d
+	{
+		template<typename T>
+		parse_1d(T sep)
+			: pred(sep)
+		{}
+
+		auto operator()(const std::string &str)
+		{
+			return Parse1D(str, pred);
+		}
+		SepPred pred;
+	};
 
 
 }

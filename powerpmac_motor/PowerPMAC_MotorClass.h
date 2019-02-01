@@ -54,176 +54,146 @@ namespace PowerPMAC_Motor_ns
 //=========================================
 //	Define classes for attributes
 //=========================================
-//	Attribute position class definition
-class positionAttrib: public Tango::Attr
+//	Attribute Position class definition
+class PositionAttrib: public Tango::Attr
 {
 public:
-	positionAttrib():Attr("position",
+	PositionAttrib():Attr("Position",
 			Tango::DEV_FLOAT, Tango::READ_WRITE) {};
-	~positionAttrib() {};
+	~PositionAttrib() {};
 	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
-		{(static_cast<PowerPMAC_Motor *>(dev))->read_position(att);}
+		{(static_cast<PowerPMAC_Motor *>(dev))->read_Position(att);}
 	virtual void write(Tango::DeviceImpl *dev,Tango::WAttribute &att)
-		{(static_cast<PowerPMAC_Motor *>(dev))->write_position(att);}
+		{(static_cast<PowerPMAC_Motor *>(dev))->write_Position(att);}
 	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
-		{return (static_cast<PowerPMAC_Motor *>(dev))->is_position_allowed(ty);}
+		{return (static_cast<PowerPMAC_Motor *>(dev))->is_Position_allowed(ty);}
 };
 
-//	Attribute acceleration class definition
-class accelerationAttrib: public Tango::Attr
+//	Attribute Acceleration class definition
+class AccelerationAttrib: public Tango::Attr
 {
 public:
-	accelerationAttrib():Attr("acceleration",
+	AccelerationAttrib():Attr("Acceleration",
 			Tango::DEV_FLOAT, Tango::READ_WRITE) {};
-	~accelerationAttrib() {};
+	~AccelerationAttrib() {};
 	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
-		{(static_cast<PowerPMAC_Motor *>(dev))->read_acceleration(att);}
+		{(static_cast<PowerPMAC_Motor *>(dev))->read_Acceleration(att);}
 	virtual void write(Tango::DeviceImpl *dev,Tango::WAttribute &att)
-		{(static_cast<PowerPMAC_Motor *>(dev))->write_acceleration(att);}
+		{(static_cast<PowerPMAC_Motor *>(dev))->write_Acceleration(att);}
 	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
-		{return (static_cast<PowerPMAC_Motor *>(dev))->is_acceleration_allowed(ty);}
+		{return (static_cast<PowerPMAC_Motor *>(dev))->is_Acceleration_allowed(ty);}
 };
 
-//	Attribute max_velocity class definition
-class max_velocityAttrib: public Tango::Attr
+//	Attribute Velocity class definition
+class VelocityAttrib: public Tango::Attr
 {
 public:
-	max_velocityAttrib():Attr("max_velocity",
+	VelocityAttrib():Attr("Velocity",
 			Tango::DEV_FLOAT, Tango::READ_WRITE) {};
-	~max_velocityAttrib() {};
+	~VelocityAttrib() {};
 	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
-		{(static_cast<PowerPMAC_Motor *>(dev))->read_max_velocity(att);}
+		{(static_cast<PowerPMAC_Motor *>(dev))->read_Velocity(att);}
 	virtual void write(Tango::DeviceImpl *dev,Tango::WAttribute &att)
-		{(static_cast<PowerPMAC_Motor *>(dev))->write_max_velocity(att);}
+		{(static_cast<PowerPMAC_Motor *>(dev))->write_Velocity(att);}
 	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
-		{return (static_cast<PowerPMAC_Motor *>(dev))->is_max_velocity_allowed(ty);}
+		{return (static_cast<PowerPMAC_Motor *>(dev))->is_Velocity_allowed(ty);}
 };
 
-//	Attribute sl_cw class definition
-class sl_cwAttrib: public Tango::Attr
+//	Attribute SoftCwLimit class definition
+class SoftCwLimitAttrib: public Tango::Attr
 {
 public:
-	sl_cwAttrib():Attr("sl_cw",
+	SoftCwLimitAttrib():Attr("SoftCwLimit",
 			Tango::DEV_FLOAT, Tango::READ_WRITE) {};
-	~sl_cwAttrib() {};
+	~SoftCwLimitAttrib() {};
 	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
-		{(static_cast<PowerPMAC_Motor *>(dev))->read_sl_cw(att);}
+		{(static_cast<PowerPMAC_Motor *>(dev))->read_SoftCwLimit(att);}
 	virtual void write(Tango::DeviceImpl *dev,Tango::WAttribute &att)
-		{(static_cast<PowerPMAC_Motor *>(dev))->write_sl_cw(att);}
+		{(static_cast<PowerPMAC_Motor *>(dev))->write_SoftCwLimit(att);}
 	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
-		{return (static_cast<PowerPMAC_Motor *>(dev))->is_sl_cw_allowed(ty);}
+		{return (static_cast<PowerPMAC_Motor *>(dev))->is_SoftCwLimit_allowed(ty);}
 };
 
-//	Attribute sl_ccw class definition
-class sl_ccwAttrib: public Tango::Attr
+//	Attribute SoftCcwLimit class definition
+class SoftCcwLimitAttrib: public Tango::Attr
 {
 public:
-	sl_ccwAttrib():Attr("sl_ccw",
+	SoftCcwLimitAttrib():Attr("SoftCcwLimit",
 			Tango::DEV_FLOAT, Tango::READ_WRITE) {};
-	~sl_ccwAttrib() {};
+	~SoftCcwLimitAttrib() {};
 	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
-		{(static_cast<PowerPMAC_Motor *>(dev))->read_sl_ccw(att);}
+		{(static_cast<PowerPMAC_Motor *>(dev))->read_SoftCcwLimit(att);}
 	virtual void write(Tango::DeviceImpl *dev,Tango::WAttribute &att)
-		{(static_cast<PowerPMAC_Motor *>(dev))->write_sl_ccw(att);}
+		{(static_cast<PowerPMAC_Motor *>(dev))->write_SoftCcwLimit(att);}
 	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
-		{return (static_cast<PowerPMAC_Motor *>(dev))->is_sl_ccw_allowed(ty);}
+		{return (static_cast<PowerPMAC_Motor *>(dev))->is_SoftCcwLimit_allowed(ty);}
 };
 
-//	Attribute sl_cw_fault class definition
-class sl_cw_faultAttrib: public Tango::Attr
+//	Attribute EnableSoftLimit class definition
+class EnableSoftLimitAttrib: public Tango::Attr
 {
 public:
-	sl_cw_faultAttrib():Attr("sl_cw_fault",
-			Tango::DEV_BOOLEAN, Tango::READ) {};
-	~sl_cw_faultAttrib() {};
-	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
-		{(static_cast<PowerPMAC_Motor *>(dev))->read_sl_cw_fault(att);}
-	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
-		{return (static_cast<PowerPMAC_Motor *>(dev))->is_sl_cw_fault_allowed(ty);}
-};
-
-//	Attribute sl_ccw_fault class definition
-class sl_ccw_faultAttrib: public Tango::Attr
-{
-public:
-	sl_ccw_faultAttrib():Attr("sl_ccw_fault",
-			Tango::DEV_BOOLEAN, Tango::READ) {};
-	~sl_ccw_faultAttrib() {};
-	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
-		{(static_cast<PowerPMAC_Motor *>(dev))->read_sl_ccw_fault(att);}
-	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
-		{return (static_cast<PowerPMAC_Motor *>(dev))->is_sl_ccw_fault_allowed(ty);}
-};
-
-//	Attribute limit_cw_fault class definition
-class limit_cw_faultAttrib: public Tango::Attr
-{
-public:
-	limit_cw_faultAttrib():Attr("limit_cw_fault",
-			Tango::DEV_BOOLEAN, Tango::READ) {};
-	~limit_cw_faultAttrib() {};
-	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
-		{(static_cast<PowerPMAC_Motor *>(dev))->read_limit_cw_fault(att);}
-	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
-		{return (static_cast<PowerPMAC_Motor *>(dev))->is_limit_cw_fault_allowed(ty);}
-};
-
-//	Attribute limit_ccw_fault class definition
-class limit_ccw_faultAttrib: public Tango::Attr
-{
-public:
-	limit_ccw_faultAttrib():Attr("limit_ccw_fault",
-			Tango::DEV_BOOLEAN, Tango::READ) {};
-	~limit_ccw_faultAttrib() {};
-	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
-		{(static_cast<PowerPMAC_Motor *>(dev))->read_limit_ccw_fault(att);}
-	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
-		{return (static_cast<PowerPMAC_Motor *>(dev))->is_limit_ccw_fault_allowed(ty);}
-};
-
-//	Attribute conversion_factor class definition
-class conversion_factorAttrib: public Tango::Attr
-{
-public:
-	conversion_factorAttrib():Attr("conversion_factor",
-			Tango::DEV_FLOAT, Tango::READ_WRITE) {};
-	~conversion_factorAttrib() {};
-	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
-		{(static_cast<PowerPMAC_Motor *>(dev))->read_conversion_factor(att);}
-	virtual void write(Tango::DeviceImpl *dev,Tango::WAttribute &att)
-		{(static_cast<PowerPMAC_Motor *>(dev))->write_conversion_factor(att);}
-	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
-		{return (static_cast<PowerPMAC_Motor *>(dev))->is_conversion_factor_allowed(ty);}
-};
-
-//	Attribute invert_direction class definition
-class invert_directionAttrib: public Tango::Attr
-{
-public:
-	invert_directionAttrib():Attr("invert_direction",
+	EnableSoftLimitAttrib():Attr("EnableSoftLimit",
 			Tango::DEV_BOOLEAN, Tango::READ_WRITE) {};
-	~invert_directionAttrib() {};
+	~EnableSoftLimitAttrib() {};
 	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
-		{(static_cast<PowerPMAC_Motor *>(dev))->read_invert_direction(att);}
+		{(static_cast<PowerPMAC_Motor *>(dev))->read_EnableSoftLimit(att);}
 	virtual void write(Tango::DeviceImpl *dev,Tango::WAttribute &att)
-		{(static_cast<PowerPMAC_Motor *>(dev))->write_invert_direction(att);}
+		{(static_cast<PowerPMAC_Motor *>(dev))->write_EnableSoftLimit(att);}
 	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
-		{return (static_cast<PowerPMAC_Motor *>(dev))->is_invert_direction_allowed(ty);}
+		{return (static_cast<PowerPMAC_Motor *>(dev))->is_EnableSoftLimit_allowed(ty);}
 };
 
-//	Attribute invert_encoder class definition
-class invert_encoderAttrib: public Tango::Attr
+//	Attribute SoftCwLimitFault class definition
+class SoftCwLimitFaultAttrib: public Tango::Attr
 {
 public:
-	invert_encoderAttrib():Attr("invert_encoder",
-			Tango::DEV_BOOLEAN, Tango::READ_WRITE) {};
-	~invert_encoderAttrib() {};
+	SoftCwLimitFaultAttrib():Attr("SoftCwLimitFault",
+			Tango::DEV_BOOLEAN, Tango::READ) {};
+	~SoftCwLimitFaultAttrib() {};
 	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
-		{(static_cast<PowerPMAC_Motor *>(dev))->read_invert_encoder(att);}
-	virtual void write(Tango::DeviceImpl *dev,Tango::WAttribute &att)
-		{(static_cast<PowerPMAC_Motor *>(dev))->write_invert_encoder(att);}
+		{(static_cast<PowerPMAC_Motor *>(dev))->read_SoftCwLimitFault(att);}
 	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
-		{return (static_cast<PowerPMAC_Motor *>(dev))->is_invert_encoder_allowed(ty);}
+		{return (static_cast<PowerPMAC_Motor *>(dev))->is_SoftCwLimitFault_allowed(ty);}
+};
+
+//	Attribute SoftCcwLimitFault class definition
+class SoftCcwLimitFaultAttrib: public Tango::Attr
+{
+public:
+	SoftCcwLimitFaultAttrib():Attr("SoftCcwLimitFault",
+			Tango::DEV_BOOLEAN, Tango::READ) {};
+	~SoftCcwLimitFaultAttrib() {};
+	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
+		{(static_cast<PowerPMAC_Motor *>(dev))->read_SoftCcwLimitFault(att);}
+	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
+		{return (static_cast<PowerPMAC_Motor *>(dev))->is_SoftCcwLimitFault_allowed(ty);}
+};
+
+//	Attribute CwLimitFault class definition
+class CwLimitFaultAttrib: public Tango::Attr
+{
+public:
+	CwLimitFaultAttrib():Attr("CwLimitFault",
+			Tango::DEV_BOOLEAN, Tango::READ) {};
+	~CwLimitFaultAttrib() {};
+	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
+		{(static_cast<PowerPMAC_Motor *>(dev))->read_CwLimitFault(att);}
+	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
+		{return (static_cast<PowerPMAC_Motor *>(dev))->is_CwLimitFault_allowed(ty);}
+};
+
+//	Attribute CcwLimitFault class definition
+class CcwLimitFaultAttrib: public Tango::Attr
+{
+public:
+	CcwLimitFaultAttrib():Attr("CcwLimitFault",
+			Tango::DEV_BOOLEAN, Tango::READ) {};
+	~CcwLimitFaultAttrib() {};
+	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
+		{(static_cast<PowerPMAC_Motor *>(dev))->read_CcwLimitFault(att);}
+	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
+		{return (static_cast<PowerPMAC_Motor *>(dev))->is_CcwLimitFault_allowed(ty);}
 };
 
 

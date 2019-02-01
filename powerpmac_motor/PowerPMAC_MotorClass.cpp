@@ -273,11 +273,25 @@ void PowerPMAC_MotorClass::set_default_property()
 	//	Set Default Class Properties
 
 	//	Set Default device Properties
-	prop_name = "motorIndex";
+	prop_name = "MotorIndex";
 	prop_desc = "the index of the motor";
 	prop_def  = "1";
 	vect_data.clear();
 	vect_data.push_back("1");
+	if (prop_def.length()>0)
+	{
+		Tango::DbDatum	data(prop_name);
+		data << vect_data ;
+		dev_def_prop.push_back(data);
+		add_wiz_dev_prop(prop_name, prop_desc,  prop_def);
+	}
+	else
+		add_wiz_dev_prop(prop_name, prop_desc);
+	prop_name = "DisableHardLimits";
+	prop_desc = "";
+	prop_def  = "false";
+	vect_data.clear();
+	vect_data.push_back("false");
 	if (prop_def.length()>0)
 	{
 		Tango::DbDatum	data(prop_name);
@@ -393,23 +407,23 @@ void PowerPMAC_MotorClass::attribute_factory(vector<Tango::Attr *> &att_list)
 	//	Add your own code
 	
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_MotorClass::attribute_factory_before
-	//	Attribute : position
-	positionAttrib	*position = new positionAttrib();
+	//	Attribute : Position
+	PositionAttrib	*position = new PositionAttrib();
 	Tango::UserDefaultAttrProp	position_prop;
-	//	description	not set for position
-	//	label	not set for position
+	//	description	not set for Position
+	//	label	not set for Position
 	position_prop.set_unit("motor units");
-	//	standard_unit	not set for position
-	//	display_unit	not set for position
-	//	format	not set for position
-	//	max_value	not set for position
-	//	min_value	not set for position
-	//	max_alarm	not set for position
-	//	min_alarm	not set for position
-	//	max_warning	not set for position
-	//	min_warning	not set for position
-	//	delta_t	not set for position
-	//	delta_val	not set for position
+	//	standard_unit	not set for Position
+	//	display_unit	not set for Position
+	//	format	not set for Position
+	//	max_value	not set for Position
+	//	min_value	not set for Position
+	//	max_alarm	not set for Position
+	//	min_alarm	not set for Position
+	//	max_warning	not set for Position
+	//	min_warning	not set for Position
+	//	delta_t	not set for Position
+	//	delta_val	not set for Position
 	
 	position->set_default_properties(position_prop);
 	//	Not Polled
@@ -417,23 +431,23 @@ void PowerPMAC_MotorClass::attribute_factory(vector<Tango::Attr *> &att_list)
 	//	Not Memorized
 	att_list.push_back(position);
 
-	//	Attribute : acceleration
-	accelerationAttrib	*acceleration = new accelerationAttrib();
+	//	Attribute : Acceleration
+	AccelerationAttrib	*acceleration = new AccelerationAttrib();
 	Tango::UserDefaultAttrProp	acceleration_prop;
-	//	description	not set for acceleration
-	//	label	not set for acceleration
+	//	description	not set for Acceleration
+	//	label	not set for Acceleration
 	acceleration_prop.set_unit("motor units / msec^2");
-	//	standard_unit	not set for acceleration
-	//	display_unit	not set for acceleration
-	//	format	not set for acceleration
-	//	max_value	not set for acceleration
-	//	min_value	not set for acceleration
-	//	max_alarm	not set for acceleration
-	//	min_alarm	not set for acceleration
-	//	max_warning	not set for acceleration
-	//	min_warning	not set for acceleration
-	//	delta_t	not set for acceleration
-	//	delta_val	not set for acceleration
+	//	standard_unit	not set for Acceleration
+	//	display_unit	not set for Acceleration
+	//	format	not set for Acceleration
+	//	max_value	not set for Acceleration
+	//	min_value	not set for Acceleration
+	//	max_alarm	not set for Acceleration
+	//	min_alarm	not set for Acceleration
+	//	max_warning	not set for Acceleration
+	//	min_warning	not set for Acceleration
+	//	delta_t	not set for Acceleration
+	//	delta_val	not set for Acceleration
 	
 	acceleration->set_default_properties(acceleration_prop);
 	//	Not Polled
@@ -441,245 +455,197 @@ void PowerPMAC_MotorClass::attribute_factory(vector<Tango::Attr *> &att_list)
 	//	Not Memorized
 	att_list.push_back(acceleration);
 
-	//	Attribute : max_velocity
-	max_velocityAttrib	*max_velocity = new max_velocityAttrib();
-	Tango::UserDefaultAttrProp	max_velocity_prop;
-	//	description	not set for max_velocity
-	//	label	not set for max_velocity
-	max_velocity_prop.set_unit("motor units / msec");
-	//	standard_unit	not set for max_velocity
-	//	display_unit	not set for max_velocity
-	//	format	not set for max_velocity
-	//	max_value	not set for max_velocity
-	//	min_value	not set for max_velocity
-	//	max_alarm	not set for max_velocity
-	//	min_alarm	not set for max_velocity
-	//	max_warning	not set for max_velocity
-	//	min_warning	not set for max_velocity
-	//	delta_t	not set for max_velocity
-	//	delta_val	not set for max_velocity
+	//	Attribute : Velocity
+	VelocityAttrib	*velocity = new VelocityAttrib();
+	Tango::UserDefaultAttrProp	velocity_prop;
+	//	description	not set for Velocity
+	//	label	not set for Velocity
+	velocity_prop.set_unit("motor units / msec");
+	//	standard_unit	not set for Velocity
+	//	display_unit	not set for Velocity
+	//	format	not set for Velocity
+	//	max_value	not set for Velocity
+	//	min_value	not set for Velocity
+	//	max_alarm	not set for Velocity
+	//	min_alarm	not set for Velocity
+	//	max_warning	not set for Velocity
+	//	min_warning	not set for Velocity
+	//	delta_t	not set for Velocity
+	//	delta_val	not set for Velocity
 	
-	max_velocity->set_default_properties(max_velocity_prop);
+	velocity->set_default_properties(velocity_prop);
 	//	Not Polled
-	max_velocity->set_disp_level(Tango::OPERATOR);
+	velocity->set_disp_level(Tango::OPERATOR);
 	//	Not Memorized
-	att_list.push_back(max_velocity);
+	att_list.push_back(velocity);
 
-	//	Attribute : sl_cw
-	sl_cwAttrib	*sl_cw = new sl_cwAttrib();
-	Tango::UserDefaultAttrProp	sl_cw_prop;
-	//	description	not set for sl_cw
-	//	label	not set for sl_cw
-	//	unit	not set for sl_cw
-	//	standard_unit	not set for sl_cw
-	//	display_unit	not set for sl_cw
-	//	format	not set for sl_cw
-	//	max_value	not set for sl_cw
-	//	min_value	not set for sl_cw
-	//	max_alarm	not set for sl_cw
-	//	min_alarm	not set for sl_cw
-	//	max_warning	not set for sl_cw
-	//	min_warning	not set for sl_cw
-	//	delta_t	not set for sl_cw
-	//	delta_val	not set for sl_cw
+	//	Attribute : SoftCwLimit
+	SoftCwLimitAttrib	*softcwlimit = new SoftCwLimitAttrib();
+	Tango::UserDefaultAttrProp	softcwlimit_prop;
+	//	description	not set for SoftCwLimit
+	//	label	not set for SoftCwLimit
+	//	unit	not set for SoftCwLimit
+	//	standard_unit	not set for SoftCwLimit
+	//	display_unit	not set for SoftCwLimit
+	//	format	not set for SoftCwLimit
+	//	max_value	not set for SoftCwLimit
+	//	min_value	not set for SoftCwLimit
+	//	max_alarm	not set for SoftCwLimit
+	//	min_alarm	not set for SoftCwLimit
+	//	max_warning	not set for SoftCwLimit
+	//	min_warning	not set for SoftCwLimit
+	//	delta_t	not set for SoftCwLimit
+	//	delta_val	not set for SoftCwLimit
 	
-	sl_cw->set_default_properties(sl_cw_prop);
+	softcwlimit->set_default_properties(softcwlimit_prop);
 	//	Not Polled
-	sl_cw->set_disp_level(Tango::OPERATOR);
+	softcwlimit->set_disp_level(Tango::OPERATOR);
 	//	Not Memorized
-	att_list.push_back(sl_cw);
+	att_list.push_back(softcwlimit);
 
-	//	Attribute : sl_ccw
-	sl_ccwAttrib	*sl_ccw = new sl_ccwAttrib();
-	Tango::UserDefaultAttrProp	sl_ccw_prop;
-	//	description	not set for sl_ccw
-	//	label	not set for sl_ccw
-	//	unit	not set for sl_ccw
-	//	standard_unit	not set for sl_ccw
-	//	display_unit	not set for sl_ccw
-	//	format	not set for sl_ccw
-	//	max_value	not set for sl_ccw
-	//	min_value	not set for sl_ccw
-	//	max_alarm	not set for sl_ccw
-	//	min_alarm	not set for sl_ccw
-	//	max_warning	not set for sl_ccw
-	//	min_warning	not set for sl_ccw
-	//	delta_t	not set for sl_ccw
-	//	delta_val	not set for sl_ccw
+	//	Attribute : SoftCcwLimit
+	SoftCcwLimitAttrib	*softccwlimit = new SoftCcwLimitAttrib();
+	Tango::UserDefaultAttrProp	softccwlimit_prop;
+	//	description	not set for SoftCcwLimit
+	//	label	not set for SoftCcwLimit
+	//	unit	not set for SoftCcwLimit
+	//	standard_unit	not set for SoftCcwLimit
+	//	display_unit	not set for SoftCcwLimit
+	//	format	not set for SoftCcwLimit
+	//	max_value	not set for SoftCcwLimit
+	//	min_value	not set for SoftCcwLimit
+	//	max_alarm	not set for SoftCcwLimit
+	//	min_alarm	not set for SoftCcwLimit
+	//	max_warning	not set for SoftCcwLimit
+	//	min_warning	not set for SoftCcwLimit
+	//	delta_t	not set for SoftCcwLimit
+	//	delta_val	not set for SoftCcwLimit
 	
-	sl_ccw->set_default_properties(sl_ccw_prop);
+	softccwlimit->set_default_properties(softccwlimit_prop);
 	//	Not Polled
-	sl_ccw->set_disp_level(Tango::OPERATOR);
+	softccwlimit->set_disp_level(Tango::OPERATOR);
 	//	Not Memorized
-	att_list.push_back(sl_ccw);
+	att_list.push_back(softccwlimit);
 
-	//	Attribute : sl_cw_fault
-	sl_cw_faultAttrib	*sl_cw_fault = new sl_cw_faultAttrib();
-	Tango::UserDefaultAttrProp	sl_cw_fault_prop;
-	//	description	not set for sl_cw_fault
-	//	label	not set for sl_cw_fault
-	//	unit	not set for sl_cw_fault
-	//	standard_unit	not set for sl_cw_fault
-	//	display_unit	not set for sl_cw_fault
-	//	format	not set for sl_cw_fault
-	//	max_value	not set for sl_cw_fault
-	//	min_value	not set for sl_cw_fault
-	//	max_alarm	not set for sl_cw_fault
-	//	min_alarm	not set for sl_cw_fault
-	//	max_warning	not set for sl_cw_fault
-	//	min_warning	not set for sl_cw_fault
-	//	delta_t	not set for sl_cw_fault
-	//	delta_val	not set for sl_cw_fault
+	//	Attribute : EnableSoftLimit
+	EnableSoftLimitAttrib	*enablesoftlimit = new EnableSoftLimitAttrib();
+	Tango::UserDefaultAttrProp	enablesoftlimit_prop;
+	//	description	not set for EnableSoftLimit
+	//	label	not set for EnableSoftLimit
+	//	unit	not set for EnableSoftLimit
+	//	standard_unit	not set for EnableSoftLimit
+	//	display_unit	not set for EnableSoftLimit
+	//	format	not set for EnableSoftLimit
+	//	max_value	not set for EnableSoftLimit
+	//	min_value	not set for EnableSoftLimit
+	//	max_alarm	not set for EnableSoftLimit
+	//	min_alarm	not set for EnableSoftLimit
+	//	max_warning	not set for EnableSoftLimit
+	//	min_warning	not set for EnableSoftLimit
+	//	delta_t	not set for EnableSoftLimit
+	//	delta_val	not set for EnableSoftLimit
 	
-	sl_cw_fault->set_default_properties(sl_cw_fault_prop);
+	enablesoftlimit->set_default_properties(enablesoftlimit_prop);
 	//	Not Polled
-	sl_cw_fault->set_disp_level(Tango::OPERATOR);
+	enablesoftlimit->set_disp_level(Tango::OPERATOR);
 	//	Not Memorized
-	att_list.push_back(sl_cw_fault);
+	att_list.push_back(enablesoftlimit);
 
-	//	Attribute : sl_ccw_fault
-	sl_ccw_faultAttrib	*sl_ccw_fault = new sl_ccw_faultAttrib();
-	Tango::UserDefaultAttrProp	sl_ccw_fault_prop;
-	//	description	not set for sl_ccw_fault
-	//	label	not set for sl_ccw_fault
-	//	unit	not set for sl_ccw_fault
-	//	standard_unit	not set for sl_ccw_fault
-	//	display_unit	not set for sl_ccw_fault
-	//	format	not set for sl_ccw_fault
-	//	max_value	not set for sl_ccw_fault
-	//	min_value	not set for sl_ccw_fault
-	//	max_alarm	not set for sl_ccw_fault
-	//	min_alarm	not set for sl_ccw_fault
-	//	max_warning	not set for sl_ccw_fault
-	//	min_warning	not set for sl_ccw_fault
-	//	delta_t	not set for sl_ccw_fault
-	//	delta_val	not set for sl_ccw_fault
+	//	Attribute : SoftCwLimitFault
+	SoftCwLimitFaultAttrib	*softcwlimitfault = new SoftCwLimitFaultAttrib();
+	Tango::UserDefaultAttrProp	softcwlimitfault_prop;
+	//	description	not set for SoftCwLimitFault
+	//	label	not set for SoftCwLimitFault
+	//	unit	not set for SoftCwLimitFault
+	//	standard_unit	not set for SoftCwLimitFault
+	//	display_unit	not set for SoftCwLimitFault
+	//	format	not set for SoftCwLimitFault
+	//	max_value	not set for SoftCwLimitFault
+	//	min_value	not set for SoftCwLimitFault
+	//	max_alarm	not set for SoftCwLimitFault
+	//	min_alarm	not set for SoftCwLimitFault
+	//	max_warning	not set for SoftCwLimitFault
+	//	min_warning	not set for SoftCwLimitFault
+	//	delta_t	not set for SoftCwLimitFault
+	//	delta_val	not set for SoftCwLimitFault
 	
-	sl_ccw_fault->set_default_properties(sl_ccw_fault_prop);
+	softcwlimitfault->set_default_properties(softcwlimitfault_prop);
 	//	Not Polled
-	sl_ccw_fault->set_disp_level(Tango::OPERATOR);
+	softcwlimitfault->set_disp_level(Tango::OPERATOR);
 	//	Not Memorized
-	att_list.push_back(sl_ccw_fault);
+	att_list.push_back(softcwlimitfault);
 
-	//	Attribute : limit_cw_fault
-	limit_cw_faultAttrib	*limit_cw_fault = new limit_cw_faultAttrib();
-	Tango::UserDefaultAttrProp	limit_cw_fault_prop;
-	//	description	not set for limit_cw_fault
-	//	label	not set for limit_cw_fault
-	//	unit	not set for limit_cw_fault
-	//	standard_unit	not set for limit_cw_fault
-	//	display_unit	not set for limit_cw_fault
-	//	format	not set for limit_cw_fault
-	//	max_value	not set for limit_cw_fault
-	//	min_value	not set for limit_cw_fault
-	//	max_alarm	not set for limit_cw_fault
-	//	min_alarm	not set for limit_cw_fault
-	//	max_warning	not set for limit_cw_fault
-	//	min_warning	not set for limit_cw_fault
-	//	delta_t	not set for limit_cw_fault
-	//	delta_val	not set for limit_cw_fault
+	//	Attribute : SoftCcwLimitFault
+	SoftCcwLimitFaultAttrib	*softccwlimitfault = new SoftCcwLimitFaultAttrib();
+	Tango::UserDefaultAttrProp	softccwlimitfault_prop;
+	//	description	not set for SoftCcwLimitFault
+	//	label	not set for SoftCcwLimitFault
+	//	unit	not set for SoftCcwLimitFault
+	//	standard_unit	not set for SoftCcwLimitFault
+	//	display_unit	not set for SoftCcwLimitFault
+	//	format	not set for SoftCcwLimitFault
+	//	max_value	not set for SoftCcwLimitFault
+	//	min_value	not set for SoftCcwLimitFault
+	//	max_alarm	not set for SoftCcwLimitFault
+	//	min_alarm	not set for SoftCcwLimitFault
+	//	max_warning	not set for SoftCcwLimitFault
+	//	min_warning	not set for SoftCcwLimitFault
+	//	delta_t	not set for SoftCcwLimitFault
+	//	delta_val	not set for SoftCcwLimitFault
 	
-	limit_cw_fault->set_default_properties(limit_cw_fault_prop);
+	softccwlimitfault->set_default_properties(softccwlimitfault_prop);
 	//	Not Polled
-	limit_cw_fault->set_disp_level(Tango::OPERATOR);
+	softccwlimitfault->set_disp_level(Tango::OPERATOR);
 	//	Not Memorized
-	att_list.push_back(limit_cw_fault);
+	att_list.push_back(softccwlimitfault);
 
-	//	Attribute : limit_ccw_fault
-	limit_ccw_faultAttrib	*limit_ccw_fault = new limit_ccw_faultAttrib();
-	Tango::UserDefaultAttrProp	limit_ccw_fault_prop;
-	//	description	not set for limit_ccw_fault
-	//	label	not set for limit_ccw_fault
-	//	unit	not set for limit_ccw_fault
-	//	standard_unit	not set for limit_ccw_fault
-	//	display_unit	not set for limit_ccw_fault
-	//	format	not set for limit_ccw_fault
-	//	max_value	not set for limit_ccw_fault
-	//	min_value	not set for limit_ccw_fault
-	//	max_alarm	not set for limit_ccw_fault
-	//	min_alarm	not set for limit_ccw_fault
-	//	max_warning	not set for limit_ccw_fault
-	//	min_warning	not set for limit_ccw_fault
-	//	delta_t	not set for limit_ccw_fault
-	//	delta_val	not set for limit_ccw_fault
+	//	Attribute : CwLimitFault
+	CwLimitFaultAttrib	*cwlimitfault = new CwLimitFaultAttrib();
+	Tango::UserDefaultAttrProp	cwlimitfault_prop;
+	//	description	not set for CwLimitFault
+	//	label	not set for CwLimitFault
+	//	unit	not set for CwLimitFault
+	//	standard_unit	not set for CwLimitFault
+	//	display_unit	not set for CwLimitFault
+	//	format	not set for CwLimitFault
+	//	max_value	not set for CwLimitFault
+	//	min_value	not set for CwLimitFault
+	//	max_alarm	not set for CwLimitFault
+	//	min_alarm	not set for CwLimitFault
+	//	max_warning	not set for CwLimitFault
+	//	min_warning	not set for CwLimitFault
+	//	delta_t	not set for CwLimitFault
+	//	delta_val	not set for CwLimitFault
 	
-	limit_ccw_fault->set_default_properties(limit_ccw_fault_prop);
+	cwlimitfault->set_default_properties(cwlimitfault_prop);
 	//	Not Polled
-	limit_ccw_fault->set_disp_level(Tango::OPERATOR);
+	cwlimitfault->set_disp_level(Tango::OPERATOR);
 	//	Not Memorized
-	att_list.push_back(limit_ccw_fault);
+	att_list.push_back(cwlimitfault);
 
-	//	Attribute : conversion_factor
-	conversion_factorAttrib	*conversion_factor = new conversion_factorAttrib();
-	Tango::UserDefaultAttrProp	conversion_factor_prop;
-	//	description	not set for conversion_factor
-	//	label	not set for conversion_factor
-	//	unit	not set for conversion_factor
-	//	standard_unit	not set for conversion_factor
-	//	display_unit	not set for conversion_factor
-	//	format	not set for conversion_factor
-	//	max_value	not set for conversion_factor
-	//	min_value	not set for conversion_factor
-	//	max_alarm	not set for conversion_factor
-	//	min_alarm	not set for conversion_factor
-	//	max_warning	not set for conversion_factor
-	//	min_warning	not set for conversion_factor
-	//	delta_t	not set for conversion_factor
-	//	delta_val	not set for conversion_factor
+	//	Attribute : CcwLimitFault
+	CcwLimitFaultAttrib	*ccwlimitfault = new CcwLimitFaultAttrib();
+	Tango::UserDefaultAttrProp	ccwlimitfault_prop;
+	//	description	not set for CcwLimitFault
+	//	label	not set for CcwLimitFault
+	//	unit	not set for CcwLimitFault
+	//	standard_unit	not set for CcwLimitFault
+	//	display_unit	not set for CcwLimitFault
+	//	format	not set for CcwLimitFault
+	//	max_value	not set for CcwLimitFault
+	//	min_value	not set for CcwLimitFault
+	//	max_alarm	not set for CcwLimitFault
+	//	min_alarm	not set for CcwLimitFault
+	//	max_warning	not set for CcwLimitFault
+	//	min_warning	not set for CcwLimitFault
+	//	delta_t	not set for CcwLimitFault
+	//	delta_val	not set for CcwLimitFault
 	
-	conversion_factor->set_default_properties(conversion_factor_prop);
+	ccwlimitfault->set_default_properties(ccwlimitfault_prop);
 	//	Not Polled
-	conversion_factor->set_disp_level(Tango::OPERATOR);
+	ccwlimitfault->set_disp_level(Tango::OPERATOR);
 	//	Not Memorized
-	att_list.push_back(conversion_factor);
-
-	//	Attribute : invert_direction
-	invert_directionAttrib	*invert_direction = new invert_directionAttrib();
-	Tango::UserDefaultAttrProp	invert_direction_prop;
-	//	description	not set for invert_direction
-	//	label	not set for invert_direction
-	//	unit	not set for invert_direction
-	//	standard_unit	not set for invert_direction
-	//	display_unit	not set for invert_direction
-	//	format	not set for invert_direction
-	//	max_value	not set for invert_direction
-	//	min_value	not set for invert_direction
-	//	max_alarm	not set for invert_direction
-	//	min_alarm	not set for invert_direction
-	//	max_warning	not set for invert_direction
-	//	min_warning	not set for invert_direction
-	//	delta_t	not set for invert_direction
-	//	delta_val	not set for invert_direction
-	
-	invert_direction->set_default_properties(invert_direction_prop);
-	//	Not Polled
-	invert_direction->set_disp_level(Tango::OPERATOR);
-	//	Not Memorized
-	att_list.push_back(invert_direction);
-
-	//	Attribute : invert_encoder
-	invert_encoderAttrib	*invert_encoder = new invert_encoderAttrib();
-	Tango::UserDefaultAttrProp	invert_encoder_prop;
-	//	description	not set for invert_encoder
-	//	label	not set for invert_encoder
-	//	unit	not set for invert_encoder
-	//	standard_unit	not set for invert_encoder
-	//	display_unit	not set for invert_encoder
-	//	format	not set for invert_encoder
-	//	max_value	not set for invert_encoder
-	//	min_value	not set for invert_encoder
-	//	max_alarm	not set for invert_encoder
-	//	min_alarm	not set for invert_encoder
-	//	max_warning	not set for invert_encoder
-	//	min_warning	not set for invert_encoder
-	//	delta_t	not set for invert_encoder
-	//	delta_val	not set for invert_encoder
-	
-	invert_encoder->set_default_properties(invert_encoder_prop);
-	//	Not Polled
-	invert_encoder->set_disp_level(Tango::OPERATOR);
-	//	Not Memorized
-	att_list.push_back(invert_encoder);
+	att_list.push_back(ccwlimitfault);
 
 
 	//	Create a list of static attributes

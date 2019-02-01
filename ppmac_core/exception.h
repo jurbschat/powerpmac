@@ -12,8 +12,8 @@ namespace ppmac {
 
 	class RuntimeError : public std::exception {
 	public:
-		RuntimeError(const char* file, const char* function, int line, std::string msg)
-			: file(file), function(function), line(line), msg(msg)
+		RuntimeError(const char* _file, const char* _function, int _line, std::string _msg)
+			: file(_file), function(_function), line(_line), msg(_msg)
 		{}
 
 		const char* GetFile() const noexcept {
@@ -37,6 +37,9 @@ namespace ppmac {
 		std::string msg;
 	};
 
+	namespace exception {
+		void TerminateHandler();
+	}
 }
 
 #endif //POWERPMAC_EXCEPTION_H

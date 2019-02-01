@@ -23,7 +23,7 @@ namespace ppmac
 		};
 	}
 
-	namespace PortID {
+	namespace IoID {
 		enum TYPE : int32_t {
 			Port0,
 			Port1,
@@ -33,10 +33,35 @@ namespace ppmac
 			Port5,
 			Port6,
 			Port7,
+			Port8,
+		};
+	}
+
+	namespace CoordID {
+		enum TYPE : int32_t {
+			Coord0,
+			Coord1,
+			Coord2,
+			Coord3,
+			Coord4,
+			Coord5,
+			Coord6,
+			Coord7,
+			Coord8,
 		};
 	}
 
 	namespace MotorState {
+		enum class TYPE : int32_t {
+			Online,
+			Offline,
+			Init,
+			Moving,
+			Fault
+		};
+	}
+
+	namespace CoordState {
 		enum class TYPE : int32_t {
 			Online,
 			Offline,
@@ -54,25 +79,25 @@ namespace ppmac
 		};
 	}
 
-	namespace convert {
-		template<typename T>
-		struct int_with_tag {
-			int_with_tag(int32_t value)
+	template<typename T>
+	struct int_with_tag {
+		int_with_tag(int32_t value)
 				: val(value)
-			{}
-			/*operator int32_t () {
-				return val;
-			}*/
-			operator T () {
-				return static_cast<T>(val);
-			}
-			int32_t val;
-		};
-		MotorID::TYPE to_enum(int_with_tag<MotorID::TYPE> index);
-		PortID::TYPE to_enum(int_with_tag<PortID::TYPE> index);
-		int32_t from_enum(MotorID::TYPE motor);
-		int32_t from_enum(PortID::TYPE motor);
-	}
+		{}
+		/*operator int32_t () {
+			return val;
+		}*/
+		operator T () {
+			return static_cast<T>(val);
+		}
+		int32_t val;
+	};
+	MotorID::TYPE to_enum(int_with_tag<MotorID::TYPE> index);
+	IoID::TYPE to_enum(int_with_tag<IoID::TYPE> index);
+	CoordID::TYPE to_enum(int_with_tag<CoordID::TYPE> index);
+	int32_t from_enum(MotorID::TYPE motor);
+	int32_t from_enum(IoID::TYPE motor);
+	int32_t from_enum(CoordID::TYPE motor);
 }
 
 #endif //POWERPMAC_DEFINES_H

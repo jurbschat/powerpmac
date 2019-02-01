@@ -38,6 +38,9 @@
 #include <PowerPMAC_GlobalClass.h>
 #include "coreinterface.h"
 #include "exception.h"
+#include "tangoutil.h"
+
+#include <unordered_map>
 
 /*----- PROTECTED REGION END -----*/	//	PowerPMAC_Global.cpp
 
@@ -144,21 +147,40 @@ void PowerPMAC_Global::init_device()
 
 	// we set the power pmac address and start the automatic
 	// connect/reconnect machinery.
-	ci.Initialize("192.168.56.96", 22);
+	ci.Initialize(host, port);
+
+	connectionEstablished = ci.GetSignal(ppmac::SignalType::ConnectionEstablished)->connect([this](){
+		StartGlobal();
+	});
+
+	connectionLost = ci.GetSignal(ppmac::SignalType::ConnectionEstablished)->connect([this](){
+		StopGlobal();
+	});
 
 	if(ci.IsConnected()) {
-		// startup server
+		StartGlobal();
+	} else {
+		set_state(Tango::OFF);
 	}
-
-	ci.RegisterConnectionEstablished([](){
-		// startup server
-	});
-	ci.RegisterConnectionLost([](const std::string& reason){
-		// shutdown server
-		(void)reason;
-	});
 	
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Global::init_device
+}
+
+void PowerPMAC_Global::StartGlobal() {
+
+	try {
+		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
+		auto globalInfo = ci.GetGlobalInfo();
+
+	} catch (ppmac::RuntimeError& e) {
+		tu::TranslateException(e);
+	}
+
+	set_state(Tango::ON);
+}
+
+void PowerPMAC_Global::StopGlobal() {
+	set_state(Tango::OFF);
 }
 
 //--------------------------------------------------------
@@ -179,6 +201,7 @@ void PowerPMAC_Global::get_device_property()
 	//	Read device properties from database.
 	Tango::DbData	dev_prop;
 	dev_prop.push_back(Tango::DbDatum("host"));
+	dev_prop.push_back(Tango::DbDatum("port"));
 
 	//	is there at least one property to be read ?
 	if (dev_prop.size()>0)
@@ -203,6 +226,17 @@ void PowerPMAC_Global::get_device_property()
 		}
 		//	And try to extract host value from database
 		if (dev_prop[i].is_empty()==false)	dev_prop[i]  >>  host;
+
+		//	Try to initialize port from class property
+		cl_prop = ds_class->get_class_property(dev_prop[++i].name);
+		if (cl_prop.is_empty()==false)	cl_prop  >>  port;
+		else {
+			//	Try to initialize port from default device value
+			def_prop = ds_class->get_default_device_property(dev_prop[i].name);
+			if (def_prop.is_empty()==false)	def_prop  >>  port;
+		}
+		//	And try to extract port value from database
+		if (dev_prop[i].is_empty()==false)	dev_prop[i]  >>  port;
 
 	}
 

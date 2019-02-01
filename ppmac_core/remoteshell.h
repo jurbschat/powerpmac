@@ -7,6 +7,7 @@
 
 //#include "config.h"
 #include "receivebuffer.h"
+#include "corenotifyinterface.h"
 #include "libs/expected.hpp"
 
 #include <libssh2.h>
@@ -37,7 +38,7 @@ namespace ppmac {
 	class RemoteShell
 	{
 	public:
-		RemoteShell();
+		RemoteShell(CoreNotifyInterface* core);
 
 		~RemoteShell();
 
@@ -107,7 +108,7 @@ namespace ppmac {
 		std::vector<char> writeBuffer;
 		ReceiveBuffer messageBuffer;
 		std::mutex readWriteMtx;
-
+		CoreNotifyInterface* core;
 	};
 }
 

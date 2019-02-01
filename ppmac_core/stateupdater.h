@@ -24,19 +24,19 @@
 
 namespace ppmac {
 
-	class PmacStateHolder
+	class StateUpdater
 	{
 	public:
-		PmacStateHolder(RemoteShell& rs)
+		StateUpdater(RemoteShell& rs)
 			: rs(rs),
 			shouldUpdate(true),
 			running(false)
 		{
 			state.motors.resize(MAX_MOTORS);
-			state.ports.resize(MAX_PORTS);
+			state.ios.resize(MAX_PORTS);
 		}
 
-		~PmacStateHolder() {
+		~StateUpdater() {
 			Stop();
 		}
 
@@ -45,6 +45,7 @@ namespace ppmac {
 				return;
 			}
 			shouldUpdate = true;
+			running = true; // we want to instantly be in the "running mode", even if the thread needs some time to start
 			updateThread = std::thread([this](){
 				QueryPPmacState();
 			});
@@ -55,7 +56,7 @@ namespace ppmac {
 				return;
 			}
 			shouldUpdate = false;
-			if(updateThread.joinable()) {
+			if (updateThread.joinable()) {
 				updateThread.join();
 			}
 		}
@@ -68,12 +69,24 @@ namespace ppmac {
 			return state.motors[idx];
 		}
 
-		PortInfo GetPortInfo(PortID::TYPE id) const {
+		IOInfo GetIoInfo(IoID::TYPE id) const {
 			int32_t idx = from_enum(id);
-			if(idx >= static_cast<int32_t>(state.ports.size())) {
-				THROW_RUNTIME_ERROR("invalid port index");
+			if(idx >= static_cast<int32_t>(state.ios.size())) {
+				THROW_RUNTIME_ERROR("invalid io index");
 			}
-			return state.ports[idx];
+			return state.ios[idx];
+		}
+
+		CoordInfo GetCoordInfo(CoordID::TYPE id) const {
+			int32_t idx = from_enum(id);
+			if(idx >= static_cast<int32_t>(state.ios.size())) {
+				THROW_RUNTIME_ERROR("invalid coord index");
+			}
+			return state.coords[idx];
+		}
+
+		GlobalInfo GetGlobalInfo() const {
+			return state.global;
 		}
 
 		void UpdateGeneralInfo() {
@@ -216,9 +229,8 @@ namespace ppmac {
 
 	private:
 		void QueryPPmacState() {
-
 			// test stuff
-			StopWatch sw{true};
+			StopWatch<> sw{true};
 			int32_t _1sUpdates = 0;
 			int32_t _100msUpdates= 0;
 			int32_t _10msUpdates = 0;
@@ -248,11 +260,15 @@ namespace ppmac {
 				UpdateMotorStates();
 			}});
 
-			running = true;
 			while(shouldUpdate) {
 				if(rs.IsConnected()) {
 					try {
-						StopWatch sleepTimer{true};
+						if(state.global.maxMotors == 0) {
+							UpdateGeneralInfo();
+							std::this_thread::sleep_for(std::chrono::seconds{1});
+							continue;
+						}
+						StopWatch<> sleepTimer{true};
 						timeout.Update();
 						auto timeLeft =  (timeout.GetMinInterval() - sleepTimer.Elapsed()) / 2;
 						if(timeLeft > time::zero) {
@@ -263,7 +279,7 @@ namespace ppmac {
 						// test stuff
 						if(sw.Elapsed() >= std::chrono::seconds{1}) {
 							SPDLOG_DEBUG("update stats ({}s): [1s:{}, 100ms:{}, 10ms:{}, 1ms:{}]",
-									sw.Elapsed<double>(),
+									StopWatch<>::ToDouble(sw.Elapsed()),
 									_1sUpdates,
 									_100msUpdates,
 									_10msUpdates,
@@ -286,15 +302,14 @@ namespace ppmac {
 			running = false;
 		}
 
-
-
 		RemoteShell& rs;
 		bool shouldUpdate;
 		bool running;
 		std::thread updateThread;
 		struct PmacData {
 			std::vector<MotorInfo> motors;
-			std::vector<PortInfo> ports;
+			std::vector<IOInfo> ios;
+			std::vector<CoordInfo> coords;
 			GlobalInfo global;
 		} state;
 	};

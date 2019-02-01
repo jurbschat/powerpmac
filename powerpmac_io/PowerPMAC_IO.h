@@ -33,6 +33,7 @@
 #ifndef PowerPMAC_IO_H
 #define PowerPMAC_IO_H
 
+#include "libs/sigs.h"
 #include <tango.h>
 
 
@@ -57,6 +58,9 @@ class PowerPMAC_IO : public TANGO_BASE_CLASS
 /*----- PROTECTED REGION ID(PowerPMAC_IO::Data Members) ENABLED START -----*/
 
 //	Add your own data members
+private:
+	sigs::Connection connectionEstablished;
+	sigs::Connection connectionLost;
 
 /*----- PROTECTED REGION END -----*/	//	PowerPMAC_IO::Data Members
 
@@ -145,6 +149,8 @@ public:
 /*----- PROTECTED REGION ID(PowerPMAC_IO::Additional Method prototypes) ENABLED START -----*/
 
 //	Additional Method prototypes
+	void StartIO();
+	void StopIO();
 
 /*----- PROTECTED REGION END -----*/	//	PowerPMAC_IO::Additional Method prototypes
 };

@@ -13,6 +13,7 @@
 #define POWERPMAC_THROW_H
 
 #pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpragmas"
 #pragma GCC diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
 
 #define __SHORT_FILE__ (ppmac::file_name(__FILE__))
@@ -64,16 +65,16 @@ namespace ppmac {
 					fmt::format_to(buffer, "{}{}RuntimeError: [{}:{}] {}", indentStr, (isCause ? "<because> " : ""), e.GetFile(), e.GetLine(), e.what());
 					px = GetNestedExceptionPtr(e);
 				}
-				catch (const std::exception& e) {
-					fmt::format_to(buffer, "{}std::exception: {}", indentStr, (isCause ? "<because> " : ""), e.what());
+				catch (const std::bad_exception & e) {
+					fmt::format_to(buffer, "{}{}std::bad_exception: {}", indentStr, (isCause ? "<because> " : ""), e.what());
 					px = GetNestedExceptionPtr(e);
 				}
-				catch (const std::bad_exception & e) {
-					fmt::format_to(buffer, "{}std::bad_exception: {}", indentStr, (isCause ? "<because> " : ""), e.what());
+				catch (const std::exception& e) {
+					fmt::format_to(buffer, "{}{}std::exception: {}", indentStr, (isCause ? "<because> " : ""), e.what());
 					px = GetNestedExceptionPtr(e);
 				}
 				catch (...) {
-					fmt::format_to(buffer, "{}oops... unknown :(", indentStr, (isCause ? "<because> " : ""));
+					fmt::format_to(buffer, "{}{}oops... unknown :(", indentStr, (isCause ? "<because> " : ""));
 					break;
 				}
 				isCause = true;

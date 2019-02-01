@@ -48,7 +48,7 @@ namespace ppmac {
 		struct {
 			uint32_t status1;
 			uint32_t status0;
-		} status;
+		} array;
 		struct {
 			// Motor[x].Status[1]
 			uint8_t RESERVED_1_0 : 1;
@@ -192,13 +192,14 @@ namespace ppmac {
 		float position;
 		float velocity;
 		float followingError;
-		float maxVelocity;
+		float desiredVelocity;
 		float acceleration;
 		float conversion;
-		float slCw;
-		float slCcw;
-		bool invertDirection;
-		bool invertEncoder;
+		//float slCw;
+		//float slCcw;
+		//bool invertDirection;
+		//bool invertEncoder;
+		int unitType;
 		MotorStatusUnion status;
 	};
 
@@ -206,7 +207,7 @@ namespace ppmac {
 		CoordStatusUnion status;
 	};
 
-	struct PortInfo {
+	struct IOInfo {
 		// something
 	};
 
@@ -214,8 +215,8 @@ namespace ppmac {
 		bool abortAll;
 		int32_t maxMotors;
 		int32_t maxCoords;
-		uint32_t Gate30;
-		uint32_t Gate31;
+		float temp;
+		float uptime;
 		std::vector<bool> activePlcs; // vector bool sucks
 	};
 }

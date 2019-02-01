@@ -3,17 +3,26 @@ cmake_minimum_required(VERSION 3.8)
 project(PowerPMAC VERSION 1.0 DESCRIPTION "Power PMAC Tango Server" LANGUAGES CXX)
 
 # genereal compilation options we want to use
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -Wall -Wextra -pedantic") #-fasynchronous-unwind-tables -fexceptions -fpie -Wl,-pie -fpic -shared -grecord-gcc-switches
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -Wall -Wextra") #-fasynchronous-unwind-tables -fexceptions -fpie -Wl,-pie -fpic -shared -grecord-gcc-switches
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wredundant-decls -Wcast-align -Wmissing-declarations -Wmissing-include-dirs -Wswitch-enum -Winvalid-pch -Wmissing-prototypes")
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wformat=2 -Wmissing-format-attribute -Wformat-nonliteral -flto -Wodr -Wpointer-arith -Wshadow -Wcast-qual -Wstrict-aliasing=1")
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Woverloaded-virtual -Werror=return-type -Wsign-compare -Wduplicated-cond -Wlogical-op -Wnull-dereference") #-Wduplicated-branches (7+)
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wold-style-cast -Wuseless-cast -Wjump-misses-init")
 
 # -pg for progiling with gprof
+# gcc only options
+if(CMAKE_CXX_COMPILER MATCHES clang)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pedantic")
+endif()
+if(CMAKE_CXX_COMPILER MATCHES GNU)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wduplicated-cond -Wlogical-op -Wuseless-cast -Wno-shadow -Wno-pragmas")
+endif()
 
 # add debug/release specific flags
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_FORTIFY_SOURCE=2")
 #set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ")
+
+set(CMAKE_EXE_LINKER_FLAGS "-Wl,-export-dynamic")
 
 #set(CMAKE_VERBOSE_MAKEFILE ON)
 
@@ -34,6 +43,7 @@ add_subdirectory(ppmac_core)
 #add_subdirectory(powerPMAC_ssh-master)
 add_subdirectory(fmt-5.3.0)
 add_subdirectory(spdlog-1.3.0)
+add_subdirectory(libssh2-master)
 
 # this is only for this main project
 target_include_directories(PowerPMAC PUBLIC powerpmac_coordinatesystems)

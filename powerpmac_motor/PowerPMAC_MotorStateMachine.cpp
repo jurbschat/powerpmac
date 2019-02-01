@@ -51,225 +51,335 @@ namespace PowerPMAC_Motor_ns
 
 //--------------------------------------------------------
 /**
- *	Method      : PowerPMAC_Motor::is_position_allowed()
- *	Description : Execution allowed for position attribute
+ *	Method      : PowerPMAC_Motor::is_Position_allowed()
+ *	Description : Execution allowed for Position attribute
  */
 //--------------------------------------------------------
-bool PowerPMAC_Motor::is_position_allowed(TANGO_UNUSED(Tango::AttReqType type))
+bool PowerPMAC_Motor::is_Position_allowed(TANGO_UNUSED(Tango::AttReqType type))
 {
-	//	Not any excluded states for position attribute in Write access.
-	/*----- PROTECTED REGION ID(PowerPMAC_Motor::positionStateAllowed_WRITE) ENABLED START -----*/
+	//	Check access type.
+	if ( type!=Tango::READ_REQ )
+	{
+		//	Compare device state with not allowed states for WRITE 
+		if (get_state()==Tango::OFF)
+		{
+		/*----- PROTECTED REGION ID(PowerPMAC_Motor::PositionStateAllowed_WRITE) ENABLED START -----*/
 	
-	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::positionStateAllowed_WRITE
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::PositionStateAllowed_WRITE
+			return false;
+		}
+		return true;
+	}
+	else
 
-	//	Not any excluded states for position attribute in read access.
-	/*----- PROTECTED REGION ID(PowerPMAC_Motor::positionStateAllowed_READ) ENABLED START -----*/
+	//	Check access type.
+	if ( type==Tango::READ_REQ )
+	{
+		//	Compare device state with not allowed states for READ 
+		if (get_state()==Tango::OFF)
+		{
+		/*----- PROTECTED REGION ID(PowerPMAC_Motor::PositionStateAllowed_READ) ENABLED START -----*/
 	
-	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::positionStateAllowed_READ
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::PositionStateAllowed_READ
+			return false;
+		}
+		return true;
+	}
 	return true;
 }
 
 //--------------------------------------------------------
 /**
- *	Method      : PowerPMAC_Motor::is_acceleration_allowed()
- *	Description : Execution allowed for acceleration attribute
+ *	Method      : PowerPMAC_Motor::is_Acceleration_allowed()
+ *	Description : Execution allowed for Acceleration attribute
  */
 //--------------------------------------------------------
-bool PowerPMAC_Motor::is_acceleration_allowed(TANGO_UNUSED(Tango::AttReqType type))
+bool PowerPMAC_Motor::is_Acceleration_allowed(TANGO_UNUSED(Tango::AttReqType type))
 {
-	//	Not any excluded states for acceleration attribute in Write access.
-	/*----- PROTECTED REGION ID(PowerPMAC_Motor::accelerationStateAllowed_WRITE) ENABLED START -----*/
+	//	Check access type.
+	if ( type!=Tango::READ_REQ )
+	{
+		//	Compare device state with not allowed states for WRITE 
+		if (get_state()==Tango::OFF)
+		{
+		/*----- PROTECTED REGION ID(PowerPMAC_Motor::AccelerationStateAllowed_WRITE) ENABLED START -----*/
 	
-	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::accelerationStateAllowed_WRITE
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::AccelerationStateAllowed_WRITE
+			return false;
+		}
+		return true;
+	}
+	else
 
-	//	Not any excluded states for acceleration attribute in read access.
-	/*----- PROTECTED REGION ID(PowerPMAC_Motor::accelerationStateAllowed_READ) ENABLED START -----*/
+	//	Check access type.
+	if ( type==Tango::READ_REQ )
+	{
+		//	Compare device state with not allowed states for READ 
+		if (get_state()==Tango::OFF)
+		{
+		/*----- PROTECTED REGION ID(PowerPMAC_Motor::AccelerationStateAllowed_READ) ENABLED START -----*/
 	
-	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::accelerationStateAllowed_READ
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::AccelerationStateAllowed_READ
+			return false;
+		}
+		return true;
+	}
 	return true;
 }
 
 //--------------------------------------------------------
 /**
- *	Method      : PowerPMAC_Motor::is_max_velocity_allowed()
- *	Description : Execution allowed for max_velocity attribute
+ *	Method      : PowerPMAC_Motor::is_Velocity_allowed()
+ *	Description : Execution allowed for Velocity attribute
  */
 //--------------------------------------------------------
-bool PowerPMAC_Motor::is_max_velocity_allowed(TANGO_UNUSED(Tango::AttReqType type))
+bool PowerPMAC_Motor::is_Velocity_allowed(TANGO_UNUSED(Tango::AttReqType type))
 {
-	//	Not any excluded states for max_velocity attribute in Write access.
-	/*----- PROTECTED REGION ID(PowerPMAC_Motor::max_velocityStateAllowed_WRITE) ENABLED START -----*/
+	//	Check access type.
+	if ( type!=Tango::READ_REQ )
+	{
+		//	Compare device state with not allowed states for WRITE 
+		if (get_state()==Tango::OFF)
+		{
+		/*----- PROTECTED REGION ID(PowerPMAC_Motor::VelocityStateAllowed_WRITE) ENABLED START -----*/
 	
-	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::max_velocityStateAllowed_WRITE
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::VelocityStateAllowed_WRITE
+			return false;
+		}
+		return true;
+	}
+	else
 
-	//	Not any excluded states for max_velocity attribute in read access.
-	/*----- PROTECTED REGION ID(PowerPMAC_Motor::max_velocityStateAllowed_READ) ENABLED START -----*/
+	//	Check access type.
+	if ( type==Tango::READ_REQ )
+	{
+		//	Compare device state with not allowed states for READ 
+		if (get_state()==Tango::OFF)
+		{
+		/*----- PROTECTED REGION ID(PowerPMAC_Motor::VelocityStateAllowed_READ) ENABLED START -----*/
 	
-	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::max_velocityStateAllowed_READ
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::VelocityStateAllowed_READ
+			return false;
+		}
+		return true;
+	}
 	return true;
 }
 
 //--------------------------------------------------------
 /**
- *	Method      : PowerPMAC_Motor::is_sl_cw_allowed()
- *	Description : Execution allowed for sl_cw attribute
+ *	Method      : PowerPMAC_Motor::is_SoftCwLimit_allowed()
+ *	Description : Execution allowed for SoftCwLimit attribute
  */
 //--------------------------------------------------------
-bool PowerPMAC_Motor::is_sl_cw_allowed(TANGO_UNUSED(Tango::AttReqType type))
+bool PowerPMAC_Motor::is_SoftCwLimit_allowed(TANGO_UNUSED(Tango::AttReqType type))
 {
-	//	Not any excluded states for sl_cw attribute in Write access.
-	/*----- PROTECTED REGION ID(PowerPMAC_Motor::sl_cwStateAllowed_WRITE) ENABLED START -----*/
+	//	Check access type.
+	if ( type!=Tango::READ_REQ )
+	{
+		//	Compare device state with not allowed states for WRITE 
+		if (get_state()==Tango::OFF)
+		{
+		/*----- PROTECTED REGION ID(PowerPMAC_Motor::SoftCwLimitStateAllowed_WRITE) ENABLED START -----*/
 	
-	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::sl_cwStateAllowed_WRITE
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::SoftCwLimitStateAllowed_WRITE
+			return false;
+		}
+		return true;
+	}
+	else
 
-	//	Not any excluded states for sl_cw attribute in read access.
-	/*----- PROTECTED REGION ID(PowerPMAC_Motor::sl_cwStateAllowed_READ) ENABLED START -----*/
+	//	Check access type.
+	if ( type==Tango::READ_REQ )
+	{
+		//	Compare device state with not allowed states for READ 
+		if (get_state()==Tango::OFF)
+		{
+		/*----- PROTECTED REGION ID(PowerPMAC_Motor::SoftCwLimitStateAllowed_READ) ENABLED START -----*/
 	
-	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::sl_cwStateAllowed_READ
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::SoftCwLimitStateAllowed_READ
+			return false;
+		}
+		return true;
+	}
 	return true;
 }
 
 //--------------------------------------------------------
 /**
- *	Method      : PowerPMAC_Motor::is_sl_ccw_allowed()
- *	Description : Execution allowed for sl_ccw attribute
+ *	Method      : PowerPMAC_Motor::is_SoftCcwLimit_allowed()
+ *	Description : Execution allowed for SoftCcwLimit attribute
  */
 //--------------------------------------------------------
-bool PowerPMAC_Motor::is_sl_ccw_allowed(TANGO_UNUSED(Tango::AttReqType type))
+bool PowerPMAC_Motor::is_SoftCcwLimit_allowed(TANGO_UNUSED(Tango::AttReqType type))
 {
-	//	Not any excluded states for sl_ccw attribute in Write access.
-	/*----- PROTECTED REGION ID(PowerPMAC_Motor::sl_ccwStateAllowed_WRITE) ENABLED START -----*/
+	//	Check access type.
+	if ( type!=Tango::READ_REQ )
+	{
+		//	Compare device state with not allowed states for WRITE 
+		if (get_state()==Tango::OFF)
+		{
+		/*----- PROTECTED REGION ID(PowerPMAC_Motor::SoftCcwLimitStateAllowed_WRITE) ENABLED START -----*/
 	
-	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::sl_ccwStateAllowed_WRITE
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::SoftCcwLimitStateAllowed_WRITE
+			return false;
+		}
+		return true;
+	}
+	else
 
-	//	Not any excluded states for sl_ccw attribute in read access.
-	/*----- PROTECTED REGION ID(PowerPMAC_Motor::sl_ccwStateAllowed_READ) ENABLED START -----*/
+	//	Check access type.
+	if ( type==Tango::READ_REQ )
+	{
+		//	Compare device state with not allowed states for READ 
+		if (get_state()==Tango::OFF)
+		{
+		/*----- PROTECTED REGION ID(PowerPMAC_Motor::SoftCcwLimitStateAllowed_READ) ENABLED START -----*/
 	
-	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::sl_ccwStateAllowed_READ
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::SoftCcwLimitStateAllowed_READ
+			return false;
+		}
+		return true;
+	}
 	return true;
 }
 
 //--------------------------------------------------------
 /**
- *	Method      : PowerPMAC_Motor::is_sl_cw_fault_allowed()
- *	Description : Execution allowed for sl_cw_fault attribute
+ *	Method      : PowerPMAC_Motor::is_EnableSoftLimit_allowed()
+ *	Description : Execution allowed for EnableSoftLimit attribute
  */
 //--------------------------------------------------------
-bool PowerPMAC_Motor::is_sl_cw_fault_allowed(TANGO_UNUSED(Tango::AttReqType type))
+bool PowerPMAC_Motor::is_EnableSoftLimit_allowed(TANGO_UNUSED(Tango::AttReqType type))
 {
-
-	//	Not any excluded states for sl_cw_fault attribute in read access.
-	/*----- PROTECTED REGION ID(PowerPMAC_Motor::sl_cw_faultStateAllowed_READ) ENABLED START -----*/
+	//	Check access type.
+	if ( type!=Tango::READ_REQ )
+	{
+		//	Compare device state with not allowed states for WRITE 
+		if (get_state()==Tango::OFF)
+		{
+		/*----- PROTECTED REGION ID(PowerPMAC_Motor::EnableSoftLimitStateAllowed_WRITE) ENABLED START -----*/
 	
-	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::sl_cw_faultStateAllowed_READ
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::EnableSoftLimitStateAllowed_WRITE
+			return false;
+		}
+		return true;
+	}
+	else
+
+	//	Check access type.
+	if ( type==Tango::READ_REQ )
+	{
+		//	Compare device state with not allowed states for READ 
+		if (get_state()==Tango::OFF)
+		{
+		/*----- PROTECTED REGION ID(PowerPMAC_Motor::EnableSoftLimitStateAllowed_READ) ENABLED START -----*/
+	
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::EnableSoftLimitStateAllowed_READ
+			return false;
+		}
+		return true;
+	}
 	return true;
 }
 
 //--------------------------------------------------------
 /**
- *	Method      : PowerPMAC_Motor::is_sl_ccw_fault_allowed()
- *	Description : Execution allowed for sl_ccw_fault attribute
+ *	Method      : PowerPMAC_Motor::is_SoftCwLimitFault_allowed()
+ *	Description : Execution allowed for SoftCwLimitFault attribute
  */
 //--------------------------------------------------------
-bool PowerPMAC_Motor::is_sl_ccw_fault_allowed(TANGO_UNUSED(Tango::AttReqType type))
+bool PowerPMAC_Motor::is_SoftCwLimitFault_allowed(TANGO_UNUSED(Tango::AttReqType type))
 {
 
-	//	Not any excluded states for sl_ccw_fault attribute in read access.
-	/*----- PROTECTED REGION ID(PowerPMAC_Motor::sl_ccw_faultStateAllowed_READ) ENABLED START -----*/
+	//	Check access type.
+	if ( type==Tango::READ_REQ )
+	{
+		//	Compare device state with not allowed states for READ 
+		if (get_state()==Tango::OFF)
+		{
+		/*----- PROTECTED REGION ID(PowerPMAC_Motor::SoftCwLimitFaultStateAllowed_READ) ENABLED START -----*/
 	
-	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::sl_ccw_faultStateAllowed_READ
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::SoftCwLimitFaultStateAllowed_READ
+			return false;
+		}
+		return true;
+	}
 	return true;
 }
 
 //--------------------------------------------------------
 /**
- *	Method      : PowerPMAC_Motor::is_limit_cw_fault_allowed()
- *	Description : Execution allowed for limit_cw_fault attribute
+ *	Method      : PowerPMAC_Motor::is_SoftCcwLimitFault_allowed()
+ *	Description : Execution allowed for SoftCcwLimitFault attribute
  */
 //--------------------------------------------------------
-bool PowerPMAC_Motor::is_limit_cw_fault_allowed(TANGO_UNUSED(Tango::AttReqType type))
+bool PowerPMAC_Motor::is_SoftCcwLimitFault_allowed(TANGO_UNUSED(Tango::AttReqType type))
 {
 
-	//	Not any excluded states for limit_cw_fault attribute in read access.
-	/*----- PROTECTED REGION ID(PowerPMAC_Motor::limit_cw_faultStateAllowed_READ) ENABLED START -----*/
+	//	Check access type.
+	if ( type==Tango::READ_REQ )
+	{
+		//	Compare device state with not allowed states for READ 
+		if (get_state()==Tango::OFF)
+		{
+		/*----- PROTECTED REGION ID(PowerPMAC_Motor::SoftCcwLimitFaultStateAllowed_READ) ENABLED START -----*/
 	
-	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::limit_cw_faultStateAllowed_READ
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::SoftCcwLimitFaultStateAllowed_READ
+			return false;
+		}
+		return true;
+	}
 	return true;
 }
 
 //--------------------------------------------------------
 /**
- *	Method      : PowerPMAC_Motor::is_limit_ccw_fault_allowed()
- *	Description : Execution allowed for limit_ccw_fault attribute
+ *	Method      : PowerPMAC_Motor::is_CwLimitFault_allowed()
+ *	Description : Execution allowed for CwLimitFault attribute
  */
 //--------------------------------------------------------
-bool PowerPMAC_Motor::is_limit_ccw_fault_allowed(TANGO_UNUSED(Tango::AttReqType type))
+bool PowerPMAC_Motor::is_CwLimitFault_allowed(TANGO_UNUSED(Tango::AttReqType type))
 {
 
-	//	Not any excluded states for limit_ccw_fault attribute in read access.
-	/*----- PROTECTED REGION ID(PowerPMAC_Motor::limit_ccw_faultStateAllowed_READ) ENABLED START -----*/
+	//	Check access type.
+	if ( type==Tango::READ_REQ )
+	{
+		//	Compare device state with not allowed states for READ 
+		if (get_state()==Tango::OFF)
+		{
+		/*----- PROTECTED REGION ID(PowerPMAC_Motor::CwLimitFaultStateAllowed_READ) ENABLED START -----*/
 	
-	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::limit_ccw_faultStateAllowed_READ
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::CwLimitFaultStateAllowed_READ
+			return false;
+		}
+		return true;
+	}
 	return true;
 }
 
 //--------------------------------------------------------
 /**
- *	Method      : PowerPMAC_Motor::is_conversion_factor_allowed()
- *	Description : Execution allowed for conversion_factor attribute
+ *	Method      : PowerPMAC_Motor::is_CcwLimitFault_allowed()
+ *	Description : Execution allowed for CcwLimitFault attribute
  */
 //--------------------------------------------------------
-bool PowerPMAC_Motor::is_conversion_factor_allowed(TANGO_UNUSED(Tango::AttReqType type))
+bool PowerPMAC_Motor::is_CcwLimitFault_allowed(TANGO_UNUSED(Tango::AttReqType type))
 {
-	//	Not any excluded states for conversion_factor attribute in Write access.
-	/*----- PROTECTED REGION ID(PowerPMAC_Motor::conversion_factorStateAllowed_WRITE) ENABLED START -----*/
-	
-	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::conversion_factorStateAllowed_WRITE
 
-	//	Not any excluded states for conversion_factor attribute in read access.
-	/*----- PROTECTED REGION ID(PowerPMAC_Motor::conversion_factorStateAllowed_READ) ENABLED START -----*/
+	//	Check access type.
+	if ( type==Tango::READ_REQ )
+	{
+		//	Compare device state with not allowed states for READ 
+		if (get_state()==Tango::OFF)
+		{
+		/*----- PROTECTED REGION ID(PowerPMAC_Motor::CcwLimitFaultStateAllowed_READ) ENABLED START -----*/
 	
-	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::conversion_factorStateAllowed_READ
-	return true;
-}
-
-//--------------------------------------------------------
-/**
- *	Method      : PowerPMAC_Motor::is_invert_direction_allowed()
- *	Description : Execution allowed for invert_direction attribute
- */
-//--------------------------------------------------------
-bool PowerPMAC_Motor::is_invert_direction_allowed(TANGO_UNUSED(Tango::AttReqType type))
-{
-	//	Not any excluded states for invert_direction attribute in Write access.
-	/*----- PROTECTED REGION ID(PowerPMAC_Motor::invert_directionStateAllowed_WRITE) ENABLED START -----*/
-	
-	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::invert_directionStateAllowed_WRITE
-
-	//	Not any excluded states for invert_direction attribute in read access.
-	/*----- PROTECTED REGION ID(PowerPMAC_Motor::invert_directionStateAllowed_READ) ENABLED START -----*/
-	
-	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::invert_directionStateAllowed_READ
-	return true;
-}
-
-//--------------------------------------------------------
-/**
- *	Method      : PowerPMAC_Motor::is_invert_encoder_allowed()
- *	Description : Execution allowed for invert_encoder attribute
- */
-//--------------------------------------------------------
-bool PowerPMAC_Motor::is_invert_encoder_allowed(TANGO_UNUSED(Tango::AttReqType type))
-{
-	//	Not any excluded states for invert_encoder attribute in Write access.
-	/*----- PROTECTED REGION ID(PowerPMAC_Motor::invert_encoderStateAllowed_WRITE) ENABLED START -----*/
-	
-	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::invert_encoderStateAllowed_WRITE
-
-	//	Not any excluded states for invert_encoder attribute in read access.
-	/*----- PROTECTED REGION ID(PowerPMAC_Motor::invert_encoderStateAllowed_READ) ENABLED START -----*/
-	
-	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::invert_encoderStateAllowed_READ
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::CcwLimitFaultStateAllowed_READ
+			return false;
+		}
+		return true;
+	}
 	return true;
 }
 
@@ -286,10 +396,17 @@ bool PowerPMAC_Motor::is_invert_encoder_allowed(TANGO_UNUSED(Tango::AttReqType t
 //--------------------------------------------------------
 bool PowerPMAC_Motor::is_PhaseMotor_allowed(TANGO_UNUSED(const CORBA::Any &any))
 {
-	//	Not any excluded states for PhaseMotor command.
+	//	Compare device state with not allowed states.
+	if (get_state()==Tango::OFF ||
+		get_state()==Tango::INIT ||
+		get_state()==Tango::MOVING ||
+		get_state()==Tango::FAULT)
+	{
 	/*----- PROTECTED REGION ID(PowerPMAC_Motor::PhaseMotorStateAllowed) ENABLED START -----*/
 	
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::PhaseMotorStateAllowed
+		return false;
+	}
 	return true;
 }
 
@@ -301,10 +418,17 @@ bool PowerPMAC_Motor::is_PhaseMotor_allowed(TANGO_UNUSED(const CORBA::Any &any))
 //--------------------------------------------------------
 bool PowerPMAC_Motor::is_HomeMotor_allowed(TANGO_UNUSED(const CORBA::Any &any))
 {
-	//	Not any excluded states for HomeMotor command.
+	//	Compare device state with not allowed states.
+	if (get_state()==Tango::OFF ||
+		get_state()==Tango::INIT ||
+		get_state()==Tango::MOVING ||
+		get_state()==Tango::FAULT)
+	{
 	/*----- PROTECTED REGION ID(PowerPMAC_Motor::HomeMotorStateAllowed) ENABLED START -----*/
 	
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::HomeMotorStateAllowed
+		return false;
+	}
 	return true;
 }
 
@@ -316,10 +440,17 @@ bool PowerPMAC_Motor::is_HomeMotor_allowed(TANGO_UNUSED(const CORBA::Any &any))
 //--------------------------------------------------------
 bool PowerPMAC_Motor::is_Calibrate_allowed(TANGO_UNUSED(const CORBA::Any &any))
 {
-	//	Not any excluded states for Calibrate command.
+	//	Compare device state with not allowed states.
+	if (get_state()==Tango::OFF ||
+		get_state()==Tango::INIT ||
+		get_state()==Tango::MOVING ||
+		get_state()==Tango::FAULT)
+	{
 	/*----- PROTECTED REGION ID(PowerPMAC_Motor::CalibrateStateAllowed) ENABLED START -----*/
 	
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::CalibrateStateAllowed
+		return false;
+	}
 	return true;
 }
 

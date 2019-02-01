@@ -36,6 +36,7 @@
 
 #include <PowerPMAC_Motor.h>
 #include <PowerPMAC_MotorClass.h>
+#include <pmac/datastructures.h>
 
 #include "coreinterface.h"
 #include "commandbuilder.h"
@@ -64,18 +65,16 @@
 //================================================================
 //  Attributes managed are:
 //================================================================
-//  position           |  Tango::DevFloat	Scalar
-//  acceleration       |  Tango::DevFloat	Scalar
-//  max_velocity       |  Tango::DevFloat	Scalar
-//  sl_cw              |  Tango::DevFloat	Scalar
-//  sl_ccw             |  Tango::DevFloat	Scalar
-//  sl_cw_fault        |  Tango::DevBoolean	Scalar
-//  sl_ccw_fault       |  Tango::DevBoolean	Scalar
-//  limit_cw_fault     |  Tango::DevBoolean	Scalar
-//  limit_ccw_fault    |  Tango::DevBoolean	Scalar
-//  conversion_factor  |  Tango::DevFloat	Scalar
-//  invert_direction   |  Tango::DevBoolean	Scalar
-//  invert_encoder     |  Tango::DevBoolean	Scalar
+//  Position           |  Tango::DevFloat	Scalar
+//  Acceleration       |  Tango::DevFloat	Scalar
+//  Velocity           |  Tango::DevFloat	Scalar
+//  SoftCwLimit        |  Tango::DevFloat	Scalar
+//  SoftCcwLimit       |  Tango::DevFloat	Scalar
+//  EnableSoftLimit    |  Tango::DevBoolean	Scalar
+//  SoftCwLimitFault   |  Tango::DevBoolean	Scalar
+//  SoftCcwLimitFault  |  Tango::DevBoolean	Scalar
+//  CwLimitFault       |  Tango::DevBoolean	Scalar
+//  CcwLimitFault      |  Tango::DevBoolean	Scalar
 //================================================================
 
 namespace PowerPMAC_Motor_ns
@@ -134,17 +133,15 @@ void PowerPMAC_Motor::delete_device()
 	//	Delete device allocated objects
 	
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::delete_device
-	delete[] attr_acceleration_read;
-	delete[] attr_max_velocity_read;
-	delete[] attr_sl_cw_read;
-	delete[] attr_sl_ccw_read;
-	delete[] attr_sl_cw_fault_read;
-	delete[] attr_sl_ccw_fault_read;
-	delete[] attr_limit_cw_fault_read;
-	delete[] attr_limit_ccw_fault_read;
-	delete[] attr_conversion_factor_read;
-	delete[] attr_invert_direction_read;
-	delete[] attr_invert_encoder_read;
+	delete[] attr_Acceleration_read;
+	delete[] attr_Velocity_read;
+	delete[] attr_SoftCwLimit_read;
+	delete[] attr_SoftCcwLimit_read;
+	delete[] attr_EnableSoftLimit_read;
+	delete[] attr_SoftCwLimitFault_read;
+	delete[] attr_SoftCcwLimitFault_read;
+	delete[] attr_CwLimitFault_read;
+	delete[] attr_CcwLimitFault_read;
 }
 
 //--------------------------------------------------------
@@ -166,31 +163,65 @@ void PowerPMAC_Motor::init_device()
 	//	Get the device properties from database
 	get_device_property();
 	
-	attr_acceleration_read = new Tango::DevFloat[1];
-	attr_max_velocity_read = new Tango::DevFloat[1];
-	attr_sl_cw_read = new Tango::DevFloat[1];
-	attr_sl_ccw_read = new Tango::DevFloat[1];
-	attr_sl_cw_fault_read = new Tango::DevBoolean[1];
-	attr_sl_ccw_fault_read = new Tango::DevBoolean[1];
-	attr_limit_cw_fault_read = new Tango::DevBoolean[1];
-	attr_limit_ccw_fault_read = new Tango::DevBoolean[1];
-	attr_conversion_factor_read = new Tango::DevFloat[1];
-	attr_invert_direction_read = new Tango::DevBoolean[1];
-	attr_invert_encoder_read = new Tango::DevBoolean[1];
+	attr_Acceleration_read = new Tango::DevFloat[1];
+	attr_Velocity_read = new Tango::DevFloat[1];
+	attr_SoftCwLimit_read = new Tango::DevFloat[1];
+	attr_SoftCcwLimit_read = new Tango::DevFloat[1];
+	attr_EnableSoftLimit_read = new Tango::DevBoolean[1];
+	attr_SoftCwLimitFault_read = new Tango::DevBoolean[1];
+	attr_SoftCcwLimitFault_read = new Tango::DevBoolean[1];
+	attr_CwLimitFault_read = new Tango::DevBoolean[1];
+	attr_CcwLimitFault_read = new Tango::DevBoolean[1];
 	/*----- PROTECTED REGION ID(PowerPMAC_Motor::init_device) ENABLED START -----*/
 	
 	//	Initialize device
 
 	ppmac::CoreInterface& ci = ppmac::GetCoreObject();
 
-	ci.RegisterConnectionEstablished([](){
+	connectionEstablished = ci.GetSignal(ppmac::SignalType::ConnectionEstablished)->connect([this](){
+		StartMotor();
+	});
 
+	connectionLost = ci.GetSignal(ppmac::SignalType::ConnectionLost)->connect([this](){
+		StopMotor();
 	});
-	ci.RegisterConnectionLost([](const std::string& reason){
-		(void)reason;
+
+	motorStateChanged = ci.GetSignal(ppmac::SignalType::MotorStateChanged)->connect([this](){
+		MotorStateChanged();
 	});
-	
+
+	if(ci.IsConnected()) {
+		StartMotor();
+	} else {
+		set_state(Tango::OFF);
+	}
+
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::init_device
+}
+
+void PowerPMAC_Motor::StartMotor()
+{
+	if(disableHardLimits == true) {
+		ppmac::cmd::MotorSetHardLimits(0, motorId);
+	}
+
+	set_state(Tango::ON);
+}
+
+void PowerPMAC_Motor::StopMotor()
+{
+	set_state(Tango::OFF);
+}
+
+void PowerPMAC_Motor::MotorStateChanged()
+{
+	try {
+		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
+		uint64_t state = ci.GetMotorInfo(motorId).status.registerValue;
+		// TODO: what?
+	} catch (ppmac::RuntimeError& e) {
+		tu::TranslateException(e);
+	}
 }
 
 //--------------------------------------------------------
@@ -210,7 +241,8 @@ void PowerPMAC_Motor::get_device_property()
 
 	//	Read device properties from database.
 	Tango::DbData	dev_prop;
-	dev_prop.push_back(Tango::DbDatum("motorIndex"));
+	dev_prop.push_back(Tango::DbDatum("MotorIndex"));
+	dev_prop.push_back(Tango::DbDatum("DisableHardLimits"));
 
 	//	is there at least one property to be read ?
 	if (dev_prop.size()>0)
@@ -225,16 +257,27 @@ void PowerPMAC_Motor::get_device_property()
 			(static_cast<PowerPMAC_MotorClass *>(get_device_class()));
 		int	i = -1;
 
-		//	Try to initialize motorIndex from class property
+		//	Try to initialize MotorIndex from class property
 		cl_prop = ds_class->get_class_property(dev_prop[++i].name);
 		if (cl_prop.is_empty()==false)	cl_prop  >>  motorIndex;
 		else {
-			//	Try to initialize motorIndex from default device value
+			//	Try to initialize MotorIndex from default device value
 			def_prop = ds_class->get_default_device_property(dev_prop[i].name);
 			if (def_prop.is_empty()==false)	def_prop  >>  motorIndex;
 		}
-		//	And try to extract motorIndex value from database
+		//	And try to extract MotorIndex value from database
 		if (dev_prop[i].is_empty()==false)	dev_prop[i]  >>  motorIndex;
+
+		//	Try to initialize DisableHardLimits from class property
+		cl_prop = ds_class->get_class_property(dev_prop[++i].name);
+		if (cl_prop.is_empty()==false)	cl_prop  >>  disableHardLimits;
+		else {
+			//	Try to initialize DisableHardLimits from default device value
+			def_prop = ds_class->get_default_device_property(dev_prop[i].name);
+			if (def_prop.is_empty()==false)	def_prop  >>  disableHardLimits;
+		}
+		//	And try to extract DisableHardLimits value from database
+		if (dev_prop[i].is_empty()==false)	dev_prop[i]  >>  disableHardLimits;
 
 	}
 
@@ -295,412 +338,420 @@ void PowerPMAC_Motor::write_attr_hardware(TANGO_UNUSED(vector<long> &attr_list))
 
 //--------------------------------------------------------
 /**
- *	Read attribute position related method
+ *	Read attribute Position related method
  *	Description: 
  *
  *	Data type:	Tango::DevFloat
  *	Attr type:	Scalar
  */
 //--------------------------------------------------------
-void PowerPMAC_Motor::read_position(Tango::Attribute &attr)
+void PowerPMAC_Motor::read_Position(Tango::Attribute &attr)
 {
-	DEBUG_STREAM << "PowerPMAC_Motor::read_position(Tango::Attribute &attr) entering... " << endl;
-	/*----- PROTECTED REGION ID(PowerPMAC_Motor::read_position) ENABLED START -----*/
+	DEBUG_STREAM << "PowerPMAC_Motor::read_Position(Tango::Attribute &attr) entering... " << endl;
+	/*----- PROTECTED REGION ID(PowerPMAC_Motor::read_Position) ENABLED START -----*/
 	//	Set the attribute value
 
-	ppmac::CoreInterface& ci = ppmac::GetCoreObject();
 	try {
-		float pos = ci.GetMotorInfo(motorId).position;
+		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
+		auto pos = ci.GetMotorInfo(motorId).position;
 		attr.set_value(&pos);
-	}
-	catch(ppmac::RuntimeError& e) {
+	} catch (ppmac::RuntimeError& e) {
 		tu::TranslateException(e);
 	}
 	
-	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::read_position
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::read_Position
 }
 //--------------------------------------------------------
 /**
- *	Write attribute position related method
+ *	Write attribute Position related method
  *	Description: 
  *
  *	Data type:	Tango::DevFloat
  *	Attr type:	Scalar
  */
 //--------------------------------------------------------
-void PowerPMAC_Motor::write_position(Tango::WAttribute &attr)
+void PowerPMAC_Motor::write_Position(Tango::WAttribute &attr)
 {
-	DEBUG_STREAM << "PowerPMAC_Motor::write_position(Tango::WAttribute &attr) entering... " << endl;
+	DEBUG_STREAM << "PowerPMAC_Motor::write_Position(Tango::WAttribute &attr) entering... " << endl;
 	//	Retrieve write value
 	Tango::DevFloat	w_val;
 	attr.get_write_value(w_val);
-	/*----- PROTECTED REGION ID(PowerPMAC_Motor::write_position) ENABLED START -----*/
+	/*----- PROTECTED REGION ID(PowerPMAC_Motor::write_Position) ENABLED START -----*/
 
-	ppmac::CoreInterface& ci = ppmac::GetCoreObject();
 	try {
-		auto cmd = ppmac::cmd::MotorJogToPosition(motorId, w_val);
-		ci.ExecuteCommand(fmt::to_string(cmd));
-	}
-	catch(ppmac::RuntimeError& e) {
+		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
+		auto cmd = ppmac::cmd::MotorJogToPosition(w_val, motorId);
+		ci.ExecuteCommand(cmd);
+	} catch (ppmac::RuntimeError& e) {
 		tu::TranslateException(e);
 	}
 	
-	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::write_position
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::write_Position
 }
 //--------------------------------------------------------
 /**
- *	Read attribute acceleration related method
+ *	Read attribute Acceleration related method
  *	Description: 
  *
  *	Data type:	Tango::DevFloat
  *	Attr type:	Scalar
  */
 //--------------------------------------------------------
-void PowerPMAC_Motor::read_acceleration(Tango::Attribute &attr)
+void PowerPMAC_Motor::read_Acceleration(Tango::Attribute &attr)
 {
-	DEBUG_STREAM << "PowerPMAC_Motor::read_acceleration(Tango::Attribute &attr) entering... " << endl;
-	/*----- PROTECTED REGION ID(PowerPMAC_Motor::read_acceleration) ENABLED START -----*/
+	DEBUG_STREAM << "PowerPMAC_Motor::read_Acceleration(Tango::Attribute &attr) entering... " << endl;
+	/*----- PROTECTED REGION ID(PowerPMAC_Motor::read_Acceleration) ENABLED START -----*/
 	//	Set the attribute value
-	attr.set_value(attr_acceleration_read);
+	attr.set_value(attr_Acceleration_read);
+
+	try {
+		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
+		auto acc = ci.GetMotorInfo(motorId).acceleration;
+		attr.set_value(&acc);
+	} catch (ppmac::RuntimeError& e) {
+		tu::TranslateException(e);
+	}
 	
-	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::read_acceleration
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::read_Acceleration
 }
 //--------------------------------------------------------
 /**
- *	Write attribute acceleration related method
+ *	Write attribute Acceleration related method
  *	Description: 
  *
  *	Data type:	Tango::DevFloat
  *	Attr type:	Scalar
  */
 //--------------------------------------------------------
-void PowerPMAC_Motor::write_acceleration(Tango::WAttribute &attr)
+void PowerPMAC_Motor::write_Acceleration(Tango::WAttribute &attr)
 {
-	DEBUG_STREAM << "PowerPMAC_Motor::write_acceleration(Tango::WAttribute &attr) entering... " << endl;
+	DEBUG_STREAM << "PowerPMAC_Motor::write_Acceleration(Tango::WAttribute &attr) entering... " << endl;
 	//	Retrieve write value
 	Tango::DevFloat	w_val;
 	attr.get_write_value(w_val);
-	/*----- PROTECTED REGION ID(PowerPMAC_Motor::write_acceleration) ENABLED START -----*/
+	/*----- PROTECTED REGION ID(PowerPMAC_Motor::write_Acceleration) ENABLED START -----*/
+
+	try {
+		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
+		auto cmd = ppmac::cmd::MotorSetJogAcceleration(w_val, motorId);
+		ci.ExecuteCommand(cmd);
+	} catch (ppmac::RuntimeError& e) {
+		tu::TranslateException(e);
+	}
 	
-	
-	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::write_acceleration
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::write_Acceleration
 }
 //--------------------------------------------------------
 /**
- *	Read attribute max_velocity related method
+ *	Read attribute Velocity related method
  *	Description: 
  *
  *	Data type:	Tango::DevFloat
  *	Attr type:	Scalar
  */
 //--------------------------------------------------------
-void PowerPMAC_Motor::read_max_velocity(Tango::Attribute &attr)
+void PowerPMAC_Motor::read_Velocity(Tango::Attribute &attr)
 {
-	DEBUG_STREAM << "PowerPMAC_Motor::read_max_velocity(Tango::Attribute &attr) entering... " << endl;
-	/*----- PROTECTED REGION ID(PowerPMAC_Motor::read_max_velocity) ENABLED START -----*/
-	//	Set the attribute value
-	attr.set_value(attr_max_velocity_read);
-	
-	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::read_max_velocity
-}
-//--------------------------------------------------------
-/**
- *	Write attribute max_velocity related method
- *	Description: 
- *
- *	Data type:	Tango::DevFloat
- *	Attr type:	Scalar
- */
-//--------------------------------------------------------
-void PowerPMAC_Motor::write_max_velocity(Tango::WAttribute &attr)
-{
-	DEBUG_STREAM << "PowerPMAC_Motor::write_max_velocity(Tango::WAttribute &attr) entering... " << endl;
-	//	Retrieve write value
-	Tango::DevFloat	w_val;
-	attr.get_write_value(w_val);
-	/*----- PROTECTED REGION ID(PowerPMAC_Motor::write_max_velocity) ENABLED START -----*/
-	
-	
-	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::write_max_velocity
-}
-//--------------------------------------------------------
-/**
- *	Read attribute sl_cw related method
- *	Description: 
- *
- *	Data type:	Tango::DevFloat
- *	Attr type:	Scalar
- */
-//--------------------------------------------------------
-void PowerPMAC_Motor::read_sl_cw(Tango::Attribute &attr)
-{
-	DEBUG_STREAM << "PowerPMAC_Motor::read_sl_cw(Tango::Attribute &attr) entering... " << endl;
-	/*----- PROTECTED REGION ID(PowerPMAC_Motor::read_sl_cw) ENABLED START -----*/
-	//	Set the attribute value
-	attr.set_value(attr_sl_cw_read);
-	
-	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::read_sl_cw
-}
-//--------------------------------------------------------
-/**
- *	Write attribute sl_cw related method
- *	Description: 
- *
- *	Data type:	Tango::DevFloat
- *	Attr type:	Scalar
- */
-//--------------------------------------------------------
-void PowerPMAC_Motor::write_sl_cw(Tango::WAttribute &attr)
-{
-	DEBUG_STREAM << "PowerPMAC_Motor::write_sl_cw(Tango::WAttribute &attr) entering... " << endl;
-	//	Retrieve write value
-	Tango::DevFloat	w_val;
-	attr.get_write_value(w_val);
-	/*----- PROTECTED REGION ID(PowerPMAC_Motor::write_sl_cw) ENABLED START -----*/
-	
-	
-	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::write_sl_cw
-}
-//--------------------------------------------------------
-/**
- *	Read attribute sl_ccw related method
- *	Description: 
- *
- *	Data type:	Tango::DevFloat
- *	Attr type:	Scalar
- */
-//--------------------------------------------------------
-void PowerPMAC_Motor::read_sl_ccw(Tango::Attribute &attr)
-{
-	DEBUG_STREAM << "PowerPMAC_Motor::read_sl_ccw(Tango::Attribute &attr) entering... " << endl;
-	/*----- PROTECTED REGION ID(PowerPMAC_Motor::read_sl_ccw) ENABLED START -----*/
-	//	Set the attribute value
-	attr.set_value(attr_sl_ccw_read);
-	
-	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::read_sl_ccw
-}
-//--------------------------------------------------------
-/**
- *	Write attribute sl_ccw related method
- *	Description: 
- *
- *	Data type:	Tango::DevFloat
- *	Attr type:	Scalar
- */
-//--------------------------------------------------------
-void PowerPMAC_Motor::write_sl_ccw(Tango::WAttribute &attr)
-{
-	DEBUG_STREAM << "PowerPMAC_Motor::write_sl_ccw(Tango::WAttribute &attr) entering... " << endl;
-	//	Retrieve write value
-	Tango::DevFloat	w_val;
-	attr.get_write_value(w_val);
-	/*----- PROTECTED REGION ID(PowerPMAC_Motor::write_sl_ccw) ENABLED START -----*/
-	
-	
-	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::write_sl_ccw
-}
-//--------------------------------------------------------
-/**
- *	Read attribute sl_cw_fault related method
- *	Description: 
- *
- *	Data type:	Tango::DevBoolean
- *	Attr type:	Scalar
- */
-//--------------------------------------------------------
-void PowerPMAC_Motor::read_sl_cw_fault(Tango::Attribute &attr)
-{
-	DEBUG_STREAM << "PowerPMAC_Motor::read_sl_cw_fault(Tango::Attribute &attr) entering... " << endl;
-	/*----- PROTECTED REGION ID(PowerPMAC_Motor::read_sl_cw_fault) ENABLED START -----*/
-	//	Set the attribute value
-	attr.set_value(attr_sl_cw_fault_read);
-	
-	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::read_sl_cw_fault
-}
-//--------------------------------------------------------
-/**
- *	Read attribute sl_ccw_fault related method
- *	Description: 
- *
- *	Data type:	Tango::DevBoolean
- *	Attr type:	Scalar
- */
-//--------------------------------------------------------
-void PowerPMAC_Motor::read_sl_ccw_fault(Tango::Attribute &attr)
-{
-	DEBUG_STREAM << "PowerPMAC_Motor::read_sl_ccw_fault(Tango::Attribute &attr) entering... " << endl;
-	/*----- PROTECTED REGION ID(PowerPMAC_Motor::read_sl_ccw_fault) ENABLED START -----*/
-	//	Set the attribute value
-	attr.set_value(attr_sl_ccw_fault_read);
-	
-	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::read_sl_ccw_fault
-}
-//--------------------------------------------------------
-/**
- *	Read attribute limit_cw_fault related method
- *	Description: 
- *
- *	Data type:	Tango::DevBoolean
- *	Attr type:	Scalar
- */
-//--------------------------------------------------------
-void PowerPMAC_Motor::read_limit_cw_fault(Tango::Attribute &attr)
-{
-	DEBUG_STREAM << "PowerPMAC_Motor::read_limit_cw_fault(Tango::Attribute &attr) entering... " << endl;
-	/*----- PROTECTED REGION ID(PowerPMAC_Motor::read_limit_cw_fault) ENABLED START -----*/
-	//	Set the attribute value
-	attr.set_value(attr_limit_cw_fault_read);
-	
-	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::read_limit_cw_fault
-}
-//--------------------------------------------------------
-/**
- *	Read attribute limit_ccw_fault related method
- *	Description: 
- *
- *	Data type:	Tango::DevBoolean
- *	Attr type:	Scalar
- */
-//--------------------------------------------------------
-void PowerPMAC_Motor::read_limit_ccw_fault(Tango::Attribute &attr)
-{
-	DEBUG_STREAM << "PowerPMAC_Motor::read_limit_ccw_fault(Tango::Attribute &attr) entering... " << endl;
-	/*----- PROTECTED REGION ID(PowerPMAC_Motor::read_limit_ccw_fault) ENABLED START -----*/
-	//	Set the attribute value
-	attr.set_value(attr_limit_ccw_fault_read);
-	
-	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::read_limit_ccw_fault
-}
-//--------------------------------------------------------
-/**
- *	Read attribute conversion_factor related method
- *	Description: 
- *
- *	Data type:	Tango::DevFloat
- *	Attr type:	Scalar
- */
-//--------------------------------------------------------
-void PowerPMAC_Motor::read_conversion_factor(Tango::Attribute &attr)
-{
-	DEBUG_STREAM << "PowerPMAC_Motor::read_conversion_factor(Tango::Attribute &attr) entering... " << endl;
-	/*----- PROTECTED REGION ID(PowerPMAC_Motor::read_conversion_factor) ENABLED START -----*/
+	DEBUG_STREAM << "PowerPMAC_Motor::read_Velocity(Tango::Attribute &attr) entering... " << endl;
+	/*----- PROTECTED REGION ID(PowerPMAC_Motor::read_Velocity) ENABLED START -----*/
 	//	Set the attribute value
 
-	ppmac::CoreInterface& ci = ppmac::GetCoreObject();
 	try {
-		float conversion = ci.GetMotorInfo(motorId).conversion;
-		attr.set_value(&conversion);
-	}
-	catch(ppmac::RuntimeError& e) {
+		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
+		auto vel = ci.GetMotorInfo(motorId).velocity;
+		attr.set_value(&vel);
+	} catch (ppmac::RuntimeError& e) {
 		tu::TranslateException(e);
 	}
 	
-	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::read_conversion_factor
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::read_Velocity
 }
 //--------------------------------------------------------
 /**
- *	Write attribute conversion_factor related method
+ *	Write attribute Velocity related method
  *	Description: 
  *
  *	Data type:	Tango::DevFloat
  *	Attr type:	Scalar
  */
 //--------------------------------------------------------
-void PowerPMAC_Motor::write_conversion_factor(Tango::WAttribute &attr)
+void PowerPMAC_Motor::write_Velocity(Tango::WAttribute &attr)
 {
-	DEBUG_STREAM << "PowerPMAC_Motor::write_conversion_factor(Tango::WAttribute &attr) entering... " << endl;
+	DEBUG_STREAM << "PowerPMAC_Motor::write_Velocity(Tango::WAttribute &attr) entering... " << endl;
 	//	Retrieve write value
 	Tango::DevFloat	w_val;
 	attr.get_write_value(w_val);
-	/*----- PROTECTED REGION ID(PowerPMAC_Motor::write_conversion_factor) ENABLED START -----*/
+	/*----- PROTECTED REGION ID(PowerPMAC_Motor::write_Velocity) ENABLED START -----*/
 
-	ppmac::CoreInterface& ci = ppmac::GetCoreObject();
 	try {
-		auto cmd = ppmac::cmd::MotorSetConversion(w_val, motorId);
-		ci.ExecuteCommand(fmt::to_string(cmd));
-	}
-	catch(ppmac::RuntimeError& e) {
+		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
+		auto cmd = ppmac::cmd::MotorSetJogSpeed(w_val, motorId);
+		ci.ExecuteCommand(cmd);
+	} catch (ppmac::RuntimeError& e) {
 		tu::TranslateException(e);
 	}
 	
-	
-	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::write_conversion_factor
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::write_Velocity
 }
 //--------------------------------------------------------
 /**
- *	Read attribute invert_direction related method
+ *	Read attribute SoftCwLimit related method
  *	Description: 
  *
- *	Data type:	Tango::DevBoolean
+ *	Data type:	Tango::DevFloat
  *	Attr type:	Scalar
  */
 //--------------------------------------------------------
-void PowerPMAC_Motor::read_invert_direction(Tango::Attribute &attr)
+void PowerPMAC_Motor::read_SoftCwLimit(Tango::Attribute &attr)
 {
-	DEBUG_STREAM << "PowerPMAC_Motor::read_invert_direction(Tango::Attribute &attr) entering... " << endl;
-	/*----- PROTECTED REGION ID(PowerPMAC_Motor::read_invert_direction) ENABLED START -----*/
+	DEBUG_STREAM << "PowerPMAC_Motor::read_SoftCwLimit(Tango::Attribute &attr) entering... " << endl;
+	/*----- PROTECTED REGION ID(PowerPMAC_Motor::read_SoftCwLimit) ENABLED START -----*/
 	//	Set the attribute value
-	attr.set_value(attr_invert_direction_read);
+	attr.set_value(attr_SoftCwLimit_read);
+
+	try {
+		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
+		std::string result = ci.ExecuteCommand(ppmac::cmd::MotorGetSoftlimitMinus(motorId));
+		float limit = tu::ParseFloat(result);
+		attr.set_value(&limit);
+	} catch (ppmac::RuntimeError& e) {
+		tu::TranslateException(e);
+	}
 	
-	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::read_invert_direction
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::read_SoftCwLimit
 }
 //--------------------------------------------------------
 /**
- *	Write attribute invert_direction related method
+ *	Write attribute SoftCwLimit related method
+ *	Description: 
+ *
+ *	Data type:	Tango::DevFloat
+ *	Attr type:	Scalar
+ */
+//--------------------------------------------------------
+void PowerPMAC_Motor::write_SoftCwLimit(Tango::WAttribute &attr)
+{
+	DEBUG_STREAM << "PowerPMAC_Motor::write_SoftCwLimit(Tango::WAttribute &attr) entering... " << endl;
+	//	Retrieve write value
+	Tango::DevFloat	w_val;
+	attr.get_write_value(w_val);
+	/*----- PROTECTED REGION ID(PowerPMAC_Motor::write_SoftCwLimit) ENABLED START -----*/
+
+	if(*attr_EnableSoftLimit_read) {
+		try {
+			ppmac::CoreInterface& ci = ppmac::GetCoreObject();
+			std::string result = ci.ExecuteCommand(ppmac::cmd::MotorSetSoftlimitMinus(w_val, motorId));
+			float limit = tu::ParseFloat(result);
+			attr.set_value(&limit);
+		} catch (ppmac::RuntimeError& e) {
+			tu::TranslateException(e);
+		}
+	}
+	
+	
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::write_SoftCwLimit
+}
+//--------------------------------------------------------
+/**
+ *	Read attribute SoftCcwLimit related method
+ *	Description: 
+ *
+ *	Data type:	Tango::DevFloat
+ *	Attr type:	Scalar
+ */
+//--------------------------------------------------------
+void PowerPMAC_Motor::read_SoftCcwLimit(Tango::Attribute &attr)
+{
+	DEBUG_STREAM << "PowerPMAC_Motor::read_SoftCcwLimit(Tango::Attribute &attr) entering... " << endl;
+	/*----- PROTECTED REGION ID(PowerPMAC_Motor::read_SoftCcwLimit) ENABLED START -----*/
+	//	Set the attribute value
+	attr.set_value(attr_SoftCcwLimit_read);
+
+	try {
+		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
+		ci.ExecuteCommand(ppmac::cmd::MotorGetSoftlimitPlus(motorId));
+	} catch (ppmac::RuntimeError& e) {
+		tu::TranslateException(e);
+	}
+	
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::read_SoftCcwLimit
+}
+//--------------------------------------------------------
+/**
+ *	Write attribute SoftCcwLimit related method
+ *	Description: 
+ *
+ *	Data type:	Tango::DevFloat
+ *	Attr type:	Scalar
+ */
+//--------------------------------------------------------
+void PowerPMAC_Motor::write_SoftCcwLimit(Tango::WAttribute &attr)
+{
+	DEBUG_STREAM << "PowerPMAC_Motor::write_SoftCcwLimit(Tango::WAttribute &attr) entering... " << endl;
+	//	Retrieve write value
+	Tango::DevFloat	w_val;
+	attr.get_write_value(w_val);
+	/*----- PROTECTED REGION ID(PowerPMAC_Motor::write_SoftCcwLimit) ENABLED START -----*/
+
+	if(*attr_EnableSoftLimit_read) {
+		try {
+			ppmac::CoreInterface& ci = ppmac::GetCoreObject();
+			ci.ExecuteCommand(ppmac::cmd::MotorSetSoftlimitPlus(w_val, motorId));
+		} catch (ppmac::RuntimeError& e) {
+			tu::TranslateException(e);
+		}
+	}
+	
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::write_SoftCcwLimit
+}
+//--------------------------------------------------------
+/**
+ *	Read attribute EnableSoftLimit related method
  *	Description: 
  *
  *	Data type:	Tango::DevBoolean
  *	Attr type:	Scalar
  */
 //--------------------------------------------------------
-void PowerPMAC_Motor::write_invert_direction(Tango::WAttribute &attr)
+void PowerPMAC_Motor::read_EnableSoftLimit(Tango::Attribute &attr)
 {
-	DEBUG_STREAM << "PowerPMAC_Motor::write_invert_direction(Tango::WAttribute &attr) entering... " << endl;
+	DEBUG_STREAM << "PowerPMAC_Motor::read_EnableSoftLimit(Tango::Attribute &attr) entering... " << endl;
+	/*----- PROTECTED REGION ID(PowerPMAC_Motor::read_EnableSoftLimit) ENABLED START -----*/
+	//	Set the attribute value
+	attr.set_value(attr_EnableSoftLimit_read);
+	
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::read_EnableSoftLimit
+}
+//--------------------------------------------------------
+/**
+ *	Write attribute EnableSoftLimit related method
+ *	Description: 
+ *
+ *	Data type:	Tango::DevBoolean
+ *	Attr type:	Scalar
+ */
+//--------------------------------------------------------
+void PowerPMAC_Motor::write_EnableSoftLimit(Tango::WAttribute &attr)
+{
+	DEBUG_STREAM << "PowerPMAC_Motor::write_EnableSoftLimit(Tango::WAttribute &attr) entering... " << endl;
 	//	Retrieve write value
 	Tango::DevBoolean	w_val;
 	attr.get_write_value(w_val);
-	/*----- PROTECTED REGION ID(PowerPMAC_Motor::write_invert_direction) ENABLED START -----*/
+	/*----- PROTECTED REGION ID(PowerPMAC_Motor::write_EnableSoftLimit) ENABLED START -----*/
+
+	*attr_EnableSoftLimit_read = w_val;
+
+	try {
+		if(w_val == true) {
+			ppmac::CoreInterface& ci = ppmac::GetCoreObject();
+			ci.ExecuteCommand(ppmac::cmd::MotorSetSoftlimitMinus(*attr_SoftCwLimit_read, motorId));
+			ci.ExecuteCommand(ppmac::cmd::MotorSetSoftlimitPlus(*attr_SoftCcwLimit_read, motorId));
+		}
+	} catch (ppmac::RuntimeError& e) {
+		tu::TranslateException(e);
+	}
 	
-	
-	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::write_invert_direction
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::write_EnableSoftLimit
 }
 //--------------------------------------------------------
 /**
- *	Read attribute invert_encoder related method
+ *	Read attribute SoftCwLimitFault related method
  *	Description: 
  *
  *	Data type:	Tango::DevBoolean
  *	Attr type:	Scalar
  */
 //--------------------------------------------------------
-void PowerPMAC_Motor::read_invert_encoder(Tango::Attribute &attr)
+void PowerPMAC_Motor::read_SoftCwLimitFault(Tango::Attribute &attr)
 {
-	DEBUG_STREAM << "PowerPMAC_Motor::read_invert_encoder(Tango::Attribute &attr) entering... " << endl;
-	/*----- PROTECTED REGION ID(PowerPMAC_Motor::read_invert_encoder) ENABLED START -----*/
+	DEBUG_STREAM << "PowerPMAC_Motor::read_SoftCwLimitFault(Tango::Attribute &attr) entering... " << endl;
+	/*----- PROTECTED REGION ID(PowerPMAC_Motor::read_SoftCwLimitFault) ENABLED START -----*/
+
+	try {
+		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
+		bool onLimit = ci.GetMotorInfo(motorId).status.named.SoftMinusLimit;
+		attr.set_value(&onLimit);
+	} catch (ppmac::RuntimeError& e) {
+		tu::TranslateException(e);
+	}
+	
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::read_SoftCwLimitFault
+}
+//--------------------------------------------------------
+/**
+ *	Read attribute SoftCcwLimitFault related method
+ *	Description: 
+ *
+ *	Data type:	Tango::DevBoolean
+ *	Attr type:	Scalar
+ */
+//--------------------------------------------------------
+void PowerPMAC_Motor::read_SoftCcwLimitFault(Tango::Attribute &attr)
+{
+	DEBUG_STREAM << "PowerPMAC_Motor::read_SoftCcwLimitFault(Tango::Attribute &attr) entering... " << endl;
+	/*----- PROTECTED REGION ID(PowerPMAC_Motor::read_SoftCcwLimitFault) ENABLED START -----*/
 	//	Set the attribute value
-	attr.set_value(attr_invert_encoder_read);
+	attr.set_value(attr_SoftCcwLimitFault_read);
+
+	try {
+		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
+		bool onLimit = ci.GetMotorInfo(motorId).status.named.SoftPlusLimit;
+		attr.set_value(&onLimit);
+	} catch (ppmac::RuntimeError& e) {
+		tu::TranslateException(e);
+	}
 	
-	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::read_invert_encoder
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::read_SoftCcwLimitFault
 }
 //--------------------------------------------------------
 /**
- *	Write attribute invert_encoder related method
+ *	Read attribute CwLimitFault related method
  *	Description: 
  *
  *	Data type:	Tango::DevBoolean
  *	Attr type:	Scalar
  */
 //--------------------------------------------------------
-void PowerPMAC_Motor::write_invert_encoder(Tango::WAttribute &attr)
+void PowerPMAC_Motor::read_CwLimitFault(Tango::Attribute &attr)
 {
-	DEBUG_STREAM << "PowerPMAC_Motor::write_invert_encoder(Tango::WAttribute &attr) entering... " << endl;
-	//	Retrieve write value
-	Tango::DevBoolean	w_val;
-	attr.get_write_value(w_val);
-	/*----- PROTECTED REGION ID(PowerPMAC_Motor::write_invert_encoder) ENABLED START -----*/
+	DEBUG_STREAM << "PowerPMAC_Motor::read_CwLimitFault(Tango::Attribute &attr) entering... " << endl;
+	/*----- PROTECTED REGION ID(PowerPMAC_Motor::read_CwLimitFault) ENABLED START -----*/
+	//	Set the attribute value
+
+	try {
+		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
+		bool onLimit = ci.GetMotorInfo(motorId).status.named.MinusLimit;
+		attr.set_value(&onLimit);
+	} catch (ppmac::RuntimeError& e) {
+		tu::TranslateException(e);
+	}
 	
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::read_CwLimitFault
+}
+//--------------------------------------------------------
+/**
+ *	Read attribute CcwLimitFault related method
+ *	Description: 
+ *
+ *	Data type:	Tango::DevBoolean
+ *	Attr type:	Scalar
+ */
+//--------------------------------------------------------
+void PowerPMAC_Motor::read_CcwLimitFault(Tango::Attribute &attr)
+{
+	DEBUG_STREAM << "PowerPMAC_Motor::read_CcwLimitFault(Tango::Attribute &attr) entering... " << endl;
+	/*----- PROTECTED REGION ID(PowerPMAC_Motor::read_CcwLimitFault) ENABLED START -----*/
+	//	Set the attribute value
+
+	try {
+		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
+		bool onLimit = ci.GetMotorInfo(motorId).status.named.PlusLimit;
+		attr.set_value(&onLimit);
+	} catch (ppmac::RuntimeError& e) {
+		tu::TranslateException(e);
+	}
 	
-	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::write_invert_encoder
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::read_CcwLimitFault
 }
 
 //--------------------------------------------------------
@@ -730,8 +781,13 @@ void PowerPMAC_Motor::phase_motor()
 {
 	DEBUG_STREAM << "PowerPMAC_Motor::PhaseMotor()  - " << device_name << endl;
 	/*----- PROTECTED REGION ID(PowerPMAC_Motor::phase_motor) ENABLED START -----*/
-	
-	//	Add your own code
+
+	try {
+		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
+		ci.ExecuteCommand(ppmac::cmd::MotorPhase(motorId));
+	} catch (ppmac::RuntimeError& e) {
+		tu::TranslateException(e);
+	}
 	
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::phase_motor
 }
@@ -746,8 +802,13 @@ void PowerPMAC_Motor::home_motor()
 {
 	DEBUG_STREAM << "PowerPMAC_Motor::HomeMotor()  - " << device_name << endl;
 	/*----- PROTECTED REGION ID(PowerPMAC_Motor::home_motor) ENABLED START -----*/
-	
-	//	Add your own code
+
+	try {
+		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
+		ci.ExecuteCommand(ppmac::cmd::MotorHome(motorId));
+	} catch (ppmac::RuntimeError& e) {
+		tu::TranslateException(e);
+	}
 	
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::home_motor
 }
@@ -762,8 +823,13 @@ void PowerPMAC_Motor::calibrate()
 {
 	DEBUG_STREAM << "PowerPMAC_Motor::Calibrate()  - " << device_name << endl;
 	/*----- PROTECTED REGION ID(PowerPMAC_Motor::calibrate) ENABLED START -----*/
-	
-	//	Add your own code
+
+	try {
+		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
+		ci.ExecuteCommand(ppmac::cmd::MotorZeroPosition(motorId));
+	} catch (ppmac::RuntimeError& e) {
+		tu::TranslateException(e);
+	}
 	
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::calibrate
 }
@@ -786,6 +852,129 @@ void PowerPMAC_Motor::add_dynamic_commands()
 /*----- PROTECTED REGION ID(PowerPMAC_Motor::namespace_ending) ENABLED START -----*/
 
 //	Additional Methods
+// //--------------------------------------------------------
+// /**
+//  *	Read attribute conversion_factor related method
+//  *	Description: 
+//  *
+//  *	Data type:	Tango::DevFloat
+//  *	Attr type:	Scalar
+//  */
+// //--------------------------------------------------------
+// void PowerPMAC_Motor::read_conversion_factor(Tango::Attribute &attr)
+// {
+// 	DEBUG_STREAM << "PowerPMAC_Motor::read_conversion_factor(Tango::Attribute &attr) entering... " << endl;
+// 	//	Set the attribute value
+// 	ppmac::CoreInterface& ci = ppmac::GetCoreObject();
+// 	try {
+// 		float conversion = ci.GetMotorInfo(motorId).conversion;
+// 		attr.set_value(&conversion);
+// 	}
+// 	catch(ppmac::RuntimeError& e) {
+// 		tu::TranslateException(e);
+// 	}
+// 	
+// }
+
+// //--------------------------------------------------------
+// /**
+//  *	Write attribute conversion_factor related method
+//  *	Description: 
+//  *
+//  *	Data type:	Tango::DevFloat
+//  *	Attr type:	Scalar
+//  */
+// //--------------------------------------------------------
+// void PowerPMAC_Motor::write_conversion_factor(Tango::WAttribute &attr)
+// {
+// 	DEBUG_STREAM << "PowerPMAC_Motor::write_conversion_factor(Tango::WAttribute &attr) entering... " << endl;
+// 	//	Retrieve write value
+// 	Tango::DevFloat	w_val;
+// 	attr.get_write_value(w_val);
+// 	ppmac::CoreInterface& ci = ppmac::GetCoreObject();
+// 	try {
+// 		auto cmd = ppmac::cmd::MotorSetConversion(w_val, motorId);
+// 		ci.ExecuteCommand(fmt::to_string(cmd));
+// 	}
+// 	catch(ppmac::RuntimeError& e) {
+// 		tu::TranslateException(e);
+// 	}
+// 	
+// 	
+// }
+
+// //--------------------------------------------------------
+// /**
+//  *	Read attribute invert_direction related method
+//  *	Description: 
+//  *
+//  *	Data type:	Tango::DevBoolean
+//  *	Attr type:	Scalar
+//  */
+// //--------------------------------------------------------
+// void PowerPMAC_Motor::read_invert_direction(Tango::Attribute &attr)
+// {
+// 	DEBUG_STREAM << "PowerPMAC_Motor::read_invert_direction(Tango::Attribute &attr) entering... " << endl;
+// 	//	Set the attribute value
+// 	attr.set_value(attr_invert_direction_read);
+// 	
+// }
+
+// //--------------------------------------------------------
+// /**
+//  *	Write attribute invert_direction related method
+//  *	Description: 
+//  *
+//  *	Data type:	Tango::DevBoolean
+//  *	Attr type:	Scalar
+//  */
+// //--------------------------------------------------------
+// void PowerPMAC_Motor::write_invert_direction(Tango::WAttribute &attr)
+// {
+// 	DEBUG_STREAM << "PowerPMAC_Motor::write_invert_direction(Tango::WAttribute &attr) entering... " << endl;
+// 	//	Retrieve write value
+// 	Tango::DevBoolean	w_val;
+// 	attr.get_write_value(w_val);
+// 	
+// 	
+// }
+
+// //--------------------------------------------------------
+// /**
+//  *	Read attribute invert_encoder related method
+//  *	Description: 
+//  *
+//  *	Data type:	Tango::DevBoolean
+//  *	Attr type:	Scalar
+//  */
+// //--------------------------------------------------------
+// void PowerPMAC_Motor::read_invert_encoder(Tango::Attribute &attr)
+// {
+// 	DEBUG_STREAM << "PowerPMAC_Motor::read_invert_encoder(Tango::Attribute &attr) entering... " << endl;
+// 	//	Set the attribute value
+// 	attr.set_value(attr_invert_encoder_read);
+// 	
+// }
+
+// //--------------------------------------------------------
+// /**
+//  *	Write attribute invert_encoder related method
+//  *	Description: 
+//  *
+//  *	Data type:	Tango::DevBoolean
+//  *	Attr type:	Scalar
+//  */
+// //--------------------------------------------------------
+// void PowerPMAC_Motor::write_invert_encoder(Tango::WAttribute &attr)
+// {
+// 	DEBUG_STREAM << "PowerPMAC_Motor::write_invert_encoder(Tango::WAttribute &attr) entering... " << endl;
+// 	//	Retrieve write value
+// 	Tango::DevBoolean	w_val;
+// 	attr.get_write_value(w_val);
+// 	
+// 	
+// }
+
 
 /*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::namespace_ending
 } //	namespace

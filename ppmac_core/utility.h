@@ -137,6 +137,8 @@ namespace ppmac {
 		static constexpr std::chrono::seconds zero = std::chrono::seconds::zero();
 	}
 
+	std::string ExecuteWithReturn(const char* cmd);
+
 }
 
 #endif //POWERPMAC_UTILITY_H

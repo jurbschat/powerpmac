@@ -4,7 +4,11 @@ project(PowerPMAC_Global VERSION 1.0 DESCRIPTION "tango ppmac corrdinate system 
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pedantic")
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pedantic")
+
+if(CMAKE_CXX_COMPILER MATCHES GNU)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-shadow -Wno-pragmas")
+endif()
 
 #set(CMAKE_VERBOSE_MAKEFILE ON)
 

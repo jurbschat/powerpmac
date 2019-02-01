@@ -4,19 +4,23 @@ project(ppmac_core VERSION 1.0 DESCRIPTION "power pmac core classes" LANGUAGES C
 project(ppmac_core_test VERSION 1.0 DESCRIPTION "power pmac core classes" LANGUAGES CXX)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -fasynchronous-unwind-tables -fexceptions -grecord-gcc-switches")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -pedantic -Wredundant-decls -Wcast-align -Wmissing-declarations -Wmissing-include-dirs -Wswitch-enum -Winvalid-pch")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wredundant-decls -Wcast-align -Wmissing-declarations -Wmissing-include-dirs -Wswitch-enum -Winvalid-pch")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wformat=2 -Wmissing-format-attribute -Wformat-nonliteral -Wodr -Wpointer-arith -Wshadow -Wcast-qual -Wstrict-aliasing=1")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Woverloaded-virtual -Werror=return-type -Wsign-compare -Wnull-dereference") #-Wduplicated-branches (gcc 7+)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wold-style-cast -Wno-gnu-zero-variadic-macro-arguments") #-Wself-assign"
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wold-style-cast") #-Wself-assign"
 
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_FORTIFY_SOURCE=2 -D_GLIBCXX_DEBUG")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_FORTIFY_SOURCE=2") #  -D_GLIBCXX_DEBUG
+
+set(CMAKE_EXE_LINKER_FLAGS "-Wl,-export-dynamic")
+
+if(CMAKE_CXX_COMPILER MATCHES clang)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pedantic")
+endif()
+if(CMAKE_CXX_COMPILER MATCHES GNU)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wduplicated-cond -Wlogical-op -Wuseless-cast -Wno-shadow -Wno-pragmas") #-Wself-assign"
+endif()
 
 add_compile_definitions(SPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_TRACE SPDLOG_FMT_EXTERNAL)
-
-# gcc only options
-if(CMAKE_CXX_COMPILER MATCHES GNU)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wduplicated-cond -Wlogical-op -Wuseless-cast") #-Wself-assign"
-endif()
 
 # maybe add this stuff, check what we actually want
 ## linker stuff -fpie -Wl,-pie -fpic -shared
@@ -29,18 +33,20 @@ add_library(ppmac_core STATIC coreinterface.cpp
         receivebuffer.cpp
         utility.cpp
         test-main.cpp
-        pmac/defines.cpp)
+        pmac/defines.cpp
+        tangoutil.cpp
+        exception.cpp)
 
-target_include_directories(ppmac_core SYSTEM PRIVATE ../fmt-5.3.0/include ../spdlog-1.3.0/include ../wise_enum-master ../catch2-master/single_include)
-target_link_libraries(ppmac_core PRIVATE stdc++ fmt spdlog ssh2 boost_system pthread) #ssh2 rt pthread libPowerPmacControl boost_system crypto ssl
+target_include_directories(ppmac_core SYSTEM PRIVATE ../fmt-5.3.0/include ../spdlog-1.3.0/include ../wise_enum-master ../catch2-master/single_include ../libssh2-master/include)
+target_link_libraries(ppmac_core PRIVATE stdc++ fmt spdlog libssh2 boost_system pthread dl) #ssh2 rt pthread libPowerPmacControl boost_system crypto ssl
 
 # test stuff
 
 add_executable(ppmac_core_test test-main.cpp test-tests.cpp)
 target_include_directories(ppmac_core_test SYSTEM PRIVATE ../fmt-5.3.0/include ../spdlog-1.3.0/include ../wise_enum-master ../catch2-master/single_include)
-target_link_libraries(ppmac_core_test PRIVATE stdc++ fmt spdlog ssh2 ppmac_core)
+target_link_libraries(ppmac_core_test PRIVATE stdc++ fmt spdlog libssh2 ppmac_core)
 set_target_properties(ppmac_core_test PROPERTIES COMPILE_FLAGS -DMUH)
 
 add_executable(ppmac_core_profile main.cpp)
 target_include_directories(ppmac_core_profile SYSTEM PRIVATE ../fmt-5.3.0/include ../spdlog-1.3.0/include ../wise_enum-master ../catch2-master/single_include)
-target_link_libraries(ppmac_core_profile PRIVATE stdc++ fmt spdlog ssh2 ppmac_core pthread)
+target_link_libraries(ppmac_core_profile PRIVATE stdc++ fmt spdlog libssh2 ppmac_core pthread)

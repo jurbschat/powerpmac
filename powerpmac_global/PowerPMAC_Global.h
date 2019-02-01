@@ -33,6 +33,7 @@
 #ifndef PowerPMAC_Global_H
 #define PowerPMAC_Global_H
 
+#include "libs/sigs.h"
 #include <tango.h>
 
 
@@ -57,6 +58,9 @@ class PowerPMAC_Global : public TANGO_BASE_CLASS
 /*----- PROTECTED REGION ID(PowerPMAC_Global::Data Members) ENABLED START -----*/
 
 //	Add your own data members
+private:
+	sigs::Connection connectionEstablished;
+	sigs::Connection connectionLost;
 
 /*----- PROTECTED REGION END -----*/	//	PowerPMAC_Global::Data Members
 
@@ -64,6 +68,8 @@ class PowerPMAC_Global : public TANGO_BASE_CLASS
 public:
 	//	host:	
 	string	host;
+	//	port:	
+	Tango::DevUShort	port;
 
 
 //	Constructors and destructors
@@ -153,6 +159,8 @@ public:
 /*----- PROTECTED REGION ID(PowerPMAC_Global::Additional Method prototypes) ENABLED START -----*/
 
 //	Additional Method prototypes
+	void StartGlobal();
+	void StopGlobal();
 
 /*----- PROTECTED REGION END -----*/	//	PowerPMAC_Global::Additional Method prototypes
 };
