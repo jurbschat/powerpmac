@@ -11,6 +11,7 @@ namespace tu {
 
 	void TranslateException(const ppmac::RuntimeError& ex);
 	float ParseFloat(const std::string& str);
+	double ParseDouble(const std::string& str);
 	uint32_t ParsePmacHex32(const std::string &str);
 	uint64_t ParsePmacHex64(const std::string &str);
 }

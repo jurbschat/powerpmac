@@ -7,23 +7,22 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -fasynchronous-unwind-tables 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wredundant-decls -Wcast-align -Wmissing-declarations -Wmissing-include-dirs -Wswitch-enum -Winvalid-pch")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wformat=2 -Wmissing-format-attribute -Wformat-nonliteral -Wodr -Wpointer-arith -Wshadow -Wcast-qual -Wstrict-aliasing=1")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Woverloaded-virtual -Werror=return-type -Wsign-compare -Wnull-dereference") #-Wduplicated-branches (gcc 7+)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wold-style-cast") #-Wself-assign"
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wold-style-cast -Wno-shadow") #-Wself-assign"
 
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_FORTIFY_SOURCE=2") #  -D_GLIBCXX_DEBUG
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_FORTIFY_SOURCE=2") # -D_GLIBCXX_DEBUG
 
 set(CMAKE_EXE_LINKER_FLAGS "-Wl,-export-dynamic")
-
-if(CMAKE_CXX_COMPILER MATCHES clang)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pedantic")
-endif()
-if(CMAKE_CXX_COMPILER MATCHES GNU)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wduplicated-cond -Wlogical-op -Wuseless-cast -Wno-shadow -Wno-pragmas") #-Wself-assign"
-endif()
 
 add_compile_definitions(SPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_TRACE SPDLOG_FMT_EXTERNAL)
 
 # maybe add this stuff, check what we actually want
 ## linker stuff -fpie -Wl,-pie -fpic -shared
+
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pedantic")
+elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wduplicated-cond -Wlogical-op -Wuseless-cast -Wno-shadow -Wno-pragmas -Wno-unused-variable -Wno-unused-parameter") #-Wself-assign"
+endif()
 
 #set(CMAKE_VERBOSE_MAKEFILE ON)
 

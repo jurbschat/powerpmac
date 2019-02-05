@@ -139,11 +139,11 @@ void PowerPMAC_CoordinateSystems::init_device()
 
 	ppmac::CoreInterface& ci = ppmac::GetCoreObject();
 
-	connectionEstablished = ci.GetSignal(ppmac::SignalType::ConnectionEstablished)->connect([this](){
+	connectionEstablished = ci.GetSignalConnectionEstablished().connect([this](){
 		StartCoordinateSystem();
 	});
 
-	connectionLost = ci.GetSignal(ppmac::SignalType::ConnectionLost)->connect([this](){
+	connectionLost = ci.GetSignalConnectionLost().connect([this](){
 		StopCoordinateSystem();
 	});
 

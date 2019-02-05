@@ -14,20 +14,39 @@ namespace ppmac {
 	struct UpdateTime {
 		using TimePoint = std::chrono::high_resolution_clock::time_point;
 		UpdateTime(std::chrono::microseconds interval, std::function<void()> callback)
-			: interval(interval), lastUpdate{TimePoint{}}, callback(callback)
+			: interval(interval),
+			lastUpdate{TimePoint{} + interval},
+			callback(callback),
+			expired(false),
+			started(false)
 		{}
 		std::chrono::microseconds interval;
 		TimePoint lastUpdate;
 		std::function<void()> callback;
+		bool expired;
+		bool started;
 	};
 
 	// the timers will always be updates from largest to smallest
 	class IntervalTimer {
 	public:
+		IntervalTimer()
+			: lowestUpdateInterval{std::chrono::milliseconds{100}},
+			  fuzzyOffset{0}
+		{}
+
+		IntervalTimer(float fuzzyOffset)
+			: lowestUpdateInterval{std::chrono::milliseconds{100}},
+			fuzzyOffset{fuzzyOffset}
+		{}
+
 		HandleType AddTimer(UpdateTime ut) {
 			auto handle = updateTimes.insert(ut);
 			UpdateMinInterval();
 			return handle;
+		}
+		void SetFuzzyOffset(float offset) {
+			fuzzyOffset = offset;
 		}
 		void RemoveTimer(HandleType handle) {
 			updateTimes.erase(handle);
@@ -36,11 +55,30 @@ namespace ppmac {
 		void Update() {
 			auto now = std::chrono::high_resolution_clock::now();
 			for(auto& ut : updateTimes) {
-				if(now - ut.lastUpdate >= ut.interval) {
+				if(!ut.started) {
+					ut.lastUpdate = now;
+					ut.started = true;
+				}
+				// we offset every update by X% of its interval.
+				// if we have intervals of 1000ms, 100ms, 10ms, 1ms they would all execute on
+				// 1s, we try to mitigate those spikes though the offset
+				auto timeOffset = ut.interval * fuzzyOffset;
+				if(now - ut.lastUpdate >= ut.interval + timeOffset) {
 					if(ut.callback) {
+						ut.expired = true;
 						ut.callback();
 					}
 					ut.lastUpdate = now;
+				}
+			}
+		}
+
+		void RemoveExpired() {
+			for(auto it = updateTimes.begin(); it != updateTimes.end(); /* empty */) {
+				if(it->expired == true) {
+					it = updateTimes.erase(it);
+				} else {
+					it++;
 				}
 			}
 		}
@@ -62,6 +100,7 @@ namespace ppmac {
 		}
 		std::chrono::microseconds lowestUpdateInterval;
 		stdext::slot_map<UpdateTime> updateTimes;
+		float fuzzyOffset;
 	};
 }
 

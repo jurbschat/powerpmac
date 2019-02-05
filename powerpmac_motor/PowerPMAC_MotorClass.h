@@ -59,7 +59,7 @@ class PositionAttrib: public Tango::Attr
 {
 public:
 	PositionAttrib():Attr("Position",
-			Tango::DEV_FLOAT, Tango::READ_WRITE) {};
+			Tango::DEV_DOUBLE, Tango::READ_WRITE) {};
 	~PositionAttrib() {};
 	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
 		{(static_cast<PowerPMAC_Motor *>(dev))->read_Position(att);}
@@ -74,7 +74,7 @@ class AccelerationAttrib: public Tango::Attr
 {
 public:
 	AccelerationAttrib():Attr("Acceleration",
-			Tango::DEV_FLOAT, Tango::READ_WRITE) {};
+			Tango::DEV_DOUBLE, Tango::READ_WRITE) {};
 	~AccelerationAttrib() {};
 	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
 		{(static_cast<PowerPMAC_Motor *>(dev))->read_Acceleration(att);}
@@ -89,7 +89,7 @@ class VelocityAttrib: public Tango::Attr
 {
 public:
 	VelocityAttrib():Attr("Velocity",
-			Tango::DEV_FLOAT, Tango::READ_WRITE) {};
+			Tango::DEV_DOUBLE, Tango::READ_WRITE) {};
 	~VelocityAttrib() {};
 	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
 		{(static_cast<PowerPMAC_Motor *>(dev))->read_Velocity(att);}
@@ -104,7 +104,7 @@ class SoftCwLimitAttrib: public Tango::Attr
 {
 public:
 	SoftCwLimitAttrib():Attr("SoftCwLimit",
-			Tango::DEV_FLOAT, Tango::READ_WRITE) {};
+			Tango::DEV_DOUBLE, Tango::READ_WRITE) {};
 	~SoftCwLimitAttrib() {};
 	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
 		{(static_cast<PowerPMAC_Motor *>(dev))->read_SoftCwLimit(att);}
@@ -119,7 +119,7 @@ class SoftCcwLimitAttrib: public Tango::Attr
 {
 public:
 	SoftCcwLimitAttrib():Attr("SoftCcwLimit",
-			Tango::DEV_FLOAT, Tango::READ_WRITE) {};
+			Tango::DEV_DOUBLE, Tango::READ_WRITE) {};
 	~SoftCcwLimitAttrib() {};
 	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
 		{(static_cast<PowerPMAC_Motor *>(dev))->read_SoftCcwLimit(att);}
@@ -200,11 +200,11 @@ public:
 //=========================================
 //	Define classes for commands
 //=========================================
-//	Command PhaseMotor class definition
-class PhaseMotorClass : public Tango::Command
+//	Command Phase class definition
+class PhaseClass : public Tango::Command
 {
 public:
-	PhaseMotorClass(const char   *name,
+	PhaseClass(const char   *name,
 	               Tango::CmdArgType in,
 				   Tango::CmdArgType out,
 				   const char        *in_desc,
@@ -212,22 +212,22 @@ public:
 				   Tango::DispLevel  level)
 	:Command(name,in,out,in_desc,out_desc, level)	{};
 
-	PhaseMotorClass(const char   *name,
+	PhaseClass(const char   *name,
 	               Tango::CmdArgType in,
 				   Tango::CmdArgType out)
 	:Command(name,in,out)	{};
-	~PhaseMotorClass() {};
+	~PhaseClass() {};
 	
 	virtual CORBA::Any *execute (Tango::DeviceImpl *dev, const CORBA::Any &any);
 	virtual bool is_allowed (Tango::DeviceImpl *dev, const CORBA::Any &any)
-	{return (static_cast<PowerPMAC_Motor *>(dev))->is_PhaseMotor_allowed(any);}
+	{return (static_cast<PowerPMAC_Motor *>(dev))->is_Phase_allowed(any);}
 };
 
-//	Command HomeMotor class definition
-class HomeMotorClass : public Tango::Command
+//	Command Home class definition
+class HomeClass : public Tango::Command
 {
 public:
-	HomeMotorClass(const char   *name,
+	HomeClass(const char   *name,
 	               Tango::CmdArgType in,
 				   Tango::CmdArgType out,
 				   const char        *in_desc,
@@ -235,15 +235,15 @@ public:
 				   Tango::DispLevel  level)
 	:Command(name,in,out,in_desc,out_desc, level)	{};
 
-	HomeMotorClass(const char   *name,
+	HomeClass(const char   *name,
 	               Tango::CmdArgType in,
 				   Tango::CmdArgType out)
 	:Command(name,in,out)	{};
-	~HomeMotorClass() {};
+	~HomeClass() {};
 	
 	virtual CORBA::Any *execute (Tango::DeviceImpl *dev, const CORBA::Any &any);
 	virtual bool is_allowed (Tango::DeviceImpl *dev, const CORBA::Any &any)
-	{return (static_cast<PowerPMAC_Motor *>(dev))->is_HomeMotor_allowed(any);}
+	{return (static_cast<PowerPMAC_Motor *>(dev))->is_Home_allowed(any);}
 };
 
 //	Command Calibrate class definition
@@ -267,6 +267,98 @@ public:
 	virtual CORBA::Any *execute (Tango::DeviceImpl *dev, const CORBA::Any &any);
 	virtual bool is_allowed (Tango::DeviceImpl *dev, const CORBA::Any &any)
 	{return (static_cast<PowerPMAC_Motor *>(dev))->is_Calibrate_allowed(any);}
+};
+
+//	Command Enable class definition
+class EnableClass : public Tango::Command
+{
+public:
+	EnableClass(const char   *name,
+	               Tango::CmdArgType in,
+				   Tango::CmdArgType out,
+				   const char        *in_desc,
+				   const char        *out_desc,
+				   Tango::DispLevel  level)
+	:Command(name,in,out,in_desc,out_desc, level)	{};
+
+	EnableClass(const char   *name,
+	               Tango::CmdArgType in,
+				   Tango::CmdArgType out)
+	:Command(name,in,out)	{};
+	~EnableClass() {};
+	
+	virtual CORBA::Any *execute (Tango::DeviceImpl *dev, const CORBA::Any &any);
+	virtual bool is_allowed (Tango::DeviceImpl *dev, const CORBA::Any &any)
+	{return (static_cast<PowerPMAC_Motor *>(dev))->is_Enable_allowed(any);}
+};
+
+//	Command Disable class definition
+class DisableClass : public Tango::Command
+{
+public:
+	DisableClass(const char   *name,
+	               Tango::CmdArgType in,
+				   Tango::CmdArgType out,
+				   const char        *in_desc,
+				   const char        *out_desc,
+				   Tango::DispLevel  level)
+	:Command(name,in,out,in_desc,out_desc, level)	{};
+
+	DisableClass(const char   *name,
+	               Tango::CmdArgType in,
+				   Tango::CmdArgType out)
+	:Command(name,in,out)	{};
+	~DisableClass() {};
+	
+	virtual CORBA::Any *execute (Tango::DeviceImpl *dev, const CORBA::Any &any);
+	virtual bool is_allowed (Tango::DeviceImpl *dev, const CORBA::Any &any)
+	{return (static_cast<PowerPMAC_Motor *>(dev))->is_Disable_allowed(any);}
+};
+
+//	Command Stop class definition
+class StopClass : public Tango::Command
+{
+public:
+	StopClass(const char   *name,
+	               Tango::CmdArgType in,
+				   Tango::CmdArgType out,
+				   const char        *in_desc,
+				   const char        *out_desc,
+				   Tango::DispLevel  level)
+	:Command(name,in,out,in_desc,out_desc, level)	{};
+
+	StopClass(const char   *name,
+	               Tango::CmdArgType in,
+				   Tango::CmdArgType out)
+	:Command(name,in,out)	{};
+	~StopClass() {};
+	
+	virtual CORBA::Any *execute (Tango::DeviceImpl *dev, const CORBA::Any &any);
+	virtual bool is_allowed (Tango::DeviceImpl *dev, const CORBA::Any &any)
+	{return (static_cast<PowerPMAC_Motor *>(dev))->is_Stop_allowed(any);}
+};
+
+//	Command Kill class definition
+class KillClass : public Tango::Command
+{
+public:
+	KillClass(const char   *name,
+	               Tango::CmdArgType in,
+				   Tango::CmdArgType out,
+				   const char        *in_desc,
+				   const char        *out_desc,
+				   Tango::DispLevel  level)
+	:Command(name,in,out,in_desc,out_desc, level)	{};
+
+	KillClass(const char   *name,
+	               Tango::CmdArgType in,
+				   Tango::CmdArgType out)
+	:Command(name,in,out)	{};
+	~KillClass() {};
+	
+	virtual CORBA::Any *execute (Tango::DeviceImpl *dev, const CORBA::Any &any);
+	virtual bool is_allowed (Tango::DeviceImpl *dev, const CORBA::Any &any)
+	{return (static_cast<PowerPMAC_Motor *>(dev))->is_Kill_allowed(any);}
 };
 
 

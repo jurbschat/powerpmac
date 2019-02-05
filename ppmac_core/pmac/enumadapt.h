@@ -6,15 +6,133 @@
 #define POWERPMAC_ENUMADAPT_H
 
 #include "defines.h"
+#include "datastructures.h"
 
 #include <wise_enum.h>
 
 
-WISE_ENUM_ADAPT(ppmac::MotorID::TYPE, Motor0, Motor1, Motor2, Motor3, Motor4, Motor5, Motor6, Motor7, Motor8);
-WISE_ENUM_ADAPT(ppmac::IoID::TYPE, Port0, Port1, Port2, Port3, Port4, Port5, Port6, Port7, Port8);
-WISE_ENUM_ADAPT(ppmac::CoordID::TYPE, Coord0, Coord1, Coord2, Coord3, Coord4, Coord5, Coord6, Coord7, Coord8);
-WISE_ENUM_ADAPT(ppmac::MotorState::TYPE, Online, Offline, Init, Moving, Fault);
-WISE_ENUM_ADAPT(ppmac::PortState::TYPE, Online, Offline, Fault);
-
+WISE_ENUM_ADAPT(ppmac::MotorID, Motor0, Motor1, Motor2, Motor3, Motor4, Motor5, Motor6, Motor7, Motor8);
+WISE_ENUM_ADAPT(ppmac::IoID, Port0, Port1, Port2, Port3, Port4, Port5, Port6, Port7, Port8);
+WISE_ENUM_ADAPT(ppmac::CoordID, Coord0, Coord1, Coord2, Coord3, Coord4, Coord5, Coord6, Coord7, Coord8);
+WISE_ENUM_ADAPT(ppmac::MotorState, Online, Offline, Init, Moving, Fault);
+WISE_ENUM_ADAPT(ppmac::PortState, Online, Offline, Fault);
+WISE_ENUM_ADAPT(ppmac::MotorStatusBits::TYPE,
+		(RESERVED_1_0, 0),
+		(RESERVED_1_1, 1),
+		(RESERVED_1_2, 2),
+		(RESERVED_1_3, 3),
+		(RESERVED_1_4, 4),
+		(RESERVED_1_5, 5),
+		(RESERVED_1_6, 6),
+		(RESERVED_1_7, 7),
+		(RESERVED_1_8, 8),
+		(RESERVED_1_9, 9),
+		(RESERVED_1_10, 10),
+		(RESERVED_1_11, 11),
+		(RESERVED_1_12, 12),
+		(RESERVED_1_13, 13),
+		(RESERVED_1_14, 14),
+		(RESERVED_1_15, 15),
+		(RESERVED_1_16, 16),
+		(RESERVED_1_17, 17),
+		(RESERVED_1_18, 18),
+		(RESERVED_1_19, 19),
+		(RESERVED_1_20, 20),
+		(RESERVED_1_21, 21),
+		(RESERVED_1_22, 22),
+		(RESERVED_1_23, 23),
+		(RESERVED_1_24, 24),
+		(RESERVED_1_25, 25),
+		(RESERVED_1_26, 26),
+		(SoftLimitDir, 27),
+		(BlDir, 28),
+		(DacLimit, 29),
+		(SoftLimit, 30),
+		(Csolve, 31),
+		(RESERVED_0_0, 32),
+		(RESERVED_0_1, 33),
+		(RESERVED_0_2, 34),
+		(RESERVED_0_3, 35),
+		(SpindleMotor0, 36),
+		(SpindleMotor1, 37),
+		(GantryHomed, 38),
+		(TriggerSpeedSel, 39),
+		(PhaseFound, 40),
+		(BlockRequest, 41),
+		(RESERVED_10, 42),
+		(InPos, 43),
+		(AmpEna, 44),
+		(ClosedLoop, 45),
+		(DestVelZero, 46),
+		(HomeComplete, 47),
+		(RESERVED_16, 48),
+		(AuxFault, 49),
+		(EncLoss, 50),
+		(AmpWarn, 51),
+		(TriggerNotFound, 52),
+		(I2tFault, 53),
+		(SoftPlusLimit, 54),
+		(SoftMinusLimit, 55),
+		(AmpFault, 56),
+		(LimitStop, 57),
+		(FeWarn, 58),
+		(FeFatal, 59),
+		(PlusLimit, 60),
+		(MinusLimit, 61),
+		(HomeInProgress, 62),
+		(TriggerMove, 63)
+		);
+WISE_ENUM_ADAPT(ppmac::CoordStatusBits::TYPE,
+		(AddedDwellDis, 0),
+		(SharpCornerStop, 1),
+		(CC3Active, 2),
+		(EndDelayActive, 3),
+		(CCMoveType0, 4),
+		(CCMoveType1, 5),
+		(CCOffReq, 6),
+		(CCAddedArc, 7),
+		(LHStatus, 8), // 8 bit wide
+		(SegStopReq, 16),
+		(SegEnabled, 17),
+		(SegMoveDccel, 18),
+		(SegMoveAccel, 19),
+		(SegMove0, 20),
+		(SegMove1, 21),
+		(MoveMode0, 22),
+		(MoveMode1, 23),
+		(CCMode0, 24),
+		(CCMode1, 25),
+		(ContMotion, 26),
+		(BlockAcive, 27),
+		(FeedHold0, 28),
+		(FeedHold1, 29),
+		(LinToPvtBuf, 30),
+		(Csolve, 31),
+		(ErrorStatus, 32), // 8 bits wide
+		(TimersEnabled, 40),
+		(BlockRequest, 41),
+		(RESERVED_10, 42),
+		(InPos, 43),
+		(AmpEna, 44),
+		(ClosedLoop, 45),
+		(DestVelZero, 46),
+		(HomeComplete, 47),
+		(TimerEnabled, 48),
+		(AuxFault, 49),
+		(EncLoss, 50),
+		(AmpWarn, 51),
+		(TriggerNotFound, 52),
+		(I2tFault, 53),
+		(SoftPlusLimit, 54),
+		(SoftMinusLimit, 55),
+		(AmpFault, 56),
+		(LimitStop, 57),
+		(FeFatal, 58),
+		(FeWarn, 59),
+		(PlusLimit, 60),
+		(MinusLimit, 61),
+		(HomeInProgress, 62),
+		(TriggerMove, 63)
+		);
 
 #endif //POWERPMAC_ENUMADAPT_H

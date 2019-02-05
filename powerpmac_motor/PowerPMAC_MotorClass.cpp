@@ -152,7 +152,7 @@ PowerPMAC_MotorClass *PowerPMAC_MotorClass::instance()
 //===================================================================
 //--------------------------------------------------------
 /**
- * method : 		PhaseMotorClass::execute()
+ * method : 		PhaseClass::execute()
  * description : 	method to trigger the execution of the command.
  *
  * @param	device	The device on which the command must be executed
@@ -161,16 +161,16 @@ PowerPMAC_MotorClass *PowerPMAC_MotorClass::instance()
  *	returns The command output data (packed in the Any object)
  */
 //--------------------------------------------------------
-CORBA::Any *PhaseMotorClass::execute(Tango::DeviceImpl *device, TANGO_UNUSED(const CORBA::Any &in_any))
+CORBA::Any *PhaseClass::execute(Tango::DeviceImpl *device, TANGO_UNUSED(const CORBA::Any &in_any))
 {
-	cout2 << "PhaseMotorClass::execute(): arrived" << endl;
-	((static_cast<PowerPMAC_Motor *>(device))->phase_motor());
+	cout2 << "PhaseClass::execute(): arrived" << endl;
+	((static_cast<PowerPMAC_Motor *>(device))->phase());
 	return new CORBA::Any();
 }
 
 //--------------------------------------------------------
 /**
- * method : 		HomeMotorClass::execute()
+ * method : 		HomeClass::execute()
  * description : 	method to trigger the execution of the command.
  *
  * @param	device	The device on which the command must be executed
@@ -179,10 +179,10 @@ CORBA::Any *PhaseMotorClass::execute(Tango::DeviceImpl *device, TANGO_UNUSED(con
  *	returns The command output data (packed in the Any object)
  */
 //--------------------------------------------------------
-CORBA::Any *HomeMotorClass::execute(Tango::DeviceImpl *device, TANGO_UNUSED(const CORBA::Any &in_any))
+CORBA::Any *HomeClass::execute(Tango::DeviceImpl *device, TANGO_UNUSED(const CORBA::Any &in_any))
 {
-	cout2 << "HomeMotorClass::execute(): arrived" << endl;
-	((static_cast<PowerPMAC_Motor *>(device))->home_motor());
+	cout2 << "HomeClass::execute(): arrived" << endl;
+	((static_cast<PowerPMAC_Motor *>(device))->home());
 	return new CORBA::Any();
 }
 
@@ -201,6 +201,78 @@ CORBA::Any *CalibrateClass::execute(Tango::DeviceImpl *device, TANGO_UNUSED(cons
 {
 	cout2 << "CalibrateClass::execute(): arrived" << endl;
 	((static_cast<PowerPMAC_Motor *>(device))->calibrate());
+	return new CORBA::Any();
+}
+
+//--------------------------------------------------------
+/**
+ * method : 		EnableClass::execute()
+ * description : 	method to trigger the execution of the command.
+ *
+ * @param	device	The device on which the command must be executed
+ * @param	in_any	The command input data
+ *
+ *	returns The command output data (packed in the Any object)
+ */
+//--------------------------------------------------------
+CORBA::Any *EnableClass::execute(Tango::DeviceImpl *device, TANGO_UNUSED(const CORBA::Any &in_any))
+{
+	cout2 << "EnableClass::execute(): arrived" << endl;
+	((static_cast<PowerPMAC_Motor *>(device))->enable());
+	return new CORBA::Any();
+}
+
+//--------------------------------------------------------
+/**
+ * method : 		DisableClass::execute()
+ * description : 	method to trigger the execution of the command.
+ *
+ * @param	device	The device on which the command must be executed
+ * @param	in_any	The command input data
+ *
+ *	returns The command output data (packed in the Any object)
+ */
+//--------------------------------------------------------
+CORBA::Any *DisableClass::execute(Tango::DeviceImpl *device, TANGO_UNUSED(const CORBA::Any &in_any))
+{
+	cout2 << "DisableClass::execute(): arrived" << endl;
+	((static_cast<PowerPMAC_Motor *>(device))->disable());
+	return new CORBA::Any();
+}
+
+//--------------------------------------------------------
+/**
+ * method : 		StopClass::execute()
+ * description : 	method to trigger the execution of the command.
+ *
+ * @param	device	The device on which the command must be executed
+ * @param	in_any	The command input data
+ *
+ *	returns The command output data (packed in the Any object)
+ */
+//--------------------------------------------------------
+CORBA::Any *StopClass::execute(Tango::DeviceImpl *device, TANGO_UNUSED(const CORBA::Any &in_any))
+{
+	cout2 << "StopClass::execute(): arrived" << endl;
+	((static_cast<PowerPMAC_Motor *>(device))->stop());
+	return new CORBA::Any();
+}
+
+//--------------------------------------------------------
+/**
+ * method : 		KillClass::execute()
+ * description : 	method to trigger the execution of the command.
+ *
+ * @param	device	The device on which the command must be executed
+ * @param	in_any	The command input data
+ *
+ *	returns The command output data (packed in the Any object)
+ */
+//--------------------------------------------------------
+CORBA::Any *KillClass::execute(Tango::DeviceImpl *device, TANGO_UNUSED(const CORBA::Any &in_any))
+{
+	cout2 << "KillClass::execute(): arrived" << endl;
+	((static_cast<PowerPMAC_Motor *>(device))->kill());
 	return new CORBA::Any();
 }
 
@@ -412,10 +484,10 @@ void PowerPMAC_MotorClass::attribute_factory(vector<Tango::Attr *> &att_list)
 	Tango::UserDefaultAttrProp	position_prop;
 	//	description	not set for Position
 	//	label	not set for Position
-	position_prop.set_unit("motor units");
+	position_prop.set_unit("mu");
 	//	standard_unit	not set for Position
 	//	display_unit	not set for Position
-	//	format	not set for Position
+	position_prop.set_format("%8.3f");
 	//	max_value	not set for Position
 	//	min_value	not set for Position
 	//	max_alarm	not set for Position
@@ -436,10 +508,10 @@ void PowerPMAC_MotorClass::attribute_factory(vector<Tango::Attr *> &att_list)
 	Tango::UserDefaultAttrProp	acceleration_prop;
 	//	description	not set for Acceleration
 	//	label	not set for Acceleration
-	acceleration_prop.set_unit("motor units / msec^2");
+	acceleration_prop.set_unit("mu/ms^2");
 	//	standard_unit	not set for Acceleration
 	//	display_unit	not set for Acceleration
-	//	format	not set for Acceleration
+	acceleration_prop.set_format("%8.3f");
 	//	max_value	not set for Acceleration
 	//	min_value	not set for Acceleration
 	//	max_alarm	not set for Acceleration
@@ -460,10 +532,10 @@ void PowerPMAC_MotorClass::attribute_factory(vector<Tango::Attr *> &att_list)
 	Tango::UserDefaultAttrProp	velocity_prop;
 	//	description	not set for Velocity
 	//	label	not set for Velocity
-	velocity_prop.set_unit("motor units / msec");
+	velocity_prop.set_unit("mu/ms");
 	//	standard_unit	not set for Velocity
 	//	display_unit	not set for Velocity
-	//	format	not set for Velocity
+	velocity_prop.set_format("%8.3f");
 	//	max_value	not set for Velocity
 	//	min_value	not set for Velocity
 	//	max_alarm	not set for Velocity
@@ -484,10 +556,10 @@ void PowerPMAC_MotorClass::attribute_factory(vector<Tango::Attr *> &att_list)
 	Tango::UserDefaultAttrProp	softcwlimit_prop;
 	//	description	not set for SoftCwLimit
 	//	label	not set for SoftCwLimit
-	//	unit	not set for SoftCwLimit
+	softcwlimit_prop.set_unit("mu");
 	//	standard_unit	not set for SoftCwLimit
 	//	display_unit	not set for SoftCwLimit
-	//	format	not set for SoftCwLimit
+	softcwlimit_prop.set_format("%8.3f");
 	//	max_value	not set for SoftCwLimit
 	//	min_value	not set for SoftCwLimit
 	//	max_alarm	not set for SoftCwLimit
@@ -508,10 +580,10 @@ void PowerPMAC_MotorClass::attribute_factory(vector<Tango::Attr *> &att_list)
 	Tango::UserDefaultAttrProp	softccwlimit_prop;
 	//	description	not set for SoftCcwLimit
 	//	label	not set for SoftCcwLimit
-	//	unit	not set for SoftCcwLimit
+	softccwlimit_prop.set_unit("mu");
 	//	standard_unit	not set for SoftCcwLimit
 	//	display_unit	not set for SoftCcwLimit
-	//	format	not set for SoftCcwLimit
+	softccwlimit_prop.set_format("%8.3f");
 	//	max_value	not set for SoftCcwLimit
 	//	min_value	not set for SoftCcwLimit
 	//	max_alarm	not set for SoftCcwLimit
@@ -692,23 +764,23 @@ void PowerPMAC_MotorClass::command_factory()
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_MotorClass::command_factory_before
 
 
-	//	Command PhaseMotor
-	PhaseMotorClass	*pPhaseMotorCmd =
-		new PhaseMotorClass("PhaseMotor",
+	//	Command Phase
+	PhaseClass	*pPhaseCmd =
+		new PhaseClass("Phase",
 			Tango::DEV_VOID, Tango::DEV_VOID,
 			"",
 			"",
 			Tango::EXPERT);
-	command_list.push_back(pPhaseMotorCmd);
+	command_list.push_back(pPhaseCmd);
 
-	//	Command HomeMotor
-	HomeMotorClass	*pHomeMotorCmd =
-		new HomeMotorClass("HomeMotor",
+	//	Command Home
+	HomeClass	*pHomeCmd =
+		new HomeClass("Home",
 			Tango::DEV_VOID, Tango::DEV_VOID,
 			"",
 			"",
 			Tango::OPERATOR);
-	command_list.push_back(pHomeMotorCmd);
+	command_list.push_back(pHomeCmd);
 
 	//	Command Calibrate
 	CalibrateClass	*pCalibrateCmd =
@@ -716,8 +788,44 @@ void PowerPMAC_MotorClass::command_factory()
 			Tango::DEV_VOID, Tango::DEV_VOID,
 			"",
 			"",
-			Tango::EXPERT);
+			Tango::OPERATOR);
 	command_list.push_back(pCalibrateCmd);
+
+	//	Command Enable
+	EnableClass	*pEnableCmd =
+		new EnableClass("Enable",
+			Tango::DEV_VOID, Tango::DEV_VOID,
+			"",
+			"",
+			Tango::OPERATOR);
+	command_list.push_back(pEnableCmd);
+
+	//	Command Disable
+	DisableClass	*pDisableCmd =
+		new DisableClass("Disable",
+			Tango::DEV_VOID, Tango::DEV_VOID,
+			"",
+			"",
+			Tango::OPERATOR);
+	command_list.push_back(pDisableCmd);
+
+	//	Command Stop
+	StopClass	*pStopCmd =
+		new StopClass("Stop",
+			Tango::DEV_VOID, Tango::DEV_VOID,
+			"",
+			"",
+			Tango::OPERATOR);
+	command_list.push_back(pStopCmd);
+
+	//	Command Kill
+	KillClass	*pKillCmd =
+		new KillClass("Kill",
+			Tango::DEV_VOID, Tango::DEV_VOID,
+			"",
+			"",
+			Tango::OPERATOR);
+	command_list.push_back(pKillCmd);
 
 	/*----- PROTECTED REGION ID(PowerPMAC_MotorClass::command_factory_after) ENABLED START -----*/
 	

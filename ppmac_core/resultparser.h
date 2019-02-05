@@ -15,13 +15,13 @@ namespace ppmac::parser {
 
 	namespace detail {
 		inline bool CheckForError(const std::string& str) {
-			auto pos = str.find_first_of("error");
+			auto pos = str.find("error");
 			return pos != std::string::npos;
 		}
 
 		inline void ThrowIfError(const std::string& str) {
 			if(CheckForError(str)) {
-				THROW_RUNTIME_ERROR("response contained error: '{}'", str);
+				THROW_RUNTIME_ERROR("response contained error '{}'", str);
 			}
 		}
 	}
@@ -45,14 +45,30 @@ namespace ppmac::parser {
 	};
 
 	template<>
+	struct parser_traits<double> {
+		using result_type = double;
+		static result_type convert(const std::string& s) {
+			try {
+				return std::stod(s);
+			} catch(std::exception) {
+				RETHROW_RUNTIME_ERROR("unable to parse double '{}'", s);
+			}
+		}
+	};
+
+	template<>
 	struct parser_traits<int32_t> {
 		using result_type = int32_t;
 		static result_type convert(const std::string& s) {
-			long result = std::stoll(s);
-			if (result > std::numeric_limits<int32_t>::max()) {
-				THROW_RUNTIME_ERROR("out of range '{}' for int32_t", s);
+			try {
+				long result = std::stoll(s);
+				if (result > std::numeric_limits<int32_t>::max()) {
+					THROW_RUNTIME_ERROR("out of range '{}' for int32_t", s);
+				}
+				return result;
+			} catch(std::exception& e) {
+				RETHROW_RUNTIME_ERROR("unable to parse int from '{}'", s);
 			}
-			return result;
 		}
 	};
 
@@ -60,11 +76,15 @@ namespace ppmac::parser {
 	struct parser_traits<uint32_t> {
 		using result_type = uint32_t;
 		static result_type convert(const std::string& s) {
-			long result = std::stoull(s);
-			if (result > std::numeric_limits<uint32_t>::max()) {
-				THROW_RUNTIME_ERROR("out of range '{}' for uint32_t", s);
+			try {
+				long result = std::stoull(s);
+				if (result > std::numeric_limits<uint32_t>::max()) {
+					THROW_RUNTIME_ERROR("out of range '{}' for uint32_t", s);
+				}
+				return result;
+			} catch(std::exception& e) {
+				RETHROW_RUNTIME_ERROR("unable to parse int from '{}'", s);
 			}
-			return result;
 		}
 	};
 
@@ -74,11 +94,15 @@ namespace ppmac::parser {
 	struct parser_traits<uint32_t, parser_gate_tag> {
 		using result_type = uint32_t;
 		static result_type convert(const std::string& s) {
-			long result = std::stoull(s.substr(1), nullptr, 16);
-			if (result > std::numeric_limits<uint32_t>::max()) {
-				THROW_RUNTIME_ERROR("out of range '{}' for uint32_t", s);
+			try {
+				long result = std::stoull(s.substr(1), nullptr, 16);
+				if (result > std::numeric_limits<uint32_t>::max()) {
+					THROW_RUNTIME_ERROR("out of range '{}' for uint32_t", s);
+				}
+				return result;
+			} catch(std::exception& e) {
+				RETHROW_RUNTIME_ERROR("unable to parse 32bit hex from '{}'", s);
 			}
-			return result;
 		}
 	};
 
@@ -86,11 +110,16 @@ namespace ppmac::parser {
 	struct parser_traits<uint64_t, parser_gate_tag> {
 		using result_type = uint64_t;
 		static result_type convert(const std::string& s) {
-			return std::stoull(s.substr(1), nullptr, 16);
+			try {
+				return std::stoull(s.substr(1), nullptr, 16);
+			} catch(std::exception& e) {
+				RETHROW_RUNTIME_ERROR("unable to parse 64bit hex from '{}'", s);
+			}
 		}
 	};
 
 	using FloatParser = parser_traits<float>;
+	using DoubleParser = parser_traits<double>;
 	using IntParser = parser_traits<int32_t>;
 	using UIntParser = parser_traits<uint32_t>;
 	using Hex32Parser = parser_traits<uint32_t, parser_gate_tag>;
@@ -129,22 +158,6 @@ namespace ppmac::parser {
 		}
 		return resultVector;
 	}
-
-	template<typename SepPred>
-	struct parse_1d
-	{
-		template<typename T>
-		parse_1d(T sep)
-			: pred(sep)
-		{}
-
-		auto operator()(const std::string &str)
-		{
-			return Parse1D(str, pred);
-		}
-		SepPred pred;
-	};
-
 
 }
 

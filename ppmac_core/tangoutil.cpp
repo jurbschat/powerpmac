@@ -20,6 +20,10 @@ namespace tu {
 		return ppmac::parser::FloatParser::convert(str);
 	}
 
+	double ParseDouble(const std::string& str) {
+		return ppmac::parser::DoubleParser::convert(str);
+	}
+
 	uint32_t ParsePmacHex32(const std::string &str) {
 		return ppmac::parser::Hex32Parser::convert(str);
 	}

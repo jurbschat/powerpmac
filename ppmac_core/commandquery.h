@@ -20,10 +20,10 @@ namespace ppmac::query {
 	{
 		template<typename T>
 		void ValidateIdentifierRange(T first, T last) {
-			int32_t from = from_enum(first);
-			int32_t to = from_enum(last);
-			if(from < 0 || from > to) {
-				THROW_RUNTIME_ERROR("invalid range [{}:{}]", from, to);
+			//int32_t from = from_enum(first);
+			//int32_t to = from_enum(last);
+			if(first < 0 || first > last) {
+				THROW_RUNTIME_ERROR("invalid range [{}:{}]", first, last);
 			}
 		}
 
@@ -103,16 +103,16 @@ namespace ppmac::query {
 			}
 
 			inline fmt::memory_buffer MakePrefixPostfixRangeCommand(const std::string &prefix, const std::string &postfix,
-			                                                        MotorID::TYPE first, MotorID::TYPE last) {
+			                                                        int32_t first, int32_t last) {
 				ValidateIdentifierRange(first, last);
 				fmt::memory_buffer buffer;
-				int32_t from = from_enum(first);
-				int32_t to = from_enum(last);
-				if(from != to) {
-					fmt::format_to(buffer, "{}{}..{}{}", prefix, from, to, postfix);
+				//int32_t from = from_enum(first);
+				//int32_t to = from_enum(last);
+				if(first != last) {
+					fmt::format_to(buffer, "{}{}..{}{}", prefix, first, last, postfix);
 				} else {
 					// single element range
-					fmt::format_to(buffer, "{}{}{}", prefix, from, postfix);
+					fmt::format_to(buffer, "{}{}{}", prefix, first, postfix);
 				}
 				return buffer;
 			}
@@ -222,9 +222,8 @@ namespace ppmac::query {
 		return CommandQuery<PtrHolder, ParserType>{cmd, rangeStart, pointers, parser};
 	}
 
-
 	inline auto GeneralGetInfo(stdext::span<GlobalInfo> data) {
-		fmt::memory_buffer buffer = builder::detail::MakePlain("Sys.MaxMotors; Sys.maxCoords; Sys.pAbortAll; Sys.CpuTemp; Sys.Time");
+		fmt::memory_buffer buffer = builder::detail::MakePlain("Sys.MaxMotors; Sys.maxCoords; Sys.pAbortAll; Sys.CpuTemp; BrickLV.OverTemp; Sys.Time");
 		return MakeCommandQuery(
 			fmt::to_string(buffer),
 			0,
@@ -234,15 +233,16 @@ namespace ppmac::query {
 				&GlobalInfo::maxCoords,
 				&GlobalInfo::abortAll,
 				&GlobalInfo::temp,
+				&GlobalInfo::brickOvertemp,
 				&GlobalInfo::uptime
 			),
 			[](const std::string& str){
-				return parser::Parse1D<parser::FloatParser>(str, boost::is_any_of("\r\n"));
+				return parser::Parse1D<parser::DoubleParser>(str, boost::is_any_of("\r\n"));
 			}
 		);
 	}
 
-	inline auto MotorGetPositionRange(stdext::span<MotorInfo> data, MotorID::TYPE first, MotorID::TYPE last) {
+	inline auto MotorGetPositionRange(stdext::span<MotorInfo> data, int32_t first, int32_t last) {
 		builder::ValidateIdentifierRange(first, last);
 		fmt::memory_buffer buffer = builder::detail::MakePrefixPostfixRangeCommand("#", "pvf", first, last);
 		return MakeCommandQuery(
@@ -255,12 +255,12 @@ namespace ppmac::query {
 				&MotorInfo::followingError
 			),
 			[](const std::string& str){
-				return parser::Parse2D<parser::FloatParser>(str, boost::is_any_of("\r\n"), boost::is_space());
+				return parser::Parse2D<parser::DoubleParser>(str, boost::is_any_of("\r\n"), boost::is_space());
 			}
 		);
 	}
 
-	inline auto MotorGetStatusRange(stdext::span<MotorInfo> data,MotorID::TYPE first, MotorID::TYPE last) {
+	inline auto MotorGetStatusRange(stdext::span<MotorInfo> data, int32_t first, int32_t last) {
 		builder::ValidateIdentifierRange(first, last);
 		fmt::memory_buffer buffer = builder::detail::MakePrefixPostfixRangeCommand("#", "?", first, last);
 		return MakeCommandQuery(
@@ -276,7 +276,7 @@ namespace ppmac::query {
 		);
 	}
 
-	inline auto MotorGetOtherRange(stdext::span<MotorInfo> data,MotorID::TYPE first, MotorID::TYPE last) {
+	inline auto MotorGetOtherRange(stdext::span<MotorInfo> data, int32_t first, int32_t last) {
 		builder::ValidateIdentifierRange(first, last);
 		boost::container::small_vector<std::tuple<int>, 32> tuples;
 		for(int i = first; i < (last - first); i++) {
@@ -292,7 +292,7 @@ namespace ppmac::query {
 				//&MotorInfo::unitType
 			),
 			[](const std::string& str){
-				return parser::Parse1D<parser::FloatParser>(str, boost::is_any_of("\r\n"));
+				return parser::Parse1D<parser::DoubleParser>(str, boost::is_any_of("\r\n"));
 			}
 		);
 	}

@@ -149,11 +149,11 @@ void PowerPMAC_Global::init_device()
 	// connect/reconnect machinery.
 	ci.Initialize(host, port);
 
-	connectionEstablished = ci.GetSignal(ppmac::SignalType::ConnectionEstablished)->connect([this](){
+	connectionEstablished = ci.GetSignalConnectionEstablished().connect([this](){
 		StartGlobal();
 	});
 
-	connectionLost = ci.GetSignal(ppmac::SignalType::ConnectionEstablished)->connect([this](){
+	connectionLost = ci.GetSignalConnectionLost().connect([this](){
 		StopGlobal();
 	});
 

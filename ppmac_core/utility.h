@@ -10,6 +10,7 @@
 #include <array>
 #include <chrono>
 #include <type_traits>
+#include <limits>
 
 namespace ppmac {
 
@@ -30,7 +31,7 @@ namespace ppmac {
 		void for_each(T&& t, F f, seq<Is...>)
 		{
 			//auto l = { (f(std::get<Is>(t), Is), 0)... };
-			((f(std::get<Is>(t), Is), 0), ...);
+			(f(std::get<Is>(t), Is), ...);
 		}
 
 		// runtime tuple index
@@ -53,10 +54,7 @@ namespace ppmac {
 
 		template <class Tuple, class F, std::size_t...Is>
 		void tuple_switch(const std::size_t i, Tuple&& t, F&& f, index_sequence<Is...>) {
-			[](...){}(
-					(i == Is && (
-							(void)std::forward<F>(f)(std::get<Is>(std::forward<Tuple>(t))), false))...
-			);
+			[](...){}((i == Is && ( (void)std::forward<F>(f)(std::get<Is>(std::forward<Tuple>(t))), false))...);
 		}
 
 		// constexpr filename

@@ -39,6 +39,7 @@ namespace ppmac {
 
 	namespace exception {
 		void TerminateHandler();
+		std::string BackTrace(int skip = 0);
 	}
 }
 

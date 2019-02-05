@@ -139,11 +139,11 @@ void PowerPMAC_IO::init_device()
 
 	ppmac::CoreInterface& ci = ppmac::GetCoreObject();
 
-	connectionEstablished = ci.GetSignal(ppmac::SignalType::ConnectionEstablished)->connect([this](){
+	connectionEstablished = ci.GetSignalConnectionEstablished().connect([this](){
 		StartIO();
 	});
 
-	connectionLost = ci.GetSignal(ppmac::SignalType::ConnectionLost)->connect([this](){
+	connectionLost = ci.GetSignalConnectionLost().connect([this](){
 		StopIO();
 	});
 

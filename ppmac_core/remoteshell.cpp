@@ -29,7 +29,7 @@ namespace ppmac {
 			Continue
 		};
 
-		int WaitSocket(int sock, LIBSSH2_SESSION* session) {
+		/*int WaitSocket(int sock, LIBSSH2_SESSION* session) {
 			timeval timeout;
 			timeout.tv_sec = 0;
 			timeout.tv_usec = 500000;
@@ -38,7 +38,7 @@ namespace ppmac {
 			FD_ZERO(&fd);
 			FD_SET(sock, &fd);
 
-			/* now make sure we wait in the correct direction */
+			//now make sure we wait in the correct direction
 			int dir = libssh2_session_block_directions(session);
 
 
@@ -56,7 +56,7 @@ namespace ppmac {
 			int rc = select(sock + 1, readfd, writefd, NULL, &timeout);
 
 			return rc;
-		}
+		}*/
 
 		template<typename Channel, typename Session, typename DataCallback>
 		RemoteShellErrorCode ReceiveToBuffer(int sock, Channel& channel, Session& session, std::chrono::milliseconds timeout, DataCallback cb) {

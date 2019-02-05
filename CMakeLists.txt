@@ -11,15 +11,14 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -Wall -Wextra") #-fasynchrono
 
 # -pg for progiling with gprof
 # gcc only options
-if(CMAKE_CXX_COMPILER MATCHES clang)
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pedantic")
-endif()
-if(CMAKE_CXX_COMPILER MATCHES GNU)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wduplicated-cond -Wlogical-op -Wuseless-cast -Wno-shadow -Wno-pragmas")
+elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wduplicated-cond -Wlogical-op -Wuseless-cast -Wno-shadow -Wno-pragmas -Wno-unused-variable -Wno-unused-parameter") #-Wself-assign"
 endif()
 
 # add debug/release specific flags
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_FORTIFY_SOURCE=2")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_FORTIFY_SOURCE=2") #-D_GLIBCXX_DEBUG
 #set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ")
 
 set(CMAKE_EXE_LINKER_FLAGS "-Wl,-export-dynamic")

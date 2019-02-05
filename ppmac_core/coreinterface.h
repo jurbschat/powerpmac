@@ -5,6 +5,7 @@
 #include <string>
 #include <functional>
 #include <cstdint>
+#include <chrono>
 #include "handletype.h"
 #include "pmac/defines.h"
 #include "pmac/datastructures.h"
@@ -14,13 +15,6 @@
 #define POWERPMAC_PPMACCOREINTERFACE_H
 
 namespace ppmac {
-
-	enum class SignalType {
-		ConnectionEstablished,
-		ConnectionLost,
-		MotorStateChanged,
-		CoordinateError
-	};
 
 	class CoreInterface
 	{
@@ -37,22 +31,21 @@ namespace ppmac {
 		virtual ~CoreInterface() {}
 		virtual void Initialize(const std::string& host, int port) = 0;
 		virtual bool IsConnected() = 0;
-		/*virtual HandleType RegisterConnectionEstablished(CoreInterface::ConnectionEstablishedType cb) = 0;
-		virtual bool UnregisterConnectionEstablished(HandleType handle) = 0;
-		virtual HandleType RegisterConnectionLost(ConnectionLostCallbackType cb) = 0;
-		virtual bool UnregisterConnectionLost(HandleType handle) = 0;*/
 
 		virtual std::string ExecuteCommand(const std::string& str) = 0;
+		virtual void RunUpdater() = 0;
 
-		virtual MotorInfo GetMotorInfo(MotorID::TYPE motor) = 0;
-		virtual IOInfo GetIoInfo(IoID::TYPE io) = 0;
+		virtual MotorInfo GetMotorInfo(MotorID motor) = 0;
+		virtual IOInfo GetIoInfo(IoID io) = 0;
 		virtual GlobalInfo GetGlobalInfo() = 0;
-		virtual CoordInfo GetCoordInfo(CoordID::TYPE coord) = 0;
+		virtual CoordInfo GetCoordInfo(CoordID coord) = 0;
 
-		//virtual MotorInfo* GetMotorInfoWritable(MotorID::TYPE motor) = 0;
-		//virtual MotorInfo* GetMotorInfoWritable(MotorID::TYPE motor) = 0;
+		virtual sigs::Signal<void()>& GetSignalConnectionEstablished() = 0;
+		virtual sigs::Signal<void()>& GetSignalConnectionLost() = 0;
+		virtual sigs::Signal<void(uint64_t newState, uint64_t changes)>& GetSignalMotorStatusChanged(MotorID id) = 0;
 
-		virtual sigs::Signal<void()>* GetSignal(SignalType type) = 0;
+		virtual HandleType AddDeadTimer(std::chrono::microseconds timeout, std::function<void()> callback) = 0;
+		virtual void RemoveDeadTimer(HandleType handle) = 0;
 	};
 
 	CoreInterface& GetCoreObject();

@@ -6,6 +6,8 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pedantic")
 
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_FORTIFY_SOURCE=2") # -D_GLIBCXX_DEBUG
+
 if(CMAKE_CXX_COMPILER MATCHES GNU)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-shadow -Wno-pragmas")
 endif()
@@ -20,5 +22,5 @@ add_library(PowerPMAC_CoordinateSystems STATIC PowerPMAC_CoordinateSystems.cpp
 include_directories(PUBLIC SYSTEM /usr/include/tango)
 target_include_directories(PowerPMAC_CoordinateSystems PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ../ppmac_core ../wise_enum-master)
 
-link_directories(PUBLIC /usr/lib/x86_64-linux-gnu/ /usr/lib/)
+link_directories(PUBLIC /usr/lib/x86_64-linux-gnu/ /usr/lib/) #link_directories(PUBLIC /usr/lib/debug)
 target_link_libraries(PowerPMAC_CoordinateSystems PRIVATE tango omniDynamic4 COS4 omniORB4 omnithread log4tango zmq dl pthread stdc++ ppmac_core)

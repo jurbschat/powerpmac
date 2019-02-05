@@ -14,17 +14,14 @@ namespace ppmac {
 	Core::Core()
 		: remoteHost(),
 		remotePort(0),
-		keepConnectionAlive(false),
 		remoteShell(this),
-		stateUpdater(remoteShell)
+		stateUpdater(*this, remoteShell),
+		keepConnectionAlive(false),
+		runDeadTimer(true)
 	{
 		ErrorHandlingSetup();
 		LoggingSetup();
-	}
-
-	void Core::LoggingSetup() {
-		auto console = spdlog::stdout_color_mt("console");
-		console->flush_on(spdlog::level::debug);
+		SetupDeadTimer();
 	}
 
 	Core::~Core() {
@@ -33,10 +30,25 @@ namespace ppmac {
 		if(remoteShellKeepAlive.joinable()) {
 			remoteShellKeepAlive.join();
 		}
+		runDeadTimer = false;
+		if(deadTimerThread.joinable()) {
+			deadTimerThread.join();
+		}
 	}
 
-	void Core::Bla() {
-		stateUpdater.Stop();
+	void Core::LoggingSetup() {
+		auto console = spdlog::stdout_color_mt("console");
+		console->flush_on(spdlog::level::debug);
+	}
+
+	void Core::ErrorHandlingSetup() {
+		std::set_terminate(exception::TerminateHandler);
+	}
+
+	void Core::SetupDeadTimer() {
+		deadTimerThread = std::thread([this](){
+			DeadTimerRunner();
+		});
 	}
 
 	void Core::Initialize(const std::string& host, int port) {
@@ -58,8 +70,7 @@ namespace ppmac {
 		//std::this_thread::sleep_for(std::chrono::seconds(3000));
 	}
 
-	RemoteShellErrorCode Core::SetupRemoteShell(const std::string& host, int port)
-	{
+	RemoteShellErrorCode Core::SetupRemoteShell(const std::string& host, int port) {
 		auto connect = remoteShell.Connect(host, port);
 		if(connect != RemoteShellErrorCode::Ok) {
 			return connect;
@@ -80,15 +91,7 @@ namespace ppmac {
 			return echo.error();
 		}
 
-		//fmt::print(detail::Backtrace(0));
-
 		return RemoteShellErrorCode::Ok;
-	}
-
-	void Core::ErrorHandlingSetup() {
-
-		std::set_terminate(exception::TerminateHandler);
-		throw std::runtime_error("lol");
 	}
 
 	void Core::KeepAliveRunner()
@@ -120,38 +123,34 @@ namespace ppmac {
 		}
 	}
 
+	sigs::Signal<void()>& Core::GetSignalConnectionEstablished() {
+		return sigConEst;
+	}
+
+	sigs::Signal<void()>& Core::GetSignalConnectionLost() {
+		return sigConLost;
+	}
+
+	sigs::Signal<void(uint64_t newState, uint64_t changes)>& Core::GetSignalMotorStatusChanged(MotorID id) {
+		return sigMotorStatus[from_enum(id)];
+	}
+
 	void Core::OnConnectionEstablished() {
-		signals[SignalType::ConnectionEstablished]();
+		sigConEst();
 	}
 
 	void Core::OnConnectionLost() {
 		stateUpdater.Stop();
-		signals[SignalType::ConnectionLost]();
+		sigConLost();
 	}
 
-	void Core::OnMotorError() {
-		signals[SignalType::MotorStateChanged]();
+	void Core::OnMotorStateChanged(int32_t motorIndex, uint64_t newState, uint64_t changes) {
+		sigMotorStatus[motorIndex](std::move(newState), std::move(changes));
 	}
 
 	bool Core::IsConnected() {
 		return remoteShell.IsConnected();
 	}
-
-	/*HandleType Core::RegisterConnectionEstablished(CoreInterface::ConnectionEstablishedType cb) {
-		return connectionEstablishedCbs.insert(cb);
-	}
-
-	bool Core::UnregisterConnectionEstablished(HandleType handle) {
-		return connectionEstablishedCbs.erase(handle);
-	}
-
-	HandleType Core::RegisterConnectionLost(CoreInterface::ConnectionLostCallbackType cb) {
-		return connectionLostCbs.insert(cb);
-	}
-
-	bool Core::UnregisterConnectionLost(HandleType handle) {
-		return connectionLostCbs.erase(handle) == 1;
-	}*/
 
 	std::string Core::ExecuteCommand(const std::string& str) {
 		auto result = remoteShell.ChannelWriteRead(str);
@@ -164,11 +163,15 @@ namespace ppmac {
 		return *result;
 	}
 
-	MotorInfo Core::GetMotorInfo(MotorID::TYPE motor) {
+	void Core::RunUpdater() {
+		stateUpdater.CheckForMotorStateChanges();
+	}
+
+	MotorInfo Core::GetMotorInfo(MotorID motor) {
 		return stateUpdater.GetMotorInfo(motor);
 	}
 
-	IOInfo Core::GetIoInfo(IoID::TYPE port)
+	IOInfo Core::GetIoInfo(IoID port)
 	{
 		return stateUpdater.GetIoInfo(port);
 	}
@@ -177,14 +180,33 @@ namespace ppmac {
 		return stateUpdater.GetGlobalInfo();
 	}
 
-	CoordInfo Core::GetCoordInfo(CoordID::TYPE coord) {
+	CoordInfo Core::GetCoordInfo(CoordID coord) {
 		return stateUpdater.GetCoordInfo(coord);
 	}
 
-	sigs::Signal<void()>* Core::GetSignal(SignalType type)
-	{
-		auto it = signals.emplace(type, sigs::Signal<void()>());
-		return &it.first->second;
-		return nullptr;
+	void Core::DeadTimerRunner() {
+		while (runDeadTimer) {
+			try
+			{
+				{ // keep empty scope for lock guard
+					std::lock_guard<std::mutex> lock(deadTimerMutex);
+					deadTimer.Update();
+					deadTimer.RemoveExpired();
+				}
+				std::this_thread::sleep_for(std::chrono::milliseconds{1});
+			} catch (std::exception& e) {
+				SPDLOG_DEBUG("exception in dead timer: '{}'", e.what());
+			}
+		}
+	}
+
+	HandleType Core::AddDeadTimer(std::chrono::microseconds timeout, std::function<void()> callback) {
+		std::lock_guard<std::mutex> lock(deadTimerMutex);
+		return deadTimer.AddTimer(UpdateTime{timeout, callback});
+	}
+
+	void Core::RemoveDeadTimer(ppmac::HandleType handle) {
+		std::lock_guard<std::mutex> lock(deadTimerMutex);
+		deadTimer.RemoveTimer(handle);
 	}
 }

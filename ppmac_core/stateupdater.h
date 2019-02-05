@@ -14,6 +14,7 @@
 #include "intervaltimer.h"
 #include "pmac/defines.h"
 #include "pmac/datastructures.h"
+#include "pmac/enumadapt.h"
 #include "stopwatch.h"
 
 #include <spdlog/spdlog.h>
@@ -27,8 +28,9 @@ namespace ppmac {
 	class StateUpdater
 	{
 	public:
-		StateUpdater(RemoteShell& rs)
-			: rs(rs),
+		StateUpdater(CoreNotifyInterface& core, RemoteShell& rs)
+			: core(core),
+			rs(rs),
 			shouldUpdate(true),
 			running(false)
 		{
@@ -61,26 +63,26 @@ namespace ppmac {
 			}
 		}
 
-		MotorInfo GetMotorInfo(MotorID::TYPE id) const {
+		MotorInfo GetMotorInfo(MotorID id) const {
 			int32_t idx = from_enum(id);
 			if(idx >= static_cast<int32_t>(state.motors.size())) {
-				THROW_RUNTIME_ERROR("invalid motor index");
+				THROW_RUNTIME_ERROR("invalid motor id {}, valid: [{}, {}]", from_enum(id), 0, state.motors.size());
 			}
 			return state.motors[idx];
 		}
 
-		IOInfo GetIoInfo(IoID::TYPE id) const {
+		IOInfo GetIoInfo(IoID id) const {
 			int32_t idx = from_enum(id);
 			if(idx >= static_cast<int32_t>(state.ios.size())) {
-				THROW_RUNTIME_ERROR("invalid io index");
+				THROW_RUNTIME_ERROR("invalid IO id {}, valid: [{}, {}]", from_enum(id), 0, state.ios.size());
 			}
 			return state.ios[idx];
 		}
 
-		CoordInfo GetCoordInfo(CoordID::TYPE id) const {
+		CoordInfo GetCoordInfo(CoordID id) const {
 			int32_t idx = from_enum(id);
-			if(idx >= static_cast<int32_t>(state.ios.size())) {
-				THROW_RUNTIME_ERROR("invalid coord index");
+			if(idx >= static_cast<int32_t>(state.coords.size())) {
+				THROW_RUNTIME_ERROR("invalid coord id {}, valid: [{}, {}]", from_enum(id), 0, state.coords.size());
 			}
 			return state.coords[idx];
 		}
@@ -90,6 +92,7 @@ namespace ppmac {
 		}
 
 		void UpdateGeneralInfo() {
+			std::lock_guard<std::mutex> lock(stateMutex);
 			// general status
 			auto query = query::GeneralGetInfo(stdext::span<GlobalInfo>(&state.global, 1));
 			auto result = rs.ChannelWriteRead(query.command);
@@ -100,10 +103,9 @@ namespace ppmac {
 		}
 
 		void UpdateMotorOther() {
+			std::lock_guard<std::mutex> lock(stateMutex);
 			// motor status
-			auto query = query::MotorGetOtherRange(stdext::make_span(state.motors),
-					static_cast<MotorID::TYPE>(0),
-					static_cast<MotorID::TYPE>(state.global.maxMotors - 1));
+			auto query = query::MotorGetOtherRange(stdext::make_span(state.motors), 0, state.global.maxMotors - 1);
 			auto result = rs.ChannelWriteRead(query.command);
 			if(result) {
 				auto parserResult = query.parser(*result);
@@ -112,10 +114,9 @@ namespace ppmac {
 		}
 
 		void UpdateMotorValues() {
+			std::lock_guard<std::mutex> lock(stateMutex);
 			// motor status
-			auto motorQuery = query::MotorGetPositionRange(stdext::make_span(state.motors),
-					static_cast<MotorID::TYPE>(0),
-					static_cast<MotorID::TYPE>(state.global.maxMotors - 1));
+			auto motorQuery = query::MotorGetPositionRange(stdext::make_span(state.motors), 0, state.global.maxMotors - 1);
 			auto motorResult = rs.ChannelWriteRead(motorQuery.command);
 			if(motorResult) {
 				auto parserResult = motorQuery.parser(*motorResult);
@@ -123,17 +124,42 @@ namespace ppmac {
 			}
 		}
 
-		void UpdateMotorStates() {
-			auto query = query::MotorGetStatusRange(stdext::make_span(state.motors),
-					static_cast<MotorID::TYPE>(0),
-					static_cast<MotorID::TYPE>(state.global.maxMotors - 1));
+		void UpdateMotorStatus() {
+			std::lock_guard<std::mutex> lock(stateMutex);
+			auto query = query::MotorGetStatusRange(stdext::make_span(state.motors), 0, state.global.maxMotors - 1);
 			auto result = rs.ChannelWriteRead(query.command);
 			if(result) {
 				auto parserResult = query.parser(*result);
 				Update1D(parserResult, query);
+				CheckForMotorStateChanges();
 			}
+		}
 
-			// we need to check if we got into an error state
+		void CheckForMotorStateChanges() {
+			//std::lock_guard<std::mutex> lock(stateMutex);
+			for(size_t i = 0; i < state.motors.size(); i++) {
+				auto& m = state.motors[i];
+				if(m.status.registerValue != m.prevStatus.registerValue) {
+					uint64_t changes = m.prevStatus.registerValue ^ m.status.registerValue;
+					core.OnMotorStateChanged(i, m.status.registerValue, changes);
+					//PrintStateChanges(i, m.prevStatus.registerValue, m.status.registerValue);
+					m.prevStatus = m.status;
+				}
+			}
+		}
+
+		void PrintStateChanges(size_t motor, uint64_t was, uint64_t is) {
+			fmt::print("MOTOR: {}\n", motor);
+			fmt::print("old {:B}\n", was);
+			fmt::print("new {:B}\n", is);
+			for(int i = 0; i < 64; i++) {
+				bool a = bits::isSet(was, i);
+				bool b = bits::isSet(is, i);
+				if(a != b) {
+					auto name = wise_enum::to_string(static_cast<MotorStatusBits::TYPE>(i));
+					fmt::print("{} changed {}->{}\n", name, a, b);
+				}
+			}
 		}
 
 		template<typename T, typename U>
@@ -236,7 +262,7 @@ namespace ppmac {
 			int32_t _10msUpdates = 0;
 			int32_t _1msUpdates = 0;
 
-			IntervalTimer timeout;
+			IntervalTimer timeout{0.07f};
 
 			timeout.AddTimer(UpdateTime{std::chrono::milliseconds{1000}, [&, this](){
 				_1sUpdates++;
@@ -257,7 +283,7 @@ namespace ppmac {
 
 			timeout.AddTimer(UpdateTime{std::chrono::milliseconds{1}, [&, this](){
 				_1msUpdates++;
-				UpdateMotorStates();
+				UpdateMotorStatus();
 			}});
 
 			while(shouldUpdate) {
@@ -272,12 +298,12 @@ namespace ppmac {
 						timeout.Update();
 						auto timeLeft =  (timeout.GetMinInterval() - sleepTimer.Elapsed()) / 2;
 						if(timeLeft > time::zero) {
-							std::this_thread::sleep_for(timeLeft);
+							//std::this_thread::sleep_for(timeLeft);
 						} else {
 							//SPDLOG_DEBUG("no time left, unable to sleep");
 						}
 						// test stuff
-						if(sw.Elapsed() >= std::chrono::seconds{1}) {
+						if(sw.Elapsed() >= std::chrono::seconds{3}) {
 							SPDLOG_DEBUG("update stats ({}s): [1s:{}, 100ms:{}, 10ms:{}, 1ms:{}]",
 									StopWatch<>::ToDouble(sw.Elapsed()),
 									_1sUpdates,
@@ -292,7 +318,7 @@ namespace ppmac {
 						}
 						//std::this_thread::sleep_for(std::chrono::seconds{1});
 					}catch(const RuntimeError& e) {
-						SPDLOG_ERROR("unable to update states:\n{}", StringifyException(std::current_exception(), 4, '>'));
+						SPDLOG_ERROR("exception while updating states:\n{}", StringifyException(std::current_exception(), 4, '>'));
 					}
 				} else {
 					SPDLOG_DEBUG("state holder waiting for connection...");
@@ -302,6 +328,7 @@ namespace ppmac {
 			running = false;
 		}
 
+		CoreNotifyInterface& core;
 		RemoteShell& rs;
 		bool shouldUpdate;
 		bool running;
@@ -312,6 +339,7 @@ namespace ppmac {
 			std::vector<CoordInfo> coords;
 			GlobalInfo global;
 		} state;
+		std::mutex stateMutex;
 	};
 
 }

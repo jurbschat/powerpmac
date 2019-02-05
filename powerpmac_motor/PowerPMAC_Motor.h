@@ -33,6 +33,7 @@
 #ifndef PowerPMAC_Motor_H
 #define PowerPMAC_Motor_H
 
+#include "handletype.h"
 #include "pmac/defines.h"
 #include "libs/sigs.h"
 #include <tango.h>
@@ -60,10 +61,14 @@ class PowerPMAC_Motor : public TANGO_BASE_CLASS
 
 //	Add your own data members
 private:
-	ppmac::MotorID::TYPE motorId;
+	ppmac::MotorID motorId;
 	sigs::Connection connectionEstablished;
 	sigs::Connection connectionLost;
 	sigs::Connection motorStateChanged;
+	uint64_t lastMotorState;
+	std::string hardLimitAddress;
+	ppmac::HandleType movingTimerHandle;
+	constexpr static ppmac::HandleType INVALID_HANDLE = ppmac::HandleType{0xFFFFFFFF, 0xFFFFFFFF};
 
 /*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::Data Members
 
@@ -76,11 +81,11 @@ public:
 
 //	Attribute data members
 public:
-	Tango::DevFloat	*attr_Position_read;
-	Tango::DevFloat	*attr_Acceleration_read;
-	Tango::DevFloat	*attr_Velocity_read;
-	Tango::DevFloat	*attr_SoftCwLimit_read;
-	Tango::DevFloat	*attr_SoftCcwLimit_read;
+	Tango::DevDouble	*attr_Position_read;
+	Tango::DevDouble	*attr_Acceleration_read;
+	Tango::DevDouble	*attr_Velocity_read;
+	Tango::DevDouble	*attr_SoftCwLimit_read;
+	Tango::DevDouble	*attr_SoftCcwLimit_read;
 	Tango::DevBoolean	*attr_EnableSoftLimit_read;
 	Tango::DevBoolean	*attr_SoftCwLimitFault_read;
 	Tango::DevBoolean	*attr_SoftCcwLimitFault_read;
@@ -158,7 +163,7 @@ public:
  *	Attribute Position related methods
  *	Description: 
  *
- *	Data type:	Tango::DevFloat
+ *	Data type:	Tango::DevDouble
  *	Attr type:	Scalar
  */
 	virtual void read_Position(Tango::Attribute &attr);
@@ -168,7 +173,7 @@ public:
  *	Attribute Acceleration related methods
  *	Description: 
  *
- *	Data type:	Tango::DevFloat
+ *	Data type:	Tango::DevDouble
  *	Attr type:	Scalar
  */
 	virtual void read_Acceleration(Tango::Attribute &attr);
@@ -178,7 +183,7 @@ public:
  *	Attribute Velocity related methods
  *	Description: 
  *
- *	Data type:	Tango::DevFloat
+ *	Data type:	Tango::DevDouble
  *	Attr type:	Scalar
  */
 	virtual void read_Velocity(Tango::Attribute &attr);
@@ -188,7 +193,7 @@ public:
  *	Attribute SoftCwLimit related methods
  *	Description: 
  *
- *	Data type:	Tango::DevFloat
+ *	Data type:	Tango::DevDouble
  *	Attr type:	Scalar
  */
 	virtual void read_SoftCwLimit(Tango::Attribute &attr);
@@ -198,7 +203,7 @@ public:
  *	Attribute SoftCcwLimit related methods
  *	Description: 
  *
- *	Data type:	Tango::DevFloat
+ *	Data type:	Tango::DevDouble
  *	Attr type:	Scalar
  */
 	virtual void read_SoftCcwLimit(Tango::Attribute &attr);
@@ -266,19 +271,19 @@ public:
 //	Command related methods
 public:
 	/**
-	 *	Command PhaseMotor related method
+	 *	Command Phase related method
 	 *	Description: 
 	 *
 	 */
-	virtual void phase_motor();
-	virtual bool is_PhaseMotor_allowed(const CORBA::Any &any);
+	virtual void phase();
+	virtual bool is_Phase_allowed(const CORBA::Any &any);
 	/**
-	 *	Command HomeMotor related method
+	 *	Command Home related method
 	 *	Description: 
 	 *
 	 */
-	virtual void home_motor();
-	virtual bool is_HomeMotor_allowed(const CORBA::Any &any);
+	virtual void home();
+	virtual bool is_Home_allowed(const CORBA::Any &any);
 	/**
 	 *	Command Calibrate related method
 	 *	Description: 
@@ -286,6 +291,34 @@ public:
 	 */
 	virtual void calibrate();
 	virtual bool is_Calibrate_allowed(const CORBA::Any &any);
+	/**
+	 *	Command Enable related method
+	 *	Description: 
+	 *
+	 */
+	virtual void enable();
+	virtual bool is_Enable_allowed(const CORBA::Any &any);
+	/**
+	 *	Command Disable related method
+	 *	Description: 
+	 *
+	 */
+	virtual void disable();
+	virtual bool is_Disable_allowed(const CORBA::Any &any);
+	/**
+	 *	Command Stop related method
+	 *	Description: 
+	 *
+	 */
+	virtual void stop();
+	virtual bool is_Stop_allowed(const CORBA::Any &any);
+	/**
+	 *	Command Kill related method
+	 *	Description: 
+	 *
+	 */
+	virtual void kill();
+	virtual bool is_Kill_allowed(const CORBA::Any &any);
 
 
 	//--------------------------------------------------------
@@ -301,7 +334,8 @@ public:
 //	Additional Method prototypes
 	void StartMotor();
 	void StopMotor();
-	void MotorStateChanged();
+	void MotorStateChanged(uint64_t newValue, uint64_t changes);
+	void SetOn();
 
 /*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::Additional Method prototypes
 };
