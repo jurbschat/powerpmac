@@ -99,6 +99,21 @@ public:
 		{return (static_cast<PowerPMAC_Motor *>(dev))->is_Velocity_allowed(ty);}
 };
 
+//	Attribute HomeOffset class definition
+class HomeOffsetAttrib: public Tango::Attr
+{
+public:
+	HomeOffsetAttrib():Attr("HomeOffset",
+			Tango::DEV_DOUBLE, Tango::READ_WRITE) {};
+	~HomeOffsetAttrib() {};
+	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
+		{(static_cast<PowerPMAC_Motor *>(dev))->read_HomeOffset(att);}
+	virtual void write(Tango::DeviceImpl *dev,Tango::WAttribute &att)
+		{(static_cast<PowerPMAC_Motor *>(dev))->write_HomeOffset(att);}
+	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
+		{return (static_cast<PowerPMAC_Motor *>(dev))->is_HomeOffset_allowed(ty);}
+};
+
 //	Attribute SoftCwLimit class definition
 class SoftCwLimitAttrib: public Tango::Attr
 {
@@ -129,19 +144,19 @@ public:
 		{return (static_cast<PowerPMAC_Motor *>(dev))->is_SoftCcwLimit_allowed(ty);}
 };
 
-//	Attribute EnableSoftLimit class definition
-class EnableSoftLimitAttrib: public Tango::Attr
+//	Attribute SoftLimitEnable class definition
+class SoftLimitEnableAttrib: public Tango::Attr
 {
 public:
-	EnableSoftLimitAttrib():Attr("EnableSoftLimit",
+	SoftLimitEnableAttrib():Attr("SoftLimitEnable",
 			Tango::DEV_BOOLEAN, Tango::READ_WRITE) {};
-	~EnableSoftLimitAttrib() {};
+	~SoftLimitEnableAttrib() {};
 	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
-		{(static_cast<PowerPMAC_Motor *>(dev))->read_EnableSoftLimit(att);}
+		{(static_cast<PowerPMAC_Motor *>(dev))->read_SoftLimitEnable(att);}
 	virtual void write(Tango::DeviceImpl *dev,Tango::WAttribute &att)
-		{(static_cast<PowerPMAC_Motor *>(dev))->write_EnableSoftLimit(att);}
+		{(static_cast<PowerPMAC_Motor *>(dev))->write_SoftLimitEnable(att);}
 	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
-		{return (static_cast<PowerPMAC_Motor *>(dev))->is_EnableSoftLimit_allowed(ty);}
+		{return (static_cast<PowerPMAC_Motor *>(dev))->is_SoftLimitEnable_allowed(ty);}
 };
 
 //	Attribute SoftCwLimitFault class definition

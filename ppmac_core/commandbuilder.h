@@ -10,7 +10,7 @@
 namespace ppmac::cmd {
 	// Motor[{}].PosUnit for the type of motor unit
 
-	inline std::string MotorJogToPosition(float pos, MotorID motor)
+	inline std::string MotorJogToPosition(MotorID motor, double pos)
 	{
 		return fmt::format("#{}j={}", static_cast<int>(motor), pos);
 	}
@@ -40,12 +40,12 @@ namespace ppmac::cmd {
 		return fmt::format("#{}hm", static_cast<int>(motor));
 	}
 
-	inline std::string MotorSetConversion(float value, MotorID motor)
+	inline std::string MotorSetConversion(MotorID motor, double value)
 	{
 		return fmt::format("Motor[{}].PosSf={}", static_cast<int>(motor), value);
 	}
 
-	inline std::string MotorSetHardLimits(std::string value, MotorID motor)
+	inline std::string MotorSetHardLimits(MotorID motor, std::string value)
 	{
 		return fmt::format("Motor[{}].plimits={}", static_cast<int>(motor), value);
 	}
@@ -55,7 +55,7 @@ namespace ppmac::cmd {
 		return fmt::format("Motor[{}].plimits", static_cast<int>(motor));
 	}
 
-	inline std::string MotorSetJogAcceleration(float value, MotorID motor)
+	inline std::string MotorSetJogAcceleration(MotorID motor, double value)
 	{
 		return fmt::format("Motor[{}].JogTa={}", static_cast<int>(motor), value);
 	}
@@ -65,7 +65,7 @@ namespace ppmac::cmd {
 		return fmt::format("Motor[{}].JogTa", static_cast<int>(motor));
 	}
 
-	inline std::string MotorSetJogSpeed(float value, MotorID motor)
+	inline std::string MotorSetJogSpeed(MotorID motor, double value)
 	{
 		return fmt::format("Motor[{}].JogSpeed={}", static_cast<int>(motor), value);
 	}
@@ -75,12 +75,17 @@ namespace ppmac::cmd {
 		return fmt::format("Motor[{}].JogSpeed", static_cast<int>(motor));
 	}
 
-	inline std::string MotorSetSoftlimitPlus(float value, MotorID motor)
+	inline std::string MotorSetJogAndMaxSpeed(MotorID motor, double value)
+	{
+		return fmt::format("Motor[{0}].JogSpeed={1};Motor[{0}].MaxSpeed={1}", static_cast<int>(motor), value);
+	}
+
+	inline std::string MotorSetSoftlimitPlus(MotorID motor, double value)
 	{
 		return fmt::format("Motor[{}].MaxPos={}", static_cast<int>(motor), value);
 	}
 
-	inline std::string MotorSetSoftlimitMinus(float value, MotorID motor)
+	inline std::string MotorSetSoftlimitMinus(MotorID motor, double value)
 	{
 		return fmt::format("Motor[{}].MinPos={}", static_cast<int>(motor), value);
 	}
@@ -95,7 +100,17 @@ namespace ppmac::cmd {
 		return fmt::format("Motor[{}].MinPos", static_cast<int>(motor));
 	}
 
-	inline std::string MotorSetMaxVelocity(float value, MotorID motor)
+	inline std::string MotorSetHomeOffset(MotorID motor, double value)
+	{
+		return fmt::format("Motor[{}].HomeOffset={}", static_cast<int>(motor), value);
+	}
+
+	inline std::string MotorGetHomeOffset(MotorID motor)
+	{
+		return fmt::format("Motor[{}].HomeOffset", static_cast<int>(motor));
+	}
+
+	inline std::string MotorSetMaxVelocity(MotorID motor, double value)
 	{
 		return fmt::format("Motor[{}].MaxSpeed={}", static_cast<int>(motor), value);
 	}
@@ -120,11 +135,6 @@ namespace ppmac::cmd {
 	inline std::string GlobalReset()
 	{
 		return fmt::format("$$$");
-	}
-
-	inline std::string GlobalInfo()
-	{
-		return fmt::format("type; vers; cpu; Sys.CpuFreq; Sys.CpuTemp");
 	}
 }
 

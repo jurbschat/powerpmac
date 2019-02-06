@@ -6,7 +6,7 @@
 #include <functional>
 #include <cstdint>
 #include <chrono>
-#include "handletype.h"
+#include "config.h"
 #include "pmac/defines.h"
 #include "pmac/datastructures.h"
 #include "libs/sigs.h"

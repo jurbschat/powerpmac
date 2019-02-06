@@ -72,9 +72,10 @@
 //  Position           |  Tango::DevDouble	Scalar
 //  Acceleration       |  Tango::DevDouble	Scalar
 //  Velocity           |  Tango::DevDouble	Scalar
+//  HomeOffset         |  Tango::DevDouble	Scalar
 //  SoftCwLimit        |  Tango::DevDouble	Scalar
 //  SoftCcwLimit       |  Tango::DevDouble	Scalar
-//  EnableSoftLimit    |  Tango::DevBoolean	Scalar
+//  SoftLimitEnable    |  Tango::DevBoolean	Scalar
 //  SoftCwLimitFault   |  Tango::DevBoolean	Scalar
 //  SoftCcwLimitFault  |  Tango::DevBoolean	Scalar
 //  CwLimitFault       |  Tango::DevBoolean	Scalar
@@ -139,9 +140,10 @@ void PowerPMAC_Motor::delete_device()
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::delete_device
 	delete[] attr_Acceleration_read;
 	delete[] attr_Velocity_read;
+	delete[] attr_HomeOffset_read;
 	delete[] attr_SoftCwLimit_read;
 	delete[] attr_SoftCcwLimit_read;
-	delete[] attr_EnableSoftLimit_read;
+	delete[] attr_SoftLimitEnable_read;
 	delete[] attr_SoftCwLimitFault_read;
 	delete[] attr_SoftCcwLimitFault_read;
 	delete[] attr_CwLimitFault_read;
@@ -169,19 +171,28 @@ void PowerPMAC_Motor::init_device()
 	
 	attr_Acceleration_read = new Tango::DevDouble[1];
 	attr_Velocity_read = new Tango::DevDouble[1];
+	attr_HomeOffset_read = new Tango::DevDouble[1];
 	attr_SoftCwLimit_read = new Tango::DevDouble[1];
 	attr_SoftCcwLimit_read = new Tango::DevDouble[1];
-	attr_EnableSoftLimit_read = new Tango::DevBoolean[1];
+	attr_SoftLimitEnable_read = new Tango::DevBoolean[1];
 	attr_SoftCwLimitFault_read = new Tango::DevBoolean[1];
 	attr_SoftCcwLimitFault_read = new Tango::DevBoolean[1];
 	attr_CwLimitFault_read = new Tango::DevBoolean[1];
 	attr_CcwLimitFault_read = new Tango::DevBoolean[1];
 	/*----- PROTECTED REGION ID(PowerPMAC_Motor::init_device) ENABLED START -----*/
-	
-	//	Initialize device
+
+	*attr_Acceleration_read = 0;
+	*attr_Velocity_read = 0;
+	attr_HomeOffset_read = 0;
+	*attr_SoftCwLimit_read = 0;
+	*attr_SoftCcwLimit_read = 0;
+	*attr_SoftLimitEnable_read = false;
+	*attr_SoftCwLimitFault_read = false;
+	*attr_SoftCcwLimitFault_read = false;
+	*attr_CwLimitFault_read = false;
+	*attr_CcwLimitFault_read = false;
 
 	motorId = static_cast<ppmac::MotorID>(motorIndex);
-
 	ppmac::CoreInterface& ci = ppmac::GetCoreObject();
 
 	connectionEstablished = ci.GetSignalConnectionEstablished().connect([this](){
@@ -360,12 +371,12 @@ void PowerPMAC_Motor::write_Position(Tango::WAttribute &attr)
 
 	try {
 		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
-		auto cmd = ppmac::cmd::MotorJogToPosition(w_val, motorId);
+		auto cmd = ppmac::cmd::MotorJogToPosition(motorId, w_val);
 		ci.ExecuteCommand(cmd);
 		movingTimerHandle = ci.AddDeadTimer(std::chrono::milliseconds{50}, [this](){
 			if(get_state() == Tango::MOVING) {
 				set_state(Tango::ON);
-				movingTimerHandle = INVALID_HANDLE;
+				movingTimerHandle = ppmac::INVALID_HANDLE;
 			}
 		});
 		set_state(Tango::MOVING);
@@ -394,7 +405,9 @@ void PowerPMAC_Motor::read_Acceleration(Tango::Attribute &attr)
 		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
 		auto cmd = ppmac::cmd::MotorGetJogAcceleration(motorId);
 		auto result = ci.ExecuteCommand(cmd);
-		auto accel = tu::ParseDouble(result);
+		// as we use internally negative values, we want to show positive ones
+		// to the user (see Motor[x].JogTa documentation. also we show units/s^2 and not units/ms^2.
+		auto accel = std::abs(tu::ParseDouble(result) * 1000.0);
 		attr.set_value(&accel);
 	} catch (ppmac::RuntimeError& e) {
 		tu::TranslateException(e);
@@ -419,9 +432,16 @@ void PowerPMAC_Motor::write_Acceleration(Tango::WAttribute &attr)
 	attr.get_write_value(w_val);
 	/*----- PROTECTED REGION ID(PowerPMAC_Motor::write_Acceleration) ENABLED START -----*/
 
+	if(w_val <= 0) {
+		Tango::Except::throw_exception("invalid acceleration", "acceleration must be > 0", "PowerPMAC_Motor::write_Acceleration");
+	}
+
 	try {
 		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
-		auto cmd = ppmac::cmd::MotorSetJogAcceleration(w_val, motorId);
+		// we always want to set negative values, this implies mu/s²
+		// otherwise its only the time. see Motor[x].JogTa documentation
+		double writeValue = std::copysign(w_val / 1000.0, -1);
+		auto cmd = ppmac::cmd::MotorSetJogAcceleration(motorId, writeValue);
 		ci.ExecuteCommand(cmd);
 	} catch (ppmac::RuntimeError& e) {
 		tu::TranslateException(e);
@@ -448,7 +468,7 @@ void PowerPMAC_Motor::read_Velocity(Tango::Attribute &attr)
 		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
 		auto cmd = ppmac::cmd::MotorGetJogSpeed(motorId);
 		auto result = ci.ExecuteCommand(cmd);
-		auto vel = tu::ParseDouble(result);
+		auto vel = tu::ParseDouble(result) * 1000.0;
 		attr.set_value(&vel);
 	} catch (ppmac::RuntimeError& e) {
 		tu::TranslateException(e);
@@ -475,13 +495,68 @@ void PowerPMAC_Motor::write_Velocity(Tango::WAttribute &attr)
 
 	try {
 		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
-		auto cmd = ppmac::cmd::MotorSetJogSpeed(w_val, motorId);
+		// we are setting the jog speed (speed for actual moves for the motor device)
+		// and the max speed that moves e.g. in a coordinate system can never exceed.
+		// we want this to be logically the same
+		auto cmd = ppmac::cmd::MotorSetJogAndMaxSpeed(motorId, w_val / 1000.0);
 		ci.ExecuteCommand(cmd);
 	} catch (ppmac::RuntimeError& e) {
 		tu::TranslateException(e);
 	}
 	
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::write_Velocity
+}
+//--------------------------------------------------------
+/**
+ *	Read attribute HomeOffset related method
+ *	Description: 
+ *
+ *	Data type:	Tango::DevDouble
+ *	Attr type:	Scalar
+ */
+//--------------------------------------------------------
+void PowerPMAC_Motor::read_HomeOffset(Tango::Attribute &attr)
+{
+	DEBUG_STREAM << "PowerPMAC_Motor::read_HomeOffset(Tango::Attribute &attr) entering... " << endl;
+	/*----- PROTECTED REGION ID(PowerPMAC_Motor::read_HomeOffset) ENABLED START -----*/
+	//	Set the attribute value
+
+	try {
+		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
+		std::string result = ci.ExecuteCommand(ppmac::cmd::MotorGetHomeOffset(motorId));
+		auto offset = tu::ParseDouble(result);
+		attr.set_value(&offset);
+	} catch (ppmac::RuntimeError& e) {
+		tu::TranslateException(e);
+	}
+	
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::read_HomeOffset
+}
+//--------------------------------------------------------
+/**
+ *	Write attribute HomeOffset related method
+ *	Description: 
+ *
+ *	Data type:	Tango::DevDouble
+ *	Attr type:	Scalar
+ */
+//--------------------------------------------------------
+void PowerPMAC_Motor::write_HomeOffset(Tango::WAttribute &attr)
+{
+	DEBUG_STREAM << "PowerPMAC_Motor::write_HomeOffset(Tango::WAttribute &attr) entering... " << endl;
+	//	Retrieve write value
+	Tango::DevDouble	w_val;
+	attr.get_write_value(w_val);
+	/*----- PROTECTED REGION ID(PowerPMAC_Motor::write_HomeOffset) ENABLED START -----*/
+
+	try {
+		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
+		ci.ExecuteCommand(ppmac::cmd::MotorSetHomeOffset(motorId, w_val));
+	} catch (ppmac::RuntimeError& e) {
+		tu::TranslateException(e);
+	}
+	
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::write_HomeOffset
 }
 //--------------------------------------------------------
 /**
@@ -533,10 +608,10 @@ void PowerPMAC_Motor::write_SoftCwLimit(Tango::WAttribute &attr)
 	/*----- PROTECTED REGION ID(PowerPMAC_Motor::write_SoftCwLimit) ENABLED START -----*/
 
 	*attr_SoftCwLimit_read = w_val;
-	if(*attr_EnableSoftLimit_read) {
+	if(*attr_SoftLimitEnable_read) {
 		try {
 			ppmac::CoreInterface& ci = ppmac::GetCoreObject();
-			ci.ExecuteCommand(ppmac::cmd::MotorSetSoftlimitPlus(w_val, motorId));
+			ci.ExecuteCommand(ppmac::cmd::MotorSetSoftlimitPlus(motorId, w_val));
 		} catch (ppmac::RuntimeError& e) {
 			tu::TranslateException(e);
 		}
@@ -594,10 +669,10 @@ void PowerPMAC_Motor::write_SoftCcwLimit(Tango::WAttribute &attr)
 	/*----- PROTECTED REGION ID(PowerPMAC_Motor::write_SoftCcwLimit) ENABLED START -----*/
 
 	*attr_SoftCcwLimit_read = w_val;
-	if(*attr_EnableSoftLimit_read) {
+	if(*attr_SoftLimitEnable_read) {
 		try {
 			ppmac::CoreInterface& ci = ppmac::GetCoreObject();
-			ci.ExecuteCommand(ppmac::cmd::MotorSetSoftlimitMinus(w_val, motorId));
+			ci.ExecuteCommand(ppmac::cmd::MotorSetSoftlimitMinus(motorId, w_val));
 		} catch (ppmac::RuntimeError& e) {
 			tu::TranslateException(e);
 		}
@@ -607,55 +682,54 @@ void PowerPMAC_Motor::write_SoftCcwLimit(Tango::WAttribute &attr)
 }
 //--------------------------------------------------------
 /**
- *	Read attribute EnableSoftLimit related method
+ *	Read attribute SoftLimitEnable related method
  *	Description: 
  *
  *	Data type:	Tango::DevBoolean
  *	Attr type:	Scalar
  */
 //--------------------------------------------------------
-void PowerPMAC_Motor::read_EnableSoftLimit(Tango::Attribute &attr)
+void PowerPMAC_Motor::read_SoftLimitEnable(Tango::Attribute &attr)
 {
-	DEBUG_STREAM << "PowerPMAC_Motor::read_EnableSoftLimit(Tango::Attribute &attr) entering... " << endl;
-	/*----- PROTECTED REGION ID(PowerPMAC_Motor::read_EnableSoftLimit) ENABLED START -----*/
+	DEBUG_STREAM << "PowerPMAC_Motor::read_SoftLimitEnable(Tango::Attribute &attr) entering... " << endl;
+	/*----- PROTECTED REGION ID(PowerPMAC_Motor::read_SoftLimitEnable) ENABLED START -----*/
 	//	Set the attribute value
-	attr.set_value(attr_EnableSoftLimit_read);
+	attr.set_value(attr_SoftLimitEnable_read);
 	
-	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::read_EnableSoftLimit
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::read_SoftLimitEnable
 }
 //--------------------------------------------------------
 /**
- *	Write attribute EnableSoftLimit related method
+ *	Write attribute SoftLimitEnable related method
  *	Description: 
  *
  *	Data type:	Tango::DevBoolean
  *	Attr type:	Scalar
  */
 //--------------------------------------------------------
-void PowerPMAC_Motor::write_EnableSoftLimit(Tango::WAttribute &attr)
+void PowerPMAC_Motor::write_SoftLimitEnable(Tango::WAttribute &attr)
 {
-	DEBUG_STREAM << "PowerPMAC_Motor::write_EnableSoftLimit(Tango::WAttribute &attr) entering... " << endl;
+	DEBUG_STREAM << "PowerPMAC_Motor::write_SoftLimitEnable(Tango::WAttribute &attr) entering... " << endl;
 	//	Retrieve write value
 	Tango::DevBoolean	w_val;
 	attr.get_write_value(w_val);
-	/*----- PROTECTED REGION ID(PowerPMAC_Motor::write_EnableSoftLimit) ENABLED START -----*/
+	/*----- PROTECTED REGION ID(PowerPMAC_Motor::write_SoftLimitEnable) ENABLED START -----*/
 
-	*attr_EnableSoftLimit_read = w_val;
-
+	*attr_SoftLimitEnable_read = w_val;
 	try {
 		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
 		if(w_val == true) {
-			ci.ExecuteCommand(ppmac::cmd::MotorSetSoftlimitMinus(*attr_SoftCcwLimit_read, motorId));
-			ci.ExecuteCommand(ppmac::cmd::MotorSetSoftlimitPlus(*attr_SoftCwLimit_read, motorId));
+			ci.ExecuteCommand(ppmac::cmd::MotorSetSoftlimitMinus(motorId, *attr_SoftCcwLimit_read));
+			ci.ExecuteCommand(ppmac::cmd::MotorSetSoftlimitPlus(motorId, *attr_SoftCwLimit_read));
 		} else {
-			ci.ExecuteCommand(ppmac::cmd::MotorSetSoftlimitMinus(0, motorId));
-			ci.ExecuteCommand(ppmac::cmd::MotorSetSoftlimitPlus(0, motorId));
+			ci.ExecuteCommand(ppmac::cmd::MotorSetSoftlimitMinus(motorId, 0));
+			ci.ExecuteCommand(ppmac::cmd::MotorSetSoftlimitPlus(motorId, 0));
 		}
 	} catch (ppmac::RuntimeError& e) {
 		tu::TranslateException(e);
 	}
 	
-	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::write_EnableSoftLimit
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::write_SoftLimitEnable
 }
 //--------------------------------------------------------
 /**
@@ -848,8 +922,7 @@ void PowerPMAC_Motor::enable()
 {
 	DEBUG_STREAM << "PowerPMAC_Motor::Enable()  - " << device_name << endl;
 	/*----- PROTECTED REGION ID(PowerPMAC_Motor::enable) ENABLED START -----*/
-	
-	//	Add your own code
+
 	StartMotor();
 	
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::enable
@@ -934,40 +1007,45 @@ void PowerPMAC_Motor::add_dynamic_commands()
 
 void PowerPMAC_Motor::StartMotor()
 {
-	if(disableHardLimits) {
-		try {
-			ppmac::CoreInterface& ci = ppmac::GetCoreObject();
+	try {
+		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
+		if(disableHardLimits) {
 			auto getLimitCmd = ppmac::cmd::MotorGetHardLimitAddr(motorId);
 			hardLimitAddress = ci.ExecuteCommand(getLimitCmd);
-			auto zeroLimitsCmd = ppmac::cmd::MotorSetHardLimits(0, motorId);
+			auto zeroLimitsCmd = ppmac::cmd::MotorSetHardLimits(motorId, 0);
 			ci.ExecuteCommand(zeroLimitsCmd);
-			fmt::print("disabling hard limits (was: {})\n", hardLimitAddress);
-		} catch (ppmac::RuntimeError& e) {
-			tu::TranslateException(e);
+			fmt::print("disabling hard limits (addr: {})\n", hardLimitAddress);
 		}
+		*attr_SoftCwLimit_read = tu::ParseDouble(ci.ExecuteCommand(ppmac::cmd::MotorGetSoftlimitPlus(motorId)));
+		*attr_SoftCcwLimit_read = tu::ParseDouble(ci.ExecuteCommand(ppmac::cmd::MotorGetSoftlimitMinus(motorId)));
+		if(*attr_SoftCwLimit_read != 0 || *attr_SoftCcwLimit_read != 0) {
+			*attr_SoftLimitEnable_read = true;
+		}
+		if(ci.GetMotorInfo(motorId).status.named.DestVelZero) {
+			set_state(Tango::ON);
+		} else {
+			set_state(Tango::MOVING);
+		}
+	} catch (ppmac::RuntimeError& e) {
+		tu::TranslateException(e);
 	}
-
-	set_state(Tango::ON);
 }
 
-void PowerPMAC_Motor::StopMotor()
-{
-	if(disableHardLimits) {
-		// restore the limits if the device goes down
-		try {
+void PowerPMAC_Motor::StopMotor() {
+	try {
+		if(disableHardLimits) {
+			// restore the limits if the device goes down
 			ppmac::CoreInterface& ci = ppmac::GetCoreObject();
-			auto cmd = ppmac::cmd::MotorSetHardLimits(hardLimitAddress, motorId);
-			ci.ExecuteCommand(cmd);
+			auto stoppingMotorCmd = ppmac::cmd::MotorAbort(motorId);
+			ci.ExecuteCommand(stoppingMotorCmd);
+			auto setLimitCmd = ppmac::cmd::MotorSetHardLimits(motorId, hardLimitAddress);
+			ci.ExecuteCommand(setLimitCmd);
 			fmt::print("restoring hard limits to: {}\n", hardLimitAddress);
-			if(movingTimerHandle != INVALID_HANDLE) {
-				ci.RemoveDeadTimer(movingTimerHandle);
-				movingTimerHandle = INVALID_HANDLE;
-			}
-		} catch (ppmac::RuntimeError& e) {
-			tu::TranslateException(e);
+			ClearMoveStatusWaitTimer();
 		}
+	} catch (ppmac::RuntimeError& e) {
+		tu::TranslateException(e);
 	}
-
 	set_state(Tango::OFF);
 }
 
@@ -980,17 +1058,21 @@ void PowerPMAC_Motor::MotorStateChanged(uint64_t newState, uint64_t changes)
 		}
 		else if(ppmac::bits::falling(newState, changes, ppmac::MotorStatusBits::DestVelZero)) {
 			set_state(Tango::MOVING);
-			ppmac::CoreInterface& ci = ppmac::GetCoreObject();
-			if(movingTimerHandle != INVALID_HANDLE) {
-				fmt::print("clearing move timer timeout!\n");
-				ci.RemoveDeadTimer(movingTimerHandle);
-				movingTimerHandle = INVALID_HANDLE;
-			}
+			ClearMoveStatusWaitTimer();
+			fmt::print("clearing move timer timeout!\n");
 			fmt::print("set state to MOVING\n");
 		}
 		lastMotorState = newState;
 	} catch (ppmac::RuntimeError& e) {
 		tu::TranslateException(e);
+	}
+}
+
+void PowerPMAC_Motor::ClearMoveStatusWaitTimer() {
+	ppmac::CoreInterface& ci = ppmac::GetCoreObject();
+	if(movingTimerHandle != ppmac::INVALID_HANDLE) {
+		ci.RemoveDeadTimer(movingTimerHandle);
+		movingTimerHandle = ppmac::INVALID_HANDLE;
 	}
 }
 

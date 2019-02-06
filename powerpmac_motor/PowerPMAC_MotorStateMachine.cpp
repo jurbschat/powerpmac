@@ -177,6 +177,26 @@ bool PowerPMAC_Motor::is_Velocity_allowed(TANGO_UNUSED(Tango::AttReqType type))
 
 //--------------------------------------------------------
 /**
+ *	Method      : PowerPMAC_Motor::is_HomeOffset_allowed()
+ *	Description : Execution allowed for HomeOffset attribute
+ */
+//--------------------------------------------------------
+bool PowerPMAC_Motor::is_HomeOffset_allowed(TANGO_UNUSED(Tango::AttReqType type))
+{
+	//	Not any excluded states for HomeOffset attribute in Write access.
+	/*----- PROTECTED REGION ID(PowerPMAC_Motor::HomeOffsetStateAllowed_WRITE) ENABLED START -----*/
+	
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::HomeOffsetStateAllowed_WRITE
+
+	//	Not any excluded states for HomeOffset attribute in read access.
+	/*----- PROTECTED REGION ID(PowerPMAC_Motor::HomeOffsetStateAllowed_READ) ENABLED START -----*/
+	
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::HomeOffsetStateAllowed_READ
+	return true;
+}
+
+//--------------------------------------------------------
+/**
  *	Method      : PowerPMAC_Motor::is_SoftCwLimit_allowed()
  *	Description : Execution allowed for SoftCwLimit attribute
  */
@@ -255,11 +275,11 @@ bool PowerPMAC_Motor::is_SoftCcwLimit_allowed(TANGO_UNUSED(Tango::AttReqType typ
 
 //--------------------------------------------------------
 /**
- *	Method      : PowerPMAC_Motor::is_EnableSoftLimit_allowed()
- *	Description : Execution allowed for EnableSoftLimit attribute
+ *	Method      : PowerPMAC_Motor::is_SoftLimitEnable_allowed()
+ *	Description : Execution allowed for SoftLimitEnable attribute
  */
 //--------------------------------------------------------
-bool PowerPMAC_Motor::is_EnableSoftLimit_allowed(TANGO_UNUSED(Tango::AttReqType type))
+bool PowerPMAC_Motor::is_SoftLimitEnable_allowed(TANGO_UNUSED(Tango::AttReqType type))
 {
 	//	Check access type.
 	if ( type!=Tango::READ_REQ )
@@ -267,9 +287,9 @@ bool PowerPMAC_Motor::is_EnableSoftLimit_allowed(TANGO_UNUSED(Tango::AttReqType 
 		//	Compare device state with not allowed states for WRITE 
 		if (get_state()==Tango::OFF)
 		{
-		/*----- PROTECTED REGION ID(PowerPMAC_Motor::EnableSoftLimitStateAllowed_WRITE) ENABLED START -----*/
-	
-	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::EnableSoftLimitStateAllowed_WRITE
+		/*----- PROTECTED REGION ID(PowerPMAC_Motor::SoftLimitEnableStateAllowed_WRITE) ENABLED START -----*/
+		
+		/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::SoftLimitEnableStateAllowed_WRITE
 			return false;
 		}
 		return true;
@@ -282,9 +302,9 @@ bool PowerPMAC_Motor::is_EnableSoftLimit_allowed(TANGO_UNUSED(Tango::AttReqType 
 		//	Compare device state with not allowed states for READ 
 		if (get_state()==Tango::OFF)
 		{
-		/*----- PROTECTED REGION ID(PowerPMAC_Motor::EnableSoftLimitStateAllowed_READ) ENABLED START -----*/
-	
-	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::EnableSoftLimitStateAllowed_READ
+		/*----- PROTECTED REGION ID(PowerPMAC_Motor::SoftLimitEnableStateAllowed_READ) ENABLED START -----*/
+		
+		/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::SoftLimitEnableStateAllowed_READ
 			return false;
 		}
 		return true;

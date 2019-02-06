@@ -223,6 +223,7 @@ namespace ppmac::query {
 	}
 
 	inline auto GeneralGetInfo(stdext::span<GlobalInfo> data) {
+		// type; vers; cpu; Sys.CpuFreq; Sys.CpuTemp
 		fmt::memory_buffer buffer = builder::detail::MakePlain("Sys.MaxMotors; Sys.maxCoords; Sys.pAbortAll; Sys.CpuTemp; BrickLV.OverTemp; Sys.Time");
 		return MakeCommandQuery(
 			fmt::to_string(buffer),

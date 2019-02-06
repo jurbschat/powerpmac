@@ -484,10 +484,10 @@ void PowerPMAC_MotorClass::attribute_factory(vector<Tango::Attr *> &att_list)
 	Tango::UserDefaultAttrProp	position_prop;
 	//	description	not set for Position
 	//	label	not set for Position
-	position_prop.set_unit("mu");
+	position_prop.set_unit("untis");
 	//	standard_unit	not set for Position
 	//	display_unit	not set for Position
-	position_prop.set_format("%8.3f");
+	position_prop.set_format("%10.3f");
 	//	max_value	not set for Position
 	//	min_value	not set for Position
 	//	max_alarm	not set for Position
@@ -508,10 +508,10 @@ void PowerPMAC_MotorClass::attribute_factory(vector<Tango::Attr *> &att_list)
 	Tango::UserDefaultAttrProp	acceleration_prop;
 	//	description	not set for Acceleration
 	//	label	not set for Acceleration
-	acceleration_prop.set_unit("mu/ms^2");
+	acceleration_prop.set_unit("untis/ms^2");
 	//	standard_unit	not set for Acceleration
 	//	display_unit	not set for Acceleration
-	acceleration_prop.set_format("%8.3f");
+	acceleration_prop.set_format("%10.3f");
 	//	max_value	not set for Acceleration
 	//	min_value	not set for Acceleration
 	//	max_alarm	not set for Acceleration
@@ -532,10 +532,10 @@ void PowerPMAC_MotorClass::attribute_factory(vector<Tango::Attr *> &att_list)
 	Tango::UserDefaultAttrProp	velocity_prop;
 	//	description	not set for Velocity
 	//	label	not set for Velocity
-	velocity_prop.set_unit("mu/ms");
+	velocity_prop.set_unit("untis/s");
 	//	standard_unit	not set for Velocity
 	//	display_unit	not set for Velocity
-	velocity_prop.set_format("%8.3f");
+	velocity_prop.set_format("%10.3f");
 	//	max_value	not set for Velocity
 	//	min_value	not set for Velocity
 	//	max_alarm	not set for Velocity
@@ -551,15 +551,39 @@ void PowerPMAC_MotorClass::attribute_factory(vector<Tango::Attr *> &att_list)
 	//	Not Memorized
 	att_list.push_back(velocity);
 
+	//	Attribute : HomeOffset
+	HomeOffsetAttrib	*homeoffset = new HomeOffsetAttrib();
+	Tango::UserDefaultAttrProp	homeoffset_prop;
+	//	description	not set for HomeOffset
+	//	label	not set for HomeOffset
+	//	unit	not set for HomeOffset
+	homeoffset_prop.set_standard_unit("units");
+	//	display_unit	not set for HomeOffset
+	homeoffset_prop.set_format("%10.3f");
+	//	max_value	not set for HomeOffset
+	//	min_value	not set for HomeOffset
+	//	max_alarm	not set for HomeOffset
+	//	min_alarm	not set for HomeOffset
+	//	max_warning	not set for HomeOffset
+	//	min_warning	not set for HomeOffset
+	//	delta_t	not set for HomeOffset
+	//	delta_val	not set for HomeOffset
+	
+	homeoffset->set_default_properties(homeoffset_prop);
+	//	Not Polled
+	homeoffset->set_disp_level(Tango::OPERATOR);
+	//	Not Memorized
+	att_list.push_back(homeoffset);
+
 	//	Attribute : SoftCwLimit
 	SoftCwLimitAttrib	*softcwlimit = new SoftCwLimitAttrib();
 	Tango::UserDefaultAttrProp	softcwlimit_prop;
 	//	description	not set for SoftCwLimit
 	//	label	not set for SoftCwLimit
-	softcwlimit_prop.set_unit("mu");
+	softcwlimit_prop.set_unit("untis");
 	//	standard_unit	not set for SoftCwLimit
 	//	display_unit	not set for SoftCwLimit
-	softcwlimit_prop.set_format("%8.3f");
+	softcwlimit_prop.set_format("%10.3f");
 	//	max_value	not set for SoftCwLimit
 	//	min_value	not set for SoftCwLimit
 	//	max_alarm	not set for SoftCwLimit
@@ -580,10 +604,10 @@ void PowerPMAC_MotorClass::attribute_factory(vector<Tango::Attr *> &att_list)
 	Tango::UserDefaultAttrProp	softccwlimit_prop;
 	//	description	not set for SoftCcwLimit
 	//	label	not set for SoftCcwLimit
-	softccwlimit_prop.set_unit("mu");
+	softccwlimit_prop.set_unit("untis");
 	//	standard_unit	not set for SoftCcwLimit
 	//	display_unit	not set for SoftCcwLimit
-	softccwlimit_prop.set_format("%8.3f");
+	softccwlimit_prop.set_format("%10.3f");
 	//	max_value	not set for SoftCcwLimit
 	//	min_value	not set for SoftCcwLimit
 	//	max_alarm	not set for SoftCcwLimit
@@ -599,29 +623,29 @@ void PowerPMAC_MotorClass::attribute_factory(vector<Tango::Attr *> &att_list)
 	//	Not Memorized
 	att_list.push_back(softccwlimit);
 
-	//	Attribute : EnableSoftLimit
-	EnableSoftLimitAttrib	*enablesoftlimit = new EnableSoftLimitAttrib();
-	Tango::UserDefaultAttrProp	enablesoftlimit_prop;
-	//	description	not set for EnableSoftLimit
-	//	label	not set for EnableSoftLimit
-	//	unit	not set for EnableSoftLimit
-	//	standard_unit	not set for EnableSoftLimit
-	//	display_unit	not set for EnableSoftLimit
-	//	format	not set for EnableSoftLimit
-	//	max_value	not set for EnableSoftLimit
-	//	min_value	not set for EnableSoftLimit
-	//	max_alarm	not set for EnableSoftLimit
-	//	min_alarm	not set for EnableSoftLimit
-	//	max_warning	not set for EnableSoftLimit
-	//	min_warning	not set for EnableSoftLimit
-	//	delta_t	not set for EnableSoftLimit
-	//	delta_val	not set for EnableSoftLimit
+	//	Attribute : SoftLimitEnable
+	SoftLimitEnableAttrib	*softlimitenable = new SoftLimitEnableAttrib();
+	Tango::UserDefaultAttrProp	softlimitenable_prop;
+	//	description	not set for SoftLimitEnable
+	//	label	not set for SoftLimitEnable
+	//	unit	not set for SoftLimitEnable
+	//	standard_unit	not set for SoftLimitEnable
+	//	display_unit	not set for SoftLimitEnable
+	//	format	not set for SoftLimitEnable
+	//	max_value	not set for SoftLimitEnable
+	//	min_value	not set for SoftLimitEnable
+	//	max_alarm	not set for SoftLimitEnable
+	//	min_alarm	not set for SoftLimitEnable
+	//	max_warning	not set for SoftLimitEnable
+	//	min_warning	not set for SoftLimitEnable
+	//	delta_t	not set for SoftLimitEnable
+	//	delta_val	not set for SoftLimitEnable
 	
-	enablesoftlimit->set_default_properties(enablesoftlimit_prop);
+	softlimitenable->set_default_properties(softlimitenable_prop);
 	//	Not Polled
-	enablesoftlimit->set_disp_level(Tango::OPERATOR);
+	softlimitenable->set_disp_level(Tango::OPERATOR);
 	//	Not Memorized
-	att_list.push_back(enablesoftlimit);
+	att_list.push_back(softlimitenable);
 
 	//	Attribute : SoftCwLimitFault
 	SoftCwLimitFaultAttrib	*softcwlimitfault = new SoftCwLimitFaultAttrib();

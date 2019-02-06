@@ -3,7 +3,7 @@
 //
 
 #include "libs/slot_map.h"
-#include "handletype.h"
+#include "config.h"
 
 #ifndef POWERPMAC_GENERICDELETER_H
 #define POWERPMAC_GENERICDELETER_H

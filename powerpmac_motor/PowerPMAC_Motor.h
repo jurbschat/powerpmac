@@ -33,7 +33,7 @@
 #ifndef PowerPMAC_Motor_H
 #define PowerPMAC_Motor_H
 
-#include "handletype.h"
+#include "config.h"
 #include "pmac/defines.h"
 #include "libs/sigs.h"
 #include <tango.h>
@@ -68,7 +68,6 @@ private:
 	uint64_t lastMotorState;
 	std::string hardLimitAddress;
 	ppmac::HandleType movingTimerHandle;
-	constexpr static ppmac::HandleType INVALID_HANDLE = ppmac::HandleType{0xFFFFFFFF, 0xFFFFFFFF};
 
 /*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::Data Members
 
@@ -84,9 +83,10 @@ public:
 	Tango::DevDouble	*attr_Position_read;
 	Tango::DevDouble	*attr_Acceleration_read;
 	Tango::DevDouble	*attr_Velocity_read;
+	Tango::DevDouble	*attr_HomeOffset_read;
 	Tango::DevDouble	*attr_SoftCwLimit_read;
 	Tango::DevDouble	*attr_SoftCcwLimit_read;
-	Tango::DevBoolean	*attr_EnableSoftLimit_read;
+	Tango::DevBoolean	*attr_SoftLimitEnable_read;
 	Tango::DevBoolean	*attr_SoftCwLimitFault_read;
 	Tango::DevBoolean	*attr_SoftCcwLimitFault_read;
 	Tango::DevBoolean	*attr_CwLimitFault_read;
@@ -190,6 +190,16 @@ public:
 	virtual void write_Velocity(Tango::WAttribute &attr);
 	virtual bool is_Velocity_allowed(Tango::AttReqType type);
 /**
+ *	Attribute HomeOffset related methods
+ *	Description: 
+ *
+ *	Data type:	Tango::DevDouble
+ *	Attr type:	Scalar
+ */
+	virtual void read_HomeOffset(Tango::Attribute &attr);
+	virtual void write_HomeOffset(Tango::WAttribute &attr);
+	virtual bool is_HomeOffset_allowed(Tango::AttReqType type);
+/**
  *	Attribute SoftCwLimit related methods
  *	Description: 
  *
@@ -210,15 +220,15 @@ public:
 	virtual void write_SoftCcwLimit(Tango::WAttribute &attr);
 	virtual bool is_SoftCcwLimit_allowed(Tango::AttReqType type);
 /**
- *	Attribute EnableSoftLimit related methods
+ *	Attribute SoftLimitEnable related methods
  *	Description: 
  *
  *	Data type:	Tango::DevBoolean
  *	Attr type:	Scalar
  */
-	virtual void read_EnableSoftLimit(Tango::Attribute &attr);
-	virtual void write_EnableSoftLimit(Tango::WAttribute &attr);
-	virtual bool is_EnableSoftLimit_allowed(Tango::AttReqType type);
+	virtual void read_SoftLimitEnable(Tango::Attribute &attr);
+	virtual void write_SoftLimitEnable(Tango::WAttribute &attr);
+	virtual bool is_SoftLimitEnable_allowed(Tango::AttReqType type);
 /**
  *	Attribute SoftCwLimitFault related methods
  *	Description: 
@@ -336,6 +346,7 @@ public:
 	void StopMotor();
 	void MotorStateChanged(uint64_t newValue, uint64_t changes);
 	void SetOn();
+	void ClearMoveStatusWaitTimer();
 
 /*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::Additional Method prototypes
 };

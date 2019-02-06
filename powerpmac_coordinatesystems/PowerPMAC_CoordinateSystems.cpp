@@ -37,7 +37,7 @@
 #include <PowerPMAC_CoordinateSystems.h>
 #include <PowerPMAC_CoordinateSystemsClass.h>
 #include "coreinterface.h"
-#include "handletype.h"
+#include "config.h"
 #include "genericdeleter.h"
 #include <memory>
 
