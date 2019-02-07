@@ -1,10 +1,14 @@
 <?xml version="1.0" encoding="ASCII"?>
 <pogoDsl:PogoSystem xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:pogoDsl="http://www.esrf.fr/tango/pogo/PogoDsl">
   <classes name="PowerPMAC_IO" pogoRevision="9.4">
-    <description description="" title="" sourcePath="/home/urbschaj/dev/tango-servers/ppmac/powerpmac_io" language="Cpp" filestogenerate="XMI   file,Code files,Makefile,Protected Regions" license="GPL" copyright="" hasMandatoryProperty="false" hasConcreteProperty="false" hasAbstractCommand="false" hasAbstractAttribute="false">
+    <description description="" title="" sourcePath="/home/urbschaj/dev/tango-servers/ppmac/powerpmac_io" language="Cpp" filestogenerate="XMI   file,Code files,Protected Regions" license="GPL" copyright="" hasMandatoryProperty="false" hasConcreteProperty="true" hasAbstractCommand="false" hasAbstractAttribute="false">
       <inheritances classname="Device_Impl" sourcePath=""/>
       <identification contact="at desy.de - jakob.urbschat" author="jakob.urbschat" emailDomain="desy.de" classFamily="Motion" siteSpecific="" platform="All Platforms" bus="TCP/UDP" manufacturer="DeltaTau" reference=""/>
     </description>
+    <deviceProperties name="Port" description="the port must be a named memory address that is mapped to the ppmac registers. &#xA;the format follows the pattern {purpose}{nr}{physical port}&#xA;&#xA;valid names are:&#xA;&#xA;[ADC]&#xA;ADC1X9&#xA;ADC2X9&#xA;ADC1X10&#xA;ADC2X10&#xA;ADC1X11&#xA;ADC2X11&#xA;ADC1X12&#xA;ADC2X12&#xA;&#xA;[DAC]&#xA;DAC1X9&#xA;DAC2X9&#xA;DAC1X10&#xA;DAC2X10&#xA;DAC1X11&#xA;DAC2X11&#xA;DAC1X12&#xA;DAC2X12&#xA;&#xA;[GPIN 5V TTL]&#xA;GPIN1X9 &#xA;GPIN2X9 &#xA;GPIN1X10&#xA;GPIN2X10&#xA;GPIN1X11&#xA;GPIN2X11&#xA;GPIN1X12&#xA;GPIN2X12&#xA;&#xA;[GPIN]&#xA;GPIN1X15 &#xA;GPIN2X15 &#xA;GPIN3X15 &#xA;GPIN4X15 &#xA;GPIN5X15 &#xA;GPIN6X15 &#xA;GPIN7X15 &#xA;GPIN8X15 &#xA;GPIN9X15 &#xA;GPIN10X15&#xA;GPIN11X15&#xA;GPIN12X15&#xA;GPIN13X15&#xA;GPIN14X15&#xA;GPIN15X15&#xA;GPIN16X15&#xA;GPIN1X16 &#xA;GPIN2X16 &#xA;GPIN3X16 &#xA;GPIN4X16 &#xA;GPIN5X16 &#xA;GPIN6X16 &#xA;GPIN7X16 &#xA;GPIN8X16 &#xA;GPIN9X16 &#xA;GPIN10X16&#xA;GPIN11X16&#xA;GPIN12X16&#xA;GPIN13X16&#xA;GPIN14X16&#xA;GPIN15X16&#xA;GPIN16X16&#xA;&#xA;[GPOUT]&#xA;GPOUT1X15&#xA;GPOUT2X15&#xA;GPOUT3X15&#xA;GPOUT4X15&#xA;GPOUT5X15&#xA;GPOUT6X15&#xA;GPOUT7X15&#xA;GPOUT8X15&#xA;GPOUT1X16&#xA;GPOUT2X16&#xA;GPOUT3X16&#xA;GPOUT4X16&#xA;GPOUT5X16&#xA;GPOUT6X16&#xA;GPOUT7X16&#xA;GPOUT8X16">
+      <type xsi:type="pogoDsl:StringType"/>
+      <status abstract="false" inherited="false" concrete="true" concreteHere="true"/>
+    </deviceProperties>
     <commands name="State" description="This command gets the device state (stored in its device_state data member) and returns it to the caller." execMethod="dev_state" displayLevel="OPERATOR" polledPeriod="0">
       <argin description="none">
         <type xsi:type="pogoDsl:VoidType"/>
@@ -23,6 +27,40 @@
       </argout>
       <status abstract="true" inherited="true" concrete="true"/>
     </commands>
+    <attributes name="RawValue" attType="Scalar" rwType="READ_WRITE" displayLevel="EXPERT" polledPeriod="0" maxX="" maxY="" allocReadMember="true" isDynamic="false">
+      <dataType xsi:type="pogoDsl:IntType"/>
+      <changeEvent fire="false" libCheckCriteria="false"/>
+      <archiveEvent fire="false" libCheckCriteria="false"/>
+      <dataReadyEvent fire="false" libCheckCriteria="true"/>
+      <status abstract="false" inherited="false" concrete="true" concreteHere="true"/>
+      <properties description="raw values are in the range of -32768 to +32768" label="" unit="" standardUnit="" displayUnit="" format="" maxValue="" minValue="" maxAlarm="" minAlarm="" maxWarning="" minWarning="" deltaTime="" deltaValue=""/>
+      <readExcludedStates>OFF</readExcludedStates>
+      <writeExcludedStates>OFF</writeExcludedStates>
+    </attributes>
+    <attributes name="Value" attType="Scalar" rwType="READ_WRITE" displayLevel="OPERATOR" polledPeriod="0" maxX="" maxY="" allocReadMember="true" isDynamic="false">
+      <dataType xsi:type="pogoDsl:DoubleType"/>
+      <changeEvent fire="false" libCheckCriteria="false"/>
+      <archiveEvent fire="false" libCheckCriteria="false"/>
+      <dataReadyEvent fire="false" libCheckCriteria="true"/>
+      <status abstract="false" inherited="false" concrete="true" concreteHere="true"/>
+      <properties description="the `working` value is the raw value scaled to -1 to 1. if you e.g. have a +-5V or +-10V input" label="" unit="" standardUnit="" displayUnit="" format="" maxValue="" minValue="" maxAlarm="" minAlarm="" maxWarning="" minWarning="" deltaTime="" deltaValue=""/>
+      <readExcludedStates>OFF</readExcludedStates>
+      <writeExcludedStates>OFF</writeExcludedStates>
+    </attributes>
+    <attributes name="ScaleFactor" attType="Scalar" rwType="READ_WRITE" displayLevel="OPERATOR" polledPeriod="0" maxX="" maxY="" allocReadMember="true" isDynamic="false">
+      <dataType xsi:type="pogoDsl:DoubleType"/>
+      <changeEvent fire="false" libCheckCriteria="false"/>
+      <archiveEvent fire="false" libCheckCriteria="false"/>
+      <dataReadyEvent fire="false" libCheckCriteria="true"/>
+      <status abstract="false" inherited="false" concrete="true" concreteHere="true"/>
+      <properties description="" label="" unit="" standardUnit="" displayUnit="" format="" maxValue="" minValue="" maxAlarm="" minAlarm="" maxWarning="" minWarning="" deltaTime="" deltaValue=""/>
+    </attributes>
+    <states name="ON" description="">
+      <status abstract="false" inherited="false" concrete="true" concreteHere="true"/>
+    </states>
+    <states name="OFF" description="">
+      <status abstract="false" inherited="false" concrete="true" concreteHere="true"/>
+    </states>
     <preferences docHome="./doc_html" makefileHome="/usr/share/pogo/preferences"/>
   </classes>
 </pogoDsl:PogoSystem>

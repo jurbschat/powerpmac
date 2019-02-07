@@ -36,6 +36,8 @@
 //================================================================
 //  States  |  Description
 //================================================================
+//  ON      |  
+//  OFF     |  
 
 
 namespace PowerPMAC_IO_ns
@@ -43,6 +45,104 @@ namespace PowerPMAC_IO_ns
 //=================================================
 //		Attributes Allowed Methods
 //=================================================
+
+//--------------------------------------------------------
+/**
+ *	Method      : PowerPMAC_IO::is_RawValue_allowed()
+ *	Description : Execution allowed for RawValue attribute
+ */
+//--------------------------------------------------------
+bool PowerPMAC_IO::is_RawValue_allowed(TANGO_UNUSED(Tango::AttReqType type))
+{
+	//	Check access type.
+	if ( type!=Tango::READ_REQ )
+	{
+		//	Compare device state with not allowed states for WRITE 
+		if (get_state()==Tango::OFF)
+		{
+		/*----- PROTECTED REGION ID(PowerPMAC_IO::RawValueStateAllowed_WRITE) ENABLED START -----*/
+	
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_IO::RawValueStateAllowed_WRITE
+			return false;
+		}
+		return true;
+	}
+	else
+
+	//	Check access type.
+	if ( type==Tango::READ_REQ )
+	{
+		//	Compare device state with not allowed states for READ 
+		if (get_state()==Tango::OFF)
+		{
+		/*----- PROTECTED REGION ID(PowerPMAC_IO::RawValueStateAllowed_READ) ENABLED START -----*/
+	
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_IO::RawValueStateAllowed_READ
+			return false;
+		}
+		return true;
+	}
+	return true;
+}
+
+//--------------------------------------------------------
+/**
+ *	Method      : PowerPMAC_IO::is_Value_allowed()
+ *	Description : Execution allowed for Value attribute
+ */
+//--------------------------------------------------------
+bool PowerPMAC_IO::is_Value_allowed(TANGO_UNUSED(Tango::AttReqType type))
+{
+	//	Check access type.
+	if ( type!=Tango::READ_REQ )
+	{
+		//	Compare device state with not allowed states for WRITE 
+		if (get_state()==Tango::OFF)
+		{
+		/*----- PROTECTED REGION ID(PowerPMAC_IO::ValueStateAllowed_WRITE) ENABLED START -----*/
+	
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_IO::ValueStateAllowed_WRITE
+			return false;
+		}
+		return true;
+	}
+	else
+
+	//	Check access type.
+	if ( type==Tango::READ_REQ )
+	{
+		//	Compare device state with not allowed states for READ 
+		if (get_state()==Tango::OFF)
+		{
+		/*----- PROTECTED REGION ID(PowerPMAC_IO::ValueStateAllowed_READ) ENABLED START -----*/
+	
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_IO::ValueStateAllowed_READ
+			return false;
+		}
+		return true;
+	}
+	return true;
+}
+
+//--------------------------------------------------------
+/**
+ *	Method      : PowerPMAC_IO::is_ScaleFactor_allowed()
+ *	Description : Execution allowed for ScaleFactor attribute
+ */
+//--------------------------------------------------------
+bool PowerPMAC_IO::is_ScaleFactor_allowed(TANGO_UNUSED(Tango::AttReqType type))
+{
+	//	Not any excluded states for ScaleFactor attribute in Write access.
+	/*----- PROTECTED REGION ID(PowerPMAC_IO::ScaleFactorStateAllowed_WRITE) ENABLED START -----*/
+	
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_IO::ScaleFactorStateAllowed_WRITE
+
+	//	Not any excluded states for ScaleFactor attribute in read access.
+	/*----- PROTECTED REGION ID(PowerPMAC_IO::ScaleFactorStateAllowed_READ) ENABLED START -----*/
+	
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_IO::ScaleFactorStateAllowed_READ
+	return true;
+}
 
 
 //=================================================

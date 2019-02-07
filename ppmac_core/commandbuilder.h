@@ -7,8 +7,12 @@
 
 #include <fmt/format.h>
 
+// Motor[{}].PosUnit for the type of motor unit
+
 namespace ppmac::cmd {
-	// Motor[{}].PosUnit for the type of motor unit
+
+	///////////////////////////////////////////////////////////////
+	// motor commands
 
 	inline std::string MotorJogToPosition(MotorID motor, double pos)
 	{
@@ -114,6 +118,38 @@ namespace ppmac::cmd {
 	{
 		return fmt::format("Motor[{}].MaxSpeed={}", static_cast<int>(motor), value);
 	}
+
+	///////////////////////////////////////////////////////////////
+	// port commands
+
+	// addresses are predefined on the power pmac in the tango.pch file. this allows easy
+	// access to the register values as the actual value resides in the upper 16 bit
+	inline std::string WritePortAddress(const std::string& address, int32_t value)
+	{
+		return fmt::format("{}={}", address, value);
+	}
+
+	inline std::string ReadPortAddress(const std::string& address)
+	{
+		return fmt::format("{}", address);
+	}
+
+	// access by name is more complicated and should only be used if no address name exists.
+	// to set the actual gate value we neet to write the upper 16 bits, this means the number must be
+	// shifted. same is true for port reading by name but we need to shift down.
+	inline std::string WritePortByName(const std::string& name, int32_t value)
+	{
+		return fmt::format("{}={}", name, value);
+	}
+
+	inline std::string ReadPortByName(const std::string& name)
+	{
+		return fmt::format("{}", name);
+	}
+
+
+	///////////////////////////////////////////////////////////////
+	// global commands
 
 	inline std::string GlobalResetBrickLVAmp()
 	{

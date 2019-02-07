@@ -219,6 +219,19 @@ void PowerPMAC_IOClass::set_default_property()
 	//	Set Default Class Properties
 
 	//	Set Default device Properties
+	prop_name = "Port";
+	prop_desc = "the port must be a named memory address that is mapped to the ppmac registers. \nthe format follows the pattern {purpose}{nr}{physical port}\n\nvalid names are:\n\n[ADC]\nADC1X9\nADC2X9\nADC1X10\nADC2X10\nADC1X11\nADC2X11\nADC1X12\nADC2X12\n\n[DAC]\nDAC1X9\nDAC2X9\nDAC1X10\nDAC2X10\nDAC1X11\nDAC2X11\nDAC1X12\nDAC2X12\n\n[GPIN 5V TTL]\nGPIN1X9 \nGPIN2X9 \nGPIN1X10\nGPIN2X10\nGPIN1X11\nGPIN2X11\nGPIN1X12\nGPIN2X12\n\n[GPIN]\nGPIN1X15 \nGPIN2X15 \nGPIN3X15 \nGPIN4X15 \nGPIN5X15 \nGPIN6X15 \nGPIN7X15 \nGPIN8X15 \nGPIN9X15 \nGPIN10X15\nGPIN11X15\nGPIN12X15\nGPIN13X15\nGPIN14X15\nGPIN15X15\nGPIN16X15\nGPIN1X16 \nGPIN2X16 \nGPIN3X16 \nGPIN4X16 \nGPIN5X16 \nGPIN6X16 \nGPIN7X16 \nGPIN8X16 \nGPIN9X16 \nGPIN10X16\nGPIN11X16\nGPIN12X16\nGPIN13X16\nGPIN14X16\nGPIN15X16\nGPIN16X16\n\n[GPOUT]\nGPOUT1X15\nGPOUT2X15\nGPOUT3X15\nGPOUT4X15\nGPOUT5X15\nGPOUT6X15\nGPOUT7X15\nGPOUT8X15\nGPOUT1X16\nGPOUT2X16\nGPOUT3X16\nGPOUT4X16\nGPOUT5X16\nGPOUT6X16\nGPOUT7X16\nGPOUT8X16";
+	prop_def  = "";
+	vect_data.clear();
+	if (prop_def.length()>0)
+	{
+		Tango::DbDatum	data(prop_name);
+		data << vect_data ;
+		dev_def_prop.push_back(data);
+		add_wiz_dev_prop(prop_name, prop_desc,  prop_def);
+	}
+	else
+		add_wiz_dev_prop(prop_name, prop_desc);
 }
 
 //--------------------------------------------------------
@@ -325,6 +338,78 @@ void PowerPMAC_IOClass::attribute_factory(vector<Tango::Attr *> &att_list)
 	//	Add your own code
 	
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_IOClass::attribute_factory_before
+	//	Attribute : RawValue
+	RawValueAttrib	*rawvalue = new RawValueAttrib();
+	Tango::UserDefaultAttrProp	rawvalue_prop;
+	rawvalue_prop.set_description("raw values are in the range of -32768 to +32768");
+	//	label	not set for RawValue
+	//	unit	not set for RawValue
+	//	standard_unit	not set for RawValue
+	//	display_unit	not set for RawValue
+	//	format	not set for RawValue
+	//	max_value	not set for RawValue
+	//	min_value	not set for RawValue
+	//	max_alarm	not set for RawValue
+	//	min_alarm	not set for RawValue
+	//	max_warning	not set for RawValue
+	//	min_warning	not set for RawValue
+	//	delta_t	not set for RawValue
+	//	delta_val	not set for RawValue
+	
+	rawvalue->set_default_properties(rawvalue_prop);
+	//	Not Polled
+	rawvalue->set_disp_level(Tango::EXPERT);
+	//	Not Memorized
+	att_list.push_back(rawvalue);
+
+	//	Attribute : Value
+	ValueAttrib	*value = new ValueAttrib();
+	Tango::UserDefaultAttrProp	value_prop;
+	value_prop.set_description("the `working` value is the raw value scaled to -1 to 1. if you e.g. have a +-5V or +-10V input");
+	//	label	not set for Value
+	//	unit	not set for Value
+	//	standard_unit	not set for Value
+	//	display_unit	not set for Value
+	//	format	not set for Value
+	//	max_value	not set for Value
+	//	min_value	not set for Value
+	//	max_alarm	not set for Value
+	//	min_alarm	not set for Value
+	//	max_warning	not set for Value
+	//	min_warning	not set for Value
+	//	delta_t	not set for Value
+	//	delta_val	not set for Value
+	
+	value->set_default_properties(value_prop);
+	//	Not Polled
+	value->set_disp_level(Tango::OPERATOR);
+	//	Not Memorized
+	att_list.push_back(value);
+
+	//	Attribute : ScaleFactor
+	ScaleFactorAttrib	*scalefactor = new ScaleFactorAttrib();
+	Tango::UserDefaultAttrProp	scalefactor_prop;
+	//	description	not set for ScaleFactor
+	//	label	not set for ScaleFactor
+	//	unit	not set for ScaleFactor
+	//	standard_unit	not set for ScaleFactor
+	//	display_unit	not set for ScaleFactor
+	//	format	not set for ScaleFactor
+	//	max_value	not set for ScaleFactor
+	//	min_value	not set for ScaleFactor
+	//	max_alarm	not set for ScaleFactor
+	//	min_alarm	not set for ScaleFactor
+	//	max_warning	not set for ScaleFactor
+	//	min_warning	not set for ScaleFactor
+	//	delta_t	not set for ScaleFactor
+	//	delta_val	not set for ScaleFactor
+	
+	scalefactor->set_default_properties(scalefactor_prop);
+	//	Not Polled
+	scalefactor->set_disp_level(Tango::OPERATOR);
+	//	Not Memorized
+	att_list.push_back(scalefactor);
+
 
 	//	Create a list of static attributes
 	create_static_attribute_list(get_class_attr()->get_attr_list());

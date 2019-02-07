@@ -24,6 +24,22 @@ namespace tu {
 		return ppmac::parser::DoubleParser::convert(str);
 	}
 
+	int32_t ParseInt32(const std::string &str) {
+		return ppmac::parser::IntParser::convert(str);
+	}
+
+	uint32_t ParseUInt32(const std::string &str) {
+		return ppmac::parser::UIntParser::convert(str);
+	}
+
+	int64_t ParseInt64(const std::string &str) {
+		return ppmac::parser::Int64Parser::convert(str);
+	}
+
+	uint64_t ParseUInt64(const std::string &str) {
+		return ppmac::parser::UInt64Parser::convert(str);
+	}
+
 	uint32_t ParsePmacHex32(const std::string &str) {
 		return ppmac::parser::Hex32Parser::convert(str);
 	}

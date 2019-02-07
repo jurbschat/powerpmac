@@ -51,6 +51,55 @@ namespace PowerPMAC_IO_ns
 
 /*----- PROTECTED REGION END -----*/	//	PowerPMAC_IOClass::classes for dynamic creation
 
+//=========================================
+//	Define classes for attributes
+//=========================================
+//	Attribute RawValue class definition
+class RawValueAttrib: public Tango::Attr
+{
+public:
+	RawValueAttrib():Attr("RawValue",
+			Tango::DEV_LONG, Tango::READ_WRITE) {};
+	~RawValueAttrib() {};
+	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
+		{(static_cast<PowerPMAC_IO *>(dev))->read_RawValue(att);}
+	virtual void write(Tango::DeviceImpl *dev,Tango::WAttribute &att)
+		{(static_cast<PowerPMAC_IO *>(dev))->write_RawValue(att);}
+	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
+		{return (static_cast<PowerPMAC_IO *>(dev))->is_RawValue_allowed(ty);}
+};
+
+//	Attribute Value class definition
+class ValueAttrib: public Tango::Attr
+{
+public:
+	ValueAttrib():Attr("Value",
+			Tango::DEV_DOUBLE, Tango::READ_WRITE) {};
+	~ValueAttrib() {};
+	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
+		{(static_cast<PowerPMAC_IO *>(dev))->read_Value(att);}
+	virtual void write(Tango::DeviceImpl *dev,Tango::WAttribute &att)
+		{(static_cast<PowerPMAC_IO *>(dev))->write_Value(att);}
+	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
+		{return (static_cast<PowerPMAC_IO *>(dev))->is_Value_allowed(ty);}
+};
+
+//	Attribute ScaleFactor class definition
+class ScaleFactorAttrib: public Tango::Attr
+{
+public:
+	ScaleFactorAttrib():Attr("ScaleFactor",
+			Tango::DEV_DOUBLE, Tango::READ_WRITE) {};
+	~ScaleFactorAttrib() {};
+	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
+		{(static_cast<PowerPMAC_IO *>(dev))->read_ScaleFactor(att);}
+	virtual void write(Tango::DeviceImpl *dev,Tango::WAttribute &att)
+		{(static_cast<PowerPMAC_IO *>(dev))->write_ScaleFactor(att);}
+	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
+		{return (static_cast<PowerPMAC_IO *>(dev))->is_ScaleFactor_allowed(ty);}
+};
+
+
 /**
  *	The PowerPMAC_IOClass singleton definition
  */

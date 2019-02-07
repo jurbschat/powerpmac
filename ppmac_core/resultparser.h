@@ -67,7 +67,7 @@ namespace ppmac::parser {
 				}
 				return result;
 			} catch(std::exception& e) {
-				RETHROW_RUNTIME_ERROR("unable to parse int from '{}'", s);
+				RETHROW_RUNTIME_ERROR("unable to parse int32 from '{}'", s);
 			}
 		}
 	};
@@ -83,7 +83,33 @@ namespace ppmac::parser {
 				}
 				return result;
 			} catch(std::exception& e) {
-				RETHROW_RUNTIME_ERROR("unable to parse int from '{}'", s);
+				RETHROW_RUNTIME_ERROR("unable to parse uint32 from '{}'", s);
+			}
+		}
+	};
+
+	template<>
+	struct parser_traits<int64_t> {
+		using result_type = int64_t;
+		static result_type convert(const std::string& s) {
+			try {
+				int64_t result = std::stoll(s);
+				return result;
+			} catch(std::exception& e) {
+				RETHROW_RUNTIME_ERROR("unable to parse int64 from '{}'", s);
+			}
+		}
+	};
+
+	template<>
+	struct parser_traits<uint64_t> {
+		using result_type = uint64_t;
+		static result_type convert(const std::string& s) {
+			try {
+				long result = std::stoull(s);
+				return result;
+			} catch(std::exception& e) {
+				RETHROW_RUNTIME_ERROR("unable to parse uint64 from '{}'", s);
 			}
 		}
 	};
@@ -122,6 +148,8 @@ namespace ppmac::parser {
 	using DoubleParser = parser_traits<double>;
 	using IntParser = parser_traits<int32_t>;
 	using UIntParser = parser_traits<uint32_t>;
+	using Int64Parser = parser_traits<int64_t>;
+	using UInt64Parser = parser_traits<uint64_t>;
 	using Hex32Parser = parser_traits<uint32_t, parser_gate_tag>;
 	using Hex64Parser = parser_traits<uint64_t, parser_gate_tag>;
 

@@ -37,6 +37,9 @@
 #include <PowerPMAC_IO.h>
 #include <PowerPMAC_IOClass.h>
 #include "coreinterface.h"
+#include "tangoutil.h"
+#include "commandbuilder.h"
+
 
 /*----- PROTECTED REGION END -----*/	//	PowerPMAC_IO.cpp
 
@@ -56,8 +59,11 @@
 //================================================================
 
 //================================================================
-//  Attributes managed is:
+//  Attributes managed are:
 //================================================================
+//  RawValue     |  Tango::DevLong	Scalar
+//  Value        |  Tango::DevDouble	Scalar
+//  ScaleFactor  |  Tango::DevDouble	Scalar
 //================================================================
 
 namespace PowerPMAC_IO_ns
@@ -116,6 +122,9 @@ void PowerPMAC_IO::delete_device()
 	//	Delete device allocated objects
 	
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_IO::delete_device
+	delete[] attr_RawValue_read;
+	delete[] attr_Value_read;
+	delete[] attr_ScaleFactor_read;
 }
 
 //--------------------------------------------------------
@@ -133,38 +142,113 @@ void PowerPMAC_IO::init_device()
 	
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_IO::init_device_before
 	
-	//	No device property to be read from database
+
+	//	Get the device properties from database
+	get_device_property();
 	
+	attr_RawValue_read = new Tango::DevLong[1];
+	attr_Value_read = new Tango::DevDouble[1];
+	attr_ScaleFactor_read = new Tango::DevDouble[1];
 	/*----- PROTECTED REGION ID(PowerPMAC_IO::init_device) ENABLED START -----*/
+
+	*attr_RawValue_read = 0;
+	*attr_Value_read = 0;
+	*attr_ScaleFactor_read = 1;
+	isWritable = false;
+	analogScaleFactor = 0;
+
+	static const std::map<std::string, std::tuple<bool, int32_t, int32_t>> portOptions = {
+		{"ADC", {false, -32768, 32768}},
+		{"GPIN", {false, 0, 1}},
+		{"DAC", {true, -13380, 13380}},
+		{"GPOUT", {true, 0, 1}}
+	};
+
+	bool optionFound = false;
+	for(auto& option : portOptions) {
+		auto it = port.find(option.first);
+		if(it == 0) {
+			isWritable = std::get<0>(option.second);
+			analogScaleFactor = 1.f / std::abs(std::get<1>(option.second));
+			optionFound = true;
+			break;
+		}
+	}
+	if(!optionFound) {
+		auto error = fmt::format("{} is not a valid port identifier as it does not start with 'ADC', 'GPIN', 'DAC' or 'GPOUT'. see port property description", port);
+		Tango::Except::throw_exception("invalid port", error.c_str(), "PowerPMAC_IO::init_device");
+	}
 
 	ppmac::CoreInterface& ci = ppmac::GetCoreObject();
 
 	connectionEstablished = ci.GetSignalConnectionEstablished().connect([this](){
-		StartIO();
+		set_state(Tango::ON);
 	});
 
 	connectionLost = ci.GetSignalConnectionLost().connect([this](){
-		StopIO();
+		set_state(Tango::OFF);
 	});
 
 	if(ci.IsConnected()) {
-		StartIO();
+		set_state(Tango::ON);
 	} else {
 		set_state(Tango::OFF);
 	}
-
 	
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_IO::init_device
 }
 
-void PowerPMAC_IO::StartIO() {
+//--------------------------------------------------------
+/**
+ *	Method      : PowerPMAC_IO::get_device_property()
+ *	Description : Read database to initialize property data members.
+ */
+//--------------------------------------------------------
+void PowerPMAC_IO::get_device_property()
+{
+	/*----- PROTECTED REGION ID(PowerPMAC_IO::get_device_property_before) ENABLED START -----*/
+	
+	//	Initialize property data members
+	
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_IO::get_device_property_before
 
+
+	//	Read device properties from database.
+	Tango::DbData	dev_prop;
+	dev_prop.push_back(Tango::DbDatum("Port"));
+
+	//	is there at least one property to be read ?
+	if (dev_prop.size()>0)
+	{
+		//	Call database and extract values
+		if (Tango::Util::instance()->_UseDb==true)
+			get_db_device()->get_property(dev_prop);
+	
+		//	get instance on PowerPMAC_IOClass to get class property
+		Tango::DbDatum	def_prop, cl_prop;
+		PowerPMAC_IOClass	*ds_class =
+			(static_cast<PowerPMAC_IOClass *>(get_device_class()));
+		int	i = -1;
+
+		//	Try to initialize Port from class property
+		cl_prop = ds_class->get_class_property(dev_prop[++i].name);
+		if (cl_prop.is_empty()==false)	cl_prop  >>  port;
+		else {
+			//	Try to initialize Port from default device value
+			def_prop = ds_class->get_default_device_property(dev_prop[i].name);
+			if (def_prop.is_empty()==false)	def_prop  >>  port;
+		}
+		//	And try to extract Port value from database
+		if (dev_prop[i].is_empty()==false)	dev_prop[i]  >>  port;
+
+	}
+
+	/*----- PROTECTED REGION ID(PowerPMAC_IO::get_device_property_after) ENABLED START -----*/
+	
+	//	Check device property data members init
+	
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_IO::get_device_property_after
 }
-
-void PowerPMAC_IO::StopIO() {
-
-}
-
 
 //--------------------------------------------------------
 /**
@@ -197,7 +281,181 @@ void PowerPMAC_IO::read_attr_hardware(TANGO_UNUSED(vector<long> &attr_list))
 	
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_IO::read_attr_hardware
 }
+//--------------------------------------------------------
+/**
+ *	Method      : PowerPMAC_IO::write_attr_hardware()
+ *	Description : Hardware writing for attributes
+ */
+//--------------------------------------------------------
+void PowerPMAC_IO::write_attr_hardware(TANGO_UNUSED(vector<long> &attr_list))
+{
+	DEBUG_STREAM << "PowerPMAC_IO::write_attr_hardware(vector<long> &attr_list) entering... " << endl;
+	/*----- PROTECTED REGION ID(PowerPMAC_IO::write_attr_hardware) ENABLED START -----*/
+	
+	//	Add your own code
+	
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_IO::write_attr_hardware
+}
 
+//--------------------------------------------------------
+/**
+ *	Read attribute RawValue related method
+ *	Description: raw values are in the range of -32768 to +32768
+ *
+ *	Data type:	Tango::DevLong
+ *	Attr type:	Scalar
+ */
+//--------------------------------------------------------
+void PowerPMAC_IO::read_RawValue(Tango::Attribute &attr)
+{
+	DEBUG_STREAM << "PowerPMAC_IO::read_RawValue(Tango::Attribute &attr) entering... " << endl;
+	/*----- PROTECTED REGION ID(PowerPMAC_IO::read_RawValue) ENABLED START -----*/
+	//	Set the attribute value
+
+	try {
+		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
+		std::string result = ci.ExecuteCommand(ppmac::cmd::ReadPortByName(port));
+		auto rawValue = tu::ParseInt32(result);
+		attr.set_value(&rawValue);
+		*attr_RawValue_read = rawValue;
+	} catch (ppmac::RuntimeError& e) {
+		tu::TranslateException(e);
+	}
+	
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_IO::read_RawValue
+}
+//--------------------------------------------------------
+/**
+ *	Write attribute RawValue related method
+ *	Description: raw values are in the range of -32768 to +32768
+ *
+ *	Data type:	Tango::DevLong
+ *	Attr type:	Scalar
+ */
+//--------------------------------------------------------
+void PowerPMAC_IO::write_RawValue(Tango::WAttribute &attr)
+{
+	DEBUG_STREAM << "PowerPMAC_IO::write_RawValue(Tango::WAttribute &attr) entering... " << endl;
+	//	Retrieve write value
+	Tango::DevLong	w_val;
+	attr.get_write_value(w_val);
+	/*----- PROTECTED REGION ID(PowerPMAC_IO::write_RawValue) ENABLED START -----*/
+
+	if(!isWritable) {
+		auto error = fmt::format("port {} is read only", port);
+		Tango::Except::throw_exception("invalid command", error.c_str(), "PowerPMAC_IO::write_RawValue");
+	}
+
+	try {
+		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
+		std::string result = ci.ExecuteCommand(ppmac::cmd::WritePortByName(port, w_val));
+	} catch (ppmac::RuntimeError& e) {
+		tu::TranslateException(e);
+	}
+	
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_IO::write_RawValue
+}
+//--------------------------------------------------------
+/**
+ *	Read attribute Value related method
+ *	Description: the `working` value is the raw value scaled to -1 to 1. if you e.g. have a +-5V or +-10V input
+ *
+ *	Data type:	Tango::DevDouble
+ *	Attr type:	Scalar
+ */
+//--------------------------------------------------------
+void PowerPMAC_IO::read_Value(Tango::Attribute &attr)
+{
+	DEBUG_STREAM << "PowerPMAC_IO::read_Value(Tango::Attribute &attr) entering... " << endl;
+	/*----- PROTECTED REGION ID(PowerPMAC_IO::read_Value) ENABLED START -----*/
+	//	Set the attribute value
+
+	try {
+		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
+		std::string result = ci.ExecuteCommand(ppmac::cmd::ReadPortByName(port));
+		auto rawValue = tu::ParseInt32(result);
+		// e.g. 10000 * (1/32768) * 5
+		double scaledValue = rawValue * analogScaleFactor * (*attr_ScaleFactor_read);
+		attr.set_value(&scaledValue);
+		*attr_Value_read = scaledValue;
+	} catch (ppmac::RuntimeError& e) {
+		tu::TranslateException(e);
+	}
+	
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_IO::read_Value
+}
+//--------------------------------------------------------
+/**
+ *	Write attribute Value related method
+ *	Description: the `working` value is the raw value scaled to -1 to 1. if you e.g. have a +-5V or +-10V input
+ *
+ *	Data type:	Tango::DevDouble
+ *	Attr type:	Scalar
+ */
+//--------------------------------------------------------
+void PowerPMAC_IO::write_Value(Tango::WAttribute &attr)
+{
+	DEBUG_STREAM << "PowerPMAC_IO::write_Value(Tango::WAttribute &attr) entering... " << endl;
+	//	Retrieve write value
+	Tango::DevDouble	w_val;
+	attr.get_write_value(w_val);
+	/*----- PROTECTED REGION ID(PowerPMAC_IO::write_Value) ENABLED START -----*/
+
+	if(!isWritable) {
+		auto error = fmt::format("port {} is read only", port);
+		Tango::Except::throw_exception("invalid command", error.c_str(), "PowerPMAC_IO::write_Value");
+	}
+
+	try {
+		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
+		// e.g. 5 / 5 / (1/32768)
+		int32_t rawValue = w_val / analogScaleFactor / (*attr_ScaleFactor_read);
+		ci.ExecuteCommand(ppmac::cmd::WritePortByName(port, rawValue));
+	} catch (ppmac::RuntimeError& e) {
+		tu::TranslateException(e);
+	}
+	
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_IO::write_Value
+}
+//--------------------------------------------------------
+/**
+ *	Read attribute ScaleFactor related method
+ *	Description: 
+ *
+ *	Data type:	Tango::DevDouble
+ *	Attr type:	Scalar
+ */
+//--------------------------------------------------------
+void PowerPMAC_IO::read_ScaleFactor(Tango::Attribute &attr)
+{
+	DEBUG_STREAM << "PowerPMAC_IO::read_ScaleFactor(Tango::Attribute &attr) entering... " << endl;
+	/*----- PROTECTED REGION ID(PowerPMAC_IO::read_ScaleFactor) ENABLED START -----*/
+	//	Set the attribute value
+	attr.set_value(attr_ScaleFactor_read);
+	
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_IO::read_ScaleFactor
+}
+//--------------------------------------------------------
+/**
+ *	Write attribute ScaleFactor related method
+ *	Description: 
+ *
+ *	Data type:	Tango::DevDouble
+ *	Attr type:	Scalar
+ */
+//--------------------------------------------------------
+void PowerPMAC_IO::write_ScaleFactor(Tango::WAttribute &attr)
+{
+	DEBUG_STREAM << "PowerPMAC_IO::write_ScaleFactor(Tango::WAttribute &attr) entering... " << endl;
+	//	Retrieve write value
+	Tango::DevDouble	w_val;
+	attr.get_write_value(w_val);
+	/*----- PROTECTED REGION ID(PowerPMAC_IO::write_ScaleFactor) ENABLED START -----*/
+
+	*attr_ScaleFactor_read = w_val;
+	
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_IO::write_ScaleFactor
+}
 
 //--------------------------------------------------------
 /**

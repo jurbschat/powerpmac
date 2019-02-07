@@ -42,7 +42,7 @@ add_subdirectory(ppmac_core)
 #add_subdirectory(powerPMAC_ssh-master)
 add_subdirectory(fmt-5.3.0)
 add_subdirectory(spdlog-1.3.0)
-add_subdirectory(libssh2-master)
+#add_subdirectory(libssh2-master)
 
 # this is only for this main project
 target_include_directories(PowerPMAC PUBLIC powerpmac_coordinatesystems)
