@@ -39,6 +39,9 @@
 #include "coreinterface.h"
 #include "exception.h"
 #include "tangoutil.h"
+#include "commandbuilder.h"
+#include <fmt/format.h>
+#include <fmt/printf.h>
 
 #include <unordered_map>
 
@@ -53,15 +56,29 @@
 //  The following table gives the correspondence
 //  between command and method names.
 //
-//  Command name  |  Method name
+//  Command name    |  Method name
 //================================================================
-//  State         |  Inherited (no method)
-//  Status        |  Inherited (no method)
+//  State           |  Inherited (no method)
+//  Status          |  Inherited (no method)
+//  ResetAmp        |  reset_amp
+//  ExecuteCommand  |  execute_command
+//  Reset           |  reset
+//  Reboot          |  reboot
 //================================================================
 
 //================================================================
-//  Attributes managed is:
+//  Attributes managed are:
 //================================================================
+//  MaxMotors     |  Tango::DevLong	Scalar
+//  MaxCoords     |  Tango::DevLong	Scalar
+//  AbortAll      |  Tango::DevBoolean	Scalar
+//  CpuTemp       |  Tango::DevDouble	Scalar
+//  AmpOverTemp   |  Tango::DevBoolean	Scalar
+//  Firmware      |  Tango::DevString	Scalar
+//  SystemType    |  Tango::DevString	Scalar
+//  CpuType       |  Tango::DevString	Scalar
+//  CpuFrequency  |  Tango::DevLong	Scalar
+//  Uptime        |  Tango::DevString	Scalar
 //================================================================
 
 namespace PowerPMAC_Global_ns
@@ -120,6 +137,16 @@ void PowerPMAC_Global::delete_device()
 	//	Delete device allocated objects
 	
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Global::delete_device
+	delete[] attr_MaxMotors_read;
+	delete[] attr_MaxCoords_read;
+	delete[] attr_AbortAll_read;
+	delete[] attr_CpuTemp_read;
+	delete[] attr_AmpOverTemp_read;
+	delete[] attr_Firmware_read;
+	delete[] attr_SystemType_read;
+	delete[] attr_CpuType_read;
+	delete[] attr_CpuFrequency_read;
+	delete[] attr_Uptime_read;
 }
 
 //--------------------------------------------------------
@@ -141,7 +168,28 @@ void PowerPMAC_Global::init_device()
 	//	Get the device properties from database
 	get_device_property();
 	
+	attr_MaxMotors_read = new Tango::DevLong[1];
+	attr_MaxCoords_read = new Tango::DevLong[1];
+	attr_AbortAll_read = new Tango::DevBoolean[1];
+	attr_CpuTemp_read = new Tango::DevDouble[1];
+	attr_AmpOverTemp_read = new Tango::DevBoolean[1];
+	attr_Firmware_read = new Tango::DevString[1];
+	attr_SystemType_read = new Tango::DevString[1];
+	attr_CpuType_read = new Tango::DevString[1];
+	attr_CpuFrequency_read = new Tango::DevLong[1];
+	attr_Uptime_read = new Tango::DevString[1];
 	/*----- PROTECTED REGION ID(PowerPMAC_Global::init_device) ENABLED START -----*/
+
+	*attr_MaxMotors_read = 0;
+	*attr_MaxCoords_read = 0;
+	*attr_AbortAll_read = true;
+	*attr_CpuTemp_read = 0;
+	*attr_AmpOverTemp_read = true;
+	*attr_Firmware_read = nullptr;
+	*attr_SystemType_read = nullptr;
+	*attr_CpuType_read = nullptr;
+	*attr_CpuFrequency_read = 0;
+	*attr_Uptime_read = nullptr;
 
 	ppmac::CoreInterface& ci = ppmac::GetCoreObject();
 
@@ -164,23 +212,6 @@ void PowerPMAC_Global::init_device()
 	}
 	
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Global::init_device
-}
-
-void PowerPMAC_Global::StartGlobal() {
-
-	try {
-		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
-		auto globalInfo = ci.GetGlobalInfo();
-
-	} catch (ppmac::RuntimeError& e) {
-		tu::TranslateException(e);
-	}
-
-	set_state(Tango::ON);
-}
-
-void PowerPMAC_Global::StopGlobal() {
-	set_state(Tango::OFF);
 }
 
 //--------------------------------------------------------
@@ -278,7 +309,309 @@ void PowerPMAC_Global::read_attr_hardware(TANGO_UNUSED(vector<long> &attr_list))
 	
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Global::read_attr_hardware
 }
+//--------------------------------------------------------
+/**
+ *	Method      : PowerPMAC_Global::write_attr_hardware()
+ *	Description : Hardware writing for attributes
+ */
+//--------------------------------------------------------
+void PowerPMAC_Global::write_attr_hardware(TANGO_UNUSED(vector<long> &attr_list))
+{
+	DEBUG_STREAM << "PowerPMAC_Global::write_attr_hardware(vector<long> &attr_list) entering... " << endl;
+	/*----- PROTECTED REGION ID(PowerPMAC_Global::write_attr_hardware) ENABLED START -----*/
+	
+	//	Add your own code
+	
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Global::write_attr_hardware
+}
 
+//--------------------------------------------------------
+/**
+ *	Read attribute MaxMotors related method
+ *	Description: 
+ *
+ *	Data type:	Tango::DevLong
+ *	Attr type:	Scalar
+ */
+//--------------------------------------------------------
+void PowerPMAC_Global::read_MaxMotors(Tango::Attribute &attr)
+{
+	DEBUG_STREAM << "PowerPMAC_Global::read_MaxMotors(Tango::Attribute &attr) entering... " << endl;
+	/*----- PROTECTED REGION ID(PowerPMAC_Global::read_MaxMotors) ENABLED START -----*/
+	//	Set the attribute value
+
+	try {
+		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
+		auto motors = ci.GetGlobalInfo().maxMotors;
+		attr.set_value(&motors);
+	} catch (ppmac::RuntimeError& e) {
+		tu::TranslateException(e);
+	}
+	
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Global::read_MaxMotors
+}
+//--------------------------------------------------------
+/**
+ *	Read attribute MaxCoords related method
+ *	Description: 
+ *
+ *	Data type:	Tango::DevLong
+ *	Attr type:	Scalar
+ */
+//--------------------------------------------------------
+void PowerPMAC_Global::read_MaxCoords(Tango::Attribute &attr)
+{
+	DEBUG_STREAM << "PowerPMAC_Global::read_MaxCoords(Tango::Attribute &attr) entering... " << endl;
+	/*----- PROTECTED REGION ID(PowerPMAC_Global::read_MaxCoords) ENABLED START -----*/
+	//	Set the attribute value
+
+	try {
+		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
+		auto coords = ci.GetGlobalInfo().maxCoords;
+		attr.set_value(&coords);
+	} catch (ppmac::RuntimeError& e) {
+		tu::TranslateException(e);
+	}
+	
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Global::read_MaxCoords
+}
+//--------------------------------------------------------
+/**
+ *	Read attribute AbortAll related method
+ *	Description: 
+ *
+ *	Data type:	Tango::DevBoolean
+ *	Attr type:	Scalar
+ */
+//--------------------------------------------------------
+void PowerPMAC_Global::read_AbortAll(Tango::Attribute &attr)
+{
+	DEBUG_STREAM << "PowerPMAC_Global::read_AbortAll(Tango::Attribute &attr) entering... " << endl;
+	/*----- PROTECTED REGION ID(PowerPMAC_Global::read_AbortAll) ENABLED START -----*/
+	//	Set the attribute value
+
+	try {
+		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
+		auto aa = ci.GetGlobalInfo().abortAll; // stinkt
+		attr.set_value(&aa);
+	} catch (ppmac::RuntimeError& e) {
+		tu::TranslateException(e);
+	}
+	
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Global::read_AbortAll
+}
+//--------------------------------------------------------
+/**
+ *	Write attribute AbortAll related method
+ *	Description: 
+ *
+ *	Data type:	Tango::DevBoolean
+ *	Attr type:	Scalar
+ */
+//--------------------------------------------------------
+void PowerPMAC_Global::write_AbortAll(Tango::WAttribute &attr)
+{
+	DEBUG_STREAM << "PowerPMAC_Global::write_AbortAll(Tango::WAttribute &attr) entering... " << endl;
+	//	Retrieve write value
+	Tango::DevBoolean	w_val;
+	attr.get_write_value(w_val);
+	/*----- PROTECTED REGION ID(PowerPMAC_Global::write_AbortAll) ENABLED START -----*/
+
+	try {
+		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
+		ci.ExecuteCommand(ppmac::cmd::GlobalSetAbortAll(w_val));
+	} catch (ppmac::RuntimeError& e) {
+		tu::TranslateException(e);
+	}
+	
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Global::write_AbortAll
+}
+//--------------------------------------------------------
+/**
+ *	Read attribute CpuTemp related method
+ *	Description: 
+ *
+ *	Data type:	Tango::DevDouble
+ *	Attr type:	Scalar
+ */
+//--------------------------------------------------------
+void PowerPMAC_Global::read_CpuTemp(Tango::Attribute &attr)
+{
+	DEBUG_STREAM << "PowerPMAC_Global::read_CpuTemp(Tango::Attribute &attr) entering... " << endl;
+	/*----- PROTECTED REGION ID(PowerPMAC_Global::read_CpuTemp) ENABLED START -----*/
+	//	Set the attribute value
+
+
+	try {
+		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
+		auto motors = ci.GetGlobalInfo().temp;
+		attr.set_value(&motors);
+	} catch (ppmac::RuntimeError& e) {
+		tu::TranslateException(e);
+	}
+	
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Global::read_CpuTemp
+}
+//--------------------------------------------------------
+/**
+ *	Read attribute AmpOverTemp related method
+ *	Description: 
+ *
+ *	Data type:	Tango::DevBoolean
+ *	Attr type:	Scalar
+ */
+//--------------------------------------------------------
+void PowerPMAC_Global::read_AmpOverTemp(Tango::Attribute &attr)
+{
+	DEBUG_STREAM << "PowerPMAC_Global::read_AmpOverTemp(Tango::Attribute &attr) entering... " << endl;
+	/*----- PROTECTED REGION ID(PowerPMAC_Global::read_AmpOverTemp) ENABLED START -----*/
+	//	Set the attribute value
+
+	try {
+		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
+		auto ot = ci.GetGlobalInfo().brickOvertemp;
+		attr.set_value(&ot);
+	} catch (ppmac::RuntimeError& e) {
+		tu::TranslateException(e);
+	}
+	
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Global::read_AmpOverTemp
+}
+//--------------------------------------------------------
+/**
+ *	Read attribute Firmware related method
+ *	Description: 
+ *
+ *	Data type:	Tango::DevString
+ *	Attr type:	Scalar
+ */
+//--------------------------------------------------------
+void PowerPMAC_Global::read_Firmware(Tango::Attribute &attr)
+{
+	DEBUG_STREAM << "PowerPMAC_Global::read_Firmware(Tango::Attribute &attr) entering... " << endl;
+	/*----- PROTECTED REGION ID(PowerPMAC_Global::read_Firmware) ENABLED START -----*/
+	//	Set the attribute value
+
+	try {
+		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
+		auto firmware = ci.GetGlobalInfo().firmware;
+		SetStringValue(attr_Firmware_read, firmware);
+		attr.set_value(attr_Firmware_read);
+	} catch (ppmac::RuntimeError& e) {
+		tu::TranslateException(e);
+	}
+	
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Global::read_Firmware
+}
+//--------------------------------------------------------
+/**
+ *	Read attribute SystemType related method
+ *	Description: 
+ *
+ *	Data type:	Tango::DevString
+ *	Attr type:	Scalar
+ */
+//--------------------------------------------------------
+void PowerPMAC_Global::read_SystemType(Tango::Attribute &attr)
+{
+	DEBUG_STREAM << "PowerPMAC_Global::read_SystemType(Tango::Attribute &attr) entering... " << endl;
+	/*----- PROTECTED REGION ID(PowerPMAC_Global::read_SystemType) ENABLED START -----*/
+	//	Set the attribute value
+
+	try {
+		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
+		auto system = ci.GetGlobalInfo().type;
+		SetStringValue(attr_SystemType_read, system);
+		attr.set_value(attr_SystemType_read);
+	} catch (ppmac::RuntimeError& e) {
+		tu::TranslateException(e);
+	}
+	
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Global::read_SystemType
+}
+//--------------------------------------------------------
+/**
+ *	Read attribute CpuType related method
+ *	Description: 
+ *
+ *	Data type:	Tango::DevString
+ *	Attr type:	Scalar
+ */
+//--------------------------------------------------------
+void PowerPMAC_Global::read_CpuType(Tango::Attribute &attr)
+{
+	DEBUG_STREAM << "PowerPMAC_Global::read_CpuType(Tango::Attribute &attr) entering... " << endl;
+	/*----- PROTECTED REGION ID(PowerPMAC_Global::read_CpuType) ENABLED START -----*/
+	//	Set the attribute value
+
+	try {
+		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
+		auto cpuType = ci.GetGlobalInfo().cpuType;
+		SetStringValue(attr_CpuType_read, cpuType);
+		attr.set_value(attr_CpuType_read);
+	} catch (ppmac::RuntimeError& e) {
+		tu::TranslateException(e);
+	}
+
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Global::read_CpuType
+}
+//--------------------------------------------------------
+/**
+ *	Read attribute CpuFrequency related method
+ *	Description: 
+ *
+ *	Data type:	Tango::DevLong
+ *	Attr type:	Scalar
+ */
+//--------------------------------------------------------
+void PowerPMAC_Global::read_CpuFrequency(Tango::Attribute &attr)
+{
+	DEBUG_STREAM << "PowerPMAC_Global::read_CpuFrequency(Tango::Attribute &attr) entering... " << endl;
+	/*----- PROTECTED REGION ID(PowerPMAC_Global::read_CpuFrequency) ENABLED START -----*/
+	//	Set the attribute value
+
+	try {
+		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
+		// convert to mhz
+		int32_t freq = ci.GetGlobalInfo().cpuFrequency / (1000 * 1000);
+		attr.set_value(&freq);
+	} catch (ppmac::RuntimeError& e) {
+		tu::TranslateException(e);
+	}
+	
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Global::read_CpuFrequency
+}
+//--------------------------------------------------------
+/**
+ *	Read attribute Uptime related method
+ *	Description: 
+ *
+ *	Data type:	Tango::DevString
+ *	Attr type:	Scalar
+ */
+//--------------------------------------------------------
+void PowerPMAC_Global::read_Uptime(Tango::Attribute &attr)
+{
+	DEBUG_STREAM << "PowerPMAC_Global::read_Uptime(Tango::Attribute &attr) entering... " << endl;
+	/*----- PROTECTED REGION ID(PowerPMAC_Global::read_Uptime) ENABLED START -----*/
+	//	Set the attribute value
+
+	try {
+		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
+		auto ut = ci.GetGlobalInfo().uptime;
+		int64_t seconds = std::floor(ut);
+		int32_t minutes = seconds / 60;
+		int32_t hours = minutes / 60;
+		int32_t days = hours / 24;
+		auto timeString = fmt::format("{}D {}:{}:{}", days, (hours%24), (minutes%60), (seconds%60));
+		SetStringValue(attr_Uptime_read, timeString);
+		attr.set_value(attr_Uptime_read);
+	} catch (ppmac::RuntimeError& e) {
+		tu::TranslateException(e);
+	}
+	
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Global::read_Uptime
+}
 
 //--------------------------------------------------------
 /**
@@ -298,6 +631,74 @@ void PowerPMAC_Global::add_dynamic_attributes()
 
 //--------------------------------------------------------
 /**
+ *	Command ResetAmp related method
+ *	Description: 
+ *
+ */
+//--------------------------------------------------------
+void PowerPMAC_Global::reset_amp()
+{
+	DEBUG_STREAM << "PowerPMAC_Global::ResetAmp()  - " << device_name << endl;
+	/*----- PROTECTED REGION ID(PowerPMAC_Global::reset_amp) ENABLED START -----*/
+	
+	//	Add your own code
+	
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Global::reset_amp
+}
+//--------------------------------------------------------
+/**
+ *	Command ExecuteCommand related method
+ *	Description: 
+ *
+ *	@param argin 
+ *	@returns 
+ */
+//--------------------------------------------------------
+Tango::DevString PowerPMAC_Global::execute_command(Tango::DevString argin)
+{
+	Tango::DevString argout;
+	DEBUG_STREAM << "PowerPMAC_Global::ExecuteCommand()  - " << device_name << endl;
+	/*----- PROTECTED REGION ID(PowerPMAC_Global::execute_command) ENABLED START -----*/
+	
+	//	Add your own code
+	
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Global::execute_command
+	return argout;
+}
+//--------------------------------------------------------
+/**
+ *	Command Reset related method
+ *	Description: 
+ *
+ */
+//--------------------------------------------------------
+void PowerPMAC_Global::reset()
+{
+	DEBUG_STREAM << "PowerPMAC_Global::Reset()  - " << device_name << endl;
+	/*----- PROTECTED REGION ID(PowerPMAC_Global::reset) ENABLED START -----*/
+	
+	//	Add your own code
+	
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Global::reset
+}
+//--------------------------------------------------------
+/**
+ *	Command Reboot related method
+ *	Description: 
+ *
+ */
+//--------------------------------------------------------
+void PowerPMAC_Global::reboot()
+{
+	DEBUG_STREAM << "PowerPMAC_Global::Reboot()  - " << device_name << endl;
+	/*----- PROTECTED REGION ID(PowerPMAC_Global::reboot) ENABLED START -----*/
+	
+	//	Add your own code
+	
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Global::reboot
+}
+//--------------------------------------------------------
+/**
  *	Method      : PowerPMAC_Global::add_dynamic_commands()
  *	Description : Create the dynamic commands if any
  *                for specified device.
@@ -314,7 +715,71 @@ void PowerPMAC_Global::add_dynamic_commands()
 
 /*----- PROTECTED REGION ID(PowerPMAC_Global::namespace_ending) ENABLED START -----*/
 
-//	Additional Methods
+void PowerPMAC_Global::StartGlobal() {
+	set_state(Tango::ON);
+}
+
+void PowerPMAC_Global::StopGlobal() {
+	set_state(Tango::OFF);
+}
+
+void PowerPMAC_Global::SetErrorState() {
+	// get global error states and set them as
+	// string message
+	auto msg = fmt::format("", 1);
+	set_status(msg.c_str());
+}
+
+void PowerPMAC_Global::SetStringValue(char **ptr, const std::string& value)
+{
+	if(*ptr == nullptr) {
+		*ptr = CORBA::string_dup(value.c_str());
+	}  else {
+		CORBA::string_free(*ptr);
+		*ptr = CORBA::string_dup(value.c_str());
+	}
+}
+// //--------------------------------------------------------
+// /**
+//  *	Read attribute PhaseClock related method
+//  *	Description: 
+//  *
+//  *	Data type:	Tango::DevDouble
+//  *	Attr type:	Scalar
+//  */
+// //--------------------------------------------------------
+// void PowerPMAC_Global::read_PhaseClock(Tango::Attribute &attr)
+// {
+// 	DEBUG_STREAM << "PowerPMAC_Global::read_PhaseClock(Tango::Attribute &attr) entering... " << endl;
+// 	//	Set the attribute value
+// 	attr.set_value(attr_PhaseClock_read);
+// 	
+// }
+
+// //--------------------------------------------------------
+// /**
+//  *	Read attribute ServoClock related method
+//  *	Description: 
+//  *
+//  *	Data type:	Tango::DevDouble
+//  *	Attr type:	Scalar
+//  */
+// //--------------------------------------------------------
+// void PowerPMAC_Global::read_ServoClock(Tango::Attribute &attr)
+// {
+// 	DEBUG_STREAM << "PowerPMAC_Global::read_ServoClock(Tango::Attribute &attr) entering... " << endl;
+// 	//	Set the attribute value
+// 	attr.set_value(attr_ServoClock_read);
+// 	try {
+// 		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
+// 		auto aa = ci.GetGlobalInfo().abortAll; // stinkt
+// 		attr.set_value(&aa);
+// 	} catch (ppmac::RuntimeError& e) {
+// 		tu::TranslateException(e);
+// 	}
+// 	
+// }
+
 
 /*----- PROTECTED REGION END -----*/	//	PowerPMAC_Global::namespace_ending
 } //	namespace

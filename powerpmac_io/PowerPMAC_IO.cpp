@@ -300,7 +300,7 @@ void PowerPMAC_IO::write_attr_hardware(TANGO_UNUSED(vector<long> &attr_list))
 //--------------------------------------------------------
 /**
  *	Read attribute RawValue related method
- *	Description: raw values are in the range of -32768 to +32768
+ *	Description: raw values are in the range of -32768 to +32768 for ADC, -13380 to 13380 for DAC and 0, 1 for binary inputs/outputs
  *
  *	Data type:	Tango::DevLong
  *	Attr type:	Scalar
@@ -327,7 +327,7 @@ void PowerPMAC_IO::read_RawValue(Tango::Attribute &attr)
 //--------------------------------------------------------
 /**
  *	Write attribute RawValue related method
- *	Description: raw values are in the range of -32768 to +32768
+ *	Description: raw values are in the range of -32768 to +32768 for ADC, -13380 to 13380 for DAC and 0, 1 for binary inputs/outputs
  *
  *	Data type:	Tango::DevLong
  *	Attr type:	Scalar
@@ -358,7 +358,8 @@ void PowerPMAC_IO::write_RawValue(Tango::WAttribute &attr)
 //--------------------------------------------------------
 /**
  *	Read attribute Value related method
- *	Description: the `working` value is the raw value scaled to -1 to 1. if you e.g. have a +-5V or +-10V input
+ *	Description: the raw value from the controller will always be mapped to a -1, 1 intervall. 
+ *               this can be changed to e.g. +-5 or +-10 via scaling if a specific range is desired
  *
  *	Data type:	Tango::DevDouble
  *	Attr type:	Scalar
@@ -387,7 +388,8 @@ void PowerPMAC_IO::read_Value(Tango::Attribute &attr)
 //--------------------------------------------------------
 /**
  *	Write attribute Value related method
- *	Description: the `working` value is the raw value scaled to -1 to 1. if you e.g. have a +-5V or +-10V input
+ *	Description: the raw value from the controller will always be mapped to a -1, 1 intervall. 
+ *               this can be changed to e.g. +-5 or +-10 via scaling if a specific range is desired
  *
  *	Data type:	Tango::DevDouble
  *	Attr type:	Scalar
@@ -420,7 +422,8 @@ void PowerPMAC_IO::write_Value(Tango::WAttribute &attr)
 //--------------------------------------------------------
 /**
  *	Read attribute ScaleFactor related method
- *	Description: 
+ *	Description: the scale factor that will be applied to the value, 
+ *               this mapps the -1, 1 interval into e.g. -5 to 5
  *
  *	Data type:	Tango::DevDouble
  *	Attr type:	Scalar
@@ -438,7 +441,8 @@ void PowerPMAC_IO::read_ScaleFactor(Tango::Attribute &attr)
 //--------------------------------------------------------
 /**
  *	Write attribute ScaleFactor related method
- *	Description: 
+ *	Description: the scale factor that will be applied to the value, 
+ *               this mapps the -1, 1 interval into e.g. -5 to 5
  *
  *	Data type:	Tango::DevDouble
  *	Attr type:	Scalar

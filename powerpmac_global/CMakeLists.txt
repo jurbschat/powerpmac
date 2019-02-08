@@ -18,7 +18,7 @@ add_library(PowerPMAC_Global STATIC PowerPMAC_Global.cpp
 
 # all other includeded cmake files will have this
 include_directories(PUBLIC SYSTEM /usr/include/tango)
-target_include_directories(PowerPMAC_Global PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ../ppmac_core ../wise_enum-master)
+target_include_directories(PowerPMAC_Global PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ../ppmac_core ../wise_enum-master ../fmt-5.3.0/include)
 
 link_directories(PUBLIC /usr/lib/x86_64-linux-gnu/ /usr/lib/)
 target_link_libraries(PowerPMAC_Global PRIVATE tango omniDynamic4 COS4 omniORB4 omnithread log4tango zmq dl pthread stdc++ ppmac_core)

@@ -65,6 +65,8 @@ namespace ppmac {
 			StopWatch<> sw(true);
 			while(true) {
 				ssize_t rc = libssh2_channel_read(channel.get(), recvBuffer.data(), recvBuffer.size());
+				(void)sock;
+				(void)session;
 				/*int so_error;
 				socklen_t len = sizeof so_error;
 				getsockopt(sock, SOL_SOCKET, SO_ERROR, &so_error, &len);

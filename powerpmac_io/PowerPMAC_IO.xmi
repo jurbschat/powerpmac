@@ -33,7 +33,7 @@
       <archiveEvent fire="false" libCheckCriteria="false"/>
       <dataReadyEvent fire="false" libCheckCriteria="true"/>
       <status abstract="false" inherited="false" concrete="true" concreteHere="true"/>
-      <properties description="raw values are in the range of -32768 to +32768" label="" unit="" standardUnit="" displayUnit="" format="" maxValue="" minValue="" maxAlarm="" minAlarm="" maxWarning="" minWarning="" deltaTime="" deltaValue=""/>
+      <properties description="raw values are in the range of -32768 to +32768 for ADC, -13380 to 13380 for DAC and 0, 1 for binary inputs/outputs" label="" unit="raw" standardUnit="" displayUnit="" format="" maxValue="" minValue="" maxAlarm="" minAlarm="" maxWarning="" minWarning="" deltaTime="" deltaValue=""/>
       <readExcludedStates>OFF</readExcludedStates>
       <writeExcludedStates>OFF</writeExcludedStates>
     </attributes>
@@ -43,7 +43,7 @@
       <archiveEvent fire="false" libCheckCriteria="false"/>
       <dataReadyEvent fire="false" libCheckCriteria="true"/>
       <status abstract="false" inherited="false" concrete="true" concreteHere="true"/>
-      <properties description="the `working` value is the raw value scaled to -1 to 1. if you e.g. have a +-5V or +-10V input" label="" unit="" standardUnit="" displayUnit="" format="" maxValue="" minValue="" maxAlarm="" minAlarm="" maxWarning="" minWarning="" deltaTime="" deltaValue=""/>
+      <properties description="the raw value from the controller will always be mapped to a -1, 1 intervall. &#xA;this can be changed to e.g. +-5 or +-10 via scaling if a specific range is desired" label="" unit="" standardUnit="" displayUnit="" format="%6.2f" maxValue="" minValue="" maxAlarm="" minAlarm="" maxWarning="" minWarning="" deltaTime="" deltaValue=""/>
       <readExcludedStates>OFF</readExcludedStates>
       <writeExcludedStates>OFF</writeExcludedStates>
     </attributes>
@@ -53,7 +53,7 @@
       <archiveEvent fire="false" libCheckCriteria="false"/>
       <dataReadyEvent fire="false" libCheckCriteria="true"/>
       <status abstract="false" inherited="false" concrete="true" concreteHere="true"/>
-      <properties description="" label="" unit="" standardUnit="" displayUnit="" format="" maxValue="" minValue="" maxAlarm="" minAlarm="" maxWarning="" minWarning="" deltaTime="" deltaValue=""/>
+      <properties description="the scale factor that will be applied to the value, &#xA;this mapps the -1, 1 interval into e.g. -5 to 5" label="" unit="" standardUnit="" displayUnit="" format="%6.2f" maxValue="" minValue="" maxAlarm="" minAlarm="" maxWarning="" minWarning="" deltaTime="" deltaValue=""/>
     </attributes>
     <states name="ON" description="">
       <status abstract="false" inherited="false" concrete="true" concreteHere="true"/>

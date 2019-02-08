@@ -150,6 +150,79 @@ PowerPMAC_GlobalClass *PowerPMAC_GlobalClass::instance()
 //===================================================================
 //	Command execution method calls
 //===================================================================
+//--------------------------------------------------------
+/**
+ * method : 		ResetAmpClass::execute()
+ * description : 	method to trigger the execution of the command.
+ *
+ * @param	device	The device on which the command must be executed
+ * @param	in_any	The command input data
+ *
+ *	returns The command output data (packed in the Any object)
+ */
+//--------------------------------------------------------
+CORBA::Any *ResetAmpClass::execute(Tango::DeviceImpl *device, TANGO_UNUSED(const CORBA::Any &in_any))
+{
+	cout2 << "ResetAmpClass::execute(): arrived" << endl;
+	((static_cast<PowerPMAC_Global *>(device))->reset_amp());
+	return new CORBA::Any();
+}
+
+//--------------------------------------------------------
+/**
+ * method : 		ExecuteCommandClass::execute()
+ * description : 	method to trigger the execution of the command.
+ *
+ * @param	device	The device on which the command must be executed
+ * @param	in_any	The command input data
+ *
+ *	returns The command output data (packed in the Any object)
+ */
+//--------------------------------------------------------
+CORBA::Any *ExecuteCommandClass::execute(Tango::DeviceImpl *device, const CORBA::Any &in_any)
+{
+	cout2 << "ExecuteCommandClass::execute(): arrived" << endl;
+	Tango::DevString argin;
+	extract(in_any, argin);
+	return insert((static_cast<PowerPMAC_Global *>(device))->execute_command(argin));
+}
+
+//--------------------------------------------------------
+/**
+ * method : 		ResetClass::execute()
+ * description : 	method to trigger the execution of the command.
+ *
+ * @param	device	The device on which the command must be executed
+ * @param	in_any	The command input data
+ *
+ *	returns The command output data (packed in the Any object)
+ */
+//--------------------------------------------------------
+CORBA::Any *ResetClass::execute(Tango::DeviceImpl *device, TANGO_UNUSED(const CORBA::Any &in_any))
+{
+	cout2 << "ResetClass::execute(): arrived" << endl;
+	((static_cast<PowerPMAC_Global *>(device))->reset());
+	return new CORBA::Any();
+}
+
+//--------------------------------------------------------
+/**
+ * method : 		RebootClass::execute()
+ * description : 	method to trigger the execution of the command.
+ *
+ * @param	device	The device on which the command must be executed
+ * @param	in_any	The command input data
+ *
+ *	returns The command output data (packed in the Any object)
+ */
+//--------------------------------------------------------
+CORBA::Any *RebootClass::execute(Tango::DeviceImpl *device, TANGO_UNUSED(const CORBA::Any &in_any))
+{
+	cout2 << "RebootClass::execute(): arrived" << endl;
+	((static_cast<PowerPMAC_Global *>(device))->reboot());
+	return new CORBA::Any();
+}
+
 
 //===================================================================
 //	Properties management
@@ -353,6 +426,246 @@ void PowerPMAC_GlobalClass::attribute_factory(vector<Tango::Attr *> &att_list)
 	//	Add your own code
 	
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_GlobalClass::attribute_factory_before
+	//	Attribute : MaxMotors
+	MaxMotorsAttrib	*maxmotors = new MaxMotorsAttrib();
+	Tango::UserDefaultAttrProp	maxmotors_prop;
+	//	description	not set for MaxMotors
+	//	label	not set for MaxMotors
+	maxmotors_prop.set_unit("motors");
+	//	standard_unit	not set for MaxMotors
+	//	display_unit	not set for MaxMotors
+	//	format	not set for MaxMotors
+	//	max_value	not set for MaxMotors
+	//	min_value	not set for MaxMotors
+	//	max_alarm	not set for MaxMotors
+	//	min_alarm	not set for MaxMotors
+	//	max_warning	not set for MaxMotors
+	//	min_warning	not set for MaxMotors
+	//	delta_t	not set for MaxMotors
+	//	delta_val	not set for MaxMotors
+	
+	maxmotors->set_default_properties(maxmotors_prop);
+	//	Not Polled
+	maxmotors->set_disp_level(Tango::OPERATOR);
+	//	Not Memorized
+	att_list.push_back(maxmotors);
+
+	//	Attribute : MaxCoords
+	MaxCoordsAttrib	*maxcoords = new MaxCoordsAttrib();
+	Tango::UserDefaultAttrProp	maxcoords_prop;
+	//	description	not set for MaxCoords
+	//	label	not set for MaxCoords
+	maxcoords_prop.set_unit("coords");
+	//	standard_unit	not set for MaxCoords
+	//	display_unit	not set for MaxCoords
+	//	format	not set for MaxCoords
+	//	max_value	not set for MaxCoords
+	//	min_value	not set for MaxCoords
+	//	max_alarm	not set for MaxCoords
+	//	min_alarm	not set for MaxCoords
+	//	max_warning	not set for MaxCoords
+	//	min_warning	not set for MaxCoords
+	//	delta_t	not set for MaxCoords
+	//	delta_val	not set for MaxCoords
+	
+	maxcoords->set_default_properties(maxcoords_prop);
+	//	Not Polled
+	maxcoords->set_disp_level(Tango::OPERATOR);
+	//	Not Memorized
+	att_list.push_back(maxcoords);
+
+	//	Attribute : AbortAll
+	AbortAllAttrib	*abortall = new AbortAllAttrib();
+	Tango::UserDefaultAttrProp	abortall_prop;
+	//	description	not set for AbortAll
+	//	label	not set for AbortAll
+	//	unit	not set for AbortAll
+	//	standard_unit	not set for AbortAll
+	//	display_unit	not set for AbortAll
+	//	format	not set for AbortAll
+	//	max_value	not set for AbortAll
+	//	min_value	not set for AbortAll
+	//	max_alarm	not set for AbortAll
+	//	min_alarm	not set for AbortAll
+	//	max_warning	not set for AbortAll
+	//	min_warning	not set for AbortAll
+	//	delta_t	not set for AbortAll
+	//	delta_val	not set for AbortAll
+	
+	abortall->set_default_properties(abortall_prop);
+	//	Not Polled
+	abortall->set_disp_level(Tango::OPERATOR);
+	//	Not Memorized
+	att_list.push_back(abortall);
+
+	//	Attribute : CpuTemp
+	CpuTempAttrib	*cputemp = new CpuTempAttrib();
+	Tango::UserDefaultAttrProp	cputemp_prop;
+	//	description	not set for CpuTemp
+	//	label	not set for CpuTemp
+	cputemp_prop.set_unit("C");
+	//	standard_unit	not set for CpuTemp
+	//	display_unit	not set for CpuTemp
+	//	format	not set for CpuTemp
+	//	max_value	not set for CpuTemp
+	//	min_value	not set for CpuTemp
+	//	max_alarm	not set for CpuTemp
+	//	min_alarm	not set for CpuTemp
+	//	max_warning	not set for CpuTemp
+	//	min_warning	not set for CpuTemp
+	//	delta_t	not set for CpuTemp
+	//	delta_val	not set for CpuTemp
+	
+	cputemp->set_default_properties(cputemp_prop);
+	//	Not Polled
+	cputemp->set_disp_level(Tango::OPERATOR);
+	//	Not Memorized
+	att_list.push_back(cputemp);
+
+	//	Attribute : AmpOverTemp
+	AmpOverTempAttrib	*ampovertemp = new AmpOverTempAttrib();
+	Tango::UserDefaultAttrProp	ampovertemp_prop;
+	//	description	not set for AmpOverTemp
+	//	label	not set for AmpOverTemp
+	//	unit	not set for AmpOverTemp
+	//	standard_unit	not set for AmpOverTemp
+	//	display_unit	not set for AmpOverTemp
+	//	format	not set for AmpOverTemp
+	//	max_value	not set for AmpOverTemp
+	//	min_value	not set for AmpOverTemp
+	//	max_alarm	not set for AmpOverTemp
+	//	min_alarm	not set for AmpOverTemp
+	//	max_warning	not set for AmpOverTemp
+	//	min_warning	not set for AmpOverTemp
+	//	delta_t	not set for AmpOverTemp
+	//	delta_val	not set for AmpOverTemp
+	
+	ampovertemp->set_default_properties(ampovertemp_prop);
+	//	Not Polled
+	ampovertemp->set_disp_level(Tango::OPERATOR);
+	//	Not Memorized
+	att_list.push_back(ampovertemp);
+
+	//	Attribute : Firmware
+	FirmwareAttrib	*firmware = new FirmwareAttrib();
+	Tango::UserDefaultAttrProp	firmware_prop;
+	//	description	not set for Firmware
+	//	label	not set for Firmware
+	//	unit	not set for Firmware
+	//	standard_unit	not set for Firmware
+	//	display_unit	not set for Firmware
+	//	format	not set for Firmware
+	//	max_value	not set for Firmware
+	//	min_value	not set for Firmware
+	//	max_alarm	not set for Firmware
+	//	min_alarm	not set for Firmware
+	//	max_warning	not set for Firmware
+	//	min_warning	not set for Firmware
+	//	delta_t	not set for Firmware
+	//	delta_val	not set for Firmware
+	
+	firmware->set_default_properties(firmware_prop);
+	//	Not Polled
+	firmware->set_disp_level(Tango::OPERATOR);
+	//	Not Memorized
+	att_list.push_back(firmware);
+
+	//	Attribute : SystemType
+	SystemTypeAttrib	*systemtype = new SystemTypeAttrib();
+	Tango::UserDefaultAttrProp	systemtype_prop;
+	//	description	not set for SystemType
+	//	label	not set for SystemType
+	//	unit	not set for SystemType
+	//	standard_unit	not set for SystemType
+	//	display_unit	not set for SystemType
+	//	format	not set for SystemType
+	//	max_value	not set for SystemType
+	//	min_value	not set for SystemType
+	//	max_alarm	not set for SystemType
+	//	min_alarm	not set for SystemType
+	//	max_warning	not set for SystemType
+	//	min_warning	not set for SystemType
+	//	delta_t	not set for SystemType
+	//	delta_val	not set for SystemType
+	
+	systemtype->set_default_properties(systemtype_prop);
+	//	Not Polled
+	systemtype->set_disp_level(Tango::OPERATOR);
+	//	Not Memorized
+	att_list.push_back(systemtype);
+
+	//	Attribute : CpuType
+	CpuTypeAttrib	*cputype = new CpuTypeAttrib();
+	Tango::UserDefaultAttrProp	cputype_prop;
+	//	description	not set for CpuType
+	//	label	not set for CpuType
+	//	unit	not set for CpuType
+	//	standard_unit	not set for CpuType
+	//	display_unit	not set for CpuType
+	//	format	not set for CpuType
+	//	max_value	not set for CpuType
+	//	min_value	not set for CpuType
+	//	max_alarm	not set for CpuType
+	//	min_alarm	not set for CpuType
+	//	max_warning	not set for CpuType
+	//	min_warning	not set for CpuType
+	//	delta_t	not set for CpuType
+	//	delta_val	not set for CpuType
+	
+	cputype->set_default_properties(cputype_prop);
+	//	Not Polled
+	cputype->set_disp_level(Tango::OPERATOR);
+	//	Not Memorized
+	att_list.push_back(cputype);
+
+	//	Attribute : CpuFrequency
+	CpuFrequencyAttrib	*cpufrequency = new CpuFrequencyAttrib();
+	Tango::UserDefaultAttrProp	cpufrequency_prop;
+	//	description	not set for CpuFrequency
+	//	label	not set for CpuFrequency
+	cpufrequency_prop.set_unit("mhz");
+	//	standard_unit	not set for CpuFrequency
+	//	display_unit	not set for CpuFrequency
+	//	format	not set for CpuFrequency
+	//	max_value	not set for CpuFrequency
+	//	min_value	not set for CpuFrequency
+	//	max_alarm	not set for CpuFrequency
+	//	min_alarm	not set for CpuFrequency
+	//	max_warning	not set for CpuFrequency
+	//	min_warning	not set for CpuFrequency
+	//	delta_t	not set for CpuFrequency
+	//	delta_val	not set for CpuFrequency
+	
+	cpufrequency->set_default_properties(cpufrequency_prop);
+	//	Not Polled
+	cpufrequency->set_disp_level(Tango::OPERATOR);
+	//	Not Memorized
+	att_list.push_back(cpufrequency);
+
+	//	Attribute : Uptime
+	UptimeAttrib	*uptime = new UptimeAttrib();
+	Tango::UserDefaultAttrProp	uptime_prop;
+	//	description	not set for Uptime
+	//	label	not set for Uptime
+	//	unit	not set for Uptime
+	//	standard_unit	not set for Uptime
+	//	display_unit	not set for Uptime
+	//	format	not set for Uptime
+	//	max_value	not set for Uptime
+	//	min_value	not set for Uptime
+	//	max_alarm	not set for Uptime
+	//	min_alarm	not set for Uptime
+	//	max_warning	not set for Uptime
+	//	min_warning	not set for Uptime
+	//	delta_t	not set for Uptime
+	//	delta_val	not set for Uptime
+	
+	uptime->set_default_properties(uptime_prop);
+	//	Not Polled
+	uptime->set_disp_level(Tango::OPERATOR);
+	//	Not Memorized
+	att_list.push_back(uptime);
+
 
 	//	Create a list of static attributes
 	create_static_attribute_list(get_class_attr()->get_attr_list());
@@ -397,6 +710,42 @@ void PowerPMAC_GlobalClass::command_factory()
 	
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_GlobalClass::command_factory_before
 
+
+	//	Command ResetAmp
+	ResetAmpClass	*pResetAmpCmd =
+		new ResetAmpClass("ResetAmp",
+			Tango::DEV_VOID, Tango::DEV_VOID,
+			"",
+			"",
+			Tango::OPERATOR);
+	command_list.push_back(pResetAmpCmd);
+
+	//	Command ExecuteCommand
+	ExecuteCommandClass	*pExecuteCommandCmd =
+		new ExecuteCommandClass("ExecuteCommand",
+			Tango::DEV_STRING, Tango::DEV_STRING,
+			"",
+			"",
+			Tango::OPERATOR);
+	command_list.push_back(pExecuteCommandCmd);
+
+	//	Command Reset
+	ResetClass	*pResetCmd =
+		new ResetClass("Reset",
+			Tango::DEV_VOID, Tango::DEV_VOID,
+			"",
+			"",
+			Tango::OPERATOR);
+	command_list.push_back(pResetCmd);
+
+	//	Command Reboot
+	RebootClass	*pRebootCmd =
+		new RebootClass("Reboot",
+			Tango::DEV_VOID, Tango::DEV_VOID,
+			"",
+			"",
+			Tango::OPERATOR);
+	command_list.push_back(pRebootCmd);
 
 	/*----- PROTECTED REGION ID(PowerPMAC_GlobalClass::command_factory_after) ENABLED START -----*/
 	

@@ -6,6 +6,7 @@
 #include <vector>
 #include <cstring>
 #include <endian.h>
+#include <string>
 
 #ifndef POWERPMAC_DATASTRUCTURES_H
 #define POWERPMAC_DATASTRUCTURES_H
@@ -377,6 +378,10 @@ namespace ppmac {
 		double temp;
 		bool brickOvertemp;
 		double uptime;
+		std::string type;
+		std::string firmware;
+		std::string cpuType;
+		int64_t cpuFrequency;
 		std::vector<bool> activePlcs; // vector bool sucks
 	};
 }

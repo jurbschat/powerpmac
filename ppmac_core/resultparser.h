@@ -33,6 +33,14 @@ namespace ppmac::parser {
 	struct parser_traits;
 
 	template<>
+	struct parser_traits<std::string> {
+		using result_type = std::string;
+		static const result_type& convert(const std::string& s) {
+			return s;
+		}
+	};
+
+	template<>
 	struct parser_traits<float> {
 		using result_type = float;
 		static result_type convert(const std::string& s) {
@@ -144,6 +152,7 @@ namespace ppmac::parser {
 		}
 	};
 
+	using NoneParser = parser_traits<std::string>;
 	using FloatParser = parser_traits<float>;
 	using DoubleParser = parser_traits<double>;
 	using IntParser = parser_traits<int32_t>;

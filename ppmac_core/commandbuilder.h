@@ -172,6 +172,11 @@ namespace ppmac::cmd {
 	{
 		return fmt::format("$$$");
 	}
+
+	inline std::string GlobalSetAbortAll(bool abort)
+	{
+		return fmt::format("Sys.AbortAll={}", static_cast<int>(abort));
+	}
 }
 
 #endif //POWERPMAC_COMMANDBUILDER_H

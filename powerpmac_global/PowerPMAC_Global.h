@@ -71,6 +71,18 @@ public:
 	//	port:	
 	Tango::DevUShort	port;
 
+//	Attribute data members
+public:
+	Tango::DevLong	*attr_MaxMotors_read;
+	Tango::DevLong	*attr_MaxCoords_read;
+	Tango::DevBoolean	*attr_AbortAll_read;
+	Tango::DevDouble	*attr_CpuTemp_read;
+	Tango::DevBoolean	*attr_AmpOverTemp_read;
+	Tango::DevString	*attr_Firmware_read;
+	Tango::DevString	*attr_SystemType_read;
+	Tango::DevString	*attr_CpuType_read;
+	Tango::DevLong	*attr_CpuFrequency_read;
+	Tango::DevString	*attr_Uptime_read;
 
 //	Constructors and destructors
 public:
@@ -131,6 +143,105 @@ public:
 	 */
 	//--------------------------------------------------------
 	virtual void read_attr_hardware(vector<long> &attr_list);
+	//--------------------------------------------------------
+	/*
+	 *	Method      : PowerPMAC_Global::write_attr_hardware()
+	 *	Description : Hardware writing for attributes.
+	 */
+	//--------------------------------------------------------
+	virtual void write_attr_hardware(vector<long> &attr_list);
+
+/**
+ *	Attribute MaxMotors related methods
+ *	Description: 
+ *
+ *	Data type:	Tango::DevLong
+ *	Attr type:	Scalar
+ */
+	virtual void read_MaxMotors(Tango::Attribute &attr);
+	virtual bool is_MaxMotors_allowed(Tango::AttReqType type);
+/**
+ *	Attribute MaxCoords related methods
+ *	Description: 
+ *
+ *	Data type:	Tango::DevLong
+ *	Attr type:	Scalar
+ */
+	virtual void read_MaxCoords(Tango::Attribute &attr);
+	virtual bool is_MaxCoords_allowed(Tango::AttReqType type);
+/**
+ *	Attribute AbortAll related methods
+ *	Description: 
+ *
+ *	Data type:	Tango::DevBoolean
+ *	Attr type:	Scalar
+ */
+	virtual void read_AbortAll(Tango::Attribute &attr);
+	virtual void write_AbortAll(Tango::WAttribute &attr);
+	virtual bool is_AbortAll_allowed(Tango::AttReqType type);
+/**
+ *	Attribute CpuTemp related methods
+ *	Description: 
+ *
+ *	Data type:	Tango::DevDouble
+ *	Attr type:	Scalar
+ */
+	virtual void read_CpuTemp(Tango::Attribute &attr);
+	virtual bool is_CpuTemp_allowed(Tango::AttReqType type);
+/**
+ *	Attribute AmpOverTemp related methods
+ *	Description: 
+ *
+ *	Data type:	Tango::DevBoolean
+ *	Attr type:	Scalar
+ */
+	virtual void read_AmpOverTemp(Tango::Attribute &attr);
+	virtual bool is_AmpOverTemp_allowed(Tango::AttReqType type);
+/**
+ *	Attribute Firmware related methods
+ *	Description: 
+ *
+ *	Data type:	Tango::DevString
+ *	Attr type:	Scalar
+ */
+	virtual void read_Firmware(Tango::Attribute &attr);
+	virtual bool is_Firmware_allowed(Tango::AttReqType type);
+/**
+ *	Attribute SystemType related methods
+ *	Description: 
+ *
+ *	Data type:	Tango::DevString
+ *	Attr type:	Scalar
+ */
+	virtual void read_SystemType(Tango::Attribute &attr);
+	virtual bool is_SystemType_allowed(Tango::AttReqType type);
+/**
+ *	Attribute CpuType related methods
+ *	Description: 
+ *
+ *	Data type:	Tango::DevString
+ *	Attr type:	Scalar
+ */
+	virtual void read_CpuType(Tango::Attribute &attr);
+	virtual bool is_CpuType_allowed(Tango::AttReqType type);
+/**
+ *	Attribute CpuFrequency related methods
+ *	Description: 
+ *
+ *	Data type:	Tango::DevLong
+ *	Attr type:	Scalar
+ */
+	virtual void read_CpuFrequency(Tango::Attribute &attr);
+	virtual bool is_CpuFrequency_allowed(Tango::AttReqType type);
+/**
+ *	Attribute Uptime related methods
+ *	Description: 
+ *
+ *	Data type:	Tango::DevString
+ *	Attr type:	Scalar
+ */
+	virtual void read_Uptime(Tango::Attribute &attr);
+	virtual bool is_Uptime_allowed(Tango::AttReqType type);
 
 
 	//--------------------------------------------------------
@@ -146,6 +257,36 @@ public:
 
 //	Command related methods
 public:
+	/**
+	 *	Command ResetAmp related method
+	 *	Description: 
+	 *
+	 */
+	virtual void reset_amp();
+	virtual bool is_ResetAmp_allowed(const CORBA::Any &any);
+	/**
+	 *	Command ExecuteCommand related method
+	 *	Description: 
+	 *
+	 *	@param argin 
+	 *	@returns 
+	 */
+	virtual Tango::DevString execute_command(Tango::DevString argin);
+	virtual bool is_ExecuteCommand_allowed(const CORBA::Any &any);
+	/**
+	 *	Command Reset related method
+	 *	Description: 
+	 *
+	 */
+	virtual void reset();
+	virtual bool is_Reset_allowed(const CORBA::Any &any);
+	/**
+	 *	Command Reboot related method
+	 *	Description: 
+	 *
+	 */
+	virtual void reboot();
+	virtual bool is_Reboot_allowed(const CORBA::Any &any);
 
 
 	//--------------------------------------------------------
@@ -161,6 +302,8 @@ public:
 //	Additional Method prototypes
 	void StartGlobal();
 	void StopGlobal();
+	void SetErrorState();
+	void SetStringValue(char **ptr, const std::string& value);
 
 /*----- PROTECTED REGION END -----*/	//	PowerPMAC_Global::Additional Method prototypes
 };

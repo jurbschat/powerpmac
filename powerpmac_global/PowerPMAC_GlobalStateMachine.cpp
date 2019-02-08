@@ -47,10 +47,234 @@ namespace PowerPMAC_Global_ns
 //		Attributes Allowed Methods
 //=================================================
 
+//--------------------------------------------------------
+/**
+ *	Method      : PowerPMAC_Global::is_MaxMotors_allowed()
+ *	Description : Execution allowed for MaxMotors attribute
+ */
+//--------------------------------------------------------
+bool PowerPMAC_Global::is_MaxMotors_allowed(TANGO_UNUSED(Tango::AttReqType type))
+{
+
+	//	Not any excluded states for MaxMotors attribute in read access.
+	/*----- PROTECTED REGION ID(PowerPMAC_Global::MaxMotorsStateAllowed_READ) ENABLED START -----*/
+	
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Global::MaxMotorsStateAllowed_READ
+	return true;
+}
+
+//--------------------------------------------------------
+/**
+ *	Method      : PowerPMAC_Global::is_MaxCoords_allowed()
+ *	Description : Execution allowed for MaxCoords attribute
+ */
+//--------------------------------------------------------
+bool PowerPMAC_Global::is_MaxCoords_allowed(TANGO_UNUSED(Tango::AttReqType type))
+{
+
+	//	Not any excluded states for MaxCoords attribute in read access.
+	/*----- PROTECTED REGION ID(PowerPMAC_Global::MaxCoordsStateAllowed_READ) ENABLED START -----*/
+	
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Global::MaxCoordsStateAllowed_READ
+	return true;
+}
+
+//--------------------------------------------------------
+/**
+ *	Method      : PowerPMAC_Global::is_AbortAll_allowed()
+ *	Description : Execution allowed for AbortAll attribute
+ */
+//--------------------------------------------------------
+bool PowerPMAC_Global::is_AbortAll_allowed(TANGO_UNUSED(Tango::AttReqType type))
+{
+	//	Not any excluded states for AbortAll attribute in Write access.
+	/*----- PROTECTED REGION ID(PowerPMAC_Global::AbortAllStateAllowed_WRITE) ENABLED START -----*/
+	
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Global::AbortAllStateAllowed_WRITE
+
+	//	Not any excluded states for AbortAll attribute in read access.
+	/*----- PROTECTED REGION ID(PowerPMAC_Global::AbortAllStateAllowed_READ) ENABLED START -----*/
+	
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Global::AbortAllStateAllowed_READ
+	return true;
+}
+
+//--------------------------------------------------------
+/**
+ *	Method      : PowerPMAC_Global::is_CpuTemp_allowed()
+ *	Description : Execution allowed for CpuTemp attribute
+ */
+//--------------------------------------------------------
+bool PowerPMAC_Global::is_CpuTemp_allowed(TANGO_UNUSED(Tango::AttReqType type))
+{
+
+	//	Not any excluded states for CpuTemp attribute in read access.
+	/*----- PROTECTED REGION ID(PowerPMAC_Global::CpuTempStateAllowed_READ) ENABLED START -----*/
+	
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Global::CpuTempStateAllowed_READ
+	return true;
+}
+
+//--------------------------------------------------------
+/**
+ *	Method      : PowerPMAC_Global::is_AmpOverTemp_allowed()
+ *	Description : Execution allowed for AmpOverTemp attribute
+ */
+//--------------------------------------------------------
+bool PowerPMAC_Global::is_AmpOverTemp_allowed(TANGO_UNUSED(Tango::AttReqType type))
+{
+
+	//	Not any excluded states for AmpOverTemp attribute in read access.
+	/*----- PROTECTED REGION ID(PowerPMAC_Global::AmpOverTempStateAllowed_READ) ENABLED START -----*/
+	
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Global::AmpOverTempStateAllowed_READ
+	return true;
+}
+
+//--------------------------------------------------------
+/**
+ *	Method      : PowerPMAC_Global::is_Firmware_allowed()
+ *	Description : Execution allowed for Firmware attribute
+ */
+//--------------------------------------------------------
+bool PowerPMAC_Global::is_Firmware_allowed(TANGO_UNUSED(Tango::AttReqType type))
+{
+
+	//	Not any excluded states for Firmware attribute in read access.
+	/*----- PROTECTED REGION ID(PowerPMAC_Global::FirmwareStateAllowed_READ) ENABLED START -----*/
+	
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Global::FirmwareStateAllowed_READ
+	return true;
+}
+
+//--------------------------------------------------------
+/**
+ *	Method      : PowerPMAC_Global::is_SystemType_allowed()
+ *	Description : Execution allowed for SystemType attribute
+ */
+//--------------------------------------------------------
+bool PowerPMAC_Global::is_SystemType_allowed(TANGO_UNUSED(Tango::AttReqType type))
+{
+
+	//	Not any excluded states for SystemType attribute in read access.
+	/*----- PROTECTED REGION ID(PowerPMAC_Global::SystemTypeStateAllowed_READ) ENABLED START -----*/
+	
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Global::SystemTypeStateAllowed_READ
+	return true;
+}
+
+//--------------------------------------------------------
+/**
+ *	Method      : PowerPMAC_Global::is_CpuType_allowed()
+ *	Description : Execution allowed for CpuType attribute
+ */
+//--------------------------------------------------------
+bool PowerPMAC_Global::is_CpuType_allowed(TANGO_UNUSED(Tango::AttReqType type))
+{
+
+	//	Not any excluded states for CpuType attribute in read access.
+	/*----- PROTECTED REGION ID(PowerPMAC_Global::CpuTypeStateAllowed_READ) ENABLED START -----*/
+	
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Global::CpuTypeStateAllowed_READ
+	return true;
+}
+
+//--------------------------------------------------------
+/**
+ *	Method      : PowerPMAC_Global::is_CpuFrequency_allowed()
+ *	Description : Execution allowed for CpuFrequency attribute
+ */
+//--------------------------------------------------------
+bool PowerPMAC_Global::is_CpuFrequency_allowed(TANGO_UNUSED(Tango::AttReqType type))
+{
+
+	//	Not any excluded states for CpuFrequency attribute in read access.
+	/*----- PROTECTED REGION ID(PowerPMAC_Global::CpuFrequencyStateAllowed_READ) ENABLED START -----*/
+	
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Global::CpuFrequencyStateAllowed_READ
+	return true;
+}
+
+//--------------------------------------------------------
+/**
+ *	Method      : PowerPMAC_Global::is_Uptime_allowed()
+ *	Description : Execution allowed for Uptime attribute
+ */
+//--------------------------------------------------------
+bool PowerPMAC_Global::is_Uptime_allowed(TANGO_UNUSED(Tango::AttReqType type))
+{
+
+	//	Not any excluded states for Uptime attribute in read access.
+	/*----- PROTECTED REGION ID(PowerPMAC_Global::UptimeStateAllowed_READ) ENABLED START -----*/
+	
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Global::UptimeStateAllowed_READ
+	return true;
+}
+
 
 //=================================================
 //		Commands Allowed Methods
 //=================================================
+
+//--------------------------------------------------------
+/**
+ *	Method      : PowerPMAC_Global::is_ResetAmp_allowed()
+ *	Description : Execution allowed for ResetAmp attribute
+ */
+//--------------------------------------------------------
+bool PowerPMAC_Global::is_ResetAmp_allowed(TANGO_UNUSED(const CORBA::Any &any))
+{
+	//	Not any excluded states for ResetAmp command.
+	/*----- PROTECTED REGION ID(PowerPMAC_Global::ResetAmpStateAllowed) ENABLED START -----*/
+	
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Global::ResetAmpStateAllowed
+	return true;
+}
+
+//--------------------------------------------------------
+/**
+ *	Method      : PowerPMAC_Global::is_ExecuteCommand_allowed()
+ *	Description : Execution allowed for ExecuteCommand attribute
+ */
+//--------------------------------------------------------
+bool PowerPMAC_Global::is_ExecuteCommand_allowed(TANGO_UNUSED(const CORBA::Any &any))
+{
+	//	Not any excluded states for ExecuteCommand command.
+	/*----- PROTECTED REGION ID(PowerPMAC_Global::ExecuteCommandStateAllowed) ENABLED START -----*/
+	
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Global::ExecuteCommandStateAllowed
+	return true;
+}
+
+//--------------------------------------------------------
+/**
+ *	Method      : PowerPMAC_Global::is_Reset_allowed()
+ *	Description : Execution allowed for Reset attribute
+ */
+//--------------------------------------------------------
+bool PowerPMAC_Global::is_Reset_allowed(TANGO_UNUSED(const CORBA::Any &any))
+{
+	//	Not any excluded states for Reset command.
+	/*----- PROTECTED REGION ID(PowerPMAC_Global::ResetStateAllowed) ENABLED START -----*/
+	
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Global::ResetStateAllowed
+	return true;
+}
+
+//--------------------------------------------------------
+/**
+ *	Method      : PowerPMAC_Global::is_Reboot_allowed()
+ *	Description : Execution allowed for Reboot attribute
+ */
+//--------------------------------------------------------
+bool PowerPMAC_Global::is_Reboot_allowed(TANGO_UNUSED(const CORBA::Any &any))
+{
+	//	Not any excluded states for Reboot command.
+	/*----- PROTECTED REGION ID(PowerPMAC_Global::RebootStateAllowed) ENABLED START -----*/
+	
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Global::RebootStateAllowed
+	return true;
+}
 
 
 /*----- PROTECTED REGION ID(PowerPMAC_Global::PowerPMAC_GlobalStateAllowed.AdditionalMethods) ENABLED START -----*/

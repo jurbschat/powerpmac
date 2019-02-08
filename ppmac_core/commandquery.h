@@ -224,7 +224,7 @@ namespace ppmac::query {
 
 	inline auto GeneralGetInfo(stdext::span<GlobalInfo> data) {
 		// type; vers; cpu; Sys.CpuFreq; Sys.CpuTemp
-		fmt::memory_buffer buffer = builder::detail::MakePlain("Sys.MaxMotors; Sys.maxCoords; Sys.pAbortAll; Sys.CpuTemp; BrickLV.OverTemp; Sys.Time");
+		fmt::memory_buffer buffer = builder::detail::MakePlain("Sys.MaxMotors; Sys.maxCoords; Sys.pAbortAll; Sys.CpuTemp; BrickLV.OverTemp; Sys.Time; Sys.CpuFreq");
 		return MakeCommandQuery(
 			fmt::to_string(buffer),
 			0,
@@ -235,10 +235,28 @@ namespace ppmac::query {
 				&GlobalInfo::abortAll,
 				&GlobalInfo::temp,
 				&GlobalInfo::brickOvertemp,
-				&GlobalInfo::uptime
+				&GlobalInfo::uptime,
+				&GlobalInfo::cpuFrequency
 			),
 			[](const std::string& str){
 				return parser::Parse1D<parser::DoubleParser>(str, boost::is_any_of("\r\n"));
+			}
+		);
+	}
+
+	inline auto GeneralGetStringInfo(stdext::span<GlobalInfo> data) {
+		fmt::memory_buffer buffer = builder::detail::MakePlain("type; vers; cpu;");
+		return MakeCommandQuery(
+			fmt::to_string(buffer),
+			0,
+			MakeObjectPointers(
+				data,
+				&GlobalInfo::type,
+				&GlobalInfo::firmware,
+				&GlobalInfo::cpuType
+			),
+			[](const std::string& str){
+				return parser::Parse1D<parser::NoneParser>(str, boost::is_any_of("\r\n"));
 			}
 		);
 	}

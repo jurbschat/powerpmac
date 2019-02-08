@@ -51,6 +51,238 @@ namespace PowerPMAC_Global_ns
 
 /*----- PROTECTED REGION END -----*/	//	PowerPMAC_GlobalClass::classes for dynamic creation
 
+//=========================================
+//	Define classes for attributes
+//=========================================
+//	Attribute MaxMotors class definition
+class MaxMotorsAttrib: public Tango::Attr
+{
+public:
+	MaxMotorsAttrib():Attr("MaxMotors",
+			Tango::DEV_LONG, Tango::READ) {};
+	~MaxMotorsAttrib() {};
+	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
+		{(static_cast<PowerPMAC_Global *>(dev))->read_MaxMotors(att);}
+	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
+		{return (static_cast<PowerPMAC_Global *>(dev))->is_MaxMotors_allowed(ty);}
+};
+
+//	Attribute MaxCoords class definition
+class MaxCoordsAttrib: public Tango::Attr
+{
+public:
+	MaxCoordsAttrib():Attr("MaxCoords",
+			Tango::DEV_LONG, Tango::READ) {};
+	~MaxCoordsAttrib() {};
+	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
+		{(static_cast<PowerPMAC_Global *>(dev))->read_MaxCoords(att);}
+	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
+		{return (static_cast<PowerPMAC_Global *>(dev))->is_MaxCoords_allowed(ty);}
+};
+
+//	Attribute AbortAll class definition
+class AbortAllAttrib: public Tango::Attr
+{
+public:
+	AbortAllAttrib():Attr("AbortAll",
+			Tango::DEV_BOOLEAN, Tango::READ_WRITE) {};
+	~AbortAllAttrib() {};
+	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
+		{(static_cast<PowerPMAC_Global *>(dev))->read_AbortAll(att);}
+	virtual void write(Tango::DeviceImpl *dev,Tango::WAttribute &att)
+		{(static_cast<PowerPMAC_Global *>(dev))->write_AbortAll(att);}
+	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
+		{return (static_cast<PowerPMAC_Global *>(dev))->is_AbortAll_allowed(ty);}
+};
+
+//	Attribute CpuTemp class definition
+class CpuTempAttrib: public Tango::Attr
+{
+public:
+	CpuTempAttrib():Attr("CpuTemp",
+			Tango::DEV_DOUBLE, Tango::READ) {};
+	~CpuTempAttrib() {};
+	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
+		{(static_cast<PowerPMAC_Global *>(dev))->read_CpuTemp(att);}
+	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
+		{return (static_cast<PowerPMAC_Global *>(dev))->is_CpuTemp_allowed(ty);}
+};
+
+//	Attribute AmpOverTemp class definition
+class AmpOverTempAttrib: public Tango::Attr
+{
+public:
+	AmpOverTempAttrib():Attr("AmpOverTemp",
+			Tango::DEV_BOOLEAN, Tango::READ) {};
+	~AmpOverTempAttrib() {};
+	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
+		{(static_cast<PowerPMAC_Global *>(dev))->read_AmpOverTemp(att);}
+	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
+		{return (static_cast<PowerPMAC_Global *>(dev))->is_AmpOverTemp_allowed(ty);}
+};
+
+//	Attribute Firmware class definition
+class FirmwareAttrib: public Tango::Attr
+{
+public:
+	FirmwareAttrib():Attr("Firmware",
+			Tango::DEV_STRING, Tango::READ) {};
+	~FirmwareAttrib() {};
+	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
+		{(static_cast<PowerPMAC_Global *>(dev))->read_Firmware(att);}
+	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
+		{return (static_cast<PowerPMAC_Global *>(dev))->is_Firmware_allowed(ty);}
+};
+
+//	Attribute SystemType class definition
+class SystemTypeAttrib: public Tango::Attr
+{
+public:
+	SystemTypeAttrib():Attr("SystemType",
+			Tango::DEV_STRING, Tango::READ) {};
+	~SystemTypeAttrib() {};
+	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
+		{(static_cast<PowerPMAC_Global *>(dev))->read_SystemType(att);}
+	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
+		{return (static_cast<PowerPMAC_Global *>(dev))->is_SystemType_allowed(ty);}
+};
+
+//	Attribute CpuType class definition
+class CpuTypeAttrib: public Tango::Attr
+{
+public:
+	CpuTypeAttrib():Attr("CpuType",
+			Tango::DEV_STRING, Tango::READ) {};
+	~CpuTypeAttrib() {};
+	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
+		{(static_cast<PowerPMAC_Global *>(dev))->read_CpuType(att);}
+	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
+		{return (static_cast<PowerPMAC_Global *>(dev))->is_CpuType_allowed(ty);}
+};
+
+//	Attribute CpuFrequency class definition
+class CpuFrequencyAttrib: public Tango::Attr
+{
+public:
+	CpuFrequencyAttrib():Attr("CpuFrequency",
+			Tango::DEV_LONG, Tango::READ) {};
+	~CpuFrequencyAttrib() {};
+	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
+		{(static_cast<PowerPMAC_Global *>(dev))->read_CpuFrequency(att);}
+	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
+		{return (static_cast<PowerPMAC_Global *>(dev))->is_CpuFrequency_allowed(ty);}
+};
+
+//	Attribute Uptime class definition
+class UptimeAttrib: public Tango::Attr
+{
+public:
+	UptimeAttrib():Attr("Uptime",
+			Tango::DEV_STRING, Tango::READ) {};
+	~UptimeAttrib() {};
+	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
+		{(static_cast<PowerPMAC_Global *>(dev))->read_Uptime(att);}
+	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
+		{return (static_cast<PowerPMAC_Global *>(dev))->is_Uptime_allowed(ty);}
+};
+
+
+//=========================================
+//	Define classes for commands
+//=========================================
+//	Command ResetAmp class definition
+class ResetAmpClass : public Tango::Command
+{
+public:
+	ResetAmpClass(const char   *name,
+	               Tango::CmdArgType in,
+				   Tango::CmdArgType out,
+				   const char        *in_desc,
+				   const char        *out_desc,
+				   Tango::DispLevel  level)
+	:Command(name,in,out,in_desc,out_desc, level)	{};
+
+	ResetAmpClass(const char   *name,
+	               Tango::CmdArgType in,
+				   Tango::CmdArgType out)
+	:Command(name,in,out)	{};
+	~ResetAmpClass() {};
+	
+	virtual CORBA::Any *execute (Tango::DeviceImpl *dev, const CORBA::Any &any);
+	virtual bool is_allowed (Tango::DeviceImpl *dev, const CORBA::Any &any)
+	{return (static_cast<PowerPMAC_Global *>(dev))->is_ResetAmp_allowed(any);}
+};
+
+//	Command ExecuteCommand class definition
+class ExecuteCommandClass : public Tango::Command
+{
+public:
+	ExecuteCommandClass(const char   *name,
+	               Tango::CmdArgType in,
+				   Tango::CmdArgType out,
+				   const char        *in_desc,
+				   const char        *out_desc,
+				   Tango::DispLevel  level)
+	:Command(name,in,out,in_desc,out_desc, level)	{};
+
+	ExecuteCommandClass(const char   *name,
+	               Tango::CmdArgType in,
+				   Tango::CmdArgType out)
+	:Command(name,in,out)	{};
+	~ExecuteCommandClass() {};
+	
+	virtual CORBA::Any *execute (Tango::DeviceImpl *dev, const CORBA::Any &any);
+	virtual bool is_allowed (Tango::DeviceImpl *dev, const CORBA::Any &any)
+	{return (static_cast<PowerPMAC_Global *>(dev))->is_ExecuteCommand_allowed(any);}
+};
+
+//	Command Reset class definition
+class ResetClass : public Tango::Command
+{
+public:
+	ResetClass(const char   *name,
+	               Tango::CmdArgType in,
+				   Tango::CmdArgType out,
+				   const char        *in_desc,
+				   const char        *out_desc,
+				   Tango::DispLevel  level)
+	:Command(name,in,out,in_desc,out_desc, level)	{};
+
+	ResetClass(const char   *name,
+	               Tango::CmdArgType in,
+				   Tango::CmdArgType out)
+	:Command(name,in,out)	{};
+	~ResetClass() {};
+	
+	virtual CORBA::Any *execute (Tango::DeviceImpl *dev, const CORBA::Any &any);
+	virtual bool is_allowed (Tango::DeviceImpl *dev, const CORBA::Any &any)
+	{return (static_cast<PowerPMAC_Global *>(dev))->is_Reset_allowed(any);}
+};
+
+//	Command Reboot class definition
+class RebootClass : public Tango::Command
+{
+public:
+	RebootClass(const char   *name,
+	               Tango::CmdArgType in,
+				   Tango::CmdArgType out,
+				   const char        *in_desc,
+				   const char        *out_desc,
+				   Tango::DispLevel  level)
+	:Command(name,in,out,in_desc,out_desc, level)	{};
+
+	RebootClass(const char   *name,
+	               Tango::CmdArgType in,
+				   Tango::CmdArgType out)
+	:Command(name,in,out)	{};
+	~RebootClass() {};
+	
+	virtual CORBA::Any *execute (Tango::DeviceImpl *dev, const CORBA::Any &any);
+	virtual bool is_allowed (Tango::DeviceImpl *dev, const CORBA::Any &any)
+	{return (static_cast<PowerPMAC_Global *>(dev))->is_Reboot_allowed(any);}
+};
+
+
 /**
  *	The PowerPMAC_GlobalClass singleton definition
  */

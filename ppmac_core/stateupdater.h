@@ -94,15 +94,27 @@ namespace ppmac {
 		void UpdateGeneralInfo() {
 			std::lock_guard<std::mutex> lock(stateMutex);
 			// general status
-			auto query = query::GeneralGetInfo(stdext::span<GlobalInfo>(&state.global, 1));
-			auto result = rs.ChannelWriteRead(query.command);
-			if(result) {
-				auto parserResult = query.parser(*result);
-				Update1D(parserResult, query);
+			{
+				auto query = query::GeneralGetInfo(stdext::span<GlobalInfo>(&state.global, 1));
+				auto result = rs.ChannelWriteRead(query.command);
+				if(result) {
+					auto parserResult = query.parser(*result);
+					Update1D(parserResult, query);
+				}
+			}
+
+			// general status (strings)
+			{
+				auto query = query::GeneralGetStringInfo(stdext::span<GlobalInfo>(&state.global, 1));
+				auto result = rs.ChannelWriteRead(query.command);
+				if(result) {
+					auto parserResult = query.parser(*result);
+					Update1D(parserResult, query);
+				}
 			}
 		}
 
-		void UpdateMotorOther() {
+		/*void UpdateMotorOther() {
 			std::lock_guard<std::mutex> lock(stateMutex);
 			// motor status
 			auto query = query::MotorGetOtherRange(stdext::make_span(state.motors), 0, state.global.maxMotors - 1);
@@ -111,7 +123,7 @@ namespace ppmac {
 				auto parserResult = query.parser(*result);
 				Update1D(parserResult, query);
 			}
-		}
+		}*/
 
 		void UpdateMotorValues() {
 			std::lock_guard<std::mutex> lock(stateMutex);
@@ -267,7 +279,6 @@ namespace ppmac {
 			timeout.AddTimer(UpdateTime{std::chrono::milliseconds{1000}, [&, this](){
 				_1sUpdates++;
 				UpdateGeneralInfo();
-				UpdateMotorOther();
 			}});
 
 			timeout.AddTimer(UpdateTime{std::chrono::milliseconds{100}, [&, this](){
@@ -283,7 +294,8 @@ namespace ppmac {
 
 			timeout.AddTimer(UpdateTime{std::chrono::milliseconds{1}, [&, this](){
 				_1msUpdates++;
-				UpdateMotorStatus();
+				//UpdateMotorValues();
+				//UpdateMotorStatus();
 			}});
 
 			while(shouldUpdate) {
@@ -295,15 +307,17 @@ namespace ppmac {
 							continue;
 						}
 						StopWatch<> sleepTimer{true};
-						timeout.Update();
-						auto timeLeft =  (timeout.GetMinInterval() - sleepTimer.Elapsed()) / 2;
-						if(timeLeft > time::zero) {
+						UpdateMotorValues();
+						_1msUpdates++;
+						//timeout.Update();
+						//auto timeLeft =  (timeout.GetMinInterval() - sleepTimer.Elapsed()) / 2;
+						//if(timeLeft > time::zero) {
 							//std::this_thread::sleep_for(timeLeft);
-						} else {
+						//} else {
 							//SPDLOG_DEBUG("no time left, unable to sleep");
-						}
+						//}
 						// test stuff
-						if(sw.Elapsed() >= std::chrono::seconds{3}) {
+						if(sw.Elapsed() >= std::chrono::seconds{1}) {
 							SPDLOG_DEBUG("update stats ({}s): [1s:{}, 100ms:{}, 10ms:{}, 1ms:{}]",
 									StopWatch<>::ToDouble(sw.Elapsed()),
 									_1sUpdates,

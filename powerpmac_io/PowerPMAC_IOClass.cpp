@@ -341,9 +341,9 @@ void PowerPMAC_IOClass::attribute_factory(vector<Tango::Attr *> &att_list)
 	//	Attribute : RawValue
 	RawValueAttrib	*rawvalue = new RawValueAttrib();
 	Tango::UserDefaultAttrProp	rawvalue_prop;
-	rawvalue_prop.set_description("raw values are in the range of -32768 to +32768");
+	rawvalue_prop.set_description("raw values are in the range of -32768 to +32768 for ADC, -13380 to 13380 for DAC and 0, 1 for binary inputs/outputs");
 	//	label	not set for RawValue
-	//	unit	not set for RawValue
+	rawvalue_prop.set_unit("raw");
 	//	standard_unit	not set for RawValue
 	//	display_unit	not set for RawValue
 	//	format	not set for RawValue
@@ -365,12 +365,12 @@ void PowerPMAC_IOClass::attribute_factory(vector<Tango::Attr *> &att_list)
 	//	Attribute : Value
 	ValueAttrib	*value = new ValueAttrib();
 	Tango::UserDefaultAttrProp	value_prop;
-	value_prop.set_description("the `working` value is the raw value scaled to -1 to 1. if you e.g. have a +-5V or +-10V input");
+	value_prop.set_description("the raw value from the controller will always be mapped to a -1, 1 intervall. \nthis can be changed to e.g. +-5 or +-10 via scaling if a specific range is desired");
 	//	label	not set for Value
 	//	unit	not set for Value
 	//	standard_unit	not set for Value
 	//	display_unit	not set for Value
-	//	format	not set for Value
+	value_prop.set_format("%6.2f");
 	//	max_value	not set for Value
 	//	min_value	not set for Value
 	//	max_alarm	not set for Value
@@ -389,12 +389,12 @@ void PowerPMAC_IOClass::attribute_factory(vector<Tango::Attr *> &att_list)
 	//	Attribute : ScaleFactor
 	ScaleFactorAttrib	*scalefactor = new ScaleFactorAttrib();
 	Tango::UserDefaultAttrProp	scalefactor_prop;
-	//	description	not set for ScaleFactor
+	scalefactor_prop.set_description("the scale factor that will be applied to the value, \nthis mapps the -1, 1 interval into e.g. -5 to 5");
 	//	label	not set for ScaleFactor
 	//	unit	not set for ScaleFactor
 	//	standard_unit	not set for ScaleFactor
 	//	display_unit	not set for ScaleFactor
-	//	format	not set for ScaleFactor
+	scalefactor_prop.set_format("%6.2f");
 	//	max_value	not set for ScaleFactor
 	//	min_value	not set for ScaleFactor
 	//	max_alarm	not set for ScaleFactor
