@@ -342,8 +342,9 @@ void PowerPMAC_Global::read_MaxMotors(Tango::Attribute &attr)
 
 	try {
 		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
-		auto motors = ci.GetGlobalInfo().maxMotors;
+		Tango::DevLong motors = ci.GetGlobalInfo().maxMotors;
 		attr.set_value(&motors);
+		fmt::print("{}\n", motors);
 	} catch (ppmac::RuntimeError& e) {
 		tu::TranslateException(e);
 	}
@@ -367,7 +368,7 @@ void PowerPMAC_Global::read_MaxCoords(Tango::Attribute &attr)
 
 	try {
 		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
-		auto coords = ci.GetGlobalInfo().maxCoords;
+		Tango::DevLong coords = ci.GetGlobalInfo().maxCoords;
 		attr.set_value(&coords);
 	} catch (ppmac::RuntimeError& e) {
 		tu::TranslateException(e);
@@ -392,7 +393,7 @@ void PowerPMAC_Global::read_AbortAll(Tango::Attribute &attr)
 
 	try {
 		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
-		auto aa = ci.GetGlobalInfo().abortAll; // stinkt
+		Tango::DevBoolean aa = ci.GetGlobalInfo().abortAll; // stinkt
 		attr.set_value(&aa);
 	} catch (ppmac::RuntimeError& e) {
 		tu::TranslateException(e);
@@ -444,8 +445,8 @@ void PowerPMAC_Global::read_CpuTemp(Tango::Attribute &attr)
 
 	try {
 		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
-		auto motors = ci.GetGlobalInfo().temp;
-		attr.set_value(&motors);
+		Tango::DevDouble temp = ci.GetGlobalInfo().temp;
+		attr.set_value(&temp);
 	} catch (ppmac::RuntimeError& e) {
 		tu::TranslateException(e);
 	}
@@ -469,7 +470,7 @@ void PowerPMAC_Global::read_AmpOverTemp(Tango::Attribute &attr)
 
 	try {
 		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
-		auto ot = ci.GetGlobalInfo().brickOvertemp;
+		Tango::DevBoolean ot = ci.GetGlobalInfo().brickOvertemp;
 		attr.set_value(&ot);
 	} catch (ppmac::RuntimeError& e) {
 		tu::TranslateException(e);
@@ -494,7 +495,7 @@ void PowerPMAC_Global::read_Firmware(Tango::Attribute &attr)
 
 	try {
 		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
-		auto firmware = ci.GetGlobalInfo().firmware;
+		std::string firmware = ci.GetGlobalInfo().firmware;
 		SetStringValue(attr_Firmware_read, firmware);
 		attr.set_value(attr_Firmware_read);
 	} catch (ppmac::RuntimeError& e) {
@@ -520,7 +521,7 @@ void PowerPMAC_Global::read_SystemType(Tango::Attribute &attr)
 
 	try {
 		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
-		auto system = ci.GetGlobalInfo().type;
+		std::string system = ci.GetGlobalInfo().type;
 		SetStringValue(attr_SystemType_read, system);
 		attr.set_value(attr_SystemType_read);
 	} catch (ppmac::RuntimeError& e) {
@@ -546,7 +547,7 @@ void PowerPMAC_Global::read_CpuType(Tango::Attribute &attr)
 
 	try {
 		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
-		auto cpuType = ci.GetGlobalInfo().cpuType;
+		std::string cpuType = ci.GetGlobalInfo().cpuType;
 		SetStringValue(attr_CpuType_read, cpuType);
 		attr.set_value(attr_CpuType_read);
 	} catch (ppmac::RuntimeError& e) {
@@ -573,7 +574,7 @@ void PowerPMAC_Global::read_CpuFrequency(Tango::Attribute &attr)
 	try {
 		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
 		// convert to mhz
-		int32_t freq = ci.GetGlobalInfo().cpuFrequency / (1000 * 1000);
+		Tango::DevLong freq = ci.GetGlobalInfo().cpuFrequency / (1000 * 1000);
 		attr.set_value(&freq);
 	} catch (ppmac::RuntimeError& e) {
 		tu::TranslateException(e);
@@ -598,12 +599,12 @@ void PowerPMAC_Global::read_Uptime(Tango::Attribute &attr)
 
 	try {
 		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
-		auto ut = ci.GetGlobalInfo().uptime;
+		double ut = ci.GetGlobalInfo().uptime;
 		int64_t seconds = std::floor(ut);
 		int32_t minutes = seconds / 60;
 		int32_t hours = minutes / 60;
 		int32_t days = hours / 24;
-		auto timeString = fmt::format("{}D {}:{}:{}", days, (hours%24), (minutes%60), (seconds%60));
+		std::string timeString = fmt::format("{}D {}:{}:{}", days, (hours%24), (minutes%60), (seconds%60));
 		SetStringValue(attr_Uptime_read, timeString);
 		attr.set_value(attr_Uptime_read);
 	} catch (ppmac::RuntimeError& e) {

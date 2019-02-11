@@ -34,13 +34,14 @@
 /*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::PowerPMAC_MotorStateMachine.cpp
 
 //================================================================
-//  States  |  Description
+//  States   |  Description
 //================================================================
-//  ON      |  
-//  OFF     |  
-//  INIT    |  
-//  MOVING  |  
-//  FAULT   |  
+//  ON       |  
+//  OFF      |  
+//  INIT     |  
+//  MOVING   |  
+//  FAULT    |  
+//  DISABLE  |  
 
 
 namespace PowerPMAC_Motor_ns
@@ -429,7 +430,8 @@ bool PowerPMAC_Motor::is_Phase_allowed(TANGO_UNUSED(const CORBA::Any &any))
 	if (get_state()==Tango::OFF ||
 		get_state()==Tango::INIT ||
 		get_state()==Tango::MOVING ||
-		get_state()==Tango::FAULT)
+		get_state()==Tango::FAULT ||
+		get_state()==Tango::DISABLE)
 	{
 	/*----- PROTECTED REGION ID(PowerPMAC_Motor::PhaseStateAllowed) ENABLED START -----*/
 	
@@ -451,7 +453,8 @@ bool PowerPMAC_Motor::is_Home_allowed(TANGO_UNUSED(const CORBA::Any &any))
 	if (get_state()==Tango::OFF ||
 		get_state()==Tango::INIT ||
 		get_state()==Tango::MOVING ||
-		get_state()==Tango::FAULT)
+		get_state()==Tango::FAULT ||
+		get_state()==Tango::DISABLE)
 	{
 	/*----- PROTECTED REGION ID(PowerPMAC_Motor::HomeStateAllowed) ENABLED START -----*/
 	
@@ -473,7 +476,8 @@ bool PowerPMAC_Motor::is_Calibrate_allowed(TANGO_UNUSED(const CORBA::Any &any))
 	if (get_state()==Tango::OFF ||
 		get_state()==Tango::INIT ||
 		get_state()==Tango::MOVING ||
-		get_state()==Tango::FAULT)
+		get_state()==Tango::FAULT ||
+		get_state()==Tango::DISABLE)
 	{
 	/*----- PROTECTED REGION ID(PowerPMAC_Motor::CalibrateStateAllowed) ENABLED START -----*/
 	
@@ -495,7 +499,8 @@ bool PowerPMAC_Motor::is_Enable_allowed(TANGO_UNUSED(const CORBA::Any &any))
 	if (get_state()==Tango::ON ||
 		get_state()==Tango::INIT ||
 		get_state()==Tango::MOVING ||
-		get_state()==Tango::FAULT)
+		get_state()==Tango::FAULT ||
+		get_state()==Tango::DISABLE)
 	{
 	/*----- PROTECTED REGION ID(PowerPMAC_Motor::EnableStateAllowed) ENABLED START -----*/
 	
@@ -534,7 +539,8 @@ bool PowerPMAC_Motor::is_Stop_allowed(TANGO_UNUSED(const CORBA::Any &any))
 {
 	//	Compare device state with not allowed states.
 	if (get_state()==Tango::OFF ||
-		get_state()==Tango::FAULT)
+		get_state()==Tango::FAULT ||
+		get_state()==Tango::DISABLE)
 	{
 	/*----- PROTECTED REGION ID(PowerPMAC_Motor::StopStateAllowed) ENABLED START -----*/
 	

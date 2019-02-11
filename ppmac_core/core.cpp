@@ -39,6 +39,9 @@ namespace ppmac {
 	void Core::LoggingSetup() {
 		auto console = spdlog::stdout_color_mt("console");
 		console->flush_on(spdlog::level::debug);
+		// [%n] would be the logger name, we dont care about that atm
+		console->set_pattern("[%Y-%m-%d %H:%M:%S.%e] [%l] [%t] [%@] %v");
+		spdlog::set_default_logger(console);
 	}
 
 	void Core::ErrorHandlingSetup() {
@@ -52,13 +55,16 @@ namespace ppmac {
 	}
 
 	void Core::Initialize(const std::string& host, int port) {
+		if(remoteShell.IsConnected()) {
+			return;
+		}
 		remoteHost = host;
 		remotePort = port;
-		/*keepConnectionAlive = true;
+		keepConnectionAlive = true;
 		remoteShellKeepAlive = std::thread([this](){
 			KeepAliveRunner();
-		});*/
-		auto res = SetupRemoteShell(remoteHost, remotePort);
+		});
+		/*auto res = SetupRemoteShell(remoteHost, remotePort);
 		if(res == RemoteShellErrorCode::Ok) {
 			SPDLOG_DEBUG("remote shell setup complete!");
 			stateUpdater.Start();
@@ -66,8 +72,7 @@ namespace ppmac {
 		} else {
 			SPDLOG_DEBUG("unable to create remote shell (exiting), error: ", wise_enum::to_string(res));
 			exit(-1);
-		}
-		//std::this_thread::sleep_for(std::chrono::seconds(3000));
+		}*/
 	}
 
 	RemoteShellErrorCode Core::SetupRemoteShell(const std::string& host, int port) {
@@ -98,6 +103,7 @@ namespace ppmac {
 	{
 		while(keepConnectionAlive)
 		{
+			SPDLOG_DEBUG("new connection atemp");
 			if(remoteShell.IsConnected()) {
 				std::this_thread::sleep_for(std::chrono::seconds{1});
 				continue;
@@ -106,19 +112,16 @@ namespace ppmac {
 				return;
 			}
 			auto res = SetupRemoteShell(remoteHost, remotePort);
-
-			while(remoteShell.IsConnected()) {
-				//auto cmd = ppmac::cmd::GlobalInfo();
-				//remoteShell.ChannelWrite(cmd, std::chrono::milliseconds{1000});
-				//auto res = remoteShell.ChannelRead(std::chrono::milliseconds{1000});
-				std::this_thread::sleep_for(std::chrono::milliseconds{1000});
-			}
-
 			if(res == RemoteShellErrorCode::Ok) {
 				SPDLOG_DEBUG("remote shell setup complete!");
 				stateUpdater.Start();
+				OnConnectionEstablished();
 			} else {
 				SPDLOG_DEBUG("unable to create remote shell, error: ", wise_enum::to_string(res));
+			}
+			SPDLOG_DEBUG("now waiting for disconnect to restart connection");
+			while(remoteShell.IsConnected()) {
+				std::this_thread::sleep_for(std::chrono::seconds{1});
 			}
 		}
 	}
@@ -163,10 +166,6 @@ namespace ppmac {
 		return *result;
 	}
 
-	void Core::RunUpdater() {
-		stateUpdater.CheckForMotorStateChanges();
-	}
-
 	MotorInfo Core::GetMotorInfo(MotorID motor) {
 		return stateUpdater.GetMotorInfo(motor);
 	}
@@ -186,14 +185,13 @@ namespace ppmac {
 
 	void Core::DeadTimerRunner() {
 		while (runDeadTimer) {
-			try
-			{
-				{ // keep empty scope for lock guard
+			try {
+				{ // keep scope for lock guard
 					std::lock_guard<std::mutex> lock(deadTimerMutex);
 					deadTimer.Update();
-					deadTimer.RemoveExpired();
+					deadTimer.RemoveAlreadyExecuted();
 				}
-				std::this_thread::sleep_for(std::chrono::milliseconds{1});
+				std::this_thread::sleep_for(std::chrono::milliseconds{10});
 			} catch (std::exception& e) {
 				SPDLOG_DEBUG("exception in dead timer: '{}'", e.what());
 			}

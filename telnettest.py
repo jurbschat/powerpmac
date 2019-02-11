@@ -24,9 +24,10 @@ start = datetime.now()
 counts = 0
 while True:
 
-    cmd = "#1..7?\n"
+    cmd = "#1..31pvf?\n"
     tn.write(cmd)
-    result = tn.read_until("\x06")        
+    result = tn.read_until("\x06")
+
     #print("result: " + result[:-3].strip())
     counts = counts + 1
     now = datetime.now()

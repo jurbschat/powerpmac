@@ -33,7 +33,7 @@ namespace ppmac {
 		virtual bool IsConnected() = 0;
 
 		virtual std::string ExecuteCommand(const std::string& str) = 0;
-		virtual void RunUpdater() = 0;
+		//virtual void RunUpdater() = 0;
 
 		virtual MotorInfo GetMotorInfo(MotorID motor) = 0;
 		virtual IOInfo GetIoInfo(IoID io) = 0;

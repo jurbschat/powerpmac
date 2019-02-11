@@ -41,6 +41,8 @@
         <type xsi:type="pogoDsl:VoidType"/>
       </argout>
       <status abstract="false" inherited="false" concrete="true" concreteHere="true"/>
+      <excludedStates>OFF</excludedStates>
+      <excludedStates>FAULT</excludedStates>
     </commands>
     <commands name="ExecuteCommand" description="" execMethod="execute_command" displayLevel="OPERATOR" polledPeriod="0" isDynamic="false">
       <argin description="">
@@ -50,6 +52,8 @@
         <type xsi:type="pogoDsl:StringType"/>
       </argout>
       <status abstract="false" inherited="false" concrete="true" concreteHere="true"/>
+      <excludedStates>OFF</excludedStates>
+      <excludedStates>FAULT</excludedStates>
     </commands>
     <commands name="Reset" description="" execMethod="reset" displayLevel="OPERATOR" polledPeriod="0" isDynamic="false">
       <argin description="">
@@ -59,6 +63,8 @@
         <type xsi:type="pogoDsl:VoidType"/>
       </argout>
       <status abstract="false" inherited="false" concrete="true" concreteHere="true"/>
+      <excludedStates>OFF</excludedStates>
+      <excludedStates>FAULT</excludedStates>
     </commands>
     <commands name="Reboot" description="" execMethod="reboot" displayLevel="OPERATOR" polledPeriod="0" isDynamic="false">
       <argin description="">
@@ -68,6 +74,8 @@
         <type xsi:type="pogoDsl:VoidType"/>
       </argout>
       <status abstract="false" inherited="false" concrete="true" concreteHere="true"/>
+      <excludedStates>OFF</excludedStates>
+      <excludedStates>FAULT</excludedStates>
     </commands>
     <attributes name="MaxMotors" attType="Scalar" rwType="READ" displayLevel="OPERATOR" polledPeriod="0" maxX="" maxY="" allocReadMember="true" isDynamic="false">
       <dataType xsi:type="pogoDsl:IntType"/>

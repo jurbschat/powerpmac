@@ -15,6 +15,7 @@
 #include <boost/algorithm/string.hpp>
 
 #include <netinet/in.h>
+#include <netinet/tcp.h>
 #include <unistd.h>
 #include <arpa/inet.h>
 #include <fcntl.h>
@@ -193,6 +194,8 @@ namespace ppmac {
 			SPDLOG_DEBUG("failed to connect to {}:{}", host, port);
 			return RemoteShellErrorCode::ConnectionRefused;
 		}
+		int val[]{1};
+		setsockopt(sock, IPPROTO_TCP, TCP_NODELAY, val, sizeof(int));
 		SetupShell();
 		connected = true;
 		SPDLOG_DEBUG("connection to pmac established");

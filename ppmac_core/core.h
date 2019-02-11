@@ -33,7 +33,7 @@ public:
 
 	// pmac logic
 	std::string ExecuteCommand(const std::string& str);
-	void RunUpdater();
+	//void RunUpdater();
 
 	MotorInfo GetMotorInfo(MotorID motor);
 	virtual IOInfo GetIoInfo(IoID io);

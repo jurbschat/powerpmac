@@ -162,36 +162,32 @@ namespace ppmac::parser {
 	using Hex32Parser = parser_traits<uint32_t, parser_gate_tag>;
 	using Hex64Parser = parser_traits<uint64_t, parser_gate_tag>;
 
-	template<typename Parser, typename SepPred, size_t VALUE_COUNT = 32>
-	boost::container::small_vector<typename Parser::result_type, VALUE_COUNT>
-	Parse1D(const std::string &str, SepPred pred)
+	template<typename SepPred, size_t VALUE_COUNT = 32>
+	boost::container::small_vector<std::string, VALUE_COUNT>
+	Split1D(const std::string &str, SepPred pred)
 	{
 		detail::ThrowIfError(str);
 		boost::container::small_vector<std::string, VALUE_COUNT> splitVector;
-		boost::container::small_vector<typename Parser::result_type, VALUE_COUNT> resultVector;
 		boost::algorithm::split(splitVector, str, pred, boost::token_compress_on);
 		if(splitVector.empty()) {
 			THROW_RUNTIME_ERROR("unable to parse '{}' as line", str);
 		}
-		for(auto& s : splitVector) {
-			resultVector.push_back(Parser::convert(s));
-		}
-		return resultVector;
+		return splitVector;
 	}
 
-	template<typename Parser, typename SepPred1, typename SepPred2 = boost::algorithm::detail::is_any_ofF<char>, size_t LINE_COUNT = 4, size_t VALUE_COUNT = 32>
-	boost::container::small_vector<boost::container::small_vector<typename Parser::result_type, LINE_COUNT>, VALUE_COUNT>
-	Parse2D(const std::string &str, SepPred1 pred1, SepPred2 pred2)
+	template<typename SepPred1, typename SepPred2 = boost::algorithm::detail::is_any_ofF<char>, size_t LINE_COUNT = 4, size_t VALUE_COUNT = 32>
+	boost::container::small_vector<boost::container::small_vector<std::string, LINE_COUNT>, VALUE_COUNT>
+	Split2D(const std::string &str, SepPred1 pred1, SepPred2 pred2)
 	{
 		detail::ThrowIfError(str);
-		boost::container::small_vector<boost::container::small_vector<typename Parser::result_type, LINE_COUNT>, VALUE_COUNT> resultVector;
-		boost::container::small_vector<std::string, VALUE_COUNT> splitVector;
-		boost::algorithm::split(splitVector, str, pred1, boost::token_compress_on);
-		if(splitVector.empty()) {
+		boost::container::small_vector<boost::container::small_vector<std::string, LINE_COUNT>, VALUE_COUNT> resultVector;
+		boost::container::small_vector<std::string, LINE_COUNT> lineSplitVector;
+		boost::algorithm::split(lineSplitVector, str, pred1, boost::token_compress_on);
+		if(lineSplitVector.empty()) {
 			THROW_RUNTIME_ERROR("unable to parse '{}' as multiline", str);
 		}
-		for(auto& l : splitVector) {
-			resultVector.emplace_back(Parse1D<Parser, SepPred2, VALUE_COUNT>(l, pred2));
+		for(auto& l : lineSplitVector) {
+			resultVector.emplace_back(Split1D<SepPred2, VALUE_COUNT>(l, pred2));
 		}
 		return resultVector;
 	}

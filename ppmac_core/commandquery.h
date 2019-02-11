@@ -184,19 +184,33 @@ namespace ppmac::query {
 		}*/
 	}
 
+	template<typename P, typename T>
+	struct ObjectPointerInfo {
+		ObjectPointerInfo(T ptr)
+		: ptr(ptr)
+		{}
+		using parser_type = P;
+		T ptr;
+	};
+
+	template<typename P, typename T>
+	ObjectPointerInfo<P, T> MakeObjectPtrInfo(T ptr) {
+		return ObjectPointerInfo<P, T>(ptr);
+	}
+
 	template<typename T, typename... Args>
-	struct ObjectPointers {
-		ObjectPointers(stdext::span<T> data, Args&&... args)
-				: data(data),
-				  memberPointer(std::forward<Args>(args)...)
+	struct ObjectPointerList {
+		ObjectPointerList(stdext::span<T> data, Args&&... args)
+			: data(data),
+			memberPointer(std::forward<Args>(args)...)
 		{}
 		stdext::span<T> data;
 		std::tuple<Args...> memberPointer;
 	};
 
 	template<typename T, typename... Args>
-	ObjectPointers<T, Args...> MakeObjectPointers(stdext::span<T> data, Args&&... args) {
-		return ObjectPointers<T, Args...>{data, std::forward<Args>(args)...};
+	ObjectPointerList<T, Args...> MakeObjectPointerList(stdext::span<T> data, Args &&... args) {
+		return ObjectPointerList<T, Args...>{data, std::forward<Args>(args)...};
 	}
 
 	template<typename PtrHolder, typename ParserType>
@@ -222,96 +236,120 @@ namespace ppmac::query {
 		return CommandQuery<PtrHolder, ParserType>{cmd, rangeStart, pointers, parser};
 	}
 
+	/*
+	 * retuns a a query that will update general info like max motors, abortAll etc...
+	 */
 	inline auto GeneralGetInfo(stdext::span<GlobalInfo> data) {
-		// type; vers; cpu; Sys.CpuFreq; Sys.CpuTemp
-		fmt::memory_buffer buffer = builder::detail::MakePlain("Sys.MaxMotors; Sys.maxCoords; Sys.pAbortAll; Sys.CpuTemp; BrickLV.OverTemp; Sys.Time; Sys.CpuFreq");
+		fmt::memory_buffer buffer = builder::detail::MakePlain("Sys.MaxMotors; Sys.maxCoords; Sys.pAbortAll; Sys.CpuTemp; BrickLV.OverTemp; Sys.Time; Sys.CpuFreq; type; vers; cpu;");
 		return MakeCommandQuery(
 			fmt::to_string(buffer),
 			0,
-			MakeObjectPointers(
+			MakeObjectPointerList(
 				data,
-				&GlobalInfo::maxMotors,
-				&GlobalInfo::maxCoords,
-				&GlobalInfo::abortAll,
-				&GlobalInfo::temp,
-				&GlobalInfo::brickOvertemp,
-				&GlobalInfo::uptime,
-				&GlobalInfo::cpuFrequency
+				MakeObjectPtrInfo<parser::IntParser>(&GlobalInfo::maxMotors),
+				MakeObjectPtrInfo<parser::IntParser>(&GlobalInfo::maxCoords),
+				MakeObjectPtrInfo<parser::IntParser>(&GlobalInfo::abortAll),
+				MakeObjectPtrInfo<parser::DoubleParser>(&GlobalInfo::temp),
+				MakeObjectPtrInfo<parser::IntParser>(&GlobalInfo::brickOvertemp),
+				MakeObjectPtrInfo<parser::DoubleParser>(&GlobalInfo::uptime),
+				MakeObjectPtrInfo<parser::Int64Parser>(&GlobalInfo::cpuFrequency),
+				MakeObjectPtrInfo<parser::NoneParser>(&GlobalInfo::type),
+				MakeObjectPtrInfo<parser::NoneParser>(&GlobalInfo::firmware),
+				MakeObjectPtrInfo<parser::NoneParser>(&GlobalInfo::cpuType)
 			),
 			[](const std::string& str){
-				return parser::Parse1D<parser::DoubleParser>(str, boost::is_any_of("\r\n"));
+				return parser::Split1D(str, boost::is_any_of("\r\n"));
 			}
 		);
 	}
 
-	inline auto GeneralGetStringInfo(stdext::span<GlobalInfo> data) {
-		fmt::memory_buffer buffer = builder::detail::MakePlain("type; vers; cpu;");
-		return MakeCommandQuery(
-			fmt::to_string(buffer),
-			0,
-			MakeObjectPointers(
-				data,
-				&GlobalInfo::type,
-				&GlobalInfo::firmware,
-				&GlobalInfo::cpuType
-			),
-			[](const std::string& str){
-				return parser::Parse1D<parser::NoneParser>(str, boost::is_any_of("\r\n"));
-			}
-		);
-	}
-
-	inline auto MotorGetPositionRange(stdext::span<MotorInfo> data, int32_t first, int32_t last) {
-		builder::ValidateIdentifierRange(first, last);
-		fmt::memory_buffer buffer = builder::detail::MakePrefixPostfixRangeCommand("#", "pvf", first, last);
-		return MakeCommandQuery(
-			fmt::to_string(buffer),
-			first,
-			MakeObjectPointers(
-				data,
-				&MotorInfo::position,
-				&MotorInfo::velocity,
-				&MotorInfo::followingError
-			),
-			[](const std::string& str){
-				return parser::Parse2D<parser::DoubleParser>(str, boost::is_any_of("\r\n"), boost::is_space());
-			}
-		);
-	}
-
-	inline auto MotorGetStatusRange(stdext::span<MotorInfo> data, int32_t first, int32_t last) {
-		builder::ValidateIdentifierRange(first, last);
-		fmt::memory_buffer buffer = builder::detail::MakePrefixPostfixRangeCommand("#", "?", first, last);
-		return MakeCommandQuery(
-			fmt::to_string(buffer),
-			first,
-			MakeObjectPointers(
-				data,
-				&MotorInfo::status
-			),
-			[](const std::string& str){
-				return parser::Parse1D<parser::Hex64Parser>(str, boost::is_space());
-			}
-		);
-	}
-
-	inline auto MotorGetOtherRange(stdext::span<MotorInfo> data, int32_t first, int32_t last) {
+	inline auto GeneralGetPlcStatus(stdext::span<PlcInfo> data, int32_t first, int32_t last) {
 		builder::ValidateIdentifierRange(first, last);
 		boost::container::small_vector<std::tuple<int>, 32> tuples;
 		for(int i = first; i < (last - first); i++) {
 			tuples.push_back((std::make_tuple(i)));
 		}
-		fmt::memory_buffer buffer = builder::detail::MakeMultiCommand("Motor[{}].PosSf", stdext::make_span(tuples));
+		fmt::memory_buffer buffer = builder::detail::MakeMultiCommand("Plc[{0}].Active; Plc[{0}].Running", stdext::make_span(tuples));
 		return MakeCommandQuery(
 			fmt::to_string(buffer),
 			first,
-			MakeObjectPointers(
+			MakeObjectPointerList(
 				data,
-				&MotorInfo::conversion
-				//&MotorInfo::unitType
+				MakeObjectPtrInfo<parser::NoneParser>(&PlcInfo::name),
+				MakeObjectPtrInfo<parser::IntParser>(&PlcInfo::id),
+				MakeObjectPtrInfo<parser::IntParser>(&PlcInfo::active),
+				MakeObjectPtrInfo<parser::IntParser>(&PlcInfo::running)
 			),
 			[](const std::string& str){
-				return parser::Parse1D<parser::DoubleParser>(str, boost::is_any_of("\r\n"));
+				return parser::Split1D(str, boost::is_any_of("\r\n"));
+			}
+		);
+	}
+
+	/*
+	 * this query updates all raw motor values. (poition, velocity, following error and motor statuses)
+	 */
+	inline auto MotorGetInfoRange(stdext::span<MotorInfo> data, int32_t first, int32_t last) {
+		builder::ValidateIdentifierRange(first, last);
+		fmt::memory_buffer buffer = builder::detail::MakePrefixPostfixRangeCommand("#", "pvf?", first, last);
+		return MakeCommandQuery(
+			fmt::to_string(buffer),
+			first,
+				MakeObjectPointerList(
+					data,
+					MakeObjectPtrInfo<parser::DoubleParser>(&MotorInfo::position),
+					MakeObjectPtrInfo<parser::DoubleParser>(&MotorInfo::velocity),
+					MakeObjectPtrInfo<parser::DoubleParser>(&MotorInfo::followingError),
+					MakeObjectPtrInfo<parser::Hex64Parser>(&MotorInfo::status)
+				),
+			[](const std::string& str){
+				return parser::Split2D(str, boost::is_any_of("\r\n"), boost::is_space());
+			}
+		);
+	}
+
+	/*
+	 * this query updates all raw motor values. (poition, velocity, following error and motor statuses)
+	 */
+	inline auto CoordGetInfoRange(stdext::span<MotorInfo> data, int32_t first, int32_t last) {
+		builder::ValidateIdentifierRange(first, last);
+		fmt::memory_buffer buffer = builder::detail::MakePrefixPostfixRangeCommand("&", "pvf?", first, last);
+		return MakeCommandQuery(
+			fmt::to_string(buffer),
+			first,
+			MakeObjectPointerList(
+				data,
+				MakeObjectPtrInfo<parser::DoubleParser>(&MotorInfo::position),
+				MakeObjectPtrInfo<parser::DoubleParser>(&MotorInfo::velocity),
+				MakeObjectPtrInfo<parser::DoubleParser>(&MotorInfo::followingError),
+				MakeObjectPtrInfo<parser::Hex64Parser>(&MotorInfo::status)
+			),
+			[](const std::string& str){
+				return parser::Split2D(str, boost::is_any_of("\r\n"), boost::is_space());
+			}
+		);
+	}
+
+	/*
+	 * gets motor conversion info, e.g. mapping of motor units to engineering units and the unit type
+	 */
+	inline auto MotorGetConversionInfoRange(stdext::span<MotorInfo> data, int32_t first, int32_t last) {
+		builder::ValidateIdentifierRange(first, last);
+		boost::container::small_vector<std::tuple<int>, 32> tuples;
+		for(int i = first; i < (last - first); i++) {
+			tuples.push_back((std::make_tuple(i)));
+		}
+		fmt::memory_buffer buffer = builder::detail::MakeMultiCommand("Motor[{0}].PosSf; Motor[{0}].PosUnit", stdext::make_span(tuples));
+		return MakeCommandQuery(
+			fmt::to_string(buffer),
+			first,
+			MakeObjectPointerList(
+				data,
+				MakeObjectPtrInfo<parser::DoubleParser>(&MotorInfo::conversion),
+				MakeObjectPtrInfo<parser::DoubleParser>(&MotorInfo::unitType)
+			),
+			[](const std::string& str){
+				return parser::Split1D(str, boost::is_any_of("\r\n"));
 			}
 		);
 	}

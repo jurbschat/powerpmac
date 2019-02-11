@@ -224,10 +224,15 @@ bool PowerPMAC_Global::is_Uptime_allowed(TANGO_UNUSED(Tango::AttReqType type))
 //--------------------------------------------------------
 bool PowerPMAC_Global::is_ResetAmp_allowed(TANGO_UNUSED(const CORBA::Any &any))
 {
-	//	Not any excluded states for ResetAmp command.
+	//	Compare device state with not allowed states.
+	if (get_state()==Tango::OFF ||
+		get_state()==Tango::FAULT)
+	{
 	/*----- PROTECTED REGION ID(PowerPMAC_Global::ResetAmpStateAllowed) ENABLED START -----*/
 	
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Global::ResetAmpStateAllowed
+		return false;
+	}
 	return true;
 }
 
@@ -239,10 +244,15 @@ bool PowerPMAC_Global::is_ResetAmp_allowed(TANGO_UNUSED(const CORBA::Any &any))
 //--------------------------------------------------------
 bool PowerPMAC_Global::is_ExecuteCommand_allowed(TANGO_UNUSED(const CORBA::Any &any))
 {
-	//	Not any excluded states for ExecuteCommand command.
+	//	Compare device state with not allowed states.
+	if (get_state()==Tango::OFF ||
+		get_state()==Tango::FAULT)
+	{
 	/*----- PROTECTED REGION ID(PowerPMAC_Global::ExecuteCommandStateAllowed) ENABLED START -----*/
 	
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Global::ExecuteCommandStateAllowed
+		return false;
+	}
 	return true;
 }
 
@@ -254,10 +264,15 @@ bool PowerPMAC_Global::is_ExecuteCommand_allowed(TANGO_UNUSED(const CORBA::Any &
 //--------------------------------------------------------
 bool PowerPMAC_Global::is_Reset_allowed(TANGO_UNUSED(const CORBA::Any &any))
 {
-	//	Not any excluded states for Reset command.
+	//	Compare device state with not allowed states.
+	if (get_state()==Tango::OFF ||
+		get_state()==Tango::FAULT)
+	{
 	/*----- PROTECTED REGION ID(PowerPMAC_Global::ResetStateAllowed) ENABLED START -----*/
 	
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Global::ResetStateAllowed
+		return false;
+	}
 	return true;
 }
 
@@ -269,10 +284,15 @@ bool PowerPMAC_Global::is_Reset_allowed(TANGO_UNUSED(const CORBA::Any &any))
 //--------------------------------------------------------
 bool PowerPMAC_Global::is_Reboot_allowed(TANGO_UNUSED(const CORBA::Any &any))
 {
-	//	Not any excluded states for Reboot command.
+	//	Compare device state with not allowed states.
+	if (get_state()==Tango::OFF ||
+		get_state()==Tango::FAULT)
+	{
 	/*----- PROTECTED REGION ID(PowerPMAC_Global::RebootStateAllowed) ENABLED START -----*/
 	
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Global::RebootStateAllowed
+		return false;
+	}
 	return true;
 }
 

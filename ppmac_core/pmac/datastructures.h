@@ -371,6 +371,13 @@ namespace ppmac {
 		// something
 	};
 
+	struct PlcInfo {
+		std::string name;
+		int32_t id;
+		bool active;
+		bool running;
+	};
+
 	struct GlobalInfo {
 		bool abortAll;
 		int32_t maxMotors;
@@ -382,7 +389,7 @@ namespace ppmac {
 		std::string firmware;
 		std::string cpuType;
 		int64_t cpuFrequency;
-		std::vector<bool> activePlcs; // vector bool sucks
+		std::vector<PlcInfo> plcs;
 	};
 }
 

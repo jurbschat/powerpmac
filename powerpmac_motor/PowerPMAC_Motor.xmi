@@ -45,6 +45,7 @@
       <excludedStates>INIT</excludedStates>
       <excludedStates>MOVING</excludedStates>
       <excludedStates>FAULT</excludedStates>
+      <excludedStates>DISABLE</excludedStates>
     </commands>
     <commands name="Home" description="" execMethod="home" displayLevel="OPERATOR" polledPeriod="0" isDynamic="false">
       <argin description="">
@@ -58,6 +59,7 @@
       <excludedStates>INIT</excludedStates>
       <excludedStates>MOVING</excludedStates>
       <excludedStates>FAULT</excludedStates>
+      <excludedStates>DISABLE</excludedStates>
     </commands>
     <commands name="Calibrate" description="" execMethod="calibrate" displayLevel="OPERATOR" polledPeriod="0" isDynamic="false">
       <argin description="">
@@ -71,6 +73,7 @@
       <excludedStates>INIT</excludedStates>
       <excludedStates>MOVING</excludedStates>
       <excludedStates>FAULT</excludedStates>
+      <excludedStates>DISABLE</excludedStates>
     </commands>
     <commands name="Enable" description="" execMethod="enable" displayLevel="OPERATOR" polledPeriod="0" isDynamic="false">
       <argin description="">
@@ -84,6 +87,7 @@
       <excludedStates>INIT</excludedStates>
       <excludedStates>MOVING</excludedStates>
       <excludedStates>FAULT</excludedStates>
+      <excludedStates>DISABLE</excludedStates>
     </commands>
     <commands name="Disable" description="" execMethod="disable" displayLevel="OPERATOR" polledPeriod="0" isDynamic="false">
       <argin description="">
@@ -105,6 +109,7 @@
       <status abstract="false" inherited="false" concrete="true" concreteHere="true"/>
       <excludedStates>OFF</excludedStates>
       <excludedStates>FAULT</excludedStates>
+      <excludedStates>DISABLE</excludedStates>
     </commands>
     <commands name="Kill" description="" execMethod="kill" displayLevel="OPERATOR" polledPeriod="0" isDynamic="false">
       <argin description="">
@@ -134,7 +139,7 @@
       <archiveEvent fire="false" libCheckCriteria="false"/>
       <dataReadyEvent fire="false" libCheckCriteria="true"/>
       <status abstract="false" inherited="false" concrete="true" concreteHere="true"/>
-      <properties description="" label="" unit="untis/ms^2" standardUnit="" displayUnit="" format="%10.3f" maxValue="" minValue="" maxAlarm="" minAlarm="" maxWarning="" minWarning="" deltaTime="" deltaValue=""/>
+      <properties description="" label="" unit="untis/s^2" standardUnit="" displayUnit="" format="%10.3f" maxValue="" minValue="" maxAlarm="" minAlarm="" maxWarning="" minWarning="" deltaTime="" deltaValue=""/>
       <readExcludedStates>OFF</readExcludedStates>
       <writeExcludedStates>OFF</writeExcludedStates>
       <writeExcludedStates>INIT</writeExcludedStates>
@@ -241,6 +246,9 @@
       <status abstract="false" inherited="false" concrete="true" concreteHere="true"/>
     </states>
     <states name="FAULT" description="">
+      <status abstract="false" inherited="false" concrete="true" concreteHere="true"/>
+    </states>
+    <states name="DISABLE" description="">
       <status abstract="false" inherited="false" concrete="true" concreteHere="true"/>
     </states>
     <preferences docHome="./doc_html" makefileHome="/usr/share/pogo/preferences"/>

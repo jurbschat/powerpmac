@@ -508,7 +508,7 @@ void PowerPMAC_MotorClass::attribute_factory(vector<Tango::Attr *> &att_list)
 	Tango::UserDefaultAttrProp	acceleration_prop;
 	//	description	not set for Acceleration
 	//	label	not set for Acceleration
-	acceleration_prop.set_unit("untis/ms^2");
+	acceleration_prop.set_unit("untis/s^2");
 	//	standard_unit	not set for Acceleration
 	//	display_unit	not set for Acceleration
 	acceleration_prop.set_format("%10.3f");
