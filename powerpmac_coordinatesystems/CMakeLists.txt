@@ -16,11 +16,12 @@ endif()
 
 add_library(PowerPMAC_CoordinateSystems STATIC PowerPMAC_CoordinateSystems.cpp
         PowerPMAC_CoordinateSystemsClass.cpp
-        PowerPMAC_CoordinateSystemsStateMachine.cpp)
+        PowerPMAC_CoordinateSystemsStateMachine.cpp
+        PowerPMAC_CoordinateSystemsDynAttrUtils.cpp)
 
 # all other includeded cmake files will have this
 include_directories(PUBLIC SYSTEM /usr/include/tango)
-target_include_directories(PowerPMAC_CoordinateSystems PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ../ppmac_core ../wise_enum-master)
+target_include_directories(PowerPMAC_CoordinateSystems PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ../ppmac_core ../fmt-5.3.0/include)
 
 link_directories(PUBLIC /usr/lib/x86_64-linux-gnu/ /usr/lib/) #link_directories(PUBLIC /usr/lib/debug)
 target_link_libraries(PowerPMAC_CoordinateSystems PRIVATE tango omniDynamic4 COS4 omniORB4 omnithread log4tango zmq dl pthread stdc++ ppmac_core)

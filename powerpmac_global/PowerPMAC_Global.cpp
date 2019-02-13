@@ -38,7 +38,7 @@
 #include <PowerPMAC_GlobalClass.h>
 #include "coreinterface.h"
 #include "exception.h"
-#include "tangoutil.h"
+#include "../tangoutil.h"
 #include "commandbuilder.h"
 #include <fmt/format.h>
 #include <fmt/printf.h>
@@ -344,7 +344,6 @@ void PowerPMAC_Global::read_MaxMotors(Tango::Attribute &attr)
 		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
 		Tango::DevLong motors = ci.GetGlobalInfo().maxMotors;
 		attr.set_value(&motors);
-		fmt::print("{}\n", motors);
 	} catch (ppmac::RuntimeError& e) {
 		tu::TranslateException(e);
 	}
@@ -496,7 +495,7 @@ void PowerPMAC_Global::read_Firmware(Tango::Attribute &attr)
 	try {
 		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
 		std::string firmware = ci.GetGlobalInfo().firmware;
-		SetStringValue(attr_Firmware_read, firmware);
+		tu::SetStringValue(attr_Firmware_read, firmware);
 		attr.set_value(attr_Firmware_read);
 	} catch (ppmac::RuntimeError& e) {
 		tu::TranslateException(e);
@@ -522,7 +521,7 @@ void PowerPMAC_Global::read_SystemType(Tango::Attribute &attr)
 	try {
 		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
 		std::string system = ci.GetGlobalInfo().type;
-		SetStringValue(attr_SystemType_read, system);
+		tu::SetStringValue(attr_SystemType_read, system);
 		attr.set_value(attr_SystemType_read);
 	} catch (ppmac::RuntimeError& e) {
 		tu::TranslateException(e);
@@ -548,7 +547,7 @@ void PowerPMAC_Global::read_CpuType(Tango::Attribute &attr)
 	try {
 		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
 		std::string cpuType = ci.GetGlobalInfo().cpuType;
-		SetStringValue(attr_CpuType_read, cpuType);
+		tu::SetStringValue(attr_CpuType_read, cpuType);
 		attr.set_value(attr_CpuType_read);
 	} catch (ppmac::RuntimeError& e) {
 		tu::TranslateException(e);
@@ -605,7 +604,7 @@ void PowerPMAC_Global::read_Uptime(Tango::Attribute &attr)
 		int32_t hours = minutes / 60;
 		int32_t days = hours / 24;
 		std::string timeString = fmt::format("{}D {}:{}:{}", days, (hours%24), (minutes%60), (seconds%60));
-		SetStringValue(attr_Uptime_read, timeString);
+		tu::SetStringValue(attr_Uptime_read, timeString);
 		attr.set_value(attr_Uptime_read);
 	} catch (ppmac::RuntimeError& e) {
 		tu::TranslateException(e);
@@ -641,8 +640,13 @@ void PowerPMAC_Global::reset_amp()
 {
 	DEBUG_STREAM << "PowerPMAC_Global::ResetAmp()  - " << device_name << endl;
 	/*----- PROTECTED REGION ID(PowerPMAC_Global::reset_amp) ENABLED START -----*/
-	
-	//	Add your own code
+
+	try {
+		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
+		ci.ExecuteCommand(ppmac::cmd::GlobalResetBrickLVAmp());
+	} catch (ppmac::RuntimeError& e) {
+		tu::TranslateException(e);
+	}
 	
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Global::reset_amp
 }
@@ -660,8 +664,14 @@ Tango::DevString PowerPMAC_Global::execute_command(Tango::DevString argin)
 	Tango::DevString argout;
 	DEBUG_STREAM << "PowerPMAC_Global::ExecuteCommand()  - " << device_name << endl;
 	/*----- PROTECTED REGION ID(PowerPMAC_Global::execute_command) ENABLED START -----*/
-	
-	//	Add your own code
+	argout = nullptr;
+	try {
+		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
+		auto result = ci.ExecuteCommand(argin);
+		tu::SetStringValue(&argout, result);
+	} catch (ppmac::RuntimeError& e) {
+		tu::TranslateException(e);
+	}
 	
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Global::execute_command
 	return argout;
@@ -677,8 +687,13 @@ void PowerPMAC_Global::reset()
 {
 	DEBUG_STREAM << "PowerPMAC_Global::Reset()  - " << device_name << endl;
 	/*----- PROTECTED REGION ID(PowerPMAC_Global::reset) ENABLED START -----*/
-	
-	//	Add your own code
+
+	try {
+		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
+		ci.ExecuteCommand(ppmac::cmd::GlobalReset());
+	} catch (ppmac::RuntimeError& e) {
+		tu::TranslateException(e);
+	}
 	
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Global::reset
 }
@@ -693,8 +708,13 @@ void PowerPMAC_Global::reboot()
 {
 	DEBUG_STREAM << "PowerPMAC_Global::Reboot()  - " << device_name << endl;
 	/*----- PROTECTED REGION ID(PowerPMAC_Global::reboot) ENABLED START -----*/
-	
-	//	Add your own code
+
+	try {
+		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
+		ci.ExecuteCommand(ppmac::cmd::GlobalReboot());
+	} catch (ppmac::RuntimeError& e) {
+		tu::TranslateException(e);
+	}
 	
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Global::reboot
 }
@@ -731,15 +751,6 @@ void PowerPMAC_Global::SetErrorState() {
 	set_status(msg.c_str());
 }
 
-void PowerPMAC_Global::SetStringValue(char **ptr, const std::string& value)
-{
-	if(*ptr == nullptr) {
-		*ptr = CORBA::string_dup(value.c_str());
-	}  else {
-		CORBA::string_free(*ptr);
-		*ptr = CORBA::string_dup(value.c_str());
-	}
-}
 // //--------------------------------------------------------
 // /**
 //  *	Read attribute PhaseClock related method

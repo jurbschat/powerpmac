@@ -18,7 +18,7 @@ add_library(PowerPMAC_Motor STATIC PowerPMAC_Motor.cpp
 
 # all other includeded cmake files will have this
 include_directories(PUBLIC SYSTEM /usr/include/tango)
-target_include_directories(PowerPMAC_Motor PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ../ppmac_core ../fmt-5.3.0/include ../wise_enum-master)
+target_include_directories(PowerPMAC_Motor PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ../ppmac_core ../fmt-5.3.0/include)
 
 link_directories(PUBLIC /usr/lib/x86_64-linux-gnu/ /usr/lib/)
 

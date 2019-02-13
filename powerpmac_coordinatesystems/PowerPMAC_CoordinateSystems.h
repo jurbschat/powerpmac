@@ -60,11 +60,20 @@ class PowerPMAC_CoordinateSystems : public TANGO_BASE_CLASS
 	// initializer list on each run. yeah who needs an initializer list...
 	sigs::Connection connectionEstablished;
 	sigs::Connection connectionLost;
-
+	std::vector<std::string> addAxis;
 
 /*----- PROTECTED REGION END -----*/	//	PowerPMAC_CoordinateSystems::Data Members
 
+//	Device property data members
+public:
+	//	CoordinateIndex:	coordinate system id
+	Tango::DevLong	coordinateIndex;
 
+	bool	mandatoryNotDefined;
+
+//	Attribute data members
+public:
+	Tango::DevLong	*attr_NumAxis_read;
 
 //	Constructors and destructors
 public:
@@ -107,10 +116,18 @@ public:
 	 */
 	virtual void init_device();
 	/*
+	 *	Read the device properties from database
+	 */
+	void get_device_property();
+	/*
 	 *	Always executed method before execution command method.
 	 */
 	virtual void always_executed_hook();
 
+	/*
+	 *	Check if mandatory property has been set
+	 */
+	 void check_mandatory_property(Tango::DbDatum &class_prop, Tango::DbDatum &dev_prop);
 
 //	Attribute methods
 public:
@@ -122,6 +139,78 @@ public:
 	//--------------------------------------------------------
 	virtual void read_attr_hardware(vector<long> &attr_list);
 
+/**
+ *	Attribute NumAxis related methods
+ *	Description: 
+ *
+ *	Data type:	Tango::DevLong
+ *	Attr type:	Scalar
+ */
+	virtual void read_NumAxis(Tango::Attribute &attr);
+	virtual bool is_NumAxis_allowed(Tango::AttReqType type);
+
+//	Dynamic attribute methods
+public:
+
+	/**
+	 *	Attribute X related methods
+	 *	Description: 
+	 *
+	 *	Data type:	Tango::DevDouble
+	 *	Attr type:	Scalar
+	 */
+	virtual void read_X(Tango::Attribute &attr);
+	virtual void write_X(Tango::WAttribute &attr);
+	virtual bool is_X_allowed(Tango::AttReqType type);
+	void add_X_dynamic_attribute(string attname);
+	void remove_X_dynamic_attribute(string attname);
+	Tango::DevDouble *get_X_data_ptr(string &name);
+	map<string,Tango::DevDouble>	   X_data;
+
+	/**
+	 *	Attribute Y related methods
+	 *	Description: 
+	 *
+	 *	Data type:	Tango::DevDouble
+	 *	Attr type:	Scalar
+	 */
+	virtual void read_Y(Tango::Attribute &attr);
+	virtual void write_Y(Tango::WAttribute &attr);
+	virtual bool is_Y_allowed(Tango::AttReqType type);
+	void add_Y_dynamic_attribute(string attname);
+	void remove_Y_dynamic_attribute(string attname);
+	Tango::DevDouble *get_Y_data_ptr(string &name);
+	map<string,Tango::DevDouble>	   Y_data;
+
+	/**
+	 *	Attribute Z related methods
+	 *	Description: 
+	 *
+	 *	Data type:	Tango::DevDouble
+	 *	Attr type:	Scalar
+	 */
+	virtual void read_Z(Tango::Attribute &attr);
+	virtual void write_Z(Tango::WAttribute &attr);
+	virtual bool is_Z_allowed(Tango::AttReqType type);
+	void add_Z_dynamic_attribute(string attname);
+	void remove_Z_dynamic_attribute(string attname);
+	Tango::DevDouble *get_Z_data_ptr(string &name);
+	map<string,Tango::DevDouble>	   Z_data;
+
+	/**
+	 *	Attribute W related methods
+	 *	Description: 
+	 *
+	 *	Data type:	Tango::DevDouble
+	 *	Attr type:	Scalar
+	 */
+	virtual void read_W(Tango::Attribute &attr);
+	virtual void write_W(Tango::WAttribute &attr);
+	virtual bool is_W_allowed(Tango::AttReqType type);
+	void add_W_dynamic_attribute(string attname);
+	void remove_W_dynamic_attribute(string attname);
+	Tango::DevDouble *get_W_data_ptr(string &name);
+	map<string,Tango::DevDouble>	   W_data;
 
 	//--------------------------------------------------------
 	/**
@@ -136,6 +225,21 @@ public:
 
 //	Command related methods
 public:
+	/**
+	 *	Command Abort related method
+	 *	Description: 
+	 *
+	 */
+	virtual void abort();
+	virtual bool is_Abort_allowed(const CORBA::Any &any);
+	/**
+	 *	Command RunMotionProgram related method
+	 *	Description: 
+	 *
+	 *	@param argin 
+	 */
+	virtual void run_motion_program(Tango::DevString argin);
+	virtual bool is_RunMotionProgram_allowed(const CORBA::Any &any);
 
 
 	//--------------------------------------------------------
@@ -150,6 +254,7 @@ public:
 
 	void StartCoordinateSystem();
 	void StopCoordinateSystem();
+	void CoordinateStateChanged(uint64_t newValue, uint64_t changes);
 
 /*----- PROTECTED REGION END -----*/	//	PowerPMAC_CoordinateSystems::Additional Method prototypes
 };

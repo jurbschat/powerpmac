@@ -266,7 +266,8 @@ namespace ppmac::query {
 	inline auto GeneralGetPlcStatus(stdext::span<PlcInfo> data, int32_t first, int32_t last) {
 		builder::ValidateIdentifierRange(first, last);
 		boost::container::small_vector<std::tuple<int>, 32> tuples;
-		for(int i = first; i < (last - first); i++) {
+		// we want to include the whole range e.g. 1..2 sould be 1 and 2 not only 1
+		for(int i = first; i <= (last - first); i++) {
 			tuples.push_back((std::make_tuple(i)));
 		}
 		fmt::memory_buffer buffer = builder::detail::MakeMultiCommand("Plc[{0}].Active; Plc[{0}].Running", stdext::make_span(tuples));
@@ -275,8 +276,8 @@ namespace ppmac::query {
 			first,
 			MakeObjectPointerList(
 				data,
-				MakeObjectPtrInfo<parser::NoneParser>(&PlcInfo::name),
-				MakeObjectPtrInfo<parser::IntParser>(&PlcInfo::id),
+				//MakeObjectPtrInfo<parser::NoneParser>(&PlcInfo::name),
+				//MakeObjectPtrInfo<parser::IntParser>(&PlcInfo::id),
 				MakeObjectPtrInfo<parser::IntParser>(&PlcInfo::active),
 				MakeObjectPtrInfo<parser::IntParser>(&PlcInfo::running)
 			),

@@ -33,7 +33,7 @@ add_library(ppmac_core STATIC coreinterface.cpp
         utility.cpp
         test-main.cpp
         pmac/defines.cpp
-        tangoutil.cpp
+        ../tangoutil.cpp
         exception.cpp)
 
 target_include_directories(ppmac_core SYSTEM PRIVATE ../fmt-5.3.0/include ../spdlog-1.3.0/include ../wise_enum-master ../catch2-master/single_include)

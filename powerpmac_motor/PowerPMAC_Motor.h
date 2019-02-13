@@ -78,6 +78,8 @@ public:
 	//	DisableHardLimits:	
 	Tango::DevBoolean	disableHardLimits;
 
+	bool	mandatoryNotDefined;
+
 //	Attribute data members
 public:
 	Tango::DevDouble	*attr_Position_read;
@@ -141,6 +143,10 @@ public:
 	 */
 	virtual void always_executed_hook();
 
+	/*
+	 *	Check if mandatory property has been set
+	 */
+	 void check_mandatory_property(Tango::DbDatum &class_prop, Tango::DbDatum &dev_prop);
 
 //	Attribute methods
 public:
@@ -345,7 +351,6 @@ public:
 	void StartMotor();
 	void StopMotor();
 	void MotorStateChanged(uint64_t newValue, uint64_t changes);
-	void SetOn();
 	void ClearMoveStatusWaitTimer();
 
 /*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::Additional Method prototypes

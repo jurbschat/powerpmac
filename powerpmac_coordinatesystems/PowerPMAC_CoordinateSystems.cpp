@@ -37,8 +37,8 @@
 #include <PowerPMAC_CoordinateSystems.h>
 #include <PowerPMAC_CoordinateSystemsClass.h>
 #include "coreinterface.h"
-#include "config.h"
-#include "genericdeleter.h"
+#include "commandbuilder.h"
+#include "../tangoutil.h"
 #include <memory>
 
 /*----- PROTECTED REGION END -----*/	//	PowerPMAC_CoordinateSystems.cpp
@@ -52,22 +52,25 @@
 //  The following table gives the correspondence
 //  between command and method names.
 //
-//  Command name  |  Method name
+//  Command name      |  Method name
 //================================================================
-//  State         |  Inherited (no method)
-//  Status        |  Inherited (no method)
+//  State             |  Inherited (no method)
+//  Status            |  Inherited (no method)
+//  Abort             |  abort
+//  RunMotionProgram  |  run_motion_program
 //================================================================
 
 //================================================================
 //  Attributes managed is:
 //================================================================
+//  NumAxis  |  Tango::DevLong	Scalar
 //================================================================
 
 namespace PowerPMAC_CoordinateSystems_ns
 {
 /*----- PROTECTED REGION ID(PowerPMAC_CoordinateSystems::namespace_starting) ENABLED START -----*/
 
-//	static initializations
+	static const char* axisNames[] = { "X", "Y", "Z", "W" };
 
 /*----- PROTECTED REGION END -----*/	//	PowerPMAC_CoordinateSystems::namespace_starting
 
@@ -117,6 +120,7 @@ void PowerPMAC_CoordinateSystems::delete_device()
 	/*----- PROTECTED REGION ID(PowerPMAC_CoordinateSystems::delete_device) ENABLED START -----*/
 	
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_CoordinateSystems::delete_device
+	delete[] attr_NumAxis_read;
 }
 
 //--------------------------------------------------------
@@ -130,12 +134,21 @@ void PowerPMAC_CoordinateSystems::init_device()
 	DEBUG_STREAM << "PowerPMAC_CoordinateSystems::init_device() create device " << device_name << endl;
 	/*----- PROTECTED REGION ID(PowerPMAC_CoordinateSystems::init_device_before) ENABLED START -----*/
 
+	// pre dev prop read
 	
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_CoordinateSystems::init_device_before
+
+	//	Get the device properties from database
+	get_device_property();
 	
-	//	No device property to be read from database
-	
+	attr_NumAxis_read = new Tango::DevLong[1];
+	//	No longer if mandatory property not set. 
+	if (mandatoryNotDefined)
+		return;
+
 	/*----- PROTECTED REGION ID(PowerPMAC_CoordinateSystems::init_device) ENABLED START -----*/
+
+	*attr_NumAxis_read = 0;
 
 	ppmac::CoreInterface& ci = ppmac::GetCoreObject();
 
@@ -153,15 +166,89 @@ void PowerPMAC_CoordinateSystems::init_device()
 		set_state(Tango::OFF);
 	}
 
-	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_IO::init_device
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_CoordinateSystems::init_device
 }
 
-void PowerPMAC_CoordinateSystems::StartCoordinateSystem() {
+//--------------------------------------------------------
+/**
+ *	Method      : PowerPMAC_CoordinateSystems::get_device_property()
+ *	Description : Read database to initialize property data members.
+ */
+//--------------------------------------------------------
+void PowerPMAC_CoordinateSystems::get_device_property()
+{
+	/*----- PROTECTED REGION ID(PowerPMAC_CoordinateSystems::get_device_property_before) ENABLED START -----*/
+	
+	//	Initialize property data members
+	
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_CoordinateSystems::get_device_property_before
 
+	mandatoryNotDefined = false;
+
+	//	Read device properties from database.
+	Tango::DbData	dev_prop;
+	dev_prop.push_back(Tango::DbDatum("CoordinateIndex"));
+
+	//	is there at least one property to be read ?
+	if (dev_prop.size()>0)
+	{
+		//	Call database and extract values
+		if (Tango::Util::instance()->_UseDb==true)
+			get_db_device()->get_property(dev_prop);
+	
+		//	get instance on PowerPMAC_CoordinateSystemsClass to get class property
+		Tango::DbDatum	def_prop, cl_prop;
+		PowerPMAC_CoordinateSystemsClass	*ds_class =
+			(static_cast<PowerPMAC_CoordinateSystemsClass *>(get_device_class()));
+		int	i = -1;
+
+		//	Try to initialize CoordinateIndex from class property
+		cl_prop = ds_class->get_class_property(dev_prop[++i].name);
+		if (cl_prop.is_empty()==false)	cl_prop  >>  coordinateIndex;
+		else {
+			//	Try to initialize CoordinateIndex from default device value
+			def_prop = ds_class->get_default_device_property(dev_prop[i].name);
+			if (def_prop.is_empty()==false)	def_prop  >>  coordinateIndex;
+		}
+		//	And try to extract CoordinateIndex value from database
+		if (dev_prop[i].is_empty()==false)	dev_prop[i]  >>  coordinateIndex;
+		//	Property StartDsPath is mandatory, check if has been defined in database.
+		check_mandatory_property(cl_prop, dev_prop[i]);
+
+	}
+
+	/*----- PROTECTED REGION ID(PowerPMAC_CoordinateSystems::get_device_property_after) ENABLED START -----*/
+	
+	//	Check device property data members init
+	
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_CoordinateSystems::get_device_property_after
 }
-
-void PowerPMAC_CoordinateSystems::StopCoordinateSystem() {
-
+//--------------------------------------------------------
+/**
+ *	Method      : PowerPMAC_CoordinateSystems::check_mandatory_property()
+ *	Description : For mandatory properties check if defined in database.
+ */
+//--------------------------------------------------------
+void PowerPMAC_CoordinateSystems::check_mandatory_property(Tango::DbDatum &class_prop, Tango::DbDatum &dev_prop)
+{
+	//	Check if all properties are empty
+	if (class_prop.is_empty() && dev_prop.is_empty())
+	{
+		TangoSys_OMemStream	tms;
+		tms << endl <<"Property \'" << dev_prop.name;
+		if (Tango::Util::instance()->_UseDb==true)
+			tms << "\' is mandatory but not defined in database";
+		else
+			tms << "\' is mandatory but cannot be defined without database";
+		string	status(get_status());
+		status += tms.str();
+		set_status(status);
+		mandatoryNotDefined = true;
+		/*----- PROTECTED REGION ID(PowerPMAC_CoordinateSystems::check_mandatory_property) ENABLED START -----*/
+		cerr << tms.str() << " for " << device_name << endl;
+		
+		/*----- PROTECTED REGION END -----*/	//	PowerPMAC_CoordinateSystems::check_mandatory_property
+	}
 }
 
 
@@ -174,6 +261,14 @@ void PowerPMAC_CoordinateSystems::StopCoordinateSystem() {
 void PowerPMAC_CoordinateSystems::always_executed_hook()
 {
 	DEBUG_STREAM << "PowerPMAC_CoordinateSystems::always_executed_hook()  " << device_name << endl;
+	if (mandatoryNotDefined)
+	{
+		string	status(get_status());
+		Tango::Except::throw_exception(
+					(const char *)"PROPERTY_NOT_SET",
+					status.c_str(),
+					(const char *)"PowerPMAC_CoordinateSystems::always_executed_hook()");
+	}
 	/*----- PROTECTED REGION ID(PowerPMAC_CoordinateSystems::always_executed_hook) ENABLED START -----*/
 	
 	//	code always executed before all requests
@@ -197,7 +292,214 @@ void PowerPMAC_CoordinateSystems::read_attr_hardware(TANGO_UNUSED(vector<long> &
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_CoordinateSystems::read_attr_hardware
 }
 
+//--------------------------------------------------------
+/**
+ *	Read attribute NumAxis related method
+ *	Description: 
+ *
+ *	Data type:	Tango::DevLong
+ *	Attr type:	Scalar
+ */
+//--------------------------------------------------------
+void PowerPMAC_CoordinateSystems::read_NumAxis(Tango::Attribute &attr)
+{
+	DEBUG_STREAM << "PowerPMAC_CoordinateSystems::read_NumAxis(Tango::Attribute &attr) entering... " << endl;
+	/*----- PROTECTED REGION ID(PowerPMAC_CoordinateSystems::read_NumAxis) ENABLED START -----*/
+	//	Set the attribute value
 
+	try {
+		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
+		auto result = ci.ExecuteCommand(ppmac::cmd::CoordGetAxisCount(coordinateIndex));
+		Tango::DevLong val = tu::ParseInt32(result);
+		*attr_NumAxis_read = val;
+		attr.set_value(attr_NumAxis_read);
+	} catch (ppmac::RuntimeError& e) {
+		tu::TranslateException(e);
+	}
+	
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_CoordinateSystems::read_NumAxis
+}
+
+//--------------------------------------------------------
+/**
+ *	Read attribute X related method
+ *	Description: 
+ *
+ *	Data type:	Tango::DevDouble
+ *	Attr type:	Scalar
+ */
+//--------------------------------------------------------
+void PowerPMAC_CoordinateSystems::read_X(Tango::Attribute &attr)
+{
+	DEBUG_STREAM << "PowerPMAC_CoordinateSystems::read_X(Tango::Attribute &attr) entering... " << endl;
+	Tango::DevDouble	*att_value = get_X_data_ptr(attr.get_name());
+	/*----- PROTECTED REGION ID(PowerPMAC_CoordinateSystems::read_X) ENABLED START -----*/
+	//	Set the attribute value
+	attr.set_value(att_value);
+	
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_CoordinateSystems::read_X
+}
+//--------------------------------------------------------
+/**
+ *	Write attribute X related method
+ *	Description: 
+ *
+ *	Data type:	Tango::DevDouble
+ *	Attr type:	Scalar
+ */
+//--------------------------------------------------------
+void PowerPMAC_CoordinateSystems::write_X(Tango::WAttribute &attr)
+{
+	DEBUG_STREAM << "PowerPMAC_CoordinateSystems::write_X(Tango::WAttribute &attr) entering... " << endl;
+	//	Retrieve write value
+	Tango::DevDouble	w_val;
+	attr.get_write_value(w_val);
+	/*----- PROTECTED REGION ID(PowerPMAC_CoordinateSystems::write_X) ENABLED START -----*/
+
+	try {
+		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
+		ci.ExecuteCommand(ppmac::cmd::CoordMoveAxis(coordinateIndex, "X", w_val));
+	} catch (ppmac::RuntimeError& e) {
+		tu::TranslateException(e);
+	}
+	
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_CoordinateSystems::write_X
+}
+//--------------------------------------------------------
+/**
+ *	Read attribute Y related method
+ *	Description: 
+ *
+ *	Data type:	Tango::DevDouble
+ *	Attr type:	Scalar
+ */
+//--------------------------------------------------------
+void PowerPMAC_CoordinateSystems::read_Y(Tango::Attribute &attr)
+{
+	DEBUG_STREAM << "PowerPMAC_CoordinateSystems::read_Y(Tango::Attribute &attr) entering... " << endl;
+	Tango::DevDouble	*att_value = get_Y_data_ptr(attr.get_name());
+	/*----- PROTECTED REGION ID(PowerPMAC_CoordinateSystems::read_Y) ENABLED START -----*/
+	//	Set the attribute value
+	attr.set_value(att_value);
+	
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_CoordinateSystems::read_Y
+}
+//--------------------------------------------------------
+/**
+ *	Write attribute Y related method
+ *	Description: 
+ *
+ *	Data type:	Tango::DevDouble
+ *	Attr type:	Scalar
+ */
+//--------------------------------------------------------
+void PowerPMAC_CoordinateSystems::write_Y(Tango::WAttribute &attr)
+{
+	DEBUG_STREAM << "PowerPMAC_CoordinateSystems::write_Y(Tango::WAttribute &attr) entering... " << endl;
+	//	Retrieve write value
+	Tango::DevDouble	w_val;
+	attr.get_write_value(w_val);
+	/*----- PROTECTED REGION ID(PowerPMAC_CoordinateSystems::write_Y) ENABLED START -----*/
+
+	try {
+		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
+		ci.ExecuteCommand(ppmac::cmd::CoordMoveAxis(coordinateIndex, "Y", w_val));
+	} catch (ppmac::RuntimeError& e) {
+		tu::TranslateException(e);
+	}
+	
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_CoordinateSystems::write_Y
+}
+//--------------------------------------------------------
+/**
+ *	Read attribute Z related method
+ *	Description: 
+ *
+ *	Data type:	Tango::DevDouble
+ *	Attr type:	Scalar
+ */
+//--------------------------------------------------------
+void PowerPMAC_CoordinateSystems::read_Z(Tango::Attribute &attr)
+{
+	DEBUG_STREAM << "PowerPMAC_CoordinateSystems::read_Z(Tango::Attribute &attr) entering... " << endl;
+	Tango::DevDouble	*att_value = get_Z_data_ptr(attr.get_name());
+	/*----- PROTECTED REGION ID(PowerPMAC_CoordinateSystems::read_Z) ENABLED START -----*/
+	//	Set the attribute value
+	attr.set_value(att_value);
+	
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_CoordinateSystems::read_Z
+}
+//--------------------------------------------------------
+/**
+ *	Write attribute Z related method
+ *	Description: 
+ *
+ *	Data type:	Tango::DevDouble
+ *	Attr type:	Scalar
+ */
+//--------------------------------------------------------
+void PowerPMAC_CoordinateSystems::write_Z(Tango::WAttribute &attr)
+{
+	DEBUG_STREAM << "PowerPMAC_CoordinateSystems::write_Z(Tango::WAttribute &attr) entering... " << endl;
+	//	Retrieve write value
+	Tango::DevDouble	w_val;
+	attr.get_write_value(w_val);
+	/*----- PROTECTED REGION ID(PowerPMAC_CoordinateSystems::write_Z) ENABLED START -----*/
+
+	try {
+		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
+		ci.ExecuteCommand(ppmac::cmd::CoordMoveAxis(coordinateIndex, "Z", w_val));
+	} catch (ppmac::RuntimeError& e) {
+		tu::TranslateException(e);
+	}
+	
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_CoordinateSystems::write_Z
+}
+//--------------------------------------------------------
+/**
+ *	Read attribute W related method
+ *	Description: 
+ *
+ *	Data type:	Tango::DevDouble
+ *	Attr type:	Scalar
+ */
+//--------------------------------------------------------
+void PowerPMAC_CoordinateSystems::read_W(Tango::Attribute &attr)
+{
+	DEBUG_STREAM << "PowerPMAC_CoordinateSystems::read_W(Tango::Attribute &attr) entering... " << endl;
+	Tango::DevDouble	*att_value = get_W_data_ptr(attr.get_name());
+	/*----- PROTECTED REGION ID(PowerPMAC_CoordinateSystems::read_W) ENABLED START -----*/
+	//	Set the attribute value
+	attr.set_value(att_value);
+	
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_CoordinateSystems::read_W
+}
+//--------------------------------------------------------
+/**
+ *	Write attribute W related method
+ *	Description: 
+ *
+ *	Data type:	Tango::DevDouble
+ *	Attr type:	Scalar
+ */
+//--------------------------------------------------------
+void PowerPMAC_CoordinateSystems::write_W(Tango::WAttribute &attr)
+{
+	DEBUG_STREAM << "PowerPMAC_CoordinateSystems::write_W(Tango::WAttribute &attr) entering... " << endl;
+	//	Retrieve write value
+	Tango::DevDouble	w_val;
+	attr.get_write_value(w_val);
+	/*----- PROTECTED REGION ID(PowerPMAC_CoordinateSystems::write_W) ENABLED START -----*/
+
+	try {
+		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
+		ci.ExecuteCommand(ppmac::cmd::CoordMoveAxis(coordinateIndex, "W", w_val));
+	} catch (ppmac::RuntimeError& e) {
+		tu::TranslateException(e);
+	}
+	
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_CoordinateSystems::write_W
+}
 //--------------------------------------------------------
 /**
  *	Method      : PowerPMAC_CoordinateSystems::add_dynamic_attributes()
@@ -207,13 +509,72 @@ void PowerPMAC_CoordinateSystems::read_attr_hardware(TANGO_UNUSED(vector<long> &
 //--------------------------------------------------------
 void PowerPMAC_CoordinateSystems::add_dynamic_attributes()
 {
-	/*----- PROTECTED REGION ID(PowerPMAC_CoordinateSystems::add_dynamic_attributes) ENABLED START -----*/
+	//	Example to add dynamic attribute:
+	//	Copy inside the following protected area to create instance(s) at startup.
+	//	add_X_dynamic_attribute("MyXAttribute");
+	//	add_Y_dynamic_attribute("MyYAttribute");
+	//	add_Z_dynamic_attribute("MyZAttribute");
+	//	add_W_dynamic_attribute("MyWAttribute");
 	
-	//	Add your own code to create and add dynamic attributes if any
+	/*----- PROTECTED REGION ID(PowerPMAC_CoordinateSystems::add_dynamic_attributes) ENABLED START -----*/
+
+	for(auto& axis : addAxis) {
+		if(axis == "X") {
+			add_X_dynamic_attribute(axis.c_str());
+		} else if(axis == "Y") {
+			add_Y_dynamic_attribute(axis.c_str());
+		} else if(axis == "Z") {
+			add_Z_dynamic_attribute(axis.c_str());
+		} else if(axis == "W") {
+			add_W_dynamic_attribute(axis.c_str());
+		}
+	}
 	
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_CoordinateSystems::add_dynamic_attributes
 }
 
+//--------------------------------------------------------
+/**
+ *	Command Abort related method
+ *	Description: 
+ *
+ */
+//--------------------------------------------------------
+void PowerPMAC_CoordinateSystems::abort()
+{
+	DEBUG_STREAM << "PowerPMAC_CoordinateSystems::Abort()  - " << device_name << endl;
+	/*----- PROTECTED REGION ID(PowerPMAC_CoordinateSystems::abort) ENABLED START -----*/
+
+	try {
+		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
+		ci.ExecuteCommand(ppmac::cmd::CoordAbortMove(coordinateIndex));
+	} catch (ppmac::RuntimeError& e) {
+		tu::TranslateException(e);
+	}
+	
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_CoordinateSystems::abort
+}
+//--------------------------------------------------------
+/**
+ *	Command RunMotionProgram related method
+ *	Description: 
+ *
+ *	@param argin 
+ */
+//--------------------------------------------------------
+void PowerPMAC_CoordinateSystems::run_motion_program(Tango::DevString argin)
+{
+	DEBUG_STREAM << "PowerPMAC_CoordinateSystems::RunMotionProgram()  - " << device_name << endl;
+	/*----- PROTECTED REGION ID(PowerPMAC_CoordinateSystems::run_motion_program) ENABLED START -----*/
+	try {
+		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
+		ci.ExecuteCommand(ppmac::cmd::CoordRunProgram(coordinateIndex, argin));
+	} catch (ppmac::RuntimeError& e) {
+		tu::TranslateException(e);
+	}
+	
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_CoordinateSystems::run_motion_program
+}
 //--------------------------------------------------------
 /**
  *	Method      : PowerPMAC_CoordinateSystems::add_dynamic_commands()
@@ -225,12 +586,38 @@ void PowerPMAC_CoordinateSystems::add_dynamic_commands()
 {
 	/*----- PROTECTED REGION ID(PowerPMAC_CoordinateSystems::add_dynamic_commands) ENABLED START -----*/
 	
-	//	Add your own code to create and add dynamic commands if any
-	
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_CoordinateSystems::add_dynamic_commands
 }
 
 /*----- PROTECTED REGION ID(PowerPMAC_CoordinateSystems::namespace_ending) ENABLED START -----*/
+
+void PowerPMAC_CoordinateSystems::StartCoordinateSystem() {
+	try {
+		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
+		auto result = ci.ExecuteCommand(ppmac::cmd::CoordGetAxisCount(coordinateIndex));
+		int32_t val = tu::ParseInt32(result);
+		if(val > static_cast<int32_t>(sizeof(axisNames))) {
+			set_state(Tango::FAULT);;
+			Tango::Except::throw_exception("invalid coordinate system", "number of axis must be <= 4", "PowerPMAC_CoordinateSystems::StartCoordinateSystem");
+		}
+		*attr_NumAxis_read = val;
+		for(int i = 0; i < *attr_NumAxis_read; i++) {
+			addAxis.push_back(axisNames[i]);
+		}
+	} catch (ppmac::RuntimeError& e) {
+		tu::TranslateException(e);
+	}
+
+	set_state(Tango::ON);
+}
+
+void PowerPMAC_CoordinateSystems::StopCoordinateSystem() {
+
+}
+
+void PowerPMAC_CoordinateSystems::CoordinateStateChanged(uint64_t newValue, uint64_t changes) {
+
+}
 
 /*----- PROTECTED REGION END -----*/	//	PowerPMAC_CoordinateSystems::namespace_ending
 } //	namespace

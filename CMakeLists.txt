@@ -37,6 +37,7 @@ add_subdirectory(powerpmac_global)
 add_subdirectory(powerpmac_io)
 add_subdirectory(powerpmac_motor)
 add_subdirectory(powerpmac_programs)
+add_subdirectory(powerpmac_plc)
 add_subdirectory(ppmac_core)
 # external but intree libraries
 #add_subdirectory(powerPMAC_ssh-master)
@@ -50,6 +51,7 @@ target_include_directories(PowerPMAC PUBLIC powerpmac_global)
 target_include_directories(PowerPMAC PUBLIC powerpmac_io)
 target_include_directories(PowerPMAC PUBLIC powerpmac_motor)
 target_include_directories(PowerPMAC PUBLIC powerpmac_programs)
+target_include_directories(PowerPMAC PUBLIC powerpmac_plc)
 # only needed if we want the multi server stuff to access ppmac core. can be usefull for easy debugging untill we make an own testptroject for that
 target_include_directories(PowerPMAC PUBLIC ppmac_core)
 
@@ -62,4 +64,5 @@ target_link_libraries(PowerPMAC tango omniDynamic4 COS4 omniORB4 omnithread log4
         PowerPMAC_Global
         PowerPMAC_IO
         PowerPMAC_Motor
-        PowerPMAC_Programs)
+        PowerPMAC_Programs
+        PowerPMAC_PLC)

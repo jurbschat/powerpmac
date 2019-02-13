@@ -40,7 +40,7 @@
 
 #include "coreinterface.h"
 #include "commandbuilder.h"
-#include "tangoutil.h"
+#include "../tangoutil.h"
 
 /*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor.cpp
 
@@ -179,6 +179,10 @@ void PowerPMAC_Motor::init_device()
 	attr_SoftCcwLimitFault_read = new Tango::DevBoolean[1];
 	attr_CwLimitFault_read = new Tango::DevBoolean[1];
 	attr_CcwLimitFault_read = new Tango::DevBoolean[1];
+	//	No longer if mandatory property not set. 
+	if (mandatoryNotDefined)
+		return;
+
 	/*----- PROTECTED REGION ID(PowerPMAC_Motor::init_device) ENABLED START -----*/
 
 	*attr_Acceleration_read = 0;
@@ -230,6 +234,7 @@ void PowerPMAC_Motor::get_device_property()
 	
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::get_device_property_before
 
+	mandatoryNotDefined = false;
 
 	//	Read device properties from database.
 	Tango::DbData	dev_prop;
@@ -259,6 +264,8 @@ void PowerPMAC_Motor::get_device_property()
 		}
 		//	And try to extract MotorIndex value from database
 		if (dev_prop[i].is_empty()==false)	dev_prop[i]  >>  motorIndex;
+		//	Property StartDsPath is mandatory, check if has been defined in database.
+		check_mandatory_property(cl_prop, dev_prop[i]);
 
 		//	Try to initialize DisableHardLimits from class property
 		cl_prop = ds_class->get_class_property(dev_prop[++i].name);
@@ -279,6 +286,34 @@ void PowerPMAC_Motor::get_device_property()
 	
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::get_device_property_after
 }
+//--------------------------------------------------------
+/**
+ *	Method      : PowerPMAC_Motor::check_mandatory_property()
+ *	Description : For mandatory properties check if defined in database.
+ */
+//--------------------------------------------------------
+void PowerPMAC_Motor::check_mandatory_property(Tango::DbDatum &class_prop, Tango::DbDatum &dev_prop)
+{
+	//	Check if all properties are empty
+	if (class_prop.is_empty() && dev_prop.is_empty())
+	{
+		TangoSys_OMemStream	tms;
+		tms << endl <<"Property \'" << dev_prop.name;
+		if (Tango::Util::instance()->_UseDb==true)
+			tms << "\' is mandatory but not defined in database";
+		else
+			tms << "\' is mandatory but cannot be defined without database";
+		string	status(get_status());
+		status += tms.str();
+		set_status(status);
+		mandatoryNotDefined = true;
+		/*----- PROTECTED REGION ID(PowerPMAC_Motor::check_mandatory_property) ENABLED START -----*/
+		cerr << tms.str() << " for " << device_name << endl;
+		
+		/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::check_mandatory_property
+	}
+}
+
 
 //--------------------------------------------------------
 /**
@@ -289,6 +324,14 @@ void PowerPMAC_Motor::get_device_property()
 void PowerPMAC_Motor::always_executed_hook()
 {
 	DEBUG_STREAM << "PowerPMAC_Motor::always_executed_hook()  " << device_name << endl;
+	if (mandatoryNotDefined)
+	{
+		string	status(get_status());
+		Tango::Except::throw_exception(
+					(const char *)"PROPERTY_NOT_SET",
+					status.c_str(),
+					(const char *)"PowerPMAC_Motor::always_executed_hook()");
+	}
 	/*----- PROTECTED REGION ID(PowerPMAC_Motor::always_executed_hook) ENABLED START -----*/
 	
 	//	code always executed before all requests

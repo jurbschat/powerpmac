@@ -1,13 +1,13 @@
-/*----- PROTECTED REGION ID(PowerPMAC_CoordinateSystemsClass.cpp) ENABLED START -----*/
+/*----- PROTECTED REGION ID(PowerPMAC_PLCClass.cpp) ENABLED START -----*/
 //=============================================================================
 //
-// file :        PowerPMAC_CoordinateSystemsClass.cpp
+// file :        PowerPMAC_PLCClass.cpp
 //
-// description : C++ source for the PowerPMAC_CoordinateSystemsClass.
+// description : C++ source for the PowerPMAC_PLCClass.
 //               A singleton class derived from DeviceClass.
 //               It implements the command and attribute list
 //               and all properties and methods required
-//               by the PowerPMAC_CoordinateSystems once per process.
+//               by the PowerPMAC_PLC once per process.
 //
 // project :     
 //
@@ -34,15 +34,13 @@
 //=============================================================================
 
 
-#include <PowerPMAC_CoordinateSystemsClass.h>
-#pragma GCC diagnostic ignored "-Wunused-parameter"
-#pragma GCC diagnostic ignored "-Wunused-variable"
+#include <PowerPMAC_PLCClass.h>
 
-/*----- PROTECTED REGION END -----*/	//	PowerPMAC_CoordinateSystemsClass.cpp
+/*----- PROTECTED REGION END -----*/	//	PowerPMAC_PLCClass.cpp
 
 //-------------------------------------------------------------------
 /**
- *	Create PowerPMAC_CoordinateSystemsClass singleton and
+ *	Create PowerPMAC_PLCClass singleton and
  *	return it in a C function for Python usage
  */
 //-------------------------------------------------------------------
@@ -53,50 +51,50 @@ __declspec(dllexport)
 
 #endif
 
-	Tango::DeviceClass *_create_PowerPMAC_CoordinateSystems_class(const char *name) {
-		return PowerPMAC_CoordinateSystems_ns::PowerPMAC_CoordinateSystemsClass::init(name);
+	Tango::DeviceClass *_create_PowerPMAC_PLC_class(const char *name) {
+		return PowerPMAC_PLC_ns::PowerPMAC_PLCClass::init(name);
 	}
 }
 
-namespace PowerPMAC_CoordinateSystems_ns
+namespace PowerPMAC_PLC_ns
 {
 //===================================================================
 //	Initialize pointer for singleton pattern
 //===================================================================
-PowerPMAC_CoordinateSystemsClass *PowerPMAC_CoordinateSystemsClass::_instance = NULL;
+PowerPMAC_PLCClass *PowerPMAC_PLCClass::_instance = NULL;
 
 //--------------------------------------------------------
 /**
- * method : 		PowerPMAC_CoordinateSystemsClass::PowerPMAC_CoordinateSystemsClass(string &s)
- * description : 	constructor for the PowerPMAC_CoordinateSystemsClass
+ * method : 		PowerPMAC_PLCClass::PowerPMAC_PLCClass(string &s)
+ * description : 	constructor for the PowerPMAC_PLCClass
  *
  * @param s	The class name
  */
 //--------------------------------------------------------
-PowerPMAC_CoordinateSystemsClass::PowerPMAC_CoordinateSystemsClass(string &s):Tango::DeviceClass(s)
+PowerPMAC_PLCClass::PowerPMAC_PLCClass(string &s):Tango::DeviceClass(s)
 {
-	cout2 << "Entering PowerPMAC_CoordinateSystemsClass constructor" << endl;
+	cout2 << "Entering PowerPMAC_PLCClass constructor" << endl;
 	set_default_property();
 	write_class_property();
 
-	/*----- PROTECTED REGION ID(PowerPMAC_CoordinateSystemsClass::constructor) ENABLED START -----*/
+	/*----- PROTECTED REGION ID(PowerPMAC_PLCClass::constructor) ENABLED START -----*/
 	
-	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_CoordinateSystemsClass::constructor
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_PLCClass::constructor
 
-	cout2 << "Leaving PowerPMAC_CoordinateSystemsClass constructor" << endl;
+	cout2 << "Leaving PowerPMAC_PLCClass constructor" << endl;
 }
 
 //--------------------------------------------------------
 /**
- * method : 		PowerPMAC_CoordinateSystemsClass::~PowerPMAC_CoordinateSystemsClass()
- * description : 	destructor for the PowerPMAC_CoordinateSystemsClass
+ * method : 		PowerPMAC_PLCClass::~PowerPMAC_PLCClass()
+ * description : 	destructor for the PowerPMAC_PLCClass
  */
 //--------------------------------------------------------
-PowerPMAC_CoordinateSystemsClass::~PowerPMAC_CoordinateSystemsClass()
+PowerPMAC_PLCClass::~PowerPMAC_PLCClass()
 {
-	/*----- PROTECTED REGION ID(PowerPMAC_CoordinateSystemsClass::destructor) ENABLED START -----*/
+	/*----- PROTECTED REGION ID(PowerPMAC_PLCClass::destructor) ENABLED START -----*/
 	
-	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_CoordinateSystemsClass::destructor
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_PLCClass::destructor
 
 	_instance = NULL;
 }
@@ -104,21 +102,21 @@ PowerPMAC_CoordinateSystemsClass::~PowerPMAC_CoordinateSystemsClass()
 
 //--------------------------------------------------------
 /**
- * method : 		PowerPMAC_CoordinateSystemsClass::init
+ * method : 		PowerPMAC_PLCClass::init
  * description : 	Create the object if not already done.
  *                  Otherwise, just return a pointer to the object
  *
  * @param	name	The class name
  */
 //--------------------------------------------------------
-PowerPMAC_CoordinateSystemsClass *PowerPMAC_CoordinateSystemsClass::init(const char *name)
+PowerPMAC_PLCClass *PowerPMAC_PLCClass::init(const char *name)
 {
 	if (_instance == NULL)
 	{
 		try
 		{
 			string s(name);
-			_instance = new PowerPMAC_CoordinateSystemsClass(s);
+			_instance = new PowerPMAC_PLCClass(s);
 		}
 		catch (bad_alloc &)
 		{
@@ -130,12 +128,12 @@ PowerPMAC_CoordinateSystemsClass *PowerPMAC_CoordinateSystemsClass::init(const c
 
 //--------------------------------------------------------
 /**
- * method : 		PowerPMAC_CoordinateSystemsClass::instance
+ * method : 		PowerPMAC_PLCClass::instance
  * description : 	Check if object already created,
  *                  and return a pointer to the object
  */
 //--------------------------------------------------------
-PowerPMAC_CoordinateSystemsClass *PowerPMAC_CoordinateSystemsClass::instance()
+PowerPMAC_PLCClass *PowerPMAC_PLCClass::instance()
 {
 	if (_instance == NULL)
 	{
@@ -152,7 +150,7 @@ PowerPMAC_CoordinateSystemsClass *PowerPMAC_CoordinateSystemsClass::instance()
 //===================================================================
 //--------------------------------------------------------
 /**
- * method : 		AbortClass::execute()
+ * method : 		EnableClass::execute()
  * description : 	method to trigger the execution of the command.
  *
  * @param	device	The device on which the command must be executed
@@ -161,16 +159,16 @@ PowerPMAC_CoordinateSystemsClass *PowerPMAC_CoordinateSystemsClass::instance()
  *	returns The command output data (packed in the Any object)
  */
 //--------------------------------------------------------
-CORBA::Any *AbortClass::execute(Tango::DeviceImpl *device, TANGO_UNUSED(const CORBA::Any &in_any))
+CORBA::Any *EnableClass::execute(Tango::DeviceImpl *device, TANGO_UNUSED(const CORBA::Any &in_any))
 {
-	cout2 << "AbortClass::execute(): arrived" << endl;
-	((static_cast<PowerPMAC_CoordinateSystems *>(device))->abort());
+	cout2 << "EnableClass::execute(): arrived" << endl;
+	((static_cast<PowerPMAC_PLC *>(device))->enable());
 	return new CORBA::Any();
 }
 
 //--------------------------------------------------------
 /**
- * method : 		RunMotionProgramClass::execute()
+ * method : 		DisableClass::execute()
  * description : 	method to trigger the execution of the command.
  *
  * @param	device	The device on which the command must be executed
@@ -179,12 +177,46 @@ CORBA::Any *AbortClass::execute(Tango::DeviceImpl *device, TANGO_UNUSED(const CO
  *	returns The command output data (packed in the Any object)
  */
 //--------------------------------------------------------
-CORBA::Any *RunMotionProgramClass::execute(Tango::DeviceImpl *device, const CORBA::Any &in_any)
+CORBA::Any *DisableClass::execute(Tango::DeviceImpl *device, TANGO_UNUSED(const CORBA::Any &in_any))
 {
-	cout2 << "RunMotionProgramClass::execute(): arrived" << endl;
-	Tango::DevString argin;
-	extract(in_any, argin);
-	((static_cast<PowerPMAC_CoordinateSystems *>(device))->run_motion_program(argin));
+	cout2 << "DisableClass::execute(): arrived" << endl;
+	((static_cast<PowerPMAC_PLC *>(device))->disable());
+	return new CORBA::Any();
+}
+
+//--------------------------------------------------------
+/**
+ * method : 		PauseClass::execute()
+ * description : 	method to trigger the execution of the command.
+ *
+ * @param	device	The device on which the command must be executed
+ * @param	in_any	The command input data
+ *
+ *	returns The command output data (packed in the Any object)
+ */
+//--------------------------------------------------------
+CORBA::Any *PauseClass::execute(Tango::DeviceImpl *device, TANGO_UNUSED(const CORBA::Any &in_any))
+{
+	cout2 << "PauseClass::execute(): arrived" << endl;
+	((static_cast<PowerPMAC_PLC *>(device))->pause());
+	return new CORBA::Any();
+}
+
+//--------------------------------------------------------
+/**
+ * method : 		ResumeClass::execute()
+ * description : 	method to trigger the execution of the command.
+ *
+ * @param	device	The device on which the command must be executed
+ * @param	in_any	The command input data
+ *
+ *	returns The command output data (packed in the Any object)
+ */
+//--------------------------------------------------------
+CORBA::Any *ResumeClass::execute(Tango::DeviceImpl *device, TANGO_UNUSED(const CORBA::Any &in_any))
+{
+	cout2 << "ResumeClass::execute(): arrived" << endl;
+	((static_cast<PowerPMAC_PLC *>(device))->resume());
 	return new CORBA::Any();
 }
 
@@ -194,11 +226,11 @@ CORBA::Any *RunMotionProgramClass::execute(Tango::DeviceImpl *device, const CORB
 //===================================================================
 //--------------------------------------------------------
 /**
- *	Method      : PowerPMAC_CoordinateSystemsClass::get_class_property()
+ *	Method      : PowerPMAC_PLCClass::get_class_property()
  *	Description : Get the class property for specified name.
  */
 //--------------------------------------------------------
-Tango::DbDatum PowerPMAC_CoordinateSystemsClass::get_class_property(string &prop_name)
+Tango::DbDatum PowerPMAC_PLCClass::get_class_property(string &prop_name)
 {
 	for (unsigned int i=0 ; i<cl_prop.size() ; i++)
 		if (cl_prop[i].name == prop_name)
@@ -209,11 +241,11 @@ Tango::DbDatum PowerPMAC_CoordinateSystemsClass::get_class_property(string &prop
 
 //--------------------------------------------------------
 /**
- *	Method      : PowerPMAC_CoordinateSystemsClass::get_default_device_property()
+ *	Method      : PowerPMAC_PLCClass::get_default_device_property()
  *	Description : Return the default value for device property.
  */
 //--------------------------------------------------------
-Tango::DbDatum PowerPMAC_CoordinateSystemsClass::get_default_device_property(string &prop_name)
+Tango::DbDatum PowerPMAC_PLCClass::get_default_device_property(string &prop_name)
 {
 	for (unsigned int i=0 ; i<dev_def_prop.size() ; i++)
 		if (dev_def_prop[i].name == prop_name)
@@ -224,11 +256,11 @@ Tango::DbDatum PowerPMAC_CoordinateSystemsClass::get_default_device_property(str
 
 //--------------------------------------------------------
 /**
- *	Method      : PowerPMAC_CoordinateSystemsClass::get_default_class_property()
+ *	Method      : PowerPMAC_PLCClass::get_default_class_property()
  *	Description : Return the default value for class property.
  */
 //--------------------------------------------------------
-Tango::DbDatum PowerPMAC_CoordinateSystemsClass::get_default_class_property(string &prop_name)
+Tango::DbDatum PowerPMAC_PLCClass::get_default_class_property(string &prop_name)
 {
 	for (unsigned int i=0 ; i<cl_def_prop.size() ; i++)
 		if (cl_def_prop[i].name == prop_name)
@@ -240,14 +272,14 @@ Tango::DbDatum PowerPMAC_CoordinateSystemsClass::get_default_class_property(stri
 
 //--------------------------------------------------------
 /**
- *	Method      : PowerPMAC_CoordinateSystemsClass::set_default_property()
+ *	Method      : PowerPMAC_PLCClass::set_default_property()
  *	Description : Set default property (class and device) for wizard.
  *                For each property, add to wizard property name and description.
  *                If default value has been set, add it to wizard property and
  *                store it in a DbDatum.
  */
 //--------------------------------------------------------
-void PowerPMAC_CoordinateSystemsClass::set_default_property()
+void PowerPMAC_PLCClass::set_default_property()
 {
 	string	prop_name;
 	string	prop_desc;
@@ -257,8 +289,8 @@ void PowerPMAC_CoordinateSystemsClass::set_default_property()
 	//	Set Default Class Properties
 
 	//	Set Default device Properties
-	prop_name = "CoordinateIndex";
-	prop_desc = "coordinate system id";
+	prop_name = "plcIndex";
+	prop_desc = "The index of the plc clot, valid from 0..31";
 	prop_def  = "";
 	vect_data.clear();
 	if (prop_def.length()>0)
@@ -274,11 +306,11 @@ void PowerPMAC_CoordinateSystemsClass::set_default_property()
 
 //--------------------------------------------------------
 /**
- *	Method      : PowerPMAC_CoordinateSystemsClass::write_class_property()
+ *	Method      : PowerPMAC_PLCClass::write_class_property()
  *	Description : Set class description fields as property in database
  */
 //--------------------------------------------------------
-void PowerPMAC_CoordinateSystemsClass::write_class_property()
+void PowerPMAC_PLCClass::write_class_property()
 {
 	//	First time, check if database used
 	if (Tango::Util::_UseDb == false)
@@ -319,24 +351,24 @@ void PowerPMAC_CoordinateSystemsClass::write_class_property()
 
 //--------------------------------------------------------
 /**
- *	Method      : PowerPMAC_CoordinateSystemsClass::device_factory()
+ *	Method      : PowerPMAC_PLCClass::device_factory()
  *	Description : Create the device object(s)
  *                and store them in the device list
  */
 //--------------------------------------------------------
-void PowerPMAC_CoordinateSystemsClass::device_factory(const Tango::DevVarStringArray *devlist_ptr)
+void PowerPMAC_PLCClass::device_factory(const Tango::DevVarStringArray *devlist_ptr)
 {
-	/*----- PROTECTED REGION ID(PowerPMAC_CoordinateSystemsClass::device_factory_before) ENABLED START -----*/
+	/*----- PROTECTED REGION ID(PowerPMAC_PLCClass::device_factory_before) ENABLED START -----*/
 	
 	//	Add your own code
 	
-	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_CoordinateSystemsClass::device_factory_before
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_PLCClass::device_factory_before
 
 	//	Create devices and add it into the device list
 	for (unsigned long i=0 ; i<devlist_ptr->length() ; i++)
 	{
 		cout4 << "Device name : " << (*devlist_ptr)[i].in() << endl;
-		device_list.push_back(new PowerPMAC_CoordinateSystems(this, (*devlist_ptr)[i]));
+		device_list.push_back(new PowerPMAC_PLC(this, (*devlist_ptr)[i]));
 	}
 
 	//	Manage dynamic attributes if any
@@ -346,7 +378,7 @@ void PowerPMAC_CoordinateSystemsClass::device_factory(const Tango::DevVarStringA
 	for (unsigned long i=1 ; i<=devlist_ptr->length() ; i++)
 	{
 		//	Add dynamic attributes if any
-		PowerPMAC_CoordinateSystems *dev = static_cast<PowerPMAC_CoordinateSystems *>(device_list[device_list.size()-i]);
+		PowerPMAC_PLC *dev = static_cast<PowerPMAC_PLC *>(device_list[device_list.size()-i]);
 		dev->add_dynamic_attributes();
 
 		//	Check before if database used.
@@ -356,118 +388,160 @@ void PowerPMAC_CoordinateSystemsClass::device_factory(const Tango::DevVarStringA
 			export_device(dev, dev->get_name().c_str());
 	}
 
-	/*----- PROTECTED REGION ID(PowerPMAC_CoordinateSystemsClass::device_factory_after) ENABLED START -----*/
+	/*----- PROTECTED REGION ID(PowerPMAC_PLCClass::device_factory_after) ENABLED START -----*/
 	
 	//	Add your own code
 	
-	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_CoordinateSystemsClass::device_factory_after
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_PLCClass::device_factory_after
 }
 //--------------------------------------------------------
 /**
- *	Method      : PowerPMAC_CoordinateSystemsClass::attribute_factory()
+ *	Method      : PowerPMAC_PLCClass::attribute_factory()
  *	Description : Create the attribute object(s)
  *                and store them in the attribute list
  */
 //--------------------------------------------------------
-void PowerPMAC_CoordinateSystemsClass::attribute_factory(vector<Tango::Attr *> &att_list)
+void PowerPMAC_PLCClass::attribute_factory(vector<Tango::Attr *> &att_list)
 {
-	/*----- PROTECTED REGION ID(PowerPMAC_CoordinateSystemsClass::attribute_factory_before) ENABLED START -----*/
+	/*----- PROTECTED REGION ID(PowerPMAC_PLCClass::attribute_factory_before) ENABLED START -----*/
 	
 	//	Add your own code
 	
-	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_CoordinateSystemsClass::attribute_factory_before
-	//	Attribute : NumAxis
-	NumAxisAttrib	*numaxis = new NumAxisAttrib();
-	Tango::UserDefaultAttrProp	numaxis_prop;
-	//	description	not set for NumAxis
-	//	label	not set for NumAxis
-	//	unit	not set for NumAxis
-	//	standard_unit	not set for NumAxis
-	//	display_unit	not set for NumAxis
-	//	format	not set for NumAxis
-	//	max_value	not set for NumAxis
-	//	min_value	not set for NumAxis
-	//	max_alarm	not set for NumAxis
-	//	min_alarm	not set for NumAxis
-	//	max_warning	not set for NumAxis
-	//	min_warning	not set for NumAxis
-	//	delta_t	not set for NumAxis
-	//	delta_val	not set for NumAxis
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_PLCClass::attribute_factory_before
+	//	Attribute : active
+	activeAttrib	*active = new activeAttrib();
+	Tango::UserDefaultAttrProp	active_prop;
+	//	description	not set for active
+	//	label	not set for active
+	//	unit	not set for active
+	//	standard_unit	not set for active
+	//	display_unit	not set for active
+	//	format	not set for active
+	//	max_value	not set for active
+	//	min_value	not set for active
+	//	max_alarm	not set for active
+	//	min_alarm	not set for active
+	//	max_warning	not set for active
+	//	min_warning	not set for active
+	//	delta_t	not set for active
+	//	delta_val	not set for active
 	
-	numaxis->set_default_properties(numaxis_prop);
+	active->set_default_properties(active_prop);
 	//	Not Polled
-	numaxis->set_disp_level(Tango::OPERATOR);
+	active->set_disp_level(Tango::OPERATOR);
 	//	Not Memorized
-	att_list.push_back(numaxis);
+	att_list.push_back(active);
+
+	//	Attribute : running
+	runningAttrib	*running = new runningAttrib();
+	Tango::UserDefaultAttrProp	running_prop;
+	//	description	not set for running
+	//	label	not set for running
+	//	unit	not set for running
+	//	standard_unit	not set for running
+	//	display_unit	not set for running
+	//	format	not set for running
+	//	max_value	not set for running
+	//	min_value	not set for running
+	//	max_alarm	not set for running
+	//	min_alarm	not set for running
+	//	max_warning	not set for running
+	//	min_warning	not set for running
+	//	delta_t	not set for running
+	//	delta_val	not set for running
+	
+	running->set_default_properties(running_prop);
+	//	Not Polled
+	running->set_disp_level(Tango::OPERATOR);
+	//	Not Memorized
+	att_list.push_back(running);
 
 
 	//	Create a list of static attributes
 	create_static_attribute_list(get_class_attr()->get_attr_list());
-	/*----- PROTECTED REGION ID(PowerPMAC_CoordinateSystemsClass::attribute_factory_after) ENABLED START -----*/
+	/*----- PROTECTED REGION ID(PowerPMAC_PLCClass::attribute_factory_after) ENABLED START -----*/
 	
 	//	Add your own code
 	
-	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_CoordinateSystemsClass::attribute_factory_after
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_PLCClass::attribute_factory_after
 }
 //--------------------------------------------------------
 /**
- *	Method      : PowerPMAC_CoordinateSystemsClass::pipe_factory()
+ *	Method      : PowerPMAC_PLCClass::pipe_factory()
  *	Description : Create the pipe object(s)
  *                and store them in the pipe list
  */
 //--------------------------------------------------------
-void PowerPMAC_CoordinateSystemsClass::pipe_factory()
+void PowerPMAC_PLCClass::pipe_factory()
 {
-	/*----- PROTECTED REGION ID(PowerPMAC_CoordinateSystemsClass::pipe_factory_before) ENABLED START -----*/
+	/*----- PROTECTED REGION ID(PowerPMAC_PLCClass::pipe_factory_before) ENABLED START -----*/
 	
 	//	Add your own code
 	
-	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_CoordinateSystemsClass::pipe_factory_before
-	/*----- PROTECTED REGION ID(PowerPMAC_CoordinateSystemsClass::pipe_factory_after) ENABLED START -----*/
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_PLCClass::pipe_factory_before
+	/*----- PROTECTED REGION ID(PowerPMAC_PLCClass::pipe_factory_after) ENABLED START -----*/
 	
 	//	Add your own code
 	
-	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_CoordinateSystemsClass::pipe_factory_after
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_PLCClass::pipe_factory_after
 }
 //--------------------------------------------------------
 /**
- *	Method      : PowerPMAC_CoordinateSystemsClass::command_factory()
+ *	Method      : PowerPMAC_PLCClass::command_factory()
  *	Description : Create the command object(s)
  *                and store them in the command list
  */
 //--------------------------------------------------------
-void PowerPMAC_CoordinateSystemsClass::command_factory()
+void PowerPMAC_PLCClass::command_factory()
 {
-	/*----- PROTECTED REGION ID(PowerPMAC_CoordinateSystemsClass::command_factory_before) ENABLED START -----*/
+	/*----- PROTECTED REGION ID(PowerPMAC_PLCClass::command_factory_before) ENABLED START -----*/
 	
 	//	Add your own code
 	
-	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_CoordinateSystemsClass::command_factory_before
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_PLCClass::command_factory_before
 
 
-	//	Command Abort
-	AbortClass	*pAbortCmd =
-		new AbortClass("Abort",
+	//	Command Enable
+	EnableClass	*pEnableCmd =
+		new EnableClass("Enable",
 			Tango::DEV_VOID, Tango::DEV_VOID,
 			"",
 			"",
 			Tango::OPERATOR);
-	command_list.push_back(pAbortCmd);
+	command_list.push_back(pEnableCmd);
 
-	//	Command RunMotionProgram
-	RunMotionProgramClass	*pRunMotionProgramCmd =
-		new RunMotionProgramClass("RunMotionProgram",
-			Tango::DEV_STRING, Tango::DEV_VOID,
+	//	Command Disable
+	DisableClass	*pDisableCmd =
+		new DisableClass("Disable",
+			Tango::DEV_VOID, Tango::DEV_VOID,
 			"",
 			"",
 			Tango::OPERATOR);
-	command_list.push_back(pRunMotionProgramCmd);
+	command_list.push_back(pDisableCmd);
 
-	/*----- PROTECTED REGION ID(PowerPMAC_CoordinateSystemsClass::command_factory_after) ENABLED START -----*/
+	//	Command Pause
+	PauseClass	*pPauseCmd =
+		new PauseClass("Pause",
+			Tango::DEV_VOID, Tango::DEV_VOID,
+			"",
+			"",
+			Tango::OPERATOR);
+	command_list.push_back(pPauseCmd);
+
+	//	Command Resume
+	ResumeClass	*pResumeCmd =
+		new ResumeClass("Resume",
+			Tango::DEV_VOID, Tango::DEV_VOID,
+			"",
+			"",
+			Tango::OPERATOR);
+	command_list.push_back(pResumeCmd);
+
+	/*----- PROTECTED REGION ID(PowerPMAC_PLCClass::command_factory_after) ENABLED START -----*/
 	
 	//	Add your own code
 	
-	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_CoordinateSystemsClass::command_factory_after
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_PLCClass::command_factory_after
 }
 
 //===================================================================
@@ -476,13 +550,13 @@ void PowerPMAC_CoordinateSystemsClass::command_factory()
 
 //--------------------------------------------------------
 /**
- * method : 		PowerPMAC_CoordinateSystemsClass::create_static_attribute_list
+ * method : 		PowerPMAC_PLCClass::create_static_attribute_list
  * description : 	Create the a list of static attributes
  *
  * @param	att_list	the ceated attribute list
  */
 //--------------------------------------------------------
-void PowerPMAC_CoordinateSystemsClass::create_static_attribute_list(vector<Tango::Attr *> &att_list)
+void PowerPMAC_PLCClass::create_static_attribute_list(vector<Tango::Attr *> &att_list)
 {
 	for (unsigned long i=0 ; i<att_list.size() ; i++)
 	{
@@ -493,29 +567,29 @@ void PowerPMAC_CoordinateSystemsClass::create_static_attribute_list(vector<Tango
 
 	cout2 << defaultAttList.size() << " attributes in default list" << endl;
 
-	/*----- PROTECTED REGION ID(PowerPMAC_CoordinateSystemsClass::create_static_att_list) ENABLED START -----*/
+	/*----- PROTECTED REGION ID(PowerPMAC_PLCClass::create_static_att_list) ENABLED START -----*/
 	
-	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_CoordinateSystemsClass::create_static_att_list
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_PLCClass::create_static_att_list
 }
 
 
 //--------------------------------------------------------
 /**
- * method : 		PowerPMAC_CoordinateSystemsClass::erase_dynamic_attributes
+ * method : 		PowerPMAC_PLCClass::erase_dynamic_attributes
  * description : 	delete the dynamic attributes if any.
  *
  * @param	devlist_ptr	the device list pointer
  * @param	list of all attributes
  */
 //--------------------------------------------------------
-void PowerPMAC_CoordinateSystemsClass::erase_dynamic_attributes(const Tango::DevVarStringArray *devlist_ptr, vector<Tango::Attr *> &att_list)
+void PowerPMAC_PLCClass::erase_dynamic_attributes(const Tango::DevVarStringArray *devlist_ptr, vector<Tango::Attr *> &att_list)
 {
 	Tango::Util *tg = Tango::Util::instance();
 
 	for (unsigned long i=0 ; i<devlist_ptr->length() ; i++)
 	{
 		Tango::DeviceImpl *dev_impl = tg->get_device_by_name(((string)(*devlist_ptr)[i]).c_str());
-		PowerPMAC_CoordinateSystems *dev = static_cast<PowerPMAC_CoordinateSystems *> (dev_impl);
+		PowerPMAC_PLC *dev = static_cast<PowerPMAC_PLC *> (dev_impl);
 
 		vector<Tango::Attribute *> &dev_att_list = dev->get_device_attr()->get_attribute_list();
 		vector<Tango::Attribute *>::iterator ite_att;
@@ -534,18 +608,18 @@ void PowerPMAC_CoordinateSystemsClass::erase_dynamic_attributes(const Tango::Dev
 			}
 		}
 	}
-	/*----- PROTECTED REGION ID(PowerPMAC_CoordinateSystemsClass::erase_dynamic_attributes) ENABLED START -----*/
+	/*----- PROTECTED REGION ID(PowerPMAC_PLCClass::erase_dynamic_attributes) ENABLED START -----*/
 	
-	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_CoordinateSystemsClass::erase_dynamic_attributes
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_PLCClass::erase_dynamic_attributes
 }
 
 //--------------------------------------------------------
 /**
- *	Method      : PowerPMAC_CoordinateSystemsClass::get_attr_by_name()
+ *	Method      : PowerPMAC_PLCClass::get_attr_by_name()
  *	Description : returns Tango::Attr * object found by name
  */
 //--------------------------------------------------------
-Tango::Attr *PowerPMAC_CoordinateSystemsClass::get_attr_object_by_name(vector<Tango::Attr *> &att_list, string attname)
+Tango::Attr *PowerPMAC_PLCClass::get_attr_object_by_name(vector<Tango::Attr *> &att_list, string attname)
 {
 	vector<Tango::Attr *>::iterator it;
 	for (it=att_list.begin() ; it<att_list.end() ; ++it)
@@ -556,7 +630,7 @@ Tango::Attr *PowerPMAC_CoordinateSystemsClass::get_attr_object_by_name(vector<Ta
 }
 
 
-/*----- PROTECTED REGION ID(PowerPMAC_CoordinateSystemsClass::Additional Methods) ENABLED START -----*/
+/*----- PROTECTED REGION ID(PowerPMAC_PLCClass::Additional Methods) ENABLED START -----*/
 
-/*----- PROTECTED REGION END -----*/	//	PowerPMAC_CoordinateSystemsClass::Additional Methods
+/*----- PROTECTED REGION END -----*/	//	PowerPMAC_PLCClass::Additional Methods
 } //	namespace

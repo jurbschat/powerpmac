@@ -184,6 +184,13 @@ namespace ppmac {
 				auto parserResult = query.parser(*result);
 				Update1D(parserResult, query);
 			}
+
+			//auto plcQuery = query::GeneralGetPlcStatus(stdext::make_span(state.global.plcs), 0, MAX_PLC-1);
+			//auto plcResult = rs.ChannelWriteRead(plcQuery.command);
+			//if(plcResult) {
+			//	auto parserResult = query.parser(*result);
+			//	Update1D(parserResult, query);
+			//}
 		}
 
 		void UpdateMotorValues() {

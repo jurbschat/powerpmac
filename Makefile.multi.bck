@@ -69,9 +69,6 @@ POWERPMAC_MOTOR_HOME  = ./powerpmac_motor
 POWERPMAC_COORDINATESYSTEMS_CLASS = PowerPMAC_CoordinateSystems
 POWERPMAC_COORDINATESYSTEMS_HOME  = ./powerpmac_coordinatesystems
 
-POWERPMAC_PLC_CLASS = PowerPMAC_PLC
-POWERPMAC_PLC_HOME  = ./powerpmac_plc
-
 
 #=============================================================================
 # INC_DIR_USER is the list of all include path needed by your sources
@@ -83,8 +80,7 @@ INC_DIR_USER= -I . \
               -I $(POWERPMAC_IO_HOME)\
               -I $(POWERPMAC_PROGRAMS_HOME)\
               -I $(POWERPMAC_MOTOR_HOME)\
-              -I $(POWERPMAC_COORDINATESYSTEMS_HOME)\
-              -I $(POWERPMAC_PLC_HOME)
+              -I $(POWERPMAC_COORDINATESYSTEMS_HOME)
 
 #=============================================================================
 # LIB_DIR_USER is the list of user library directories
@@ -146,7 +142,6 @@ SVC_OBJS =  $(SVC_POWERPMAC_GLOBAL_OBJS) \
             $(SVC_POWERPMAC_PROGRAMS_OBJS) \
             $(SVC_POWERPMAC_MOTOR_OBJS) \
             $(SVC_POWERPMAC_COORDINATESYSTEMS_OBJS) \
-            $(SVC_POWERPMAC_PLC_OBJS) \
             $(OBJDIR)/MultiClassesFactory.o \
             $(OBJDIR)/main.o
 
@@ -179,12 +174,6 @@ SVC_POWERPMAC_COORDINATESYSTEMS_OBJS = \
 		$(OBJDIR)/PowerPMAC_CoordinateSystems.o \
 		$(OBJDIR)/PowerPMAC_CoordinateSystemsClass.o \
 		$(OBJDIR)/PowerPMAC_CoordinateSystemsStateMachine.o
-
-#------------  Object files for PowerPMAC_PLC class  ------------
-SVC_POWERPMAC_PLC_OBJS = \
-		$(OBJDIR)/PowerPMAC_PLC.o \
-		$(OBJDIR)/PowerPMAC_PLCClass.o \
-		$(OBJDIR)/PowerPMAC_PLCStateMachine.o
 
 
 #=============================================================================
@@ -255,17 +244,5 @@ $(OBJDIR)/PowerPMAC_CoordinateSystemsClass.o:  $(POWERPMAC_COORDINATESYSTEMS_HOM
 	$(CXX) $(CXXFLAGS) -c $< -o $(OBJDIR)/PowerPMAC_CoordinateSystemsClass.o
 $(OBJDIR)/PowerPMAC_CoordinateSystemsStateMachine.o:  $(POWERPMAC_COORDINATESYSTEMS_HOME)/PowerPMAC_CoordinateSystemsStateMachine.cpp $(POWERPMAC_COORDINATESYSTEMS_INCLUDES)
 	$(CXX) $(CXXFLAGS) -c $< -o $(OBJDIR)/PowerPMAC_CoordinateSystemsStateMachine.o
-
-#------------  Object files dependancies for PowerPMAC_PLC class  ------------
-POWERPMAC_PLC_INCLUDES = \
-		$(POWERPMAC_PLC_HOME)/PowerPMAC_PLC.h \
-		$(POWERPMAC_PLC_HOME)/PowerPMAC_PLCClass.h
-
-$(OBJDIR)/PowerPMAC_PLC.o:  $(POWERPMAC_PLC_HOME)/PowerPMAC_PLC.cpp $(POWERPMAC_PLC_INCLUDES)
-	$(CXX) $(CXXFLAGS) -c $< -o $(OBJDIR)/PowerPMAC_PLC.o
-$(OBJDIR)/PowerPMAC_PLCClass.o:  $(POWERPMAC_PLC_HOME)/PowerPMAC_PLCClass.cpp $(POWERPMAC_PLC_INCLUDES)
-	$(CXX) $(CXXFLAGS) -c $< -o $(OBJDIR)/PowerPMAC_PLCClass.o
-$(OBJDIR)/PowerPMAC_PLCStateMachine.o:  $(POWERPMAC_PLC_HOME)/PowerPMAC_PLCStateMachine.cpp $(POWERPMAC_PLC_INCLUDES)
-	$(CXX) $(CXXFLAGS) -c $< -o $(OBJDIR)/PowerPMAC_PLCStateMachine.o
 
 

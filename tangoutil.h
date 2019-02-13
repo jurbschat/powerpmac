@@ -5,7 +5,7 @@
 #ifndef POWERPMAC_TANGOUTIL_H
 #define POWERPMAC_TANGOUTIL_H
 
-#include "exception.h"
+#include "ppmac_core/exception.h"
 
 namespace tu {
 
@@ -18,6 +18,8 @@ namespace tu {
 	uint64_t ParseUInt64(const std::string &str);
 	uint32_t ParsePmacHex32(const std::string &str);
 	uint64_t ParsePmacHex64(const std::string &str);
+
+	void SetStringValue(char **ptr, const std::string& value, bool forceNoDelete = false);
 }
 
 #endif //POWERPMAC_TANGOUTIL_H

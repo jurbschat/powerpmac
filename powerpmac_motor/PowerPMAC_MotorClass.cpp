@@ -347,9 +347,8 @@ void PowerPMAC_MotorClass::set_default_property()
 	//	Set Default device Properties
 	prop_name = "MotorIndex";
 	prop_desc = "the index of the motor";
-	prop_def  = "1";
+	prop_def  = "";
 	vect_data.clear();
-	vect_data.push_back("1");
 	if (prop_def.length()>0)
 	{
 		Tango::DbDatum	data(prop_name);

@@ -303,7 +303,7 @@ public:
 	void StartGlobal();
 	void StopGlobal();
 	void SetErrorState();
-	void SetStringValue(char **ptr, const std::string& value);
+
 
 /*----- PROTECTED REGION END -----*/	//	PowerPMAC_Global::Additional Method prototypes
 };

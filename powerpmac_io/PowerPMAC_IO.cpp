@@ -33,12 +33,11 @@
 //        (Program Obviously used to Generate tango Object)
 //=============================================================================
 
-
+#include "coreinterface.h"
+#include "../tangoutil.h"
+#include "commandbuilder.h"
 #include <PowerPMAC_IO.h>
 #include <PowerPMAC_IOClass.h>
-#include "coreinterface.h"
-#include "tangoutil.h"
-#include "commandbuilder.h"
 
 
 /*----- PROTECTED REGION END -----*/	//	PowerPMAC_IO.cpp
@@ -315,7 +314,7 @@ void PowerPMAC_IO::read_RawValue(Tango::Attribute &attr)
 	try {
 		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
 		std::string result = ci.ExecuteCommand(ppmac::cmd::ReadPortByName(port));
-		auto rawValue = tu::ParseInt32(result);
+		Tango::DevLong rawValue = tu::ParseInt32(result);
 		attr.set_value(&rawValue);
 		*attr_RawValue_read = rawValue;
 	} catch (ppmac::RuntimeError& e) {
@@ -376,7 +375,7 @@ void PowerPMAC_IO::read_Value(Tango::Attribute &attr)
 		std::string result = ci.ExecuteCommand(ppmac::cmd::ReadPortByName(port));
 		auto rawValue = tu::ParseInt32(result);
 		// e.g. 10000 * (1/32768) * 5
-		double scaledValue = rawValue * analogScaleFactor * (*attr_ScaleFactor_read);
+		Tango::DevDouble scaledValue = rawValue * analogScaleFactor * (*attr_ScaleFactor_read);
 		attr.set_value(&scaledValue);
 		*attr_Value_read = scaledValue;
 	} catch (ppmac::RuntimeError& e) {

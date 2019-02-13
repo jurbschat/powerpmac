@@ -51,6 +51,137 @@ namespace PowerPMAC_CoordinateSystems_ns
 
 /*----- PROTECTED REGION END -----*/	//	PowerPMAC_CoordinateSystemsClass::classes for dynamic creation
 
+//=========================================
+//	Define classes for attributes
+//=========================================
+//	Attribute NumAxis class definition
+class NumAxisAttrib: public Tango::Attr
+{
+public:
+	NumAxisAttrib():Attr("NumAxis",
+			Tango::DEV_LONG, Tango::READ) {};
+	~NumAxisAttrib() {};
+	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
+		{(static_cast<PowerPMAC_CoordinateSystems *>(dev))->read_NumAxis(att);}
+	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
+		{return (static_cast<PowerPMAC_CoordinateSystems *>(dev))->is_NumAxis_allowed(ty);}
+};
+
+
+//=========================================
+//	Define classes for dynamic attributes
+//=========================================
+//	Attribute X class definition
+class XAttrib: public Tango::Attr
+{
+public:
+	XAttrib(const string &att_name):Attr(att_name.c_str(), 
+			Tango::DEV_DOUBLE, Tango::READ_WRITE) {};
+	~XAttrib() {};
+	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
+		{(static_cast<PowerPMAC_CoordinateSystems *>(dev))->read_X(att);}
+	virtual void write(Tango::DeviceImpl *dev,Tango::WAttribute &att)
+		{(static_cast<PowerPMAC_CoordinateSystems *>(dev))->write_X(att);}
+	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
+		{return (static_cast<PowerPMAC_CoordinateSystems *>(dev))->is_X_allowed(ty);}
+};
+
+//	Attribute Y class definition
+class YAttrib: public Tango::Attr
+{
+public:
+	YAttrib(const string &att_name):Attr(att_name.c_str(), 
+			Tango::DEV_DOUBLE, Tango::READ_WRITE) {};
+	~YAttrib() {};
+	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
+		{(static_cast<PowerPMAC_CoordinateSystems *>(dev))->read_Y(att);}
+	virtual void write(Tango::DeviceImpl *dev,Tango::WAttribute &att)
+		{(static_cast<PowerPMAC_CoordinateSystems *>(dev))->write_Y(att);}
+	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
+		{return (static_cast<PowerPMAC_CoordinateSystems *>(dev))->is_Y_allowed(ty);}
+};
+
+//	Attribute Z class definition
+class ZAttrib: public Tango::Attr
+{
+public:
+	ZAttrib(const string &att_name):Attr(att_name.c_str(), 
+			Tango::DEV_DOUBLE, Tango::READ_WRITE) {};
+	~ZAttrib() {};
+	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
+		{(static_cast<PowerPMAC_CoordinateSystems *>(dev))->read_Z(att);}
+	virtual void write(Tango::DeviceImpl *dev,Tango::WAttribute &att)
+		{(static_cast<PowerPMAC_CoordinateSystems *>(dev))->write_Z(att);}
+	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
+		{return (static_cast<PowerPMAC_CoordinateSystems *>(dev))->is_Z_allowed(ty);}
+};
+
+//	Attribute W class definition
+class WAttrib: public Tango::Attr
+{
+public:
+	WAttrib(const string &att_name):Attr(att_name.c_str(), 
+			Tango::DEV_DOUBLE, Tango::READ_WRITE) {};
+	~WAttrib() {};
+	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
+		{(static_cast<PowerPMAC_CoordinateSystems *>(dev))->read_W(att);}
+	virtual void write(Tango::DeviceImpl *dev,Tango::WAttribute &att)
+		{(static_cast<PowerPMAC_CoordinateSystems *>(dev))->write_W(att);}
+	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
+		{return (static_cast<PowerPMAC_CoordinateSystems *>(dev))->is_W_allowed(ty);}
+};
+
+
+//=========================================
+//	Define classes for commands
+//=========================================
+//	Command Abort class definition
+class AbortClass : public Tango::Command
+{
+public:
+	AbortClass(const char   *name,
+	               Tango::CmdArgType in,
+				   Tango::CmdArgType out,
+				   const char        *in_desc,
+				   const char        *out_desc,
+				   Tango::DispLevel  level)
+	:Command(name,in,out,in_desc,out_desc, level)	{};
+
+	AbortClass(const char   *name,
+	               Tango::CmdArgType in,
+				   Tango::CmdArgType out)
+	:Command(name,in,out)	{};
+	~AbortClass() {};
+	
+	virtual CORBA::Any *execute (Tango::DeviceImpl *dev, const CORBA::Any &any);
+	virtual bool is_allowed (Tango::DeviceImpl *dev, const CORBA::Any &any)
+	{return (static_cast<PowerPMAC_CoordinateSystems *>(dev))->is_Abort_allowed(any);}
+};
+
+//	Command RunMotionProgram class definition
+class RunMotionProgramClass : public Tango::Command
+{
+public:
+	RunMotionProgramClass(const char   *name,
+	               Tango::CmdArgType in,
+				   Tango::CmdArgType out,
+				   const char        *in_desc,
+				   const char        *out_desc,
+				   Tango::DispLevel  level)
+	:Command(name,in,out,in_desc,out_desc, level)	{};
+
+	RunMotionProgramClass(const char   *name,
+	               Tango::CmdArgType in,
+				   Tango::CmdArgType out)
+	:Command(name,in,out)	{};
+	~RunMotionProgramClass() {};
+	
+	virtual CORBA::Any *execute (Tango::DeviceImpl *dev, const CORBA::Any &any);
+	virtual bool is_allowed (Tango::DeviceImpl *dev, const CORBA::Any &any)
+	{return (static_cast<PowerPMAC_CoordinateSystems *>(dev))->is_RunMotionProgram_allowed(any);}
+};
+
+
 /**
  *	The PowerPMAC_CoordinateSystemsClass singleton definition
  */

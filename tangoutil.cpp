@@ -3,7 +3,7 @@
 //
 
 #include "tangoutil.h"
-#include "resultparser.h"
+#include "ppmac_core/resultparser.h"
 
 #include <sstream>
 #include <tango.h>
@@ -46,6 +46,16 @@ namespace tu {
 
 	uint64_t ParsePmacHex64(const std::string &str) {
 		return ppmac::parser::Hex64Parser::convert(str);
+	}
+
+	void SetStringValue(char **ptr, const std::string& value, bool forceNoDelete)
+	{
+		if(*ptr == nullptr || forceNoDelete) {
+			*ptr = CORBA::string_dup(value.c_str());
+		}  else {
+			CORBA::string_free(*ptr);
+			*ptr = CORBA::string_dup(value.c_str());
+		}
 	}
 
 }

@@ -16,6 +16,9 @@
     <classes classname="PowerPMAC_CoordinateSystems" sourcePath="./powerpmac_coordinatesystems">
       <inheritances classname="Device_Impl" sourcePath=""/>
     </classes>
+    <classes classname="PowerPMAC_PLC" sourcePath="./powerpmac_plc">
+      <inheritances classname="Device_Impl" sourcePath=""/>
+    </classes>
     <preferences makefileHome="/usr/share/pogo/preferences"/>
   </multiClasses>
 </pogoDsl:PogoSystem>
