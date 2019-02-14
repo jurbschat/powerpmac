@@ -2,11 +2,12 @@
 // Created by urbschaj on 23.01.19.
 //
 
-#include <cstdint>
 #include <vector>
+#include <string>
+#include <array>
+#include <cstdint>
 #include <cstring>
 #include <endian.h>
-#include <string>
 
 #ifndef POWERPMAC_DATASTRUCTURES_H
 #define POWERPMAC_DATASTRUCTURES_H
@@ -350,19 +351,49 @@ namespace ppmac {
 		double position;
 		double velocity;
 		double followingError;
-		double desiredVelocity;
-		double acceleration;
 		double conversion;
-		//double slCw;
-		//double slCcw;
-		//bool invertDirection;
-		//bool invertEncoder;
 		int unitType;
 		MotorStatusUnion status;
 		MotorStatusUnion prevStatus;
 	};
 
+	union Coord26Axis {
+		struct {
+			double A;
+			double B;
+			double C;
+			double D;
+			double E;
+			double F;
+			double G;
+			double H;
+			double I;
+			double J;
+			double K;
+			double L;
+			double M;
+			double N;
+			double O;
+			double P;
+			double Q;
+			double R;
+			double S;
+			double T;
+			double U;
+			double V;
+			double W;
+			double X;
+			double Y;
+			double Z;
+		} named;
+		std::array<double, 26> array;
+	};
+
+	// we only support coordinate systems with up to 8 axis
 	struct CoordInfo {
+		Coord26Axis position;
+		Coord26Axis velocity;
+		Coord26Axis followingError;
 		CoordStatusUnion status;
 		CoordStatusUnion prevStatus;
 	};

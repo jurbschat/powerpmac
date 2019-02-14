@@ -152,6 +152,20 @@ namespace ppmac::parser {
 		}
 	};
 
+	struct coord_tag;
+
+	template<>
+	struct parser_traits<double, coord_tag> {
+		using result_type = double;
+		static result_type convert(const std::string& s) {
+			try {
+				return std::stod(s.substr(1));
+			} catch(std::exception) {
+				RETHROW_RUNTIME_ERROR("unable to parse double '{}'", s);
+			}
+		}
+	};
+
 	using NoneParser = parser_traits<std::string>;
 	using FloatParser = parser_traits<float>;
 	using DoubleParser = parser_traits<double>;
@@ -161,6 +175,7 @@ namespace ppmac::parser {
 	using UInt64Parser = parser_traits<uint64_t>;
 	using Hex32Parser = parser_traits<uint32_t, parser_gate_tag>;
 	using Hex64Parser = parser_traits<uint64_t, parser_gate_tag>;
+	using CoordDoubleParser = parser_traits<double, coord_tag>;
 
 	template<typename SepPred, size_t VALUE_COUNT = 32>
 	boost::container::small_vector<std::string, VALUE_COUNT>

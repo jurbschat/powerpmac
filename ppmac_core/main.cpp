@@ -13,8 +13,10 @@ int main() {
 		std::this_thread::sleep_for(std::chrono::milliseconds{500});
 	}
 	while(true) {
-		fmt::print("up: {}\n", ci->GetGlobalInfo().uptime);
-		fmt::print("pos: {}\n", ci->GetMotorInfo(ppmac::MotorID::Motor4).position);
+		fmt::print("uptime: {}\n", ci->GetGlobalInfo().uptime);
+		//fmt::print("pos: {}\n", ci->GetMotorInfo(ppmac::MotorID::Motor4).position);
+		fmt::print("coord pos x: {}\n", ci->GetCoordInfo(ppmac::CoordID::Coord1).position.named.X);
+		fmt::print("coord pos y: {}\n", ci->GetCoordInfo(ppmac::CoordID::Coord1).position.named.Y);
 		std::this_thread::sleep_for(std::chrono::milliseconds{500});
 	}
 	std::this_thread::sleep_for(std::chrono::seconds{6000});

@@ -23,8 +23,6 @@
 #include <cstdint>
 #include <thread>
 #include <mutex>
-#include <condition_variable>
-#include <boost/container/flat_set.hpp>
 
 namespace ppmac {
 
@@ -101,12 +99,11 @@ namespace ppmac {
 			: core(core),
 			rs(rs),
 			shouldUpdate(true),
-			running(false),
-			updateShouldBlock(false),
-			isUpdateBlocking(false)
+			running(false)
 		{
 			state.motors.resize(MAX_MOTORS);
 			state.ios.resize(MAX_PORTS);
+			state.coords.resize(MAX_COORDS);
 			state.global.plcs.resize(MAX_PLC);
 
 			lastRequestTimes[DataRequestType::Global] = DataRequestInfo{ time_point{}, time_point{}, std::chrono::milliseconds{1000},   INVALID_HANDLE };
@@ -181,7 +178,7 @@ namespace ppmac {
 			auto query = query::GeneralGetInfo(stdext::span<GlobalInfo>(&state.global, 1));
 			auto result = rs.ChannelWriteRead(query.command);
 			if(result) {
-				auto parserResult = query.parser(*result);
+				auto parserResult = query.splitter(*result);
 				Update1D(parserResult, query);
 			}
 
@@ -199,18 +196,38 @@ namespace ppmac {
 			auto motorQuery = query::MotorGetInfoRange(stdext::make_span(state.motors), 0, state.global.maxMotors - 1);
 			auto motorResult = rs.ChannelWriteRead(motorQuery.command);
 			if(motorResult) {
-				auto parserResult = motorQuery.parser(*motorResult);
+				auto parserResult = motorQuery.splitter(*motorResult);
 				Update2D(parserResult, motorQuery);
 				// now we need to check if some statues changed and if so need to
 				// call the status modified callbacks
 				// TODO: the callback will be called from another thread.. do we need to lock some shit there?
 				for(size_t i = 0; i < state.motors.size(); i++) {
-					auto& m = state.motors[i];
-					if(m.status.registerValue != m.prevStatus.registerValue) {
-						uint64_t changes = m.prevStatus.registerValue ^ m.status.registerValue;
-						core.OnMotorStateChanged(i, m.status.registerValue, changes);
+					auto& motor = state.motors[i];
+					if(motor.status.registerValue != motor.prevStatus.registerValue) {
+						uint64_t changes = motor.prevStatus.registerValue ^ motor.status.registerValue;
+						core.OnMotorStateChanged(i, motor.status.registerValue, changes);
 						//PrintStateChanges(i, m.prevStatus.registerValue, m.status.registerValue);
-						m.prevStatus = m.status;
+						motor.prevStatus = motor.status;
+					}
+				}
+			}
+		}
+
+		void UpdateCoordValues() {
+			std::lock_guard<std::mutex> lock(stateMutex);
+			SPDLOG_DEBUG("updating coord status");
+			auto coordQuery = query::CoordGetInfoRange(stdext::make_span(state.coords), 0, state.global.maxCoords - 1);
+			auto coordResult = rs.ChannelWriteRead(coordQuery.command);
+			if(coordResult) {
+				auto parserResult = coordQuery.splitter(*coordResult);
+				UpdateCoord(parserResult, coordQuery);
+				for(size_t i = 0; i < state.coords.size(); i++) {
+					auto& coord = state.coords[i];
+					if(coord.status.registerValue != coord.prevStatus.registerValue) {
+						uint64_t changes = coord.prevStatus.registerValue ^ coord.status.registerValue;
+						core.OnMotorStateChanged(i, coord.status.registerValue, changes);
+						//PrintStateChanges(i, m.prevStatus.registerValue, m.status.registerValue);
+						coord.prevStatus = coord.status;
 					}
 				}
 			}
@@ -229,8 +246,6 @@ namespace ppmac {
 				}
 			}
 		}
-
-		template<typename T, typename U>
 		/*
 		 * needs parser results in the form of (1 to x lines with 1.x values in each line)
 		 * [0] 0 0 0 0 0 0 0 0
@@ -241,7 +256,12 @@ namespace ppmac {
 		 * to an array index that is defined by the query range in the
 		 * querybuilder.
 		 */
+		template<typename T, typename U>
 		void Update2D(const T &parseResult, const U &query) {
+			if(parseResult.empty()) {
+				SPDLOG_DEBUG("empty result for Update2D");
+				return;
+			}
 			// check if we have as many member pointers as we have result lines
 			if(std::tuple_size<decltype(query.pointers.memberPointer)>::value != parseResult.size()) {
 				THROW_RUNTIME_ERROR("unable to match parsed data to internal state, size mismatch state:{} != result:{}",
@@ -265,7 +285,7 @@ namespace ppmac {
 				//     for each motor in motors
 				//         motor.<either position or velocity> = value
 				for(size_t i = 0; i < lineResultVector.size(); i++) {
-					auto value = lineResultVector[i]; // decltype(getPointerType(target))
+					auto& value = lineResultVector[i]; // decltype(getPointerType(target))
 					size_t offset = query.rangeStart + i;
 					// check if the offset of our line result fits into the size of the actual
 					// objects we hold as state
@@ -278,14 +298,14 @@ namespace ppmac {
 					using parser_type = typename decltype(objPtr)::parser_type;
 					// query.pointers.data is a span<T> that points to the first element that we want to update
 					// objPtr contains the member pointer offset as .ptr and the parser type that should be used
-					(query.pointers.data.data() + offset)->*(objPtr.ptr) = parser_type::convert(value);
+					auto& var = (query.pointers.data.data() + offset)->*(objPtr.ptr);
+					var = parser_type::convert(value);
 				}
 			});
 		}
 
-		template<typename T, typename U>
 		/*
-		 * need parser results in the form of
+		 * needs parser results in the form of
 		 * [0] value1 <- start of object
 		 * [1] value2
 		 * [..] ...
@@ -295,8 +315,13 @@ namespace ppmac {
 		 * where each X items (denoted as the member pointers in the query)
 		 * belong to one object, size % pointerCount yields the result size
 		 */
-		void Update1D(const T &parseResult, const U &query)
-		{
+		template<typename T, typename U>
+		void Update1D(const T &parseResult, const U &query) {
+			if(parseResult.empty()) {
+				SPDLOG_DEBUG("empty result for Update1D");
+				return;
+			}
+
 			constexpr size_t packSize = std::tuple_size<decltype(query.pointers.memberPointer)>::value;
 			if(parseResult.size() % packSize != 0) {
 				THROW_RUNTIME_ERROR("unable to match data to query, {} is not a multiple of {}",
@@ -324,8 +349,152 @@ namespace ppmac {
 					using parser_type = typename decltype(objPtr)::parser_type;
 					// query.pointers.data is a span<T> that points to the first element that we want to update
 					// objPtr contains the member pointer offset as .ptr and the parser type that should be used
-					(query.pointers.data.data() + objectOffset)->*(objPtr.ptr) = parser_type::convert(value);
+					auto& var = (query.pointers.data.data() + objectOffset)->*(objPtr.ptr);
+					var = parser_type::convert(value);
 				});
+			}
+		}
+
+		/*
+		 * needs parser in the form of
+		 * [0] xpos ypos zpos wpos ...
+		 * [1] xpos ypos zpos wpos ...
+		 * [2] xpos ypos zpos wpos ...
+		 * [2] ...
+		 * [n] <number of coordinate systems>
+		 * [n+1] xvel yvel zvel wvel ...
+		 * [n+2] xvel yvel zvel wvel ...
+		 * [n+3] xvel yvel zvel wvel ...
+		 * [n+4] ...
+		 * [k] <number of coordinate systems>
+		 * [k+1] next attribute
+		 * [k+2] ...
+		 * [last] status1, status2, status3...
+		 *
+		 * this forces us to make another implementation as startus and position/velocity/etc... values
+		 * are not interleaved.
+		 */
+
+		template<typename T, typename U>
+		void UpdateCoord(const T &parseResult, const U &query) {
+			if(parseResult.empty()) {
+				SPDLOG_DEBUG("empty result for coord update");
+				return;
+			}
+			// slice the tuple containint the pos/vel/fe/status into [pos/vel/fe] [status]
+			auto arrayTuple = tuple_slice<0, 3>(query.pointers.memberPointer);
+			auto statusTuple = tuple_slice<3, 4>(query.pointers.memberPointer);
+
+			size_t arrayPackSize = std::tuple_size<decltype(arrayTuple)>::value;
+			size_t statusPackSize = std::tuple_size<decltype(statusTuple)>::value;
+			// there should be one additional line that consists the status values
+			if(parseResult.size() % arrayPackSize != statusPackSize) {
+				THROW_RUNTIME_ERROR("unable to match data to query, {} is not a multiple of {} + {}",
+						parseResult.size(),
+						arrayPackSize,
+						statusPackSize);
+			}
+			// range should not exceed the update data size
+			size_t outputSize = static_cast<size_t>(query.pointers.data.size());
+			if((parseResult.size() / arrayPackSize + statusPackSize) + query.rangeStart > outputSize) {
+				THROW_RUNTIME_ERROR("resul to large {} > {}, unable to update target range",
+						(parseResult.size() / arrayPackSize) + query.rangeStart,
+						query.pointers.data.size());
+			}
+
+			//
+			// !!! values are NOT interleaved so we cant use this, they come in blocks (see method description)
+			// but as we already have this function lets keep it for now :) !!!
+			//
+			// first we update all line results in packs of three pos/vel/fe
+			// where each of those properties can have multiple values for each
+			// axis. the logic is the same as for Update1D, we iterate over our
+			// object with the arrayPackSize and update the internal axis values
+			/*size_t objectsInResult = parseResult.size() / arrayPackSize;
+			for(size_t objectIndex = 0; objectIndex < objectsInResult; objectIndex++)
+			{
+				for_each_in_tuple(arrayTuple, [&](auto objPtr, size_t tupleIndex) {
+					size_t valueOffset = (objectIndex * arrayPackSize) + tupleIndex;
+					size_t objectOffset = objectIndex + query.rangeStart;
+					auto& resultVector = parseResult[valueOffset];
+					auto targetVariable = (query.pointers.data.data() + objectOffset)->*(objPtr.ptr);
+					if(!resultVector.empty() && resultVector[0] == "No") {
+						// we received "No data to display" which means no motors
+						// were defined to axis in this coordinate system
+						std::fill(targetVariable.begin(), targetVariable.end(), -1);
+					} else {
+						// we have a valid line with axis values, not we iterate over that list and update our
+						// internal values
+						for(size_t i = 0; i < resultVector.size(); i++) {
+							auto& value = resultVector[i];
+							using parser_type = typename decltype(objPtr)::parser_type;
+							targetVariable[i] = parser_type::convert(value);
+						}
+					}
+				});
+			}*/
+
+			auto getAxisIndex = [](char axis) {
+				if(axis >= 'A' && axis <= 'Z') {
+					return axis - 'A';
+				} else if(axis >= 'a' && axis <= 'z') {
+					return axis - 'a';
+				}
+				return -1;
+			};
+
+
+			//size_t objectsInResult = parseResult.size() / arrayPackSize;
+			// we iterate over every propterty in our array tuple
+			for_each_in_tuple(arrayTuple, [&, this](auto objPtr, size_t tupleIndex)
+			{
+				// the first X lines are only positions where X == the size of our request
+				// the next lines are velocity etc. we iterate multiple times over our lines
+				// and calculate the offset for each member accortding to its tuple index
+				for(size_t lineIndex = 0; lineIndex < query.rangeSize; lineIndex++) {
+					size_t lineOffset = tupleIndex * query.rangeSize;
+					auto& lineResultVector = parseResult[lineIndex + lineOffset];
+					size_t objectOffset = query.rangeStart + lineIndex;
+					// if we received "No data to display" it means no motors
+					// were defined to this coordinate system, we just fill with -1
+					auto& var = (query.pointers.data.data() + objectOffset)->*(objPtr.ptr);
+					if(!lineResultVector.empty() && lineResultVector[0] == "No") {
+						std::fill(var.array.begin(), var.array.end(), -1);
+					} else {
+						if(lineResultVector.size() > var.array.size()) {
+							THROW_RUNTIME_ERROR("invalid result, we received more than {} axis", var.array.size());
+						}
+						// we can now simply iterate over our values and convert each string to its desired
+						// representation. as axis names can be arbeitary mapped, we limit the support to
+						// A-Z (upper/lower case) and map those to 0 -> 25 as array index
+						for (size_t valueIndex = 0; valueIndex < lineResultVector.size(); valueIndex++) {
+							auto &value = lineResultVector[valueIndex];
+							auto axisName = value[0];
+							auto axisIndex = getAxisIndex(axisName);
+							if(axisIndex == -1) {
+								THROW_RUNTIME_ERROR("invalid axis {}, name must be between A and Z", axisName);
+							}
+							using parser_type = typename decltype(objPtr)::parser_type;
+							var.array[axisIndex] = parser_type::convert(value);
+						}
+					}
+				}
+			});
+
+			// now we update the last line that contains the status, this is the same logic as for the Update2D function
+			auto& lastLineVec = *std::prev(parseResult.end());
+			if(lastLineVec.size() + query.rangeStart > static_cast<size_t>(query.pointers.data.size())) {
+				THROW_RUNTIME_ERROR("result to large {} > {}, unable to update target range",
+						lastLineVec.size() + query.rangeStart,
+						query.pointers.data.size());
+			}
+			for(size_t i = 0; i < lastLineVec.size(); i++) {
+				auto& value = lastLineVec[i];
+				size_t offset = query.rangeStart + i;
+				auto objPtr = std::get<0>(statusTuple);
+				using parser_type = typename decltype(objPtr)::parser_type;
+				auto& var = (query.pointers.data.data() + offset)->*(objPtr.ptr);
+				var = parser_type::convert(value);
 			}
 		}
 
@@ -366,6 +535,7 @@ namespace ppmac {
 						UpdateGeneralInfo();
 						break;
 					case DataRequestType::Coord:
+						UpdateCoordValues();
 						break;
 					case DataRequestType::IO:
 						break;
@@ -422,6 +592,7 @@ namespace ppmac {
 						UpdateGeneralInfo();
 						break;
 					case DataRequestType::Coord:
+						UpdateCoordValues();
 						break;
 					case DataRequestType::IO:
 						break;
@@ -437,8 +608,6 @@ namespace ppmac {
 		RemoteShell& rs;
 		bool shouldUpdate;
 		bool running;
-		bool updateShouldBlock;
-		bool isUpdateBlocking;
 		std::thread updateThread;
 		struct PmacData {
 			std::vector<MotorInfo> motors;

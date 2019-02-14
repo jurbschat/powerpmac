@@ -70,6 +70,37 @@ namespace ppmac {
 		constexpr const char* r_slant(const char* str) {
 			return *str == '/' ? (str + 1) : r_slant(str - 1);
 		}
+
+		template <class... F>
+		struct overload_set : F...
+		{
+			overload_set(F... f) : F(f)... {}
+		};
+
+
+		template <std::size_t Ofst, class Tuple, std::size_t... I>
+		constexpr auto slice_impl(Tuple&& t, std::index_sequence<I...>)
+		{
+			return std::forward_as_tuple(
+					std::get<I + Ofst>(std::forward<Tuple>(t))...);
+		}
+	}
+
+	template <std::size_t I1, std::size_t I2, class Cont>
+	constexpr auto tuple_slice(Cont&& t)
+	{
+		static_assert(I2 >= I1, "invalid slice");
+		static_assert(std::tuple_size<std::decay_t<Cont>>::value >= I2,
+				"slice index out of bounds");
+
+		return detail::slice_impl<I1>(std::forward<Cont>(t),
+				std::make_index_sequence<I2 - I1>{});
+	}
+
+	template <class... F>
+	auto overload(F... f)
+	{
+		return detail::overload_set<F...>(f...);
 	}
 
 	template<class VarType, class... Params>

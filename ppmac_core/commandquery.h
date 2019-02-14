@@ -213,27 +213,29 @@ namespace ppmac::query {
 		return ObjectPointerList<T, Args...>{data, std::forward<Args>(args)...};
 	}
 
-	template<typename PtrHolder, typename ParserType>
+	template<typename PtrHolder, typename ResultSplitter>
 	struct CommandQuery
 	{
-		using Parser = ParserType;
+		using Splitter = ResultSplitter;
 
-		CommandQuery(const std::string& cmd, int32_t rangeStart, PtrHolder pointers, Parser parser)
+		CommandQuery(const std::string& cmd, int32_t rangeStart, int32_t rangeSize, PtrHolder pointers, Splitter splitter)
 			: command(cmd),
 			  rangeStart(rangeStart),
+			  rangeSize(rangeSize),
 			  pointers{pointers},
-			  parser{parser}
+			  splitter{splitter}
 		{}
 
 		std::string command;
 		size_t rangeStart;
+		size_t rangeSize;
 		PtrHolder pointers;
-		Parser parser;
+		Splitter splitter;
 	};
 
-	template<typename PtrHolder, typename ParserType>
-	CommandQuery<PtrHolder, ParserType> MakeCommandQuery(const std::string& cmd, int32_t rangeStart, PtrHolder pointers, ParserType parser) {
-		return CommandQuery<PtrHolder, ParserType>{cmd, rangeStart, pointers, parser};
+	template<typename PtrHolder, typename ResultSplitter>
+	CommandQuery<PtrHolder, ResultSplitter> MakeCommandQuery(const std::string& cmd, int32_t rangeStart, int32_t rangeSize, PtrHolder pointers, ResultSplitter splitter) {
+		return CommandQuery<PtrHolder, ResultSplitter>{cmd, rangeStart, rangeSize, pointers, splitter};
 	}
 
 	/*
@@ -243,7 +245,7 @@ namespace ppmac::query {
 		fmt::memory_buffer buffer = builder::detail::MakePlain("Sys.MaxMotors; Sys.maxCoords; Sys.pAbortAll; Sys.CpuTemp; BrickLV.OverTemp; Sys.Time; Sys.CpuFreq; type; vers; cpu;");
 		return MakeCommandQuery(
 			fmt::to_string(buffer),
-			0,
+			0, 1,
 			MakeObjectPointerList(
 				data,
 				MakeObjectPtrInfo<parser::IntParser>(&GlobalInfo::maxMotors),
@@ -273,7 +275,7 @@ namespace ppmac::query {
 		fmt::memory_buffer buffer = builder::detail::MakeMultiCommand("Plc[{0}].Active; Plc[{0}].Running", stdext::make_span(tuples));
 		return MakeCommandQuery(
 			fmt::to_string(buffer),
-			first,
+			first, last+1,
 			MakeObjectPointerList(
 				data,
 				//MakeObjectPtrInfo<parser::NoneParser>(&PlcInfo::name),
@@ -295,14 +297,14 @@ namespace ppmac::query {
 		fmt::memory_buffer buffer = builder::detail::MakePrefixPostfixRangeCommand("#", "pvf?", first, last);
 		return MakeCommandQuery(
 			fmt::to_string(buffer),
-			first,
-				MakeObjectPointerList(
-					data,
-					MakeObjectPtrInfo<parser::DoubleParser>(&MotorInfo::position),
-					MakeObjectPtrInfo<parser::DoubleParser>(&MotorInfo::velocity),
-					MakeObjectPtrInfo<parser::DoubleParser>(&MotorInfo::followingError),
-					MakeObjectPtrInfo<parser::Hex64Parser>(&MotorInfo::status)
-				),
+			first, last+1,
+			MakeObjectPointerList(
+				data,
+				MakeObjectPtrInfo<parser::DoubleParser>(&MotorInfo::position),
+				MakeObjectPtrInfo<parser::DoubleParser>(&MotorInfo::velocity),
+				MakeObjectPtrInfo<parser::DoubleParser>(&MotorInfo::followingError),
+				MakeObjectPtrInfo<parser::Hex64Parser>(&MotorInfo::status)
+			),
 			[](const std::string& str){
 				return parser::Split2D(str, boost::is_any_of("\r\n"), boost::is_space());
 			}
@@ -312,18 +314,18 @@ namespace ppmac::query {
 	/*
 	 * this query updates all raw motor values. (poition, velocity, following error and motor statuses)
 	 */
-	inline auto CoordGetInfoRange(stdext::span<MotorInfo> data, int32_t first, int32_t last) {
+	inline auto CoordGetInfoRange(stdext::span<CoordInfo> data, int32_t first, int32_t last) {
 		builder::ValidateIdentifierRange(first, last);
 		fmt::memory_buffer buffer = builder::detail::MakePrefixPostfixRangeCommand("&", "pvf?", first, last);
 		return MakeCommandQuery(
 			fmt::to_string(buffer),
-			first,
+			first, last+1,
 			MakeObjectPointerList(
 				data,
-				MakeObjectPtrInfo<parser::DoubleParser>(&MotorInfo::position),
-				MakeObjectPtrInfo<parser::DoubleParser>(&MotorInfo::velocity),
-				MakeObjectPtrInfo<parser::DoubleParser>(&MotorInfo::followingError),
-				MakeObjectPtrInfo<parser::Hex64Parser>(&MotorInfo::status)
+				MakeObjectPtrInfo<parser::CoordDoubleParser>(&CoordInfo::position),
+				MakeObjectPtrInfo<parser::CoordDoubleParser>(&CoordInfo::velocity),
+				MakeObjectPtrInfo<parser::CoordDoubleParser>(&CoordInfo::followingError),
+				MakeObjectPtrInfo<parser::Hex64Parser>(&CoordInfo::status)
 			),
 			[](const std::string& str){
 				return parser::Split2D(str, boost::is_any_of("\r\n"), boost::is_space());
@@ -343,7 +345,7 @@ namespace ppmac::query {
 		fmt::memory_buffer buffer = builder::detail::MakeMultiCommand("Motor[{0}].PosSf; Motor[{0}].PosUnit", stdext::make_span(tuples));
 		return MakeCommandQuery(
 			fmt::to_string(buffer),
-			first,
+			first, last+1,
 			MakeObjectPointerList(
 				data,
 				MakeObjectPtrInfo<parser::DoubleParser>(&MotorInfo::conversion),
