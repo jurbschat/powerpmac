@@ -7,9 +7,9 @@
 #include <cstdint>
 #include <chrono>
 #include "config.h"
+#include "signalhandler.h"
 #include "pmac/defines.h"
 #include "pmac/datastructures.h"
-#include "libs/sigs.h"
 
 #ifndef POWERPMAC_PPMACCOREINTERFACE_H
 #define POWERPMAC_PPMACCOREINTERFACE_H
@@ -40,9 +40,7 @@ namespace ppmac {
 		virtual GlobalInfo GetGlobalInfo() = 0;
 		virtual CoordInfo GetCoordInfo(CoordID coord) = 0;
 
-		virtual sigs::Signal<void()>& GetSignalConnectionEstablished() = 0;
-		virtual sigs::Signal<void()>& GetSignalConnectionLost() = 0;
-		virtual sigs::Signal<void(uint64_t newState, uint64_t changes)>& GetSignalMotorStatusChanged(MotorID id) = 0;
+		virtual SignalHandler& Signals() = 0;
 
 		virtual HandleType AddDeadTimer(std::chrono::microseconds timeout, std::function<void()> callback) = 0;
 		virtual void RemoveDeadTimer(HandleType handle) = 0;

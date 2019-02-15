@@ -197,11 +197,11 @@ void PowerPMAC_Global::init_device()
 	// connect/reconnect machinery.
 	ci.Initialize(host, port);
 
-	connectionEstablished = ci.GetSignalConnectionEstablished().connect([this](){
+	connectionEstablished = ci.Signals().ConnectionEstablished().connect([this](){
 		StartGlobal();
 	});
 
-	connectionLost = ci.GetSignalConnectionLost().connect([this](){
+	connectionLost = ci.Signals().ConnectionLost().connect([this](){
 		StopGlobal();
 	});
 

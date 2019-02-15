@@ -30,50 +30,13 @@ namespace ppmac {
 			Continue
 		};
 
-		/*int WaitSocket(int sock, LIBSSH2_SESSION* session) {
-			timeval timeout;
-			timeout.tv_sec = 0;
-			timeout.tv_usec = 500000;
-
-			fd_set fd;
-			FD_ZERO(&fd);
-			FD_SET(sock, &fd);
-
-			//now make sure we wait in the correct direction
-			int dir = libssh2_session_block_directions(session);
-
-
-			fd_set *writefd = nullptr;
-			fd_set *readfd = nullptr;
-
-			if(dir & LIBSSH2_SESSION_BLOCK_INBOUND) {
-				readfd = &fd;
-			}
-
-			if(dir & LIBSSH2_SESSION_BLOCK_OUTBOUND) {
-				writefd = &fd;
-			}
-
-			int rc = select(sock + 1, readfd, writefd, NULL, &timeout);
-
-			return rc;
-		}*/
-
-		template<typename Channel, typename Session, typename DataCallback>
-		RemoteShellErrorCode ReceiveToBuffer(int sock, Channel& channel, Session& session, std::chrono::milliseconds timeout, DataCallback cb) {
+		template<typename Channel, typename DataCallback>
+		RemoteShellErrorCode ReceiveToBuffer(Channel& channel, std::chrono::milliseconds timeout, DataCallback cb) {
 			std::array<char, 4096> recvBuffer;
 			bool useTimeout = timeout > time::zero;
 			StopWatch<> sw(true);
 			while(true) {
 				ssize_t rc = libssh2_channel_read(channel.get(), recvBuffer.data(), recvBuffer.size());
-				(void)sock;
-				(void)session;
-				/*int so_error;
-				socklen_t len = sizeof so_error;
-				getsockopt(sock, SOL_SOCKET, SO_ERROR, &so_error, &len);
-				if (so_error != 0) {
-					printf("conn is closed (read)!\n");
-				}*/
 				while(rc == LIBSSH2_ERROR_EAGAIN) {
 					if(useTimeout && sw.Elapsed() > timeout) {
 						//SPDLOG_DEBUG("read command timeout");
@@ -114,7 +77,7 @@ namespace ppmac {
 	 * Channel read reads a message that is terminated by the 0x06 terminator which is the terminator the pmac uses.
 	 */
 	stdext::expected<std::string, RemoteShellErrorCode> RemoteShell::ChannelRead(std::chrono::milliseconds timeout) {
-		std::lock_guard<std::mutex> guard(readWriteMtx);
+		std::lock_guard<std::recursive_mutex> guard(readWriteMtx);
 		return ReadUntilTerminator(timeout);
 	}
 
@@ -122,7 +85,7 @@ namespace ppmac {
 	 * Consume simply reads everything it can get untill the timeout is reached.
 	 */
 	stdext::expected<std::string, RemoteShellErrorCode> RemoteShell::ChannelConsume(std::chrono::milliseconds timeout) {
-		std::lock_guard<std::mutex> guard(readWriteMtx);
+		std::lock_guard<std::recursive_mutex> guard(readWriteMtx);
 		return Consume(timeout);
 	}
 
@@ -130,7 +93,7 @@ namespace ppmac {
 	 * Sends a command to the server
 	 */
 	RemoteShellErrorCode RemoteShell::ChannelWrite(const std::string& str, std::chrono::milliseconds timeout) {
-		std::lock_guard<std::mutex> guard(readWriteMtx);
+		std::lock_guard<std::recursive_mutex> guard(readWriteMtx);
 		return Write(str, timeout);
 	}
 
@@ -141,7 +104,7 @@ namespace ppmac {
 	 * before receiving.
 	 */
 	stdext::expected<std::string, RemoteShellErrorCode> RemoteShell::ChannelWriteRead(const std::string& str, std::chrono::milliseconds timeout) {
-		std::lock_guard<std::mutex> guard(readWriteMtx);
+		std::lock_guard<std::recursive_mutex> guard(readWriteMtx);
 		auto writeRes = Write(str, timeout);
 		if(writeRes == RemoteShellErrorCode::Ok) {
 			auto readRes = ReadUntilTerminator(timeout);
@@ -174,7 +137,7 @@ namespace ppmac {
 	 * Connect to a remote host and setup the ssh connection
 	 */
 	RemoteShellErrorCode RemoteShell::Connect(std::string host_, int port_) {
-		std::lock_guard<std::mutex> guard(readWriteMtx);
+		std::lock_guard<std::recursive_mutex> guard(readWriteMtx);
 		host = host_;
 		port = port_;
 		sock = socket(AF_INET, SOCK_STREAM, 0);
@@ -191,12 +154,16 @@ namespace ppmac {
 		setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout));
 
 		if (connect(sock, reinterpret_cast<sockaddr*>(&sin), sizeof(sockaddr_in)) != 0) {
-			SPDLOG_DEBUG("failed to connect to {}:{}", host, port);
+			//SPDLOG_DEBUG("failed to connect to {}:{}", host, port);
 			return RemoteShellErrorCode::ConnectionRefused;
 		}
 		int val[]{1};
 		setsockopt(sock, IPPROTO_TCP, TCP_NODELAY, val, sizeof(int));
-		SetupShell();
+		auto shellResult = SetupShell();
+		if(shellResult != RemoteShellErrorCode::Ok) {
+			CloseSocket();
+			return shellResult;
+		}
 		connected = true;
 		SPDLOG_DEBUG("connection to pmac established");
 		return RemoteShellErrorCode::Ok;
@@ -206,9 +173,17 @@ namespace ppmac {
 	 * Close the ssh connection and the socket
 	 */
 	void RemoteShell::Disconnect() {
-		std::lock_guard<std::mutex> guard(readWriteMtx);
+		std::lock_guard<std::recursive_mutex> guard(readWriteMtx);
 		channel.reset();
 		session.reset();
+		CloseSocket();
+		connected = false;
+		consecutiveTimeouts=0;
+		SPDLOG_DEBUG("connection to pmac closed");
+		core->OnConnectionLost();
+	}
+
+	void RemoteShell::CloseSocket() {
 		if(sock) {
 			int ret = close(sock);
 			if(ret != 0) {
@@ -216,9 +191,6 @@ namespace ppmac {
 			}
 			sock = 0;
 		}
-		connected = false;
-		SPDLOG_DEBUG("connection to pmac closed");
-		core->OnConnectionLost();
 	}
 
 	bool RemoteShell::IsConnected() {
@@ -235,12 +207,6 @@ namespace ppmac {
 		StopWatch<> sw(true);
 		while(bytesWritten < static_cast<ssize_t>(writeBuffer.size())) {
 			ssize_t rc = libssh2_channel_write(channel.get(), writeBuffer.data() + bytesWritten, writeBuffer.size() - bytesWritten);
-			/*int so_error;
-			socklen_t len = sizeof so_error;
-			getsockopt(sock, SOL_SOCKET, SO_ERROR, &so_error, &len);
-			if (so_error != 0) {
-				printf("conn is closed (write)!\n");
-			}*/
 			if(rc == LIBSSH2_ERROR_EAGAIN) {
 				auto tmp = sw.Elapsed();
 				if(timeout > time::zero && tmp > timeout) {
@@ -273,7 +239,7 @@ namespace ppmac {
 			return *msg;
 		}
 		std::string message;
-		auto result = detail::ReceiveToBuffer(sock, channel, session, timeout, [this, &message](stdext::span<char> data){
+		auto result = detail::ReceiveToBuffer(channel, timeout, [this, &message](stdext::span<char> data){
 			messageBuffer.AddData(data);
 			auto msg = messageBuffer.ExtractMessage();
 			if(msg) {
@@ -290,6 +256,7 @@ namespace ppmac {
 			AddTimeout();
 		}
 		else if(result == RemoteShellErrorCode::Ok) {
+			ResetTimeouts();
 			return message;
 		}
 		return stdext::make_unexpected(result);
@@ -301,7 +268,7 @@ namespace ppmac {
 			return stdext::make_unexpected(RemoteShellErrorCode::ConnectionIsClosed);
 		}
 		readBuffer.clear();
-		auto result = detail::ReceiveToBuffer(sock, channel, session, timeout, [this](stdext::span<char> data){
+		auto result = detail::ReceiveToBuffer(channel, timeout, [this](stdext::span<char> data){
 			readBuffer.insert(readBuffer.end(), data.begin(), data.end());
 			return detail::ReadCallbackAction::Continue;
 		});
@@ -316,14 +283,16 @@ namespace ppmac {
 		return stdext::make_unexpected(result);
 	}
 
-	void RemoteShell::SetupShell() {
+	RemoteShellErrorCode RemoteShell::SetupShell() {
 		auto session_ = std::unique_ptr<LIBSSH2_SESSION, void(*)(LIBSSH2_SESSION* sess)>{libssh2_session_init(), [](LIBSSH2_SESSION* sess){
 			libssh2_session_disconnect(sess, "Normal Shutdown, Thank you for playing");
 			libssh2_session_free(sess);
 		}};
 		//libssh2_session_set_timeout(session_.get(), 5000);
 		if (libssh2_session_handshake(session_.get(), sock)) {
-			THROW_RUNTIME_ERROR("Failure establishing SSH session");
+			//THROW_RUNTIME_ERROR("Failure establishing SSH session");
+			SPDLOG_DEBUG("Failure establishing SSH session");
+			return RemoteShellErrorCode::SSHHandshakeFailed;
 		}
 		const char* fingerprint = libssh2_hostkey_hash(session_.get(), LIBSSH2_HOSTKEY_HASH_SHA1);
 		fmt::memory_buffer mb;
@@ -331,20 +300,28 @@ namespace ppmac {
 		SPDLOG_DEBUG("Fingerprint: {}.", fmt::to_string(mb));
 		if (libssh2_userauth_password(session_.get(), "root", "deltatau")) {
 			//fprintf(stderr, "\tAuthentication by password failed!\n");
-			THROW_RUNTIME_ERROR("Authentication by password failed!");
+			//THROW_RUNTIME_ERROR("Authentication by password failed!");
+			SPDLOG_DEBUG("Authentication by password failed!");
+			return RemoteShellErrorCode::SSHAuthFailed;
 		}
 		auto channel_ = std::unique_ptr<LIBSSH2_CHANNEL, void(*)(LIBSSH2_CHANNEL* sess)>{libssh2_channel_open_session(session_.get()), [](LIBSSH2_CHANNEL* chan){
 			libssh2_channel_free(chan);
 		}};
 		if (!channel_.get()) {
-			THROW_RUNTIME_ERROR("Unable to open a session");
+			//THROW_RUNTIME_ERROR("Unable to open a session");
+			SPDLOG_DEBUG("Unable to open a session!");
+			return RemoteShellErrorCode::SSHSessionFailed;
 		}
 		libssh2_channel_setenv(channel_.get(), "FOO", "bar");
 		if (libssh2_channel_request_pty(channel_.get(), "vanilla")) {
-			THROW_RUNTIME_ERROR("Failed requesting pty");
+			//THROW_RUNTIME_ERROR("Failed requesting pty");
+			SPDLOG_DEBUG("Failed requesting pty");
+			return RemoteShellErrorCode::SSHPTYFailed;
 		}
 		if (libssh2_channel_shell(channel_.get())) {
 			THROW_RUNTIME_ERROR("Unable to request shell on allocated pty");
+			SPDLOG_DEBUG("Unable to request shell on allocated pty");
+			return RemoteShellErrorCode::SSHShellFailed;
 		}
 		libssh2_channel_set_blocking(channel_.get(), 0);
 
@@ -352,6 +329,8 @@ namespace ppmac {
 
 		session = std::move(session_);
 		channel = std::move(channel_);
+
+		return RemoteShellErrorCode::Ok;
 	}
 
 	void RemoteShell::SetupWriteBuffer(const std::string &data, char terminator, std::vector<char> &buffer) {
@@ -365,13 +344,15 @@ namespace ppmac {
 		consecutiveTimeouts++;
 		SPDLOG_DEBUG("timeouts: {}", consecutiveTimeouts);
 		if(consecutiveTimeouts >= 5) {
-			SPDLOG_DEBUG("more than 5 consecutive timeouts, closing connection (TEST MESSAGE)");
+			SPDLOG_DEBUG("more than 5 consecutive read timeouts, closing connection");
 			Disconnect();
 		}
 	}
 
 	void RemoteShell::ResetTimeouts() {
+		if(consecutiveTimeouts != 0) {
+			SPDLOG_DEBUG("tresetting timeouts");
+		}
 		consecutiveTimeouts = 0;
-		SPDLOG_DEBUG("timeouts: reset");
 	}
 }

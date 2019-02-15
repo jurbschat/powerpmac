@@ -389,6 +389,64 @@ namespace ppmac {
 		std::array<double, 26> array;
 	};
 
+	namespace AvailableAxis {
+		enum TYPE : uint32_t {
+			A = (1 << 0),
+			B = (1 << 1),
+			C = (1 << 2),
+			D = (1 << 3),
+			E = (1 << 4),
+			F = (1 << 5),
+			G = (1 << 6),
+			H = (1 << 7),
+			I = (1 << 8),
+			J = (1 << 9),
+			K = (1 << 10),
+			L = (1 << 11),
+			M = (1 << 12),
+			N = (1 << 13),
+			O = (1 << 14),
+			P = (1 << 15),
+			Q = (1 << 16),
+			R = (1 << 17),
+			S = (1 << 18),
+			T = (1 << 19),
+			U = (1 << 20),
+			V = (1 << 21),
+			W = (1 << 22),
+			X = (1 << 23),
+			Y = (1 << 24),
+			Z = (1 << 25)
+		};
+		const int32_t maxAxis = 26;
+		// inline to suppress warning
+		static inline int32_t MapNameToAxis(char axis) {
+			if(axis >= 'A' && axis <= 'Z') {
+				return axis - 'A';
+			} else if(axis >= 'a' && axis <= 'z') {
+				return axis - 'a';
+			}
+			return -1;
+		};
+
+		// inline to suppress warning
+		static inline char MapAxisToChar(int32_t axis) {
+			if(axis >= 0 && axis < 26) {
+				return 'A' + static_cast<char>(axis);
+			}
+			return '\0';
+		};
+
+		static inline const char* MapAxisToString(int32_t axis) {
+			const char* axisNames[] = {  "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M",
+										 "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"  };
+			if(axis >= 0 && axis < static_cast<int32_t>(sizeof(axisNames))) {
+				return axisNames[axis];
+			}
+			return "";
+		};
+	}
+
 	// we only support coordinate systems with up to 8 axis
 	struct CoordInfo {
 		Coord26Axis position;
@@ -396,10 +454,13 @@ namespace ppmac {
 		Coord26Axis followingError;
 		CoordStatusUnion status;
 		CoordStatusUnion prevStatus;
+		uint32_t availableAxis;
+		uint32_t prevAvailableAxis;
 	};
 
 	struct IOInfo {
-		// something
+		// ios are currently directly queried by the device server and are not
+		// queried by the core
 	};
 
 	struct PlcInfo {
@@ -420,6 +481,7 @@ namespace ppmac {
 		std::string firmware;
 		std::string cpuType;
 		int64_t cpuFrequency;
+		// plcs are currently directly queried and not updated by the core
 		std::vector<PlcInfo> plcs;
 	};
 }

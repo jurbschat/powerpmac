@@ -64,6 +64,7 @@ namespace ppmac {
 		remoteShellKeepAlive = std::thread([this](){
 			KeepAliveRunner();
 		});
+		stateUpdater.Start();
 		/*auto res = SetupRemoteShell(remoteHost, remotePort);
 		if(res == RemoteShellErrorCode::Ok) {
 			SPDLOG_DEBUG("remote shell setup complete!");
@@ -103,56 +104,49 @@ namespace ppmac {
 	{
 		while(keepConnectionAlive)
 		{
-			SPDLOG_DEBUG("new connection atemp");
 			if(remoteShell.IsConnected()) {
 				std::this_thread::sleep_for(std::chrono::seconds{1});
 				continue;
 			}
-			if(!keepConnectionAlive) {
-				return;
-			}
+			SPDLOG_DEBUG("trying to connect to {}:{}", remoteHost, remotePort);
 			auto res = SetupRemoteShell(remoteHost, remotePort);
 			if(res == RemoteShellErrorCode::Ok) {
 				SPDLOG_DEBUG("remote shell setup complete!");
-				stateUpdater.Start();
 				OnConnectionEstablished();
 			} else {
-				SPDLOG_DEBUG("unable to create remote shell, error: ", wise_enum::to_string(res));
-			}
-			SPDLOG_DEBUG("now waiting for disconnect to restart connection");
-			while(remoteShell.IsConnected()) {
+				SPDLOG_DEBUG("unable to create remote shell, error: {}", wise_enum::to_string(res));
 				std::this_thread::sleep_for(std::chrono::seconds{1});
 			}
 		}
 	}
 
-	sigs::Signal<void()>& Core::GetSignalConnectionEstablished() {
-		return sigConEst;
+	bool Core::IsConnected() {
+		return remoteShell.IsConnected();
 	}
 
-	sigs::Signal<void()>& Core::GetSignalConnectionLost() {
-		return sigConLost;
-	}
-
-	sigs::Signal<void(uint64_t newState, uint64_t changes)>& Core::GetSignalMotorStatusChanged(MotorID id) {
-		return sigMotorStatus[from_enum(id)];
+	SignalHandler& Core::Signals() {
+		return signalHandler;
 	}
 
 	void Core::OnConnectionEstablished() {
-		sigConEst();
+		signalHandler.ConnectionEstablished()();
 	}
 
 	void Core::OnConnectionLost() {
-		stateUpdater.Stop();
-		sigConLost();
+		//stateUpdater.Stop();
+		signalHandler.ConnectionLost()();
 	}
 
 	void Core::OnMotorStateChanged(int32_t motorIndex, uint64_t newState, uint64_t changes) {
-		sigMotorStatus[motorIndex](std::move(newState), std::move(changes));
+		signalHandler.StatusChanged(to_enum_motor(motorIndex))(std::move(newState), std::move(changes));
 	}
 
-	bool Core::IsConnected() {
-		return remoteShell.IsConnected();
+	void Core::OnCoordStateChanged(int32_t coordIndex, uint64_t newState, uint64_t changes) {
+		signalHandler.StatusChanged(to_enum_coord(coordIndex))(std::move(newState), std::move(changes));
+	}
+
+	void Core::OnCoordAxisChanged(int32_t coordIndex, uint32_t availableAxis) {
+		signalHandler.CoordChanged(to_enum_coord(coordIndex))(std::move(availableAxis));
 	}
 
 	std::string Core::ExecuteCommand(const std::string& str) {

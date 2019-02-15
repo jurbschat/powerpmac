@@ -199,15 +199,15 @@ void PowerPMAC_Motor::init_device()
 	motorId = static_cast<ppmac::MotorID>(motorIndex);
 	ppmac::CoreInterface& ci = ppmac::GetCoreObject();
 
-	connectionEstablished = ci.GetSignalConnectionEstablished().connect([this](){
+	connectionEstablished = ci.Signals().ConnectionEstablished().connect([this](){
 		StartMotor();
 	});
 
-	connectionLost = ci.GetSignalConnectionLost().connect([this](){
+	connectionLost = ci.Signals().ConnectionLost().connect([this](){
 		StopMotor();
 	});
 
-	motorStateChanged = ci.GetSignalMotorStatusChanged(motorId).connect([this](uint64_t newValue, uint64_t changed){
+	motorStateChanged = ci.Signals().StatusChanged(motorId).connect([this](uint64_t newValue, uint64_t changed){
 		MotorStateChanged(newValue, changed);
 	});
 

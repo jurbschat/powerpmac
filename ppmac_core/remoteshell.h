@@ -31,7 +31,12 @@ namespace ppmac {
 			BufferToSmall,
 			NoTerminatorFound,
 			InvalidWriteReadResponse,
-			ConnectionRefused
+			ConnectionRefused,
+			SSHHandshakeFailed,
+			SSHAuthFailed,
+			SSHSessionFailed,
+			SSHPTYFailed,
+			SSHShellFailed
 	)
 
 
@@ -92,7 +97,8 @@ namespace ppmac {
 		stdext::expected<std::string, RemoteShellErrorCode> ReadUntilTerminator(std::chrono::milliseconds timeout);
 		stdext::expected<std::string, RemoteShellErrorCode> Consume(std::chrono::milliseconds timeout);
 
-		void SetupShell();
+		RemoteShellErrorCode SetupShell();
+		void CloseSocket();
 		void SetupWriteBuffer(const std::string &data, char terminator, std::vector<char> &buffer);
 		void AddTimeout();
 		void ResetTimeouts();
@@ -107,7 +113,7 @@ namespace ppmac {
 		std::vector<char> readBuffer;
 		std::vector<char> writeBuffer;
 		ReceiveBuffer messageBuffer;
-		std::mutex readWriteMtx;
+		std::recursive_mutex readWriteMtx;
 		CoreNotifyInterface* core;
 	};
 }

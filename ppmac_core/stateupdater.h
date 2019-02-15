@@ -107,8 +107,8 @@ namespace ppmac {
 			state.global.plcs.resize(MAX_PLC);
 
 			lastRequestTimes[DataRequestType::Global] = DataRequestInfo{ time_point{}, time_point{}, std::chrono::milliseconds{1000},   INVALID_HANDLE };
-			lastRequestTimes[DataRequestType::Motor] =  DataRequestInfo{ time_point{}, time_point{}, std::chrono::milliseconds{100},    INVALID_HANDLE };
-			lastRequestTimes[DataRequestType::Coord] =  DataRequestInfo{ time_point{}, time_point{}, std::chrono::milliseconds{100},    INVALID_HANDLE };
+			lastRequestTimes[DataRequestType::Motor] =  DataRequestInfo{ time_point{}, time_point{}, std::chrono::milliseconds{50},    INVALID_HANDLE };
+			lastRequestTimes[DataRequestType::Coord] =  DataRequestInfo{ time_point{}, time_point{}, std::chrono::milliseconds{50},    INVALID_HANDLE };
 			lastRequestTimes[DataRequestType::IO] =     DataRequestInfo{ time_point{}, time_point{}, std::chrono::milliseconds{100},    INVALID_HANDLE };
 		}
 
@@ -136,6 +136,13 @@ namespace ppmac {
 				updateThread.join();
 			}
 		}
+
+		/*void Halt() {
+			if(!running) {
+				return;
+			}
+			shouldUpdate = false;
+		}*/
 
 		MotorInfo GetMotorInfo(MotorID id) {
 			int32_t idx = from_enum(id);
@@ -174,7 +181,7 @@ namespace ppmac {
 	private:
 		void UpdateGeneralInfo() {
 			std::lock_guard<std::mutex> lock(stateMutex);
-			SPDLOG_DEBUG("updating general status");
+			//SPDLOG_DEBUG("updating general status");
 			auto query = query::GeneralGetInfo(stdext::span<GlobalInfo>(&state.global, 1));
 			auto result = rs.ChannelWriteRead(query.command);
 			if(result) {
@@ -192,7 +199,7 @@ namespace ppmac {
 
 		void UpdateMotorValues() {
 			std::lock_guard<std::mutex> lock(stateMutex);
-			SPDLOG_DEBUG("updating motor status");
+			//SPDLOG_DEBUG("updating motor status");
 			auto motorQuery = query::MotorGetInfoRange(stdext::make_span(state.motors), 0, state.global.maxMotors - 1);
 			auto motorResult = rs.ChannelWriteRead(motorQuery.command);
 			if(motorResult) {
@@ -215,19 +222,27 @@ namespace ppmac {
 
 		void UpdateCoordValues() {
 			std::lock_guard<std::mutex> lock(stateMutex);
-			SPDLOG_DEBUG("updating coord status");
+			//SPDLOG_DEBUG("updating coord status");
 			auto coordQuery = query::CoordGetInfoRange(stdext::make_span(state.coords), 0, state.global.maxCoords - 1);
 			auto coordResult = rs.ChannelWriteRead(coordQuery.command);
 			if(coordResult) {
 				auto parserResult = coordQuery.splitter(*coordResult);
 				UpdateCoord(parserResult, coordQuery);
+				// notofy for state changes
 				for(size_t i = 0; i < state.coords.size(); i++) {
 					auto& coord = state.coords[i];
 					if(coord.status.registerValue != coord.prevStatus.registerValue) {
-						uint64_t changes = coord.prevStatus.registerValue ^ coord.status.registerValue;
-						core.OnMotorStateChanged(i, coord.status.registerValue, changes);
-						//PrintStateChanges(i, m.prevStatus.registerValue, m.status.registerValue);
+						uint64_t changes = coord.status.registerValue ^ coord.prevStatus.registerValue;
+						core.OnCoordStateChanged(i, coord.status.registerValue, changes);
 						coord.prevStatus = coord.status;
+					}
+				}
+				// notify for axis changes
+				for(size_t i = 0; i < state.coords.size(); i++) {
+					auto& coord = state.coords[i];
+					if(coord.availableAxis != coord.prevAvailableAxis) {
+						core.OnCoordAxisChanged(i, coord.availableAxis);
+						coord.prevAvailableAxis = coord.availableAxis;
 					}
 				}
 			}
@@ -374,7 +389,6 @@ namespace ppmac {
 		 * this forces us to make another implementation as startus and position/velocity/etc... values
 		 * are not interleaved.
 		 */
-
 		template<typename T, typename U>
 		void UpdateCoord(const T &parseResult, const U &query) {
 			if(parseResult.empty()) {
@@ -434,19 +448,9 @@ namespace ppmac {
 				});
 			}*/
 
-			auto getAxisIndex = [](char axis) {
-				if(axis >= 'A' && axis <= 'Z') {
-					return axis - 'A';
-				} else if(axis >= 'a' && axis <= 'z') {
-					return axis - 'a';
-				}
-				return -1;
-			};
-
-
 			//size_t objectsInResult = parseResult.size() / arrayPackSize;
 			// we iterate over every propterty in our array tuple
-			for_each_in_tuple(arrayTuple, [&, this](auto objPtr, size_t tupleIndex)
+			for_each_in_tuple(arrayTuple, [&](auto objPtr, size_t tupleIndex)
 			{
 				// the first X lines are only positions where X == the size of our request
 				// the next lines are velocity etc. we iterate multiple times over our lines
@@ -458,6 +462,8 @@ namespace ppmac {
 					// if we received "No data to display" it means no motors
 					// were defined to this coordinate system, we just fill with -1
 					auto& var = (query.pointers.data.data() + objectOffset)->*(objPtr.ptr);
+					// we reset all axsis for this coordinate system, only active ones will be set
+					query.pointers.data[objectOffset].availableAxis = 0;
 					if(!lineResultVector.empty() && lineResultVector[0] == "No") {
 						std::fill(var.array.begin(), var.array.end(), -1);
 					} else {
@@ -470,12 +476,14 @@ namespace ppmac {
 						for (size_t valueIndex = 0; valueIndex < lineResultVector.size(); valueIndex++) {
 							auto &value = lineResultVector[valueIndex];
 							auto axisName = value[0];
-							auto axisIndex = getAxisIndex(axisName);
+							auto axisIndex = AvailableAxis::MapNameToAxis(axisName);
 							if(axisIndex == -1) {
 								THROW_RUNTIME_ERROR("invalid axis {}, name must be between A and Z", axisName);
 							}
 							using parser_type = typename decltype(objPtr)::parser_type;
 							var.array[axisIndex] = parser_type::convert(value);
+							// set axis as available
+							query.pointers.data[objectOffset].availableAxis |= (1u << axisIndex);
 						}
 					}
 				}
@@ -511,11 +519,15 @@ namespace ppmac {
 						}
 					}
 					sl.lock();
-					updateIntervals.Update();
+					try {
+						updateIntervals.Update();
+					} catch(std::exception& e) {
+						SPDLOG_ERROR("exception while updating states:\n{}", StringifyException(std::current_exception(), 4, '>'));
+					}
 					RemoveElapsedUpdateTimers();
 					sl.unlock();
 				} else {
-					SPDLOG_DEBUG("state holder waiting for connection...");
+					//SPDLOG_DEBUG("state holder waiting for connection...");
 					std::this_thread::sleep_for(std::chrono::seconds{1});
 				}
 			} // end
@@ -583,24 +595,18 @@ namespace ppmac {
 		}
 
 		void CallUpdateFunctionByRequestType(DataRequestType type) {
-			try {
-				switch (type) {
-					case DataRequestType::Motor:
-						UpdateMotorValues();
-						break;
-					case DataRequestType::Global:
-						UpdateGeneralInfo();
-						break;
-					case DataRequestType::Coord:
-						UpdateCoordValues();
-						break;
-					case DataRequestType::IO:
-						break;
-				}
-			} catch(const RuntimeError& e) {
-				SPDLOG_ERROR("exception while updating states:\n{}", StringifyException(std::current_exception(), 4, '>'));
-			} catch(std::exception& e) {
-				SPDLOG_ERROR("exception while updating states:\n{}", StringifyException(std::current_exception(), 4, '>'));
+			switch (type) {
+				case DataRequestType::Motor:
+					UpdateMotorValues();
+					break;
+				case DataRequestType::Global:
+					UpdateGeneralInfo();
+					break;
+				case DataRequestType::Coord:
+					UpdateCoordValues();
+					break;
+				case DataRequestType::IO:
+					break;
 			}
 		}
 

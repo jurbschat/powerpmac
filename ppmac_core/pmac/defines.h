@@ -19,18 +19,33 @@ namespace ppmac
 		Motor6,
 		Motor7,
 		Motor8,
+		Motor9,
+		Motor10,
+		Motor11,
+		Motor12,
+		Motor13,
+		Motor14,
+		Motor15,
+		Motor16,
+		Motor17,
+		Motor18,
+		Motor19,
+		Motor20,
+		Motor21,
+		Motor22,
+		Motor23,
+		Motor24,
+		Motor25,
+		Motor26,
+		Motor27,
+		Motor28,
+		Motor29,
+		Motor30,
+		Motor31
 	};
 
 	enum class IoID : int32_t {
-		Port0,
-		Port1,
-		Port2,
-		Port3,
-		Port4,
-		Port5,
-		Port6,
-		Port7,
-		Port8,
+		Port0
 	};
 
 	enum class CoordID : int32_t {
@@ -43,9 +58,32 @@ namespace ppmac
 		Coord6,
 		Coord7,
 		Coord8,
+		Coord9,
+		Coord10,
+		Coord11,
+		Coord12,
+		Coord13,
+		Coord14,
+		Coord15,
+		Coord16,
+		Coord17,
+		Coord18,
+		Coord19,
+		Coord20,
+		Coord21,
+		Coord22,
+		Coord23,
+		Coord24,
+		Coord25,
+		Coord26,
+		Coord27,
+		Coord28,
+		Coord29,
+		Coord30,
+		Coord31
 	};
 
-	enum class MotorState : int32_t {
+	/*enum class MotorState : int32_t {
 		Online,
 		Offline,
 		Init,
@@ -65,7 +103,7 @@ namespace ppmac
 		Online,
 		Offline,
 		Fault
-	};
+	};*/
 
 
 	template<typename T>

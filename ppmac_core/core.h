@@ -12,6 +12,7 @@
 #include "libs/sigs.h"
 #include "pmac/defines.h"
 #include "stateupdater.h"
+#include "signalhandler.h"
 
 #include <mutex>
 #include <atomic>
@@ -40,9 +41,7 @@ public:
 	virtual GlobalInfo GetGlobalInfo();
 	virtual CoordInfo GetCoordInfo(CoordID coord);
 
-	sigs::Signal<void()>& GetSignalConnectionEstablished();
-	sigs::Signal<void()>& GetSignalConnectionLost();
-	sigs::Signal<void(uint64_t newState, uint64_t changes)>& GetSignalMotorStatusChanged(MotorID id);
+	virtual SignalHandler& Signals();
 	HandleType AddDeadTimer(std::chrono::microseconds timeout, std::function<void()> callback);
 	void RemoveDeadTimer(HandleType handle);
 private:
@@ -52,18 +51,18 @@ private:
 	void MainLoop();
 	RemoteShellErrorCode SetupRemoteShell(const std::string &host, int port);
 	void KeepAliveRunner();
-	void OnConnectionEstablished(); // from remoteShell
-	void OnConnectionLost(); // from remoteShell
+	void OnConnectionEstablished();
+	void OnConnectionLost();
 	void OnMotorStateChanged(int32_t motorIndex, uint64_t oldState, uint64_t newState);
+	void OnCoordStateChanged(int32_t coordIndex, uint64_t oldState, uint64_t newState);
+	void OnCoordAxisChanged(int32_t coordIndex, uint32_t availableAxis);
 	void DeadTimerRunner();
 
 	std::string remoteHost;
 	int remotePort;
 	RemoteShell remoteShell;
 	StateUpdater stateUpdater;
-	sigs::Signal<void()> sigConEst;
-	sigs::Signal<void()> sigConLost;
-	std::map<int32_t, sigs::Signal<void(uint64_t newState, uint64_t changes)>> sigMotorStatus;
+	SignalHandler signalHandler;
 	bool keepConnectionAlive;
 	std::thread remoteShellKeepAlive;
 	bool runDeadTimer;

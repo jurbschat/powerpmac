@@ -70,7 +70,7 @@ namespace PowerPMAC_CoordinateSystems_ns
 {
 /*----- PROTECTED REGION ID(PowerPMAC_CoordinateSystems::namespace_starting) ENABLED START -----*/
 
-	static const char* axisNames[] = { "X", "Y", "Z", "W" };
+
 
 /*----- PROTECTED REGION END -----*/	//	PowerPMAC_CoordinateSystems::namespace_starting
 
@@ -149,15 +149,23 @@ void PowerPMAC_CoordinateSystems::init_device()
 	/*----- PROTECTED REGION ID(PowerPMAC_CoordinateSystems::init_device) ENABLED START -----*/
 
 	*attr_NumAxis_read = 0;
+	coordId = static_cast<ppmac::CoordID>(coordinateIndex);
 
 	ppmac::CoreInterface& ci = ppmac::GetCoreObject();
 
-	connectionEstablished = ci.GetSignalConnectionEstablished().connect([this](){
+	connectionEstablished = ci.Signals().ConnectionEstablished().connect([this](){
 		StartCoordinateSystem();
 	});
 
-	connectionLost = ci.GetSignalConnectionLost().connect([this](){
+	connectionLost = ci.Signals().ConnectionLost().connect([this](){
 		StopCoordinateSystem();
+	});
+
+	statusChanged = ci.Signals().StatusChanged(coordId).connect([this](uint64_t newState, uint64_t changed){
+		CoordinateStateChanged(newState, changed);
+	});
+	coordChanged = ci.Signals().CoordChanged(coordId).connect([this](uint32_t axis){
+		CoordinateSystemChanged(axis);
 	});
 
 	if(ci.IsConnected()) {
@@ -309,7 +317,7 @@ void PowerPMAC_CoordinateSystems::read_NumAxis(Tango::Attribute &attr)
 
 	try {
 		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
-		auto result = ci.ExecuteCommand(ppmac::cmd::CoordGetAxisCount(coordinateIndex));
+		auto result = ci.ExecuteCommand(ppmac::cmd::CoordGetAxisCount(coordId));
 		Tango::DevLong val = tu::ParseInt32(result);
 		*attr_NumAxis_read = val;
 		attr.set_value(attr_NumAxis_read);
@@ -358,7 +366,7 @@ void PowerPMAC_CoordinateSystems::write_X(Tango::WAttribute &attr)
 
 	try {
 		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
-		ci.ExecuteCommand(ppmac::cmd::CoordMoveAxis(coordinateIndex, "X", w_val));
+		ci.ExecuteCommand(ppmac::cmd::CoordMoveAxis(coordId, "X", w_val));
 	} catch (ppmac::RuntimeError& e) {
 		tu::TranslateException(e);
 	}
@@ -403,7 +411,7 @@ void PowerPMAC_CoordinateSystems::write_Y(Tango::WAttribute &attr)
 
 	try {
 		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
-		ci.ExecuteCommand(ppmac::cmd::CoordMoveAxis(coordinateIndex, "Y", w_val));
+		ci.ExecuteCommand(ppmac::cmd::CoordMoveAxis(coordId, "Y", w_val));
 	} catch (ppmac::RuntimeError& e) {
 		tu::TranslateException(e);
 	}
@@ -448,7 +456,7 @@ void PowerPMAC_CoordinateSystems::write_Z(Tango::WAttribute &attr)
 
 	try {
 		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
-		ci.ExecuteCommand(ppmac::cmd::CoordMoveAxis(coordinateIndex, "Z", w_val));
+		ci.ExecuteCommand(ppmac::cmd::CoordMoveAxis(coordId, "Z", w_val));
 	} catch (ppmac::RuntimeError& e) {
 		tu::TranslateException(e);
 	}
@@ -493,7 +501,7 @@ void PowerPMAC_CoordinateSystems::write_W(Tango::WAttribute &attr)
 
 	try {
 		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
-		ci.ExecuteCommand(ppmac::cmd::CoordMoveAxis(coordinateIndex, "W", w_val));
+		ci.ExecuteCommand(ppmac::cmd::CoordMoveAxis(coordId, "W", w_val));
 	} catch (ppmac::RuntimeError& e) {
 		tu::TranslateException(e);
 	}
@@ -507,6 +515,7 @@ void PowerPMAC_CoordinateSystems::write_W(Tango::WAttribute &attr)
  *                for specified device.
  */
 //--------------------------------------------------------
+
 void PowerPMAC_CoordinateSystems::add_dynamic_attributes()
 {
 	//	Example to add dynamic attribute:
@@ -518,7 +527,7 @@ void PowerPMAC_CoordinateSystems::add_dynamic_attributes()
 	
 	/*----- PROTECTED REGION ID(PowerPMAC_CoordinateSystems::add_dynamic_attributes) ENABLED START -----*/
 
-	for(auto& axis : addAxis) {
+	/*for(auto& axis : addAxis) {
 		if(axis == "X") {
 			add_X_dynamic_attribute(axis.c_str());
 		} else if(axis == "Y") {
@@ -528,7 +537,7 @@ void PowerPMAC_CoordinateSystems::add_dynamic_attributes()
 		} else if(axis == "W") {
 			add_W_dynamic_attribute(axis.c_str());
 		}
-	}
+	}*/
 	
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_CoordinateSystems::add_dynamic_attributes
 }
@@ -547,7 +556,7 @@ void PowerPMAC_CoordinateSystems::abort()
 
 	try {
 		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
-		ci.ExecuteCommand(ppmac::cmd::CoordAbortMove(coordinateIndex));
+		ci.ExecuteCommand(ppmac::cmd::CoordAbortMove(coordId));
 	} catch (ppmac::RuntimeError& e) {
 		tu::TranslateException(e);
 	}
@@ -568,7 +577,7 @@ void PowerPMAC_CoordinateSystems::run_motion_program(Tango::DevString argin)
 	/*----- PROTECTED REGION ID(PowerPMAC_CoordinateSystems::run_motion_program) ENABLED START -----*/
 	try {
 		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
-		ci.ExecuteCommand(ppmac::cmd::CoordRunProgram(coordinateIndex, argin));
+		ci.ExecuteCommand(ppmac::cmd::CoordRunProgram(coordId, argin));
 	} catch (ppmac::RuntimeError& e) {
 		tu::TranslateException(e);
 	}
@@ -594,16 +603,15 @@ void PowerPMAC_CoordinateSystems::add_dynamic_commands()
 void PowerPMAC_CoordinateSystems::StartCoordinateSystem() {
 	try {
 		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
-		auto result = ci.ExecuteCommand(ppmac::cmd::CoordGetAxisCount(coordinateIndex));
+		// get the number of axis
+		auto result = ci.ExecuteCommand(ppmac::cmd::CoordGetAxisCount(coordId));
 		int32_t val = tu::ParseInt32(result);
-		if(val > static_cast<int32_t>(sizeof(axisNames))) {
-			set_state(Tango::FAULT);;
-			Tango::Except::throw_exception("invalid coordinate system", "number of axis must be <= 4", "PowerPMAC_CoordinateSystems::StartCoordinateSystem");
+		if(val >= ppmac::AvailableAxis::maxAxis) {
+			set_state(Tango::FAULT);
+			Tango::Except::throw_exception("invalid coordinate system", "number of axis must be <= 26 (A-Z)", "PowerPMAC_CoordinateSystems::StartCoordinateSystem");
 		}
 		*attr_NumAxis_read = val;
-		for(int i = 0; i < *attr_NumAxis_read; i++) {
-			addAxis.push_back(axisNames[i]);
-		}
+		UpdateAxisToMatchCurrent(ci.GetCoordInfo(coordId).availableAxis);
 	} catch (ppmac::RuntimeError& e) {
 		tu::TranslateException(e);
 	}
@@ -612,11 +620,104 @@ void PowerPMAC_CoordinateSystems::StartCoordinateSystem() {
 }
 
 void PowerPMAC_CoordinateSystems::StopCoordinateSystem() {
-
+	for(auto& it : attribs) {
+		remove_attribute(it.second.get());
+	}
+	attribs.clear();
 }
 
-void PowerPMAC_CoordinateSystems::CoordinateStateChanged(uint64_t newValue, uint64_t changes) {
+void PowerPMAC_CoordinateSystems::CoordinateStateChanged(uint64_t newState, uint64_t changes) {
+	try {
+		if(ppmac::bits::rising(newState, changes, ppmac::CoordStatusBits::DestVelZero)) {
+			set_state(Tango::ON);
+			fmt::print("set state to ON\n");
+		}
+		else if(ppmac::bits::falling(newState, changes, ppmac::CoordStatusBits::DestVelZero)) {
+			set_state(Tango::MOVING);
+			ClearMoveStatusWaitTimer();
+			fmt::print("clearing move timer timeout!\n");
+			fmt::print("set state to MOVING\n");
+		}
+		lastCoordState = newState;
+	} catch (ppmac::RuntimeError& e) {
+		tu::TranslateException(e);
+	}
+}
 
+void PowerPMAC_CoordinateSystems::CoordinateSystemChanged(int32_t axis) {
+	UpdateAxisToMatchCurrent(axis);
+}
+
+void PowerPMAC_CoordinateSystems::UpdateAxisToMatchCurrent(int32_t axis) {
+	auto MakeAttrib = [this](int32_t axis, const std::string& axisName){
+		std::unique_ptr<MyAttrib> mya = std::make_unique<MyAttrib>(axis, axisName,
+				[this](int32_t axis){
+					return ReadAxisAttrib(axis);
+				},
+				[this](int32_t axis, double val){
+					WriteAxisAttrib(axis, val);
+				},
+				[this](int32_t axis, Tango::AttReqType type){
+					return IsAxisAttribAccessible(axis, type);
+				}
+		);
+		Tango::UserDefaultAttrProp	x_prop;
+		mya->set_default_properties(x_prop);
+		mya->set_disp_level(Tango::OPERATOR);
+		X_data.insert(make_pair(axisName, 0.0));
+		add_attribute(mya.get());
+		attribs.emplace(axis, std::move(mya));
+	};
+
+	for(int32_t i = 0; i < ppmac::AvailableAxis::maxAxis; i++) {
+		bool isSet = ppmac::bits::isSet(axis, i);
+		auto it = attribs.find(i);
+		if(isSet && it == attribs.end()) {
+			MakeAttrib(i, ppmac::AvailableAxis::MapAxisToString(i));
+		} else if(!isSet && it != attribs.end()) {
+			remove_attribute(it->second.get());
+			attribs.erase(it);
+		}
+	}
+}
+double PowerPMAC_CoordinateSystems::ReadAxisAttrib(int32_t axis) {
+	try {
+		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
+		return ci.GetCoordInfo(coordId).position.array[axis];
+	} catch (ppmac::RuntimeError& e) {
+		tu::TranslateException(e);
+	}
+	return -1;
+}
+void PowerPMAC_CoordinateSystems::WriteAxisAttrib(int32_t axis, double value) {
+	try {
+		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
+		ci.ExecuteCommand(ppmac::cmd::CoordMoveAxis(coordId, ppmac::AvailableAxis::MapAxisToString(axis) ,value));
+		movingTimerHandle = ci.AddDeadTimer(std::chrono::milliseconds{50}, [this](){
+			if(get_state() == Tango::MOVING) {
+				set_state(Tango::ON);
+				movingTimerHandle = ppmac::INVALID_HANDLE;
+			}
+		});
+		set_state(Tango::MOVING);
+	} catch (ppmac::RuntimeError& e) {
+		tu::TranslateException(e);
+	}
+}
+bool PowerPMAC_CoordinateSystems::IsAxisAttribAccessible(int32_t axis, Tango::AttReqType type) {
+	if(type == Tango::AttReqType::READ_REQ) {
+		return get_state() == Tango::ON || get_state() == Tango::MOVING;
+	} else {
+		return get_state() == Tango::ON;
+	}
+}
+
+void PowerPMAC_CoordinateSystems::ClearMoveStatusWaitTimer() {
+	ppmac::CoreInterface& ci = ppmac::GetCoreObject();
+	if(movingTimerHandle != ppmac::INVALID_HANDLE) {
+		ci.RemoveDeadTimer(movingTimerHandle);
+		movingTimerHandle = ppmac::INVALID_HANDLE;
+	}
 }
 
 /*----- PROTECTED REGION END -----*/	//	PowerPMAC_CoordinateSystems::namespace_ending

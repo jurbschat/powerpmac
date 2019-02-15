@@ -12,10 +12,10 @@
 
 
 WISE_ENUM_ADAPT(ppmac::MotorID, Motor0, Motor1, Motor2, Motor3, Motor4, Motor5, Motor6, Motor7, Motor8);
-WISE_ENUM_ADAPT(ppmac::IoID, Port0, Port1, Port2, Port3, Port4, Port5, Port6, Port7, Port8);
+WISE_ENUM_ADAPT(ppmac::IoID, Port0/*, Port1, Port2, Port3, Port4, Port5, Port6, Port7, Port8*/);
 WISE_ENUM_ADAPT(ppmac::CoordID, Coord0, Coord1, Coord2, Coord3, Coord4, Coord5, Coord6, Coord7, Coord8);
-WISE_ENUM_ADAPT(ppmac::MotorState, Online, Offline, Init, Moving, Fault);
-WISE_ENUM_ADAPT(ppmac::PortState, Online, Offline, Fault);
+/*WISE_ENUM_ADAPT(ppmac::MotorState, Online, Offline, Init, Moving, Fault);
+WISE_ENUM_ADAPT(ppmac::PortState, Online, Offline, Fault);*/
 WISE_ENUM_ADAPT(ppmac::MotorStatusBits::TYPE,
 		(RESERVED_1_0, 0),
 		(RESERVED_1_1, 1),

@@ -178,24 +178,24 @@ namespace ppmac::cmd {
 	///////////////////////////////////////////////////////////////
 	// coord commands
 
-	inline std::string CoordMoveAxis(int32_t coord, const std::string& axis, double pos) {
-		return fmt::format("&{} pcx {}{}", coord, axis, pos);
+	inline std::string CoordMoveAxis(CoordID coord, const std::string& axis, double pos) {
+		return fmt::format("&{} pcx {}{}", static_cast<int>(coord), axis, pos);
 	}
 
-	inline std::string CoordGetPositions(int32_t coord, const std::string& axis) {
-		return fmt::format("&{}p", coord, axis);
+	inline std::string CoordGetPositions(CoordID  coord, const std::string& axis) {
+		return fmt::format("&{}p", static_cast<int>(coord), axis);
 	}
 
-	inline std::string CoordAbortMove(int32_t coord) {
-		return fmt::format("&{}a", coord);
+	inline std::string CoordAbortMove(CoordID  coord) {
+		return fmt::format("&{}a", static_cast<int>(coord));
 	}
 
-	inline std::string CoordRunProgram(int32_t coord, const std::string& prg) {
-		return fmt::format("&{}; start {}", coord, prg);
+	inline std::string CoordRunProgram(CoordID  coord, const std::string& prg) {
+		return fmt::format("&{}; start {}", static_cast<int>(coord), prg);
 	}
 
-	inline std::string CoordGetAxisCount(int32_t coord) {
-		return fmt::format("Coord[{}].NumMotors", coord);
+	inline std::string CoordGetAxisCount(CoordID  coord) {
+		return fmt::format("Coord[{}].NumMotors", static_cast<int>(coord));
 	}
 }
 

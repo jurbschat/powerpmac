@@ -10,7 +10,9 @@ namespace ppmac {
 	struct CoreNotifyInterface {
 		virtual void OnConnectionEstablished() = 0;
 		virtual void OnConnectionLost() = 0;
-		virtual void OnMotorStateChanged(int32_t index, uint64_t oldState, uint64_t newState) = 0;
+		virtual void OnMotorStateChanged(int32_t motorIndex, uint64_t oldState, uint64_t newState) = 0;
+		virtual void OnCoordStateChanged(int32_t coordIndex, uint64_t oldState, uint64_t newState) = 0;
+		virtual void OnCoordAxisChanged(int32_t coordIndex, uint32_t availableAxis) = 0;
 	};
 
 }
