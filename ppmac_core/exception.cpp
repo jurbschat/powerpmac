@@ -75,7 +75,7 @@ namespace ppmac {
 			if(eptr) {
 				SPDLOG_CRITICAL("unhandled exception (exiting):\n{}", StringifyException(std::current_exception(), 4, '>'));
 			} else {
-				SPDLOG_CRITICAL("terminate without exception");
+				SPDLOG_CRITICAL("terminate without exception. e.g. segfault");
 			}
 			fmt::print(BackTrace(0), "\n");
 			abort();

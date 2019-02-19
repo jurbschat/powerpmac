@@ -187,7 +187,7 @@ namespace ppmac {
 		if(sock) {
 			int ret = close(sock);
 			if(ret != 0) {
-				SPDLOG_DEBUG("unable to close rocket, error: {}", ret);
+				SPDLOG_DEBUG("unable to close socket, error: {}", ret);
 			}
 			sock = 0;
 		}
@@ -297,7 +297,7 @@ namespace ppmac {
 		const char* fingerprint = libssh2_hostkey_hash(session_.get(), LIBSSH2_HOSTKEY_HASH_SHA1);
 		fmt::memory_buffer mb;
 		for(char c : stdext::span<const char>{fingerprint, 20}) { fmt::format_to(mb, "{:X}", c); }
-		SPDLOG_DEBUG("Fingerprint: {}.", fmt::to_string(mb));
+		SPDLOG_INFO("Fingerprint: {}", fmt::to_string(mb));
 		if (libssh2_userauth_password(session_.get(), "root", "deltatau")) {
 			//fprintf(stderr, "\tAuthentication by password failed!\n");
 			//THROW_RUNTIME_ERROR("Authentication by password failed!");

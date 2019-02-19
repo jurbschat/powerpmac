@@ -70,6 +70,10 @@ public:
 	string	host;
 	//	port:	
 	Tango::DevUShort	port;
+	//	loggingHost:	
+	string	loggingHost;
+	//	loggingPort:	
+	Tango::DevLong	loggingPort;
 
 //	Attribute data members
 public:

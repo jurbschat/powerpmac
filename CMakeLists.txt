@@ -26,7 +26,7 @@ set(CMAKE_EXE_LINKER_FLAGS "-Wl,-export-dynamic")
 #set(CMAKE_VERBOSE_MAKEFILE ON)
 
 # this is the program dependency we will build
-add_executable(PowerPMAC main.cpp MultiClassesFactory.cpp)
+add_executable(PowerPMAC main.cpp MultiClassesFactory.cpp tangoutil.cpp)
 
 # all other includeded cmake files will have this
 include_directories(SYSTEM /usr/include/tango)

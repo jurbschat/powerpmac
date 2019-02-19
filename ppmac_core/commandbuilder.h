@@ -182,6 +182,10 @@ namespace ppmac::cmd {
 		return fmt::format("&{} pcx {}{}", static_cast<int>(coord), axis, pos);
 	}
 
+	inline std::string CoordMoveAxisLinear(CoordID coord, const std::string& axis, double pos, int32_t ta, int32_t ts, int32_t f) {
+		return fmt::format("&{} pcx linear ta{} ts{} f{} {}{}", static_cast<int>(coord), ta, ts, f, axis, pos);
+	}
+
 	inline std::string CoordGetPositions(CoordID  coord, const std::string& axis) {
 		return fmt::format("&{}p", static_cast<int>(coord), axis);
 	}
@@ -196,6 +200,10 @@ namespace ppmac::cmd {
 
 	inline std::string CoordGetAxisCount(CoordID  coord) {
 		return fmt::format("Coord[{}].NumMotors", static_cast<int>(coord));
+	}
+
+	inline std::string SetAxisTransformMatrice(CoordID  coord, int32_t transformMatrice) {
+		return fmt::format("&{} tsel {}", static_cast<int>(coord), transformMatrice);
 	}
 }
 

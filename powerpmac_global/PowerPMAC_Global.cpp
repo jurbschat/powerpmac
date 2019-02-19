@@ -195,7 +195,12 @@ void PowerPMAC_Global::init_device()
 
 	// we set the power pmac address and start the automatic
 	// connect/reconnect machinery.
-	ci.Initialize(host, port);
+	ci.Initialize(ppmac::InitObject{
+		.host = host,
+		.port = port,
+		.logginHost = loggingHost,
+		.loggingPort = loggingPort
+	});
 
 	connectionEstablished = ci.Signals().ConnectionEstablished().connect([this](){
 		StartGlobal();
@@ -233,6 +238,8 @@ void PowerPMAC_Global::get_device_property()
 	Tango::DbData	dev_prop;
 	dev_prop.push_back(Tango::DbDatum("host"));
 	dev_prop.push_back(Tango::DbDatum("port"));
+	dev_prop.push_back(Tango::DbDatum("loggingHost"));
+	dev_prop.push_back(Tango::DbDatum("loggingPort"));
 
 	//	is there at least one property to be read ?
 	if (dev_prop.size()>0)
@@ -268,6 +275,28 @@ void PowerPMAC_Global::get_device_property()
 		}
 		//	And try to extract port value from database
 		if (dev_prop[i].is_empty()==false)	dev_prop[i]  >>  port;
+
+		//	Try to initialize loggingHost from class property
+		cl_prop = ds_class->get_class_property(dev_prop[++i].name);
+		if (cl_prop.is_empty()==false)	cl_prop  >>  loggingHost;
+		else {
+			//	Try to initialize loggingHost from default device value
+			def_prop = ds_class->get_default_device_property(dev_prop[i].name);
+			if (def_prop.is_empty()==false)	def_prop  >>  loggingHost;
+		}
+		//	And try to extract loggingHost value from database
+		if (dev_prop[i].is_empty()==false)	dev_prop[i]  >>  loggingHost;
+
+		//	Try to initialize loggingPort from class property
+		cl_prop = ds_class->get_class_property(dev_prop[++i].name);
+		if (cl_prop.is_empty()==false)	cl_prop  >>  loggingPort;
+		else {
+			//	Try to initialize loggingPort from default device value
+			def_prop = ds_class->get_default_device_property(dev_prop[i].name);
+			if (def_prop.is_empty()==false)	def_prop  >>  loggingPort;
+		}
+		//	And try to extract loggingPort value from database
+		if (dev_prop[i].is_empty()==false)	dev_prop[i]  >>  loggingPort;
 
 	}
 

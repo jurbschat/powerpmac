@@ -16,6 +16,13 @@
 
 namespace ppmac {
 
+	struct InitObject {
+		std::string host;
+		int port;
+		std::string logginHost;
+		int loggingPort;
+	};
+
 	class CoreInterface
 	{
 	public:
@@ -29,7 +36,7 @@ namespace ppmac {
 		CoreInterface& operator=(const CoreInterface&&) = delete;
 
 		virtual ~CoreInterface() {}
-		virtual void Initialize(const std::string& host, int port) = 0;
+		virtual void Initialize(InitObject init) = 0;
 		virtual bool IsConnected() = 0;
 
 		virtual std::string ExecuteCommand(const std::string& str) = 0;

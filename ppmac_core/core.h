@@ -29,7 +29,7 @@ class Core : public CoreInterface, public CoreNotifyInterface
 public:
 	Core();
 	virtual ~Core();
-	void Initialize(const std::string& host, int port);
+	void Initialize(InitObject init);
 	bool IsConnected();
 
 	// pmac logic

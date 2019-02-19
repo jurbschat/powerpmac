@@ -21,7 +21,7 @@ add_compile_definitions(SPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_TRACE SPDLOG_FMT_EXTERN
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pedantic")
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wduplicated-cond -Wlogical-op -Wuseless-cast -Wno-shadow -Wno-pragmas -Wno-unused-variable -Wno-unused-parameter") #-Wself-assign"
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wduplicated-cond -Wlogical-op -Wuseless-cast -Wno-shadow -Wno-pragmas -Wno-unused-variable -Wno-unused-parameter -Wno-useless-cast") #-Wself-assign"
 endif()
 
 #set(CMAKE_VERBOSE_MAKEFILE ON)
@@ -33,8 +33,9 @@ add_library(ppmac_core STATIC coreinterface.cpp
         utility.cpp
         test-main.cpp
         pmac/defines.cpp
-        ../tangoutil.cpp
-        exception.cpp)
+        exception.cpp
+        udpsink.cpp
+        uuid.cpp)
 
 target_include_directories(ppmac_core SYSTEM PRIVATE ../fmt-5.3.0/include ../spdlog-1.3.0/include ../wise_enum-master ../catch2-master/single_include)
 target_link_libraries(ppmac_core PRIVATE stdc++ fmt spdlog ssh2 boost_system pthread dl) #ssh2 rt pthread libPowerPmacControl boost_system crypto ssl

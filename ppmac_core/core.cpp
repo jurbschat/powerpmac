@@ -4,10 +4,11 @@
 
 #include "core.h"
 #include "stopwatch.h"
+#include "udpsink.h"
+#include "uuid.h"
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <signal.h>
-
 
 namespace ppmac {
 
@@ -37,11 +38,11 @@ namespace ppmac {
 	}
 
 	void Core::LoggingSetup() {
-		auto console = spdlog::stdout_color_mt("console");
-		console->flush_on(spdlog::level::debug);
+		auto defaultLogger = spdlog::stdout_color_mt("defaultLogger");
+		defaultLogger->flush_on(spdlog::level::debug);
 		// [%n] would be the logger name, we dont care about that atm
-		console->set_pattern("[%Y-%m-%d %H:%M:%S.%e] [%l] [%t] [%@] %v");
-		spdlog::set_default_logger(console);
+		defaultLogger->set_pattern("[%Y-%m-%d %H:%M:%S.%e] [%l] [%t] [%@] %v");
+		spdlog::set_default_logger(defaultLogger);
 	}
 
 	void Core::ErrorHandlingSetup() {
@@ -54,12 +55,24 @@ namespace ppmac {
 		});
 	}
 
-	void Core::Initialize(const std::string& host, int port) {
+	void Core::Initialize(InitObject init) {
 		if(remoteShell.IsConnected()) {
 			return;
 		}
-		remoteHost = host;
-		remotePort = port;
+		// this sink sends the log lines as udp messages to a graylog host
+		if(!init.logginHost.empty() && init.loggingPort != 0) {
+			try{
+				auto udpSink = std::make_shared<udp_sink_mt>(init.logginHost, init.loggingPort);
+				udpSink->set_pattern("[%Y-%m-%d %H:%M:%S.%e] [" + uuid::GetProgramLifetimeUUID() + "] [%l] [%t] [%@] %v");
+				spdlog::default_logger()->sinks().push_back(udpSink);
+				SPDLOG_DEBUG("initializing udp logging form: {}", udpSink->GetHost());
+			}
+			catch(const std::exception& e) {
+				SPDLOG_WARN("unable to create udp sink: {}", e.what());
+			}
+		}
+		remoteHost = init.host;
+		remotePort = init.port;
 		keepConnectionAlive = true;
 		remoteShellKeepAlive = std::thread([this](){
 			KeepAliveRunner();
@@ -108,13 +121,13 @@ namespace ppmac {
 				std::this_thread::sleep_for(std::chrono::seconds{1});
 				continue;
 			}
-			SPDLOG_DEBUG("trying to connect to {}:{}", remoteHost, remotePort);
+			SPDLOG_INFO("trying to connect to {}:{}", remoteHost, remotePort);
 			auto res = SetupRemoteShell(remoteHost, remotePort);
 			if(res == RemoteShellErrorCode::Ok) {
 				SPDLOG_DEBUG("remote shell setup complete!");
 				OnConnectionEstablished();
 			} else {
-				SPDLOG_DEBUG("unable to create remote shell, error: {}", wise_enum::to_string(res));
+				SPDLOG_ERROR("unable to create remote shell, error: {}", wise_enum::to_string(res));
 				std::this_thread::sleep_for(std::chrono::seconds{1});
 			}
 		}
@@ -129,11 +142,13 @@ namespace ppmac {
 	}
 
 	void Core::OnConnectionEstablished() {
+		SPDLOG_INFO("connection to {}:{} established", remoteHost, remotePort);
 		signalHandler.ConnectionEstablished()();
 	}
 
 	void Core::OnConnectionLost() {
 		//stateUpdater.Stop();
+		SPDLOG_ERROR("connection to { }:{} lost", remoteHost, remotePort);
 		signalHandler.ConnectionLost()();
 	}
 
@@ -187,7 +202,7 @@ namespace ppmac {
 				}
 				std::this_thread::sleep_for(std::chrono::milliseconds{10});
 			} catch (std::exception& e) {
-				SPDLOG_DEBUG("exception in dead timer: '{}'", e.what());
+				SPDLOG_WARN("exception in dead timer: '{}'", e.what());
 			}
 		}
 	}

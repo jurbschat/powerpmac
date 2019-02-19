@@ -522,7 +522,7 @@ namespace ppmac {
 					try {
 						updateIntervals.Update();
 					} catch(std::exception& e) {
-						SPDLOG_ERROR("exception while updating states:\n{}", StringifyException(std::current_exception(), 4, '>'));
+						SPDLOG_ERROR("exception in update timer:\n{}", StringifyException(std::current_exception(), 4, '>'));
 					}
 					RemoveElapsedUpdateTimers();
 					sl.unlock();
