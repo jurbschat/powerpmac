@@ -13,10 +13,13 @@
     <classes classname="PowerPMAC_Motor" sourcePath="./powerpmac_motor">
       <inheritances classname="Device_Impl" sourcePath=""/>
     </classes>
-    <classes classname="PowerPMAC_CoordinateSystems" sourcePath="./powerpmac_coordinatesystems">
+    <classes classname="PowerPMAC_CoordinateSystems" sourcePath="./powerpmac_coordinatesystems" hasDynamic="true">
       <inheritances classname="Device_Impl" sourcePath=""/>
     </classes>
     <classes classname="PowerPMAC_PLC" sourcePath="./powerpmac_plc">
+      <inheritances classname="Device_Impl" sourcePath=""/>
+    </classes>
+    <classes classname="PowerPMAC_CompensationTable" sourcePath="./powerpmac_compensationtable">
       <inheritances classname="Device_Impl" sourcePath=""/>
     </classes>
     <preferences makefileHome="/usr/share/pogo/preferences"/>

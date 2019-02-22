@@ -1,19 +1,17 @@
 <?xml version="1.0" encoding="ASCII"?>
 <pogoDsl:PogoSystem xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:pogoDsl="http://www.esrf.fr/tango/pogo/PogoDsl">
   <classes name="PowerPMAC_Global" pogoRevision="9.4">
-    <description description="" title="" sourcePath="/home/urbschaj/dev/tango-servers/ppmac/powerpmac_global" language="Cpp" filestogenerate="XMI   file,Code files,Protected Regions" license="GPL" copyright="" hasMandatoryProperty="false" hasConcreteProperty="true" hasAbstractCommand="false" hasAbstractAttribute="false">
+    <description description="" title="" sourcePath="/home/urbschaj/dev/tango-servers/ppmac/powerpmac_global" language="Cpp" filestogenerate="XMI   file,Code files,Protected Regions" license="GPL" copyright="" hasMandatoryProperty="true" hasConcreteProperty="true" hasAbstractCommand="false" hasAbstractAttribute="false">
       <inheritances classname="Device_Impl" sourcePath=""/>
       <identification contact="at desy.de - jakob.urbschat" author="jakob.urbschat" emailDomain="desy.de" classFamily="Motion" siteSpecific="" platform="All Platforms" bus="TCP/UDP" manufacturer="DeltaTau" reference=""/>
     </description>
-    <deviceProperties name="host" description="">
+    <deviceProperties name="host" mandatory="true" description="">
       <type xsi:type="pogoDsl:StringType"/>
       <status abstract="false" inherited="false" concrete="true" concreteHere="true"/>
-      <DefaultPropValue>haspp11:10000</DefaultPropValue>
     </deviceProperties>
-    <deviceProperties name="port" description="">
+    <deviceProperties name="port" mandatory="true" description="">
       <type xsi:type="pogoDsl:UShortType"/>
       <status abstract="false" inherited="false" concrete="true" concreteHere="true"/>
-      <DefaultPropValue>22</DefaultPropValue>
     </deviceProperties>
     <deviceProperties name="loggingHost" description="">
       <type xsi:type="pogoDsl:StringType"/>

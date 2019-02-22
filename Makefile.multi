@@ -72,6 +72,9 @@ POWERPMAC_COORDINATESYSTEMS_HOME  = ./powerpmac_coordinatesystems
 POWERPMAC_PLC_CLASS = PowerPMAC_PLC
 POWERPMAC_PLC_HOME  = ./powerpmac_plc
 
+POWERPMAC_COMPENSATIONTABLE_CLASS = PowerPMAC_CompensationTable
+POWERPMAC_COMPENSATIONTABLE_HOME  = ./powerpmac_compensationtable
+
 
 #=============================================================================
 # INC_DIR_USER is the list of all include path needed by your sources
@@ -84,7 +87,8 @@ INC_DIR_USER= -I . \
               -I $(POWERPMAC_PROGRAMS_HOME)\
               -I $(POWERPMAC_MOTOR_HOME)\
               -I $(POWERPMAC_COORDINATESYSTEMS_HOME)\
-              -I $(POWERPMAC_PLC_HOME)
+              -I $(POWERPMAC_PLC_HOME)\
+              -I $(POWERPMAC_COMPENSATIONTABLE_HOME)
 
 #=============================================================================
 # LIB_DIR_USER is the list of user library directories
@@ -147,6 +151,7 @@ SVC_OBJS =  $(SVC_POWERPMAC_GLOBAL_OBJS) \
             $(SVC_POWERPMAC_MOTOR_OBJS) \
             $(SVC_POWERPMAC_COORDINATESYSTEMS_OBJS) \
             $(SVC_POWERPMAC_PLC_OBJS) \
+            $(SVC_POWERPMAC_COMPENSATIONTABLE_OBJS) \
             $(OBJDIR)/MultiClassesFactory.o \
             $(OBJDIR)/main.o
 
@@ -178,13 +183,20 @@ SVC_POWERPMAC_MOTOR_OBJS = \
 SVC_POWERPMAC_COORDINATESYSTEMS_OBJS = \
 		$(OBJDIR)/PowerPMAC_CoordinateSystems.o \
 		$(OBJDIR)/PowerPMAC_CoordinateSystemsClass.o \
-		$(OBJDIR)/PowerPMAC_CoordinateSystemsStateMachine.o
+		$(OBJDIR)/PowerPMAC_CoordinateSystemsStateMachine.o \
+		$(OBJDIR)/PowerPMAC_CoordinateSystemsDynAttrUtils.o
 
 #------------  Object files for PowerPMAC_PLC class  ------------
 SVC_POWERPMAC_PLC_OBJS = \
 		$(OBJDIR)/PowerPMAC_PLC.o \
 		$(OBJDIR)/PowerPMAC_PLCClass.o \
 		$(OBJDIR)/PowerPMAC_PLCStateMachine.o
+
+#------------  Object files for PowerPMAC_CompensationTable class  ------------
+SVC_POWERPMAC_COMPENSATIONTABLE_OBJS = \
+		$(OBJDIR)/PowerPMAC_CompensationTable.o \
+		$(OBJDIR)/PowerPMAC_CompensationTableClass.o \
+		$(OBJDIR)/PowerPMAC_CompensationTableStateMachine.o
 
 
 #=============================================================================
@@ -255,6 +267,8 @@ $(OBJDIR)/PowerPMAC_CoordinateSystemsClass.o:  $(POWERPMAC_COORDINATESYSTEMS_HOM
 	$(CXX) $(CXXFLAGS) -c $< -o $(OBJDIR)/PowerPMAC_CoordinateSystemsClass.o
 $(OBJDIR)/PowerPMAC_CoordinateSystemsStateMachine.o:  $(POWERPMAC_COORDINATESYSTEMS_HOME)/PowerPMAC_CoordinateSystemsStateMachine.cpp $(POWERPMAC_COORDINATESYSTEMS_INCLUDES)
 	$(CXX) $(CXXFLAGS) -c $< -o $(OBJDIR)/PowerPMAC_CoordinateSystemsStateMachine.o
+$(OBJDIR)/PowerPMAC_CoordinateSystemsDynAttrUtils.o:  $(POWERPMAC_COORDINATESYSTEMS_HOME)/PowerPMAC_CoordinateSystemsDynAttrUtils.cpp $(POWERPMAC_COORDINATESYSTEMS_INCLUDES)
+	$(CXX) $(CXXFLAGS) -c $< -o $(OBJDIR)/PowerPMAC_CoordinateSystemsDynAttrUtils.o
 
 #------------  Object files dependancies for PowerPMAC_PLC class  ------------
 POWERPMAC_PLC_INCLUDES = \
@@ -267,5 +281,17 @@ $(OBJDIR)/PowerPMAC_PLCClass.o:  $(POWERPMAC_PLC_HOME)/PowerPMAC_PLCClass.cpp $(
 	$(CXX) $(CXXFLAGS) -c $< -o $(OBJDIR)/PowerPMAC_PLCClass.o
 $(OBJDIR)/PowerPMAC_PLCStateMachine.o:  $(POWERPMAC_PLC_HOME)/PowerPMAC_PLCStateMachine.cpp $(POWERPMAC_PLC_INCLUDES)
 	$(CXX) $(CXXFLAGS) -c $< -o $(OBJDIR)/PowerPMAC_PLCStateMachine.o
+
+#------------  Object files dependancies for PowerPMAC_CompensationTable class  ------------
+POWERPMAC_COMPENSATIONTABLE_INCLUDES = \
+		$(POWERPMAC_COMPENSATIONTABLE_HOME)/PowerPMAC_CompensationTable.h \
+		$(POWERPMAC_COMPENSATIONTABLE_HOME)/PowerPMAC_CompensationTableClass.h
+
+$(OBJDIR)/PowerPMAC_CompensationTable.o:  $(POWERPMAC_COMPENSATIONTABLE_HOME)/PowerPMAC_CompensationTable.cpp $(POWERPMAC_COMPENSATIONTABLE_INCLUDES)
+	$(CXX) $(CXXFLAGS) -c $< -o $(OBJDIR)/PowerPMAC_CompensationTable.o
+$(OBJDIR)/PowerPMAC_CompensationTableClass.o:  $(POWERPMAC_COMPENSATIONTABLE_HOME)/PowerPMAC_CompensationTableClass.cpp $(POWERPMAC_COMPENSATIONTABLE_INCLUDES)
+	$(CXX) $(CXXFLAGS) -c $< -o $(OBJDIR)/PowerPMAC_CompensationTableClass.o
+$(OBJDIR)/PowerPMAC_CompensationTableStateMachine.o:  $(POWERPMAC_COMPENSATIONTABLE_HOME)/PowerPMAC_CompensationTableStateMachine.cpp $(POWERPMAC_COMPENSATIONTABLE_INCLUDES)
+	$(CXX) $(CXXFLAGS) -c $< -o $(OBJDIR)/PowerPMAC_CompensationTableStateMachine.o
 
 

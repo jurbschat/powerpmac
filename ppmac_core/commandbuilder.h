@@ -6,6 +6,8 @@
 #define POWERPMAC_COMMANDBUILDER_H
 
 #include <fmt/format.h>
+#include <fmt/ranges.h>
+#include <vector>
 
 // Motor[{}].PosUnit for the type of motor unit
 
@@ -204,6 +206,45 @@ namespace ppmac::cmd {
 
 	inline std::string SetAxisTransformMatrice(CoordID  coord, int32_t transformMatrice) {
 		return fmt::format("&{} tsel {}", static_cast<int>(coord), transformMatrice);
+	}
+
+	///////////////////////////////////////////////////////////////
+	// compensation table setup
+
+	inline std::string SetCompensationTable(CompensationTableID table,
+			MotorID source,
+			MotorID target,
+			double from,
+			double to,
+			const std::vector<double>& values) {
+		try {
+			const char* str = R"(
+			CompTable[{table}].Source[0] = {source};
+			CompTable[{table}].Nx[0] = {valueCount};
+			CompTable[{table}].Nx[1] = 0 ;
+			CompTable[{table}].Nx[2] = 0;
+			CompTable[{table}].X0[0] = {from};
+			CompTable[{table}].Dx[0] = {dist};
+			CompTable[{table}].Target[0] = Motor[{target}].CompPos.a;
+			CompTable[{table}].Target[1] = Motor[{target}].CompPos2.a;
+			CompTable[{table}].Sf[0] = 1;
+			CompTable[{table}].Sf[0] = 1;
+			CompTable[{table}].Ctrl = 7 ;
+			CompTable[{table}].OutCtrl = 0;
+			CompTable[{table}].Data[0] = {values};)";
+			return fmt::format(str,
+					fmt::arg("valueCount", values.size()),
+					fmt::arg("table", static_cast<int>(table)),
+					fmt::arg("source", static_cast<int>(source)),
+					fmt::arg("target", static_cast<int>(target)),
+					fmt::arg("from", from),
+					fmt::arg("dist", to - from),
+					fmt::arg("values", values)
+			);
+		} catch(std::exception& e) {
+			printf("error: %s", e.what());
+		}
+		return "";
 	}
 }
 

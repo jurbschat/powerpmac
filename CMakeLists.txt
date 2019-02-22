@@ -29,7 +29,7 @@ set(CMAKE_EXE_LINKER_FLAGS "-Wl,-export-dynamic")
 add_executable(PowerPMAC main.cpp MultiClassesFactory.cpp tangoutil.cpp)
 
 # all other includeded cmake files will have this
-include_directories(SYSTEM /usr/include/tango)
+include_directories(SYSTEM /usr/include/tango fmt-5.3.0/include)
 link_directories(/usr/lib/x86_64-linux-gnu/ /usr/lib/)
 
 add_subdirectory(powerpmac_coordinatesystems)
@@ -38,6 +38,7 @@ add_subdirectory(powerpmac_io)
 add_subdirectory(powerpmac_motor)
 add_subdirectory(powerpmac_programs)
 add_subdirectory(powerpmac_plc)
+add_subdirectory(powerpmac_compensationtable)
 add_subdirectory(ppmac_core)
 # external but intree libraries
 #add_subdirectory(powerPMAC_ssh-master)
@@ -52,6 +53,7 @@ target_include_directories(PowerPMAC PUBLIC powerpmac_io)
 target_include_directories(PowerPMAC PUBLIC powerpmac_motor)
 target_include_directories(PowerPMAC PUBLIC powerpmac_programs)
 target_include_directories(PowerPMAC PUBLIC powerpmac_plc)
+target_include_directories(PowerPMAC PUBLIC powerpmac_compensationtable)
 # only needed if we want the multi server stuff to access ppmac core. can be usefull for easy debugging untill we make an own testptroject for that
 target_include_directories(PowerPMAC PUBLIC ppmac_core)
 
@@ -65,4 +67,5 @@ target_link_libraries(PowerPMAC tango omniDynamic4 COS4 omniORB4 omnithread log4
         PowerPMAC_IO
         PowerPMAC_Motor
         PowerPMAC_Programs
-        PowerPMAC_PLC)
+        PowerPMAC_PLC
+        PowerPMAC_CompensationTable)

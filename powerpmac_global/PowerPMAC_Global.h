@@ -75,6 +75,8 @@ public:
 	//	loggingPort:	
 	Tango::DevLong	loggingPort;
 
+	bool	mandatoryNotDefined;
+
 //	Attribute data members
 public:
 	Tango::DevLong	*attr_MaxMotors_read;
@@ -137,6 +139,10 @@ public:
 	 */
 	virtual void always_executed_hook();
 
+	/*
+	 *	Check if mandatory property has been set
+	 */
+	 void check_mandatory_property(Tango::DbDatum &class_prop, Tango::DbDatum &dev_prop);
 
 //	Attribute methods
 public:

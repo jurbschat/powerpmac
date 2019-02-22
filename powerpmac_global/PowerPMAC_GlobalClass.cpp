@@ -294,9 +294,8 @@ void PowerPMAC_GlobalClass::set_default_property()
 	//	Set Default device Properties
 	prop_name = "host";
 	prop_desc = "";
-	prop_def  = "haspp11:10000";
+	prop_def  = "";
 	vect_data.clear();
-	vect_data.push_back("haspp11:10000");
 	if (prop_def.length()>0)
 	{
 		Tango::DbDatum	data(prop_name);
@@ -308,9 +307,8 @@ void PowerPMAC_GlobalClass::set_default_property()
 		add_wiz_dev_prop(prop_name, prop_desc);
 	prop_name = "port";
 	prop_desc = "";
-	prop_def  = "22";
+	prop_def  = "";
 	vect_data.clear();
-	vect_data.push_back("22");
 	if (prop_def.length()>0)
 	{
 		Tango::DbDatum	data(prop_name);

@@ -6,6 +6,8 @@ import matplotlib.pyplot as plt
 print(tango.ApiUtil.get_env_var("TANGO_HOST"))
 
 power_pmac = DeviceProxy("p11/pmac/motor4")
+power_pmac.Position = 100
+
 power_pmac.set_timeout_millis(600000)
 print(power_pmac.ping())
 print(power_pmac.state())

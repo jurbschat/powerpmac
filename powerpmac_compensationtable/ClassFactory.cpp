@@ -1,6 +1,7 @@
+/*----- PROTECTED REGION ID(PowerPMAC_CompensationTable::ClassFactory.cpp) ENABLED START -----*/
 //=============================================================================
 //
-// file :        MultiClassessFactory.cpp
+// file :        ClassFactory.cpp
 //
 // description : C++ source for the class_factory method of the DServer
 //               device class. This method is responsible for the creation of
@@ -32,25 +33,18 @@
 //=============================================================================
 
 #include <tango.h>
-#include <PowerPMAC_GlobalClass.h>
-#include <PowerPMAC_IOClass.h>
-#include <PowerPMAC_ProgramsClass.h>
-#include <PowerPMAC_MotorClass.h>
-#include <PowerPMAC_CoordinateSystemsClass.h>
-#include <PowerPMAC_PLCClass.h>
 #include <PowerPMAC_CompensationTableClass.h>
 
+//	Add class header files if needed
+
+
 /**
- *	Create Class singletons and store them in DServer object.
+ *	Create PowerPMAC_CompensationTable Class singleton and store it in DServer object.
  */
 
 void Tango::DServer::class_factory()
 {
-	add_class(PowerPMAC_Global_ns::PowerPMAC_GlobalClass::init("PowerPMAC_Global"));
-	add_class(PowerPMAC_IO_ns::PowerPMAC_IOClass::init("PowerPMAC_IO"));
-	add_class(PowerPMAC_Programs_ns::PowerPMAC_ProgramsClass::init("PowerPMAC_Programs"));
-	add_class(PowerPMAC_Motor_ns::PowerPMAC_MotorClass::init("PowerPMAC_Motor"));
-	add_class(PowerPMAC_CoordinateSystems_ns::PowerPMAC_CoordinateSystemsClass::init("PowerPMAC_CoordinateSystems"));
-	add_class(PowerPMAC_PLC_ns::PowerPMAC_PLCClass::init("PowerPMAC_PLC"));
+	//	Add method class init if needed
 	add_class(PowerPMAC_CompensationTable_ns::PowerPMAC_CompensationTableClass::init("PowerPMAC_CompensationTable"));
 }
+/*----- PROTECTED REGION END -----*/	//	PowerPMAC_CompensationTable::ClassFactory.cpp
