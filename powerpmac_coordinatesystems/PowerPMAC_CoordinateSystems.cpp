@@ -33,12 +33,12 @@
 //        (Program Obviously used to Generate tango Object)
 //=============================================================================
 
-
-#include <PowerPMAC_CoordinateSystems.h>
-#include <PowerPMAC_CoordinateSystemsClass.h>
 #include "coreinterface.h"
 #include "commandbuilder.h"
 #include "../tangoutil.h"
+#include <fmt/format.h>
+#include <PowerPMAC_CoordinateSystems.h>
+#include <PowerPMAC_CoordinateSystemsClass.h>
 #include <memory>
 
 /*----- PROTECTED REGION END -----*/	//	PowerPMAC_CoordinateSystems.cpp
@@ -137,6 +137,7 @@ void PowerPMAC_CoordinateSystems::init_device()
 	// pre dev prop read
 	
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_CoordinateSystems::init_device_before
+	
 
 	//	Get the device properties from database
 	get_device_property();
@@ -330,201 +331,13 @@ void PowerPMAC_CoordinateSystems::read_NumAxis(Tango::Attribute &attr)
 
 //--------------------------------------------------------
 /**
- *	Read attribute X related method
- *	Description: 
- *
- *	Data type:	Tango::DevDouble
- *	Attr type:	Scalar
- */
-//--------------------------------------------------------
-void PowerPMAC_CoordinateSystems::read_X(Tango::Attribute &attr)
-{
-	DEBUG_STREAM << "PowerPMAC_CoordinateSystems::read_X(Tango::Attribute &attr) entering... " << endl;
-	Tango::DevDouble	*att_value = get_X_data_ptr(attr.get_name());
-	/*----- PROTECTED REGION ID(PowerPMAC_CoordinateSystems::read_X) ENABLED START -----*/
-	//	Set the attribute value
-	attr.set_value(att_value);
-	
-	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_CoordinateSystems::read_X
-}
-//--------------------------------------------------------
-/**
- *	Write attribute X related method
- *	Description: 
- *
- *	Data type:	Tango::DevDouble
- *	Attr type:	Scalar
- */
-//--------------------------------------------------------
-void PowerPMAC_CoordinateSystems::write_X(Tango::WAttribute &attr)
-{
-	DEBUG_STREAM << "PowerPMAC_CoordinateSystems::write_X(Tango::WAttribute &attr) entering... " << endl;
-	//	Retrieve write value
-	Tango::DevDouble	w_val;
-	attr.get_write_value(w_val);
-	/*----- PROTECTED REGION ID(PowerPMAC_CoordinateSystems::write_X) ENABLED START -----*/
-
-	try {
-		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
-		ci.ExecuteCommand(ppmac::cmd::CoordMoveAxis(coordId, "X", w_val));
-	} catch (ppmac::RuntimeError& e) {
-		tu::TranslateException(e);
-	}
-	
-	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_CoordinateSystems::write_X
-}
-//--------------------------------------------------------
-/**
- *	Read attribute Y related method
- *	Description: 
- *
- *	Data type:	Tango::DevDouble
- *	Attr type:	Scalar
- */
-//--------------------------------------------------------
-void PowerPMAC_CoordinateSystems::read_Y(Tango::Attribute &attr)
-{
-	DEBUG_STREAM << "PowerPMAC_CoordinateSystems::read_Y(Tango::Attribute &attr) entering... " << endl;
-	Tango::DevDouble	*att_value = get_Y_data_ptr(attr.get_name());
-	/*----- PROTECTED REGION ID(PowerPMAC_CoordinateSystems::read_Y) ENABLED START -----*/
-	//	Set the attribute value
-	attr.set_value(att_value);
-	
-	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_CoordinateSystems::read_Y
-}
-//--------------------------------------------------------
-/**
- *	Write attribute Y related method
- *	Description: 
- *
- *	Data type:	Tango::DevDouble
- *	Attr type:	Scalar
- */
-//--------------------------------------------------------
-void PowerPMAC_CoordinateSystems::write_Y(Tango::WAttribute &attr)
-{
-	DEBUG_STREAM << "PowerPMAC_CoordinateSystems::write_Y(Tango::WAttribute &attr) entering... " << endl;
-	//	Retrieve write value
-	Tango::DevDouble	w_val;
-	attr.get_write_value(w_val);
-	/*----- PROTECTED REGION ID(PowerPMAC_CoordinateSystems::write_Y) ENABLED START -----*/
-
-	try {
-		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
-		ci.ExecuteCommand(ppmac::cmd::CoordMoveAxis(coordId, "Y", w_val));
-	} catch (ppmac::RuntimeError& e) {
-		tu::TranslateException(e);
-	}
-	
-	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_CoordinateSystems::write_Y
-}
-//--------------------------------------------------------
-/**
- *	Read attribute Z related method
- *	Description: 
- *
- *	Data type:	Tango::DevDouble
- *	Attr type:	Scalar
- */
-//--------------------------------------------------------
-void PowerPMAC_CoordinateSystems::read_Z(Tango::Attribute &attr)
-{
-	DEBUG_STREAM << "PowerPMAC_CoordinateSystems::read_Z(Tango::Attribute &attr) entering... " << endl;
-	Tango::DevDouble	*att_value = get_Z_data_ptr(attr.get_name());
-	/*----- PROTECTED REGION ID(PowerPMAC_CoordinateSystems::read_Z) ENABLED START -----*/
-	//	Set the attribute value
-	attr.set_value(att_value);
-	
-	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_CoordinateSystems::read_Z
-}
-//--------------------------------------------------------
-/**
- *	Write attribute Z related method
- *	Description: 
- *
- *	Data type:	Tango::DevDouble
- *	Attr type:	Scalar
- */
-//--------------------------------------------------------
-void PowerPMAC_CoordinateSystems::write_Z(Tango::WAttribute &attr)
-{
-	DEBUG_STREAM << "PowerPMAC_CoordinateSystems::write_Z(Tango::WAttribute &attr) entering... " << endl;
-	//	Retrieve write value
-	Tango::DevDouble	w_val;
-	attr.get_write_value(w_val);
-	/*----- PROTECTED REGION ID(PowerPMAC_CoordinateSystems::write_Z) ENABLED START -----*/
-
-	try {
-		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
-		ci.ExecuteCommand(ppmac::cmd::CoordMoveAxis(coordId, "Z", w_val));
-	} catch (ppmac::RuntimeError& e) {
-		tu::TranslateException(e);
-	}
-	
-	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_CoordinateSystems::write_Z
-}
-//--------------------------------------------------------
-/**
- *	Read attribute W related method
- *	Description: 
- *
- *	Data type:	Tango::DevDouble
- *	Attr type:	Scalar
- */
-//--------------------------------------------------------
-void PowerPMAC_CoordinateSystems::read_W(Tango::Attribute &attr)
-{
-	DEBUG_STREAM << "PowerPMAC_CoordinateSystems::read_W(Tango::Attribute &attr) entering... " << endl;
-	Tango::DevDouble	*att_value = get_W_data_ptr(attr.get_name());
-	/*----- PROTECTED REGION ID(PowerPMAC_CoordinateSystems::read_W) ENABLED START -----*/
-	//	Set the attribute value
-	attr.set_value(att_value);
-	
-	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_CoordinateSystems::read_W
-}
-//--------------------------------------------------------
-/**
- *	Write attribute W related method
- *	Description: 
- *
- *	Data type:	Tango::DevDouble
- *	Attr type:	Scalar
- */
-//--------------------------------------------------------
-void PowerPMAC_CoordinateSystems::write_W(Tango::WAttribute &attr)
-{
-	DEBUG_STREAM << "PowerPMAC_CoordinateSystems::write_W(Tango::WAttribute &attr) entering... " << endl;
-	//	Retrieve write value
-	Tango::DevDouble	w_val;
-	attr.get_write_value(w_val);
-	/*----- PROTECTED REGION ID(PowerPMAC_CoordinateSystems::write_W) ENABLED START -----*/
-
-	try {
-		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
-		ci.ExecuteCommand(ppmac::cmd::CoordMoveAxis(coordId, "W", w_val));
-	} catch (ppmac::RuntimeError& e) {
-		tu::TranslateException(e);
-	}
-	
-	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_CoordinateSystems::write_W
-}
-//--------------------------------------------------------
-/**
  *	Method      : PowerPMAC_CoordinateSystems::add_dynamic_attributes()
  *	Description : Create the dynamic attributes if any
  *                for specified device.
  */
 //--------------------------------------------------------
-
 void PowerPMAC_CoordinateSystems::add_dynamic_attributes()
 {
-	//	Example to add dynamic attribute:
-	//	Copy inside the following protected area to create instance(s) at startup.
-	//	add_X_dynamic_attribute("MyXAttribute");
-	//	add_Y_dynamic_attribute("MyYAttribute");
-	//	add_Z_dynamic_attribute("MyZAttribute");
-	//	add_W_dynamic_attribute("MyWAttribute");
-	
 	/*----- PROTECTED REGION ID(PowerPMAC_CoordinateSystems::add_dynamic_attributes) ENABLED START -----*/
 
 	/*for(auto& axis : addAxis) {
@@ -664,7 +477,7 @@ void PowerPMAC_CoordinateSystems::UpdateAxisToMatchCurrent(int32_t axis) {
 		Tango::UserDefaultAttrProp	x_prop;
 		mya->set_default_properties(x_prop);
 		mya->set_disp_level(Tango::OPERATOR);
-		X_data.insert(make_pair(axisName, 0.0));
+		//X_data.insert(make_pair(axisName, 0.0));
 		add_attribute(mya.get());
 		attribs.emplace(axis, std::move(mya));
 	};

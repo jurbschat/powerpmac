@@ -16,8 +16,7 @@ endif()
 
 add_library(PowerPMAC_CoordinateSystems STATIC PowerPMAC_CoordinateSystems.cpp
         PowerPMAC_CoordinateSystemsClass.cpp
-        PowerPMAC_CoordinateSystemsStateMachine.cpp
-        PowerPMAC_CoordinateSystemsDynAttrUtils.cpp)
+        PowerPMAC_CoordinateSystemsStateMachine.cpp)
 
 # all other includeded cmake files will have this
 include_directories(PUBLIC SYSTEM /usr/include/tango)

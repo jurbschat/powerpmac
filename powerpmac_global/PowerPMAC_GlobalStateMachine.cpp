@@ -87,10 +87,6 @@ bool PowerPMAC_Global::is_MaxCoords_allowed(TANGO_UNUSED(Tango::AttReqType type)
 //--------------------------------------------------------
 bool PowerPMAC_Global::is_AbortAll_allowed(TANGO_UNUSED(Tango::AttReqType type))
 {
-	//	Not any excluded states for AbortAll attribute in Write access.
-	/*----- PROTECTED REGION ID(PowerPMAC_Global::AbortAllStateAllowed_WRITE) ENABLED START -----*/
-	
-	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Global::AbortAllStateAllowed_WRITE
 
 	//	Not any excluded states for AbortAll attribute in read access.
 	/*----- PROTECTED REGION ID(PowerPMAC_Global::AbortAllStateAllowed_READ) ENABLED START -----*/

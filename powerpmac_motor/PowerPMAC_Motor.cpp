@@ -34,13 +34,13 @@
 //=============================================================================
 
 
-#include <PowerPMAC_Motor.h>
-#include <PowerPMAC_MotorClass.h>
-#include <pmac/datastructures.h>
-
 #include "coreinterface.h"
 #include "commandbuilder.h"
 #include "../tangoutil.h"
+#include "pmac/datastructures.h"
+#include <fmt/format.h>
+#include <PowerPMAC_Motor.h>
+#include <PowerPMAC_MotorClass.h>
 
 /*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor.cpp
 

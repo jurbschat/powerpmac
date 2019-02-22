@@ -85,12 +85,10 @@ class AbortAllAttrib: public Tango::Attr
 {
 public:
 	AbortAllAttrib():Attr("AbortAll",
-			Tango::DEV_BOOLEAN, Tango::READ_WRITE) {};
+			Tango::DEV_BOOLEAN, Tango::READ) {};
 	~AbortAllAttrib() {};
 	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
 		{(static_cast<PowerPMAC_Global *>(dev))->read_AbortAll(att);}
-	virtual void write(Tango::DeviceImpl *dev,Tango::WAttribute &att)
-		{(static_cast<PowerPMAC_Global *>(dev))->write_AbortAll(att);}
 	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
 		{return (static_cast<PowerPMAC_Global *>(dev))->is_AbortAll_allowed(ty);}
 };

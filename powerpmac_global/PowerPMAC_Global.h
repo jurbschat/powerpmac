@@ -153,13 +153,6 @@ public:
 	 */
 	//--------------------------------------------------------
 	virtual void read_attr_hardware(vector<long> &attr_list);
-	//--------------------------------------------------------
-	/*
-	 *	Method      : PowerPMAC_Global::write_attr_hardware()
-	 *	Description : Hardware writing for attributes.
-	 */
-	//--------------------------------------------------------
-	virtual void write_attr_hardware(vector<long> &attr_list);
 
 /**
  *	Attribute MaxMotors related methods
@@ -187,7 +180,6 @@ public:
  *	Attr type:	Scalar
  */
 	virtual void read_AbortAll(Tango::Attribute &attr);
-	virtual void write_AbortAll(Tango::WAttribute &attr);
 	virtual bool is_AbortAll_allowed(Tango::AttReqType type);
 /**
  *	Attribute CpuTemp related methods

@@ -383,21 +383,6 @@ void PowerPMAC_Global::read_attr_hardware(TANGO_UNUSED(vector<long> &attr_list))
 	
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Global::read_attr_hardware
 }
-//--------------------------------------------------------
-/**
- *	Method      : PowerPMAC_Global::write_attr_hardware()
- *	Description : Hardware writing for attributes
- */
-//--------------------------------------------------------
-void PowerPMAC_Global::write_attr_hardware(TANGO_UNUSED(vector<long> &attr_list))
-{
-	DEBUG_STREAM << "PowerPMAC_Global::write_attr_hardware(vector<long> &attr_list) entering... " << endl;
-	/*----- PROTECTED REGION ID(PowerPMAC_Global::write_attr_hardware) ENABLED START -----*/
-	
-	//	Add your own code
-	
-	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Global::write_attr_hardware
-}
 
 //--------------------------------------------------------
 /**
@@ -473,32 +458,6 @@ void PowerPMAC_Global::read_AbortAll(Tango::Attribute &attr)
 	}
 	
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Global::read_AbortAll
-}
-//--------------------------------------------------------
-/**
- *	Write attribute AbortAll related method
- *	Description: 
- *
- *	Data type:	Tango::DevBoolean
- *	Attr type:	Scalar
- */
-//--------------------------------------------------------
-void PowerPMAC_Global::write_AbortAll(Tango::WAttribute &attr)
-{
-	DEBUG_STREAM << "PowerPMAC_Global::write_AbortAll(Tango::WAttribute &attr) entering... " << endl;
-	//	Retrieve write value
-	Tango::DevBoolean	w_val;
-	attr.get_write_value(w_val);
-	/*----- PROTECTED REGION ID(PowerPMAC_Global::write_AbortAll) ENABLED START -----*/
-
-	try {
-		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
-		ci.ExecuteCommand(ppmac::cmd::GlobalSetAbortAll(w_val));
-	} catch (ppmac::RuntimeError& e) {
-		tu::TranslateException(e);
-	}
-	
-	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Global::write_AbortAll
 }
 //--------------------------------------------------------
 /**

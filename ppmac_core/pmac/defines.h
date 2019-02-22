@@ -10,7 +10,8 @@
 namespace ppmac
 {
 	enum class MotorID : int32_t {
-		Motor0,
+		INVALID = -1,
+		Motor0 = 0,
 		Motor1,
 		Motor2,
 		Motor3,
@@ -45,11 +46,13 @@ namespace ppmac
 	};
 
 	enum class IoID : int32_t {
-		Port0
+		INVALID = -1,
+		Port0 = 0
 	};
 
 	enum class CoordID : int32_t {
-		Coord0,
+		INVALID = -1,
+		Coord0 = 0,
 		Coord1,
 		Coord2,
 		Coord3,
@@ -84,7 +87,8 @@ namespace ppmac
 	};
 
 	enum class CompensationTableID : int32_t {
-		Table0,
+		INVALID = -1,
+		Table0 = 0,
 		Table1,
 		Table2,
 		Table3,
@@ -117,29 +121,6 @@ namespace ppmac
 		Table30,
 		Table31
 	};
-
-	/*enum class MotorState : int32_t {
-		Online,
-		Offline,
-		Init,
-		Moving,
-		Fault
-	};
-
-	enum class CoordState : int32_t {
-		Online,
-		Offline,
-		Init,
-		Moving,
-		Fault
-	};
-
-	enum class PortState : int32_t {
-		Online,
-		Offline,
-		Fault
-	};*/
-
 
 	template<typename T>
 	struct int_with_tag {

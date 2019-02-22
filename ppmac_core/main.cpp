@@ -9,7 +9,8 @@ int main() {
 
 	ppmac::Core* ci = static_cast<ppmac::Core*>(&ppmac::GetCoreObject());
 	ci->Initialize(ppmac::InitObject{
-		.host = "192.168.56.96",
+		//.host = "192.168.56.96",
+		.host = "192.168.83.130",
 		.port = 22,
 		//.logginHost = "131.169.131.127", // cfeld-pcx34931
 		//.loggingPort = 5555

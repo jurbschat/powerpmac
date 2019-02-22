@@ -34,8 +34,9 @@
 //=============================================================================
 
 #include "coreinterface.h"
-#include "../tangoutil.h"
 #include "commandbuilder.h"
+#include "../tangoutil.h"
+#include <fmt/format.h>
 #include <PowerPMAC_IO.h>
 #include <PowerPMAC_IOClass.h>
 

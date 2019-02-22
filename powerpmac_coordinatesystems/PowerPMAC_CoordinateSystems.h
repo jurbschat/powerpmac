@@ -196,68 +196,6 @@ public:
 	virtual void read_NumAxis(Tango::Attribute &attr);
 	virtual bool is_NumAxis_allowed(Tango::AttReqType type);
 
-//	Dynamic attribute methods
-public:
-
-	/**
-	 *	Attribute X related methods
-	 *	Description: 
-	 *
-	 *	Data type:	Tango::DevDouble
-	 *	Attr type:	Scalar
-	 */
-	virtual void read_X(Tango::Attribute &attr);
-	virtual void write_X(Tango::WAttribute &attr);
-	virtual bool is_X_allowed(Tango::AttReqType type);
-	void add_X_dynamic_attribute(string attname);
-	void remove_X_dynamic_attribute(string attname);
-	Tango::DevDouble *get_X_data_ptr(string &name);
-	map<string,Tango::DevDouble>	   X_data;
-
-	/**
-	 *	Attribute Y related methods
-	 *	Description: 
-	 *
-	 *	Data type:	Tango::DevDouble
-	 *	Attr type:	Scalar
-	 */
-	virtual void read_Y(Tango::Attribute &attr);
-	virtual void write_Y(Tango::WAttribute &attr);
-	virtual bool is_Y_allowed(Tango::AttReqType type);
-	void add_Y_dynamic_attribute(string attname);
-	void remove_Y_dynamic_attribute(string attname);
-	Tango::DevDouble *get_Y_data_ptr(string &name);
-	map<string,Tango::DevDouble>	   Y_data;
-
-	/**
-	 *	Attribute Z related methods
-	 *	Description: 
-	 *
-	 *	Data type:	Tango::DevDouble
-	 *	Attr type:	Scalar
-	 */
-	virtual void read_Z(Tango::Attribute &attr);
-	virtual void write_Z(Tango::WAttribute &attr);
-	virtual bool is_Z_allowed(Tango::AttReqType type);
-	void add_Z_dynamic_attribute(string attname);
-	void remove_Z_dynamic_attribute(string attname);
-	Tango::DevDouble *get_Z_data_ptr(string &name);
-	map<string,Tango::DevDouble>	   Z_data;
-
-	/**
-	 *	Attribute W related methods
-	 *	Description: 
-	 *
-	 *	Data type:	Tango::DevDouble
-	 *	Attr type:	Scalar
-	 */
-	virtual void read_W(Tango::Attribute &attr);
-	virtual void write_W(Tango::WAttribute &attr);
-	virtual bool is_W_allowed(Tango::AttReqType type);
-	void add_W_dynamic_attribute(string attname);
-	void remove_W_dynamic_attribute(string attname);
-	Tango::DevDouble *get_W_data_ptr(string &name);
-	map<string,Tango::DevDouble>	   W_data;
 
 	//--------------------------------------------------------
 	/**

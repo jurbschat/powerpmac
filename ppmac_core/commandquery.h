@@ -242,7 +242,7 @@ namespace ppmac::query {
 	 * retuns a a query that will update general info like max motors, abortAll etc...
 	 */
 	inline auto GeneralGetInfo(stdext::span<GlobalInfo> data) {
-		fmt::memory_buffer buffer = builder::detail::MakePlain("Sys.MaxMotors; Sys.maxCoords; Sys.pAbortAll; Sys.CpuTemp; BrickLV.OverTemp; Sys.Time; Sys.CpuFreq; type; vers; cpu;");
+		fmt::memory_buffer buffer = builder::detail::MakePlain("Sys.MaxMotors; Sys.maxCoords; Sys.AbortAll; Sys.CpuTemp; BrickLV.OverTemp; Sys.Time; Sys.CpuFreq; type; vers; cpu;");
 		return MakeCommandQuery(
 			fmt::to_string(buffer),
 			0, 1,

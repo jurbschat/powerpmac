@@ -5,9 +5,9 @@
 #ifndef POWERPMAC_COMMANDBUILDER_H
 #define POWERPMAC_COMMANDBUILDER_H
 
-#include <fmt/format.h>
-#include <fmt/ranges.h>
+#include "pmac/defines.h"
 #include <vector>
+#include <string>
 
 // Motor[{}].PosUnit for the type of motor unit
 
@@ -16,236 +16,78 @@ namespace ppmac::cmd {
 	///////////////////////////////////////////////////////////////
 	// motor commands
 
-	inline std::string MotorJogToPosition(MotorID motor, double pos) {
-		return fmt::format("#{}j={}", static_cast<int>(motor), pos);
-	}
-
-	inline std::string MotorPhase(MotorID motor) {
-		return fmt::format("#{}$", static_cast<int>(motor));
-	}
-
-	inline std::string MotorAbort(MotorID motor) {
-		return fmt::format("#{}a", static_cast<int>(motor));
-	}
-
-	inline std::string MotorKill(MotorID motor) {
-		return fmt::format("#{}k", static_cast<int>(motor));
-	}
-
-	inline std::string MotorZeroPosition(MotorID motor) {
-		return fmt::format("#{}hmz", static_cast<int>(motor));
-	}
-
-	inline std::string MotorHome(MotorID motor) {
-		return fmt::format("#{}hm", static_cast<int>(motor));
-	}
-
-	inline std::string MotorSetConversion(MotorID motor, double value) {
-		return fmt::format("Motor[{}].PosSf={}", static_cast<int>(motor), value);
-	}
-
-	inline std::string MotorSetHardLimits(MotorID motor, std::string value) {
-		return fmt::format("Motor[{}].plimits={}", static_cast<int>(motor), value);
-	}
-
-	inline std::string MotorGetHardLimitAddr(MotorID motor) {
-		return fmt::format("Motor[{}].plimits", static_cast<int>(motor));
-	}
-
-	inline std::string MotorSetJogAcceleration(MotorID motor, double value) {
-		return fmt::format("Motor[{}].JogTa={}", static_cast<int>(motor), value);
-	}
-
-	inline std::string MotorGetJogAcceleration(MotorID motor) {
-		return fmt::format("Motor[{}].JogTa", static_cast<int>(motor));
-	}
-
-	inline std::string MotorSetJogSpeed(MotorID motor, double value) {
-		return fmt::format("Motor[{}].JogSpeed={}", static_cast<int>(motor), value);
-	}
-
-	inline std::string MotorGetJogSpeed(MotorID motor) {
-		return fmt::format("Motor[{}].JogSpeed", static_cast<int>(motor));
-	}
-
-	inline std::string MotorSetJogAndMaxSpeed(MotorID motor, double value) {
-		return fmt::format("Motor[{0}].JogSpeed={1};Motor[{0}].MaxSpeed={1}", static_cast<int>(motor), value);
-	}
-
-	inline std::string MotorSetSoftlimitPlus(MotorID motor, double value) {
-		return fmt::format("Motor[{}].MaxPos={}", static_cast<int>(motor), value);
-	}
-
-	inline std::string MotorSetSoftlimitMinus(MotorID motor, double value) {
-		return fmt::format("Motor[{}].MinPos={}", static_cast<int>(motor), value);
-	}
-
-	inline std::string MotorGetSoftlimitPlus(MotorID motor) {
-		return fmt::format("Motor[{}].MaxPos", static_cast<int>(motor));
-	}
-
-	inline std::string MotorGetSoftlimitMinus(MotorID motor) {
-		return fmt::format("Motor[{}].MinPos", static_cast<int>(motor));
-	}
-
-	inline std::string MotorSetHomeOffset(MotorID motor, double value) {
-		return fmt::format("Motor[{}].HomeOffset={}", static_cast<int>(motor), value);
-	}
-
-	inline std::string MotorGetHomeOffset(MotorID motor) {
-		return fmt::format("Motor[{}].HomeOffset", static_cast<int>(motor));
-	}
-
-	inline std::string MotorSetMaxVelocity(MotorID motor, double value) {
-		return fmt::format("Motor[{}].MaxSpeed={}", static_cast<int>(motor), value);
-	}
+	std::string MotorJogToPosition(MotorID motor, double pos);
+	std::string MotorPhase(MotorID motor);
+	std::string MotorAbort(MotorID motor);
+	std::string MotorKill(MotorID motor);
+	std::string MotorZeroPosition(MotorID motor);
+	std::string MotorHome(MotorID motor);
+	std::string MotorSetConversion(MotorID motor, double value);
+	std::string MotorSetHardLimits(MotorID motor, std::string value);
+	std::string MotorGetHardLimitAddr(MotorID motor);
+	std::string MotorSetJogAcceleration(MotorID motor, double value);
+	std::string MotorGetJogAcceleration(MotorID motor);
+	std::string MotorSetJogSpeed(MotorID motor, double value);
+	std::string MotorGetJogSpeed(MotorID motor) ;
+	std::string MotorSetJogAndMaxSpeed(MotorID motor, double value);
+	std::string MotorSetSoftlimitPlus(MotorID motor, double value);
+	std::string MotorSetSoftlimitMinus(MotorID motor, double value);
+	std::string MotorGetSoftlimitPlus(MotorID motor);
+	std::string MotorGetSoftlimitMinus(MotorID motor);
+	std::string MotorSetHomeOffset(MotorID motor, double value) ;
+	std::string MotorGetHomeOffset(MotorID motor);
+	std::string MotorSetMaxVelocity(MotorID motor, double value);
 
 	///////////////////////////////////////////////////////////////
 	// port commands
 
 	// addresses are predefined on the power pmac in the tango.pch file. this allows easy
 	// access to the register values as the actual value resides in the upper 16 bit
-	inline std::string WritePortAddress(const std::string& address, int32_t value) {
-		return fmt::format("{}={}", address, value);
-	}
-
-	inline std::string ReadPortAddress(const std::string& address) {
-		return fmt::format("{}", address);
-	}
-
+	std::string WritePortAddress(const std::string& address, int32_t value);
+	std::string ReadPortAddress(const std::string& address);
 	// access by name is more complicated and should only be used if no address name exists.
 	// to set the actual gate value we neet to write the upper 16 bits, this means the number must be
 	// shifted. same is true for port reading by name but we need to shift down.
-	inline std::string WritePortByName(const std::string& name, int32_t value) {
-		return fmt::format("{}={}", name, value);
-	}
-
-	inline std::string ReadPortByName(const std::string& name) {
-		return fmt::format("{}", name);
-	}
+	std::string WritePortByName(const std::string& name, int32_t value);
+	std::string ReadPortByName(const std::string& name);
 
 
 	///////////////////////////////////////////////////////////////
 	// global commands
 
-	inline std::string GlobalResetBrickLVAmp() {
-		return fmt::format("BrickLV.Reset=1");
-	}
-
-	inline std::string GlobalReboot() {
-		return fmt::format("reboot");
-	}
-
+	std::string GlobalResetBrickLVAmp();
+	std::string GlobalReboot();
 	// resets and default initializes all structures
-	inline std::string GlobalResetAndReinitialize() {
-		return fmt::format("$$$***");
-	}
-
+	std::string GlobalResetAndReinitialize();
 	// resets and reloads the configuration
-	inline std::string GlobalReset() {
-		return fmt::format("$$$");
-	}
-
-	inline std::string GlobalSetAbortAll(bool abort) {
-		return fmt::format("Sys.AbortAll={}", static_cast<int>(abort));
-	}
+	std::string GlobalReset();
+	std::string GlobalSetAbortAll(bool abort);
 
 	///////////////////////////////////////////////////////////////
 	// plc commands
 
-	inline std::string GetPlcActive(int32_t plcIndex) {
-		return fmt::format("Plc[{}].Active", (plcIndex));
-	}
-
-	inline std::string GetPlcRunning(int32_t plcIndex) {
-		return fmt::format("Plc[{}].Running", (plcIndex));
-	}
-
-	inline std::string SetPLCActice(int32_t plcIndex) {
-		return fmt::format("enable plc {}", (plcIndex));
-	}
-
-	inline std::string SetPLCDeactive(int32_t plcIndex) {
-		return fmt::format("disable plc {}", (plcIndex));
-	}
-
-	inline std::string SetPlcRunning(int32_t plcIndex) {
-		return fmt::format("resume plc {}", (plcIndex));
-	}
-
-	inline std::string SetPlcPause(int32_t plcIndex) {
-		return fmt::format("pause plc {}", (plcIndex));
-	}
+	std::string GetPlcActive(int32_t plcIndex);
+	std::string GetPlcRunning(int32_t plcIndex);
+	std::string SetPLCActice(int32_t plcIndex);
+	std::string SetPLCDeactive(int32_t plcIndex);
+	std::string SetPlcRunning(int32_t plcIndex);
+	std::string SetPlcPause(int32_t plcIndex);
 
 	///////////////////////////////////////////////////////////////
 	// coord commands
 
-	inline std::string CoordMoveAxis(CoordID coord, const std::string& axis, double pos) {
-		return fmt::format("&{} pcx {}{}", static_cast<int>(coord), axis, pos);
-	}
-
-	inline std::string CoordMoveAxisLinear(CoordID coord, const std::string& axis, double pos, int32_t ta, int32_t ts, int32_t f) {
-		return fmt::format("&{} pcx linear ta{} ts{} f{} {}{}", static_cast<int>(coord), ta, ts, f, axis, pos);
-	}
-
-	inline std::string CoordGetPositions(CoordID  coord, const std::string& axis) {
-		return fmt::format("&{}p", static_cast<int>(coord), axis);
-	}
-
-	inline std::string CoordAbortMove(CoordID  coord) {
-		return fmt::format("&{}a", static_cast<int>(coord));
-	}
-
-	inline std::string CoordRunProgram(CoordID  coord, const std::string& prg) {
-		return fmt::format("&{}; start {}", static_cast<int>(coord), prg);
-	}
-
-	inline std::string CoordGetAxisCount(CoordID  coord) {
-		return fmt::format("Coord[{}].NumMotors", static_cast<int>(coord));
-	}
-
-	inline std::string SetAxisTransformMatrice(CoordID  coord, int32_t transformMatrice) {
-		return fmt::format("&{} tsel {}", static_cast<int>(coord), transformMatrice);
-	}
+	std::string CoordMoveAxis(CoordID coord, const std::string& axis, double pos);
+	std::string CoordMoveAxisLinear(CoordID coord, const std::string& axis, double pos, int32_t ta, int32_t ts, int32_t f);
+	std::string CoordGetPositions(CoordID  coord, const std::string& axis);
+	std::string CoordAbortMove(CoordID  coord);
+	std::string CoordRunProgram(CoordID  coord, const std::string& prg);
+	std::string CoordGetAxisCount(CoordID  coord);
+	std::string SetAxisTransformMatrice(CoordID  coord, int32_t transformMatrice);
 
 	///////////////////////////////////////////////////////////////
 	// compensation table setup
 
-	inline std::string SetCompensationTable(CompensationTableID table,
-			MotorID source,
-			MotorID target,
-			double from,
-			double to,
-			const std::vector<double>& values) {
-		try {
-			const char* str = R"(
-			CompTable[{table}].Source[0] = {source};
-			CompTable[{table}].Nx[0] = {valueCount};
-			CompTable[{table}].Nx[1] = 0 ;
-			CompTable[{table}].Nx[2] = 0;
-			CompTable[{table}].X0[0] = {from};
-			CompTable[{table}].Dx[0] = {dist};
-			CompTable[{table}].Target[0] = Motor[{target}].CompPos.a;
-			CompTable[{table}].Target[1] = Motor[{target}].CompPos2.a;
-			CompTable[{table}].Sf[0] = 1;
-			CompTable[{table}].Sf[0] = 1;
-			CompTable[{table}].Ctrl = 7 ;
-			CompTable[{table}].OutCtrl = 0;
-			CompTable[{table}].Data[0] = {values};)";
-			return fmt::format(str,
-					fmt::arg("valueCount", values.size()),
-					fmt::arg("table", static_cast<int>(table)),
-					fmt::arg("source", static_cast<int>(source)),
-					fmt::arg("target", static_cast<int>(target)),
-					fmt::arg("from", from),
-					fmt::arg("dist", to - from),
-					fmt::arg("values", values)
-			);
-		} catch(std::exception& e) {
-			printf("error: %s", e.what());
-		}
-		return "";
-	}
+	std::string SetCompensationTable(CompensationTableID table, MotorID source, MotorID target, double from, double to, const std::vector<double>& values);
 }
 
 #endif //POWERPMAC_COMMANDBUILDER_H

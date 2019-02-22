@@ -184,38 +184,49 @@ namespace ppmac {
 			//SPDLOG_DEBUG("updating general status");
 			auto query = query::GeneralGetInfo(stdext::span<GlobalInfo>(&state.global, 1));
 			auto result = rs.ChannelWriteRead(query.command);
-			if(result) {
-				auto parserResult = query.splitter(*result);
-				Update1D(parserResult, query);
+			try {
+				if(result) {
+					auto parserResult = query.splitter(*result);
+					Update1D(parserResult, query);
+				}
+			} catch(std::exception) {
+				if(result) {
+					RETHROW_RUNTIME_ERROR("unable to update general info:\nquery: '{}'\nresult: '{}'", query.command, *result);
+				}
+				else {
+					RETHROW_RUNTIME_ERROR("unable to update general info:\nquery: '{}'\nerror: '{}'", query.command, wise_enum::to_string(result.error()));
+				}
 			}
-
-			//auto plcQuery = query::GeneralGetPlcStatus(stdext::make_span(state.global.plcs), 0, MAX_PLC-1);
-			//auto plcResult = rs.ChannelWriteRead(plcQuery.command);
-			//if(plcResult) {
-			//	auto parserResult = query.parser(*result);
-			//	Update1D(parserResult, query);
-			//}
 		}
 
 		void UpdateMotorValues() {
 			std::lock_guard<std::mutex> lock(stateMutex);
 			//SPDLOG_DEBUG("updating motor status");
-			auto motorQuery = query::MotorGetInfoRange(stdext::make_span(state.motors), 0, state.global.maxMotors - 1);
-			auto motorResult = rs.ChannelWriteRead(motorQuery.command);
-			if(motorResult) {
-				auto parserResult = motorQuery.splitter(*motorResult);
-				Update2D(parserResult, motorQuery);
-				// now we need to check if some statues changed and if so need to
-				// call the status modified callbacks
-				// TODO: the callback will be called from another thread.. do we need to lock some shit there?
-				for(size_t i = 0; i < state.motors.size(); i++) {
-					auto& motor = state.motors[i];
-					if(motor.status.registerValue != motor.prevStatus.registerValue) {
-						uint64_t changes = motor.prevStatus.registerValue ^ motor.status.registerValue;
-						core.OnMotorStateChanged(i, motor.status.registerValue, changes);
-						//PrintStateChanges(i, m.prevStatus.registerValue, m.status.registerValue);
-						motor.prevStatus = motor.status;
+			auto query = query::MotorGetInfoRange(stdext::make_span(state.motors), 0, state.global.maxMotors - 1);
+			auto result = rs.ChannelWriteRead(query.command);
+			try {
+				if(result) {
+					auto parserResult = query.splitter(*result);
+					Update2D(parserResult, query);
+					// now we need to check if some statues changed and if so need to
+					// call the status modified callbacks
+					// TODO: the callback will be called from another thread.. do we need to lock some shit there?
+					for(size_t i = 0; i < state.motors.size(); i++) {
+						auto& motor = state.motors[i];
+						if(motor.status.registerValue != motor.prevStatus.registerValue) {
+							uint64_t changes = motor.prevStatus.registerValue ^ motor.status.registerValue;
+							core.OnMotorStateChanged(i, motor.status.registerValue, changes);
+							//PrintStateChanges(i, m.prevStatus.registerValue, m.status.registerValue);
+							motor.prevStatus = motor.status;
+						}
 					}
+				}
+			} catch(std::exception) {
+				if(result) {
+					RETHROW_RUNTIME_ERROR("unable to update motor info:\nquery: '{}'\nresult: '{}'", query.command, *result);
+				}
+				else {
+					RETHROW_RUNTIME_ERROR("unable to update motor info:\nquery: '{}'\nerror: '{}'", query.command, wise_enum::to_string(result.error()));
 				}
 			}
 		}
@@ -223,27 +234,36 @@ namespace ppmac {
 		void UpdateCoordValues() {
 			std::lock_guard<std::mutex> lock(stateMutex);
 			//SPDLOG_DEBUG("updating coord status");
-			auto coordQuery = query::CoordGetInfoRange(stdext::make_span(state.coords), 0, state.global.maxCoords - 1);
-			auto coordResult = rs.ChannelWriteRead(coordQuery.command);
-			if(coordResult) {
-				auto parserResult = coordQuery.splitter(*coordResult);
-				UpdateCoord(parserResult, coordQuery);
-				// notofy for state changes
-				for(size_t i = 0; i < state.coords.size(); i++) {
-					auto& coord = state.coords[i];
-					if(coord.status.registerValue != coord.prevStatus.registerValue) {
-						uint64_t changes = coord.status.registerValue ^ coord.prevStatus.registerValue;
-						core.OnCoordStateChanged(i, coord.status.registerValue, changes);
-						coord.prevStatus = coord.status;
+			auto query = query::CoordGetInfoRange(stdext::make_span(state.coords), 0, state.global.maxCoords - 1);
+			auto result = rs.ChannelWriteRead(query.command);
+			try {
+				if(result) {
+					auto parserResult = query.splitter(*result);
+					UpdateCoord(parserResult, query);
+					// notofy for state changes
+					for(size_t i = 0; i < state.coords.size(); i++) {
+						auto& coord = state.coords[i];
+						if(coord.status.registerValue != coord.prevStatus.registerValue) {
+							uint64_t changes = coord.status.registerValue ^ coord.prevStatus.registerValue;
+							core.OnCoordStateChanged(i, coord.status.registerValue, changes);
+							coord.prevStatus = coord.status;
+						}
+					}
+					// notify for axis changes
+					for(size_t i = 0; i < state.coords.size(); i++) {
+						auto& coord = state.coords[i];
+						if(coord.availableAxis != coord.prevAvailableAxis) {
+							core.OnCoordAxisChanged(i, coord.availableAxis);
+							coord.prevAvailableAxis = coord.availableAxis;
+						}
 					}
 				}
-				// notify for axis changes
-				for(size_t i = 0; i < state.coords.size(); i++) {
-					auto& coord = state.coords[i];
-					if(coord.availableAxis != coord.prevAvailableAxis) {
-						core.OnCoordAxisChanged(i, coord.availableAxis);
-						coord.prevAvailableAxis = coord.availableAxis;
-					}
+			} catch(std::exception) {
+				if(result) {
+					RETHROW_RUNTIME_ERROR("unable to update coord info:\nquery: '{}'\nresult: '{}'", query.command, *result);
+				}
+				else {
+					RETHROW_RUNTIME_ERROR("unable to update coord info:\nquery: '{}'\nerror: '{}'", query.command, wise_enum::to_string(result.error()));
 				}
 			}
 		}

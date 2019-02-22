@@ -74,7 +74,7 @@ namespace ppmac::parser {
 					THROW_RUNTIME_ERROR("out of range '{}' for int32_t", s);
 				}
 				return result;
-			} catch(std::exception& e) {
+			} catch(std::exception) {
 				RETHROW_RUNTIME_ERROR("unable to parse int32 from '{}'", s);
 			}
 		}
@@ -90,7 +90,7 @@ namespace ppmac::parser {
 					THROW_RUNTIME_ERROR("out of range '{}' for uint32_t", s);
 				}
 				return result;
-			} catch(std::exception& e) {
+			} catch(std::exception) {
 				RETHROW_RUNTIME_ERROR("unable to parse uint32 from '{}'", s);
 			}
 		}
@@ -103,7 +103,7 @@ namespace ppmac::parser {
 			try {
 				int64_t result = std::stoll(s);
 				return result;
-			} catch(std::exception& e) {
+			} catch(std::exception) {
 				RETHROW_RUNTIME_ERROR("unable to parse int64 from '{}'", s);
 			}
 		}
@@ -116,7 +116,7 @@ namespace ppmac::parser {
 			try {
 				long result = std::stoull(s);
 				return result;
-			} catch(std::exception& e) {
+			} catch(std::exception) {
 				RETHROW_RUNTIME_ERROR("unable to parse uint64 from '{}'", s);
 			}
 		}
@@ -134,7 +134,7 @@ namespace ppmac::parser {
 					THROW_RUNTIME_ERROR("out of range '{}' for uint32_t", s);
 				}
 				return result;
-			} catch(std::exception& e) {
+			} catch(std::exception) {
 				RETHROW_RUNTIME_ERROR("unable to parse 32bit hex from '{}'", s);
 			}
 		}
@@ -146,7 +146,7 @@ namespace ppmac::parser {
 		static result_type convert(const std::string& s) {
 			try {
 				return std::stoull(s.substr(1), nullptr, 16);
-			} catch(std::exception& e) {
+			} catch(std::exception) {
 				RETHROW_RUNTIME_ERROR("unable to parse 64bit hex from '{}'", s);
 			}
 		}

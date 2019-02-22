@@ -34,8 +34,11 @@
 //=============================================================================
 
 
-#include "pmac/defines.h"
 #include "commandbuilder.h"
+#include "pmac/defines.h"
+#include "coreinterface.h"
+#include "../tangoutil.h"
+#include <fmt/format.h>
 #include <PowerPMAC_CompensationTable.h>
 #include <PowerPMAC_CompensationTableClass.h>
 #include <cmath>
@@ -498,16 +501,29 @@ void PowerPMAC_CompensationTable::write_CompensationTable(Tango::WAttribute &att
 	attr.get_write_value(w_val);
 	/*----- PROTECTED REGION ID(PowerPMAC_CompensationTable::write_CompensationTable) ENABLED START -----*/
 
-	size_t tableSize = GetLastValidIndex(w_val, w_length);
+	if(w_length == 0) {
+		return;
+	}
 
-	auto cmd = ppmac::cmd::SetCompensationTable(
-		ppmac::CompensationTableID::Table0,
-		ppmac::MotorID::Motor6,
-		ppmac::MotorID::Motor6,
-		0,
-		10000,
-		std::vector<double>(w_val, w_val + tableSize)
-	);
+	size_t maxCopy = std::min(w_length, 100);
+	std::copy(w_val, w_val + maxCopy, attr_CompensationTable_read);
+
+	try {
+		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
+		size_t validIndex = GetLastValidIndex(w_val, w_length);
+		size_t validElementCount = validIndex + 1;
+		auto cmd = ppmac::cmd::SetCompensationTable(
+			static_cast<ppmac::CompensationTableID>(tableID),
+			static_cast<ppmac::MotorID >(*attr_SourceMotor_read),
+			static_cast<ppmac::MotorID >(*attr_TargetMotor_read),
+			*attr_From_read,
+			*attr_To_read,
+			std::vector<double>(w_val, w_val + validElementCount)
+		);
+		ci.ExecuteCommand(cmd);
+	} catch (ppmac::RuntimeError& e) {
+		tu::TranslateException(e);
+	}
 	
 	
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_CompensationTable::write_CompensationTable
