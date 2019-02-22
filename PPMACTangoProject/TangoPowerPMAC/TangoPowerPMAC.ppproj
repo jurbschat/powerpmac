@@ -1,0 +1,162 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>DC55630F-4F87-4875-BDCF-C595C895EBF0</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>TangoPowerPMAC</RootNamespace>
+    <AssemblyName>Power Pmac Project Template</AssemblyName>
+    <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
+    <IPAddress>192.168.56.96</IPAddress>
+    <TelnetPassword>deltatau</TelnetPassword>
+    <TelnetPort>22</TelnetPort>
+    <TelnetUser>root</TelnetUser>
+    <FTPPassword>ftp</FTPPassword>
+    <FTPPort>21</FTPPort>
+    <FTPUser>ftp</FTPUser>
+    <PVarStart>8192</PVarStart>
+    <QVarStart>1024</QVarStart>
+    <MVarStart>8192</MVarStart>
+    <UserBuffer>1</UserBuffer>
+    <ProgramBuffer>16</ProgramBuffer>
+    <TableBuffer>1</TableBuffer>
+    <LookAheadBuffer>16</LookAheadBuffer>
+    <SymbolsBufSize>1</SymbolsBufSize>
+    <CpuAffinityServoTask>1</CpuAffinityServoTask>
+    <CpuAffinityRtiTask>1</CpuAffinityRtiTask>
+    <CpuAffinityBackgroundTask>0</CpuAffinityBackgroundTask>
+    <CpuAffinityRtpmacMainTask>0</CpuAffinityRtpmacMainTask>
+    <EtherCatStackType>1</EtherCatStackType>
+    <RealtimeRoutinesBuildFlag>0</RealtimeRoutinesBuildFlag>
+    <TemplateVersion>2.0</TemplateVersion>
+    <ProjppRunAtOption>No</ProjppRunAtOption>
+    <DownloadCSoruce>No</DownloadCSoruce>
+    <EncryptionOption>Do Not Encrypt Any File</EncryptionOption>
+    <ProjppTimeoutPeriod>300000</ProjppTimeoutPeriod>
+    <ProjectExportLevel>0</ProjectExportLevel>
+    <PPCPUType>ppc405;2.6.30.3</PPCPUType>
+    <DownloadSystemSetupConfig>Yes</DownloadSystemSetupConfig>
+    <Name>TangoPowerPMAC</Name>
+    <ProjectFrimwareVers>2.4.0.180</ProjectFrimwareVers>
+    <CPUType>PowerPC,460EX</CPUType>
+    <IDESignature>sgas7535SGAS</IDESignature>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>Bin\Debug\</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugSymbols>false</DebugSymbols>
+    <OutputPath>Bin\Release\</OutputPath>
+  </PropertyGroup>
+  <UsingTask AssemblyFile="$(CompileTaskPath)\PPMAC460CompileTask.dll" TaskName="PPMAC460CompileTask.CompileTask" />
+  <ItemGroup>
+    <Reference Include="mscorlib" />
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="PMAC Script Language\Global Includes\tango.pmh">
+      <SubType>Content</SubType>
+      <DisplayOrder>1</DisplayOrder>
+    </Content>
+    <Content Include="PMAC Script Language\Motion Programs\movetopos.pmc">
+      <SubType>Content</SubType>
+      <DisplayOrder>1</DisplayOrder>
+    </Content>
+    <Content Include="PMAC Script Language\Motion Programs\zeromotors.pmc">
+      <SubType>Content</SubType>
+      <DisplayOrder>2</DisplayOrder>
+    </Content>
+    <Content Include="PMAC Script Language\PLC Programs\01-poweronreset.plc">
+      <SubType>Content</SubType>
+      <DisplayOrder>0</DisplayOrder>
+    </Content>
+    <Content Include="PMAC Script Language\PLC Programs\02-axissetup.plc">
+      <SubType>Content</SubType>
+      <DisplayOrder>2</DisplayOrder>
+    </Content>
+    <Content Include="PMAC Script Language\PLC Programs\03-inoutwrite.plc">
+      <SubType>Content</SubType>
+      <DisplayOrder>1</DisplayOrder>
+    </Content>
+    <Content Include="PMAC Script Language\PLC Programs\04-matrixtest.plc">
+      <SubType>Content</SubType>
+      <DisplayOrder>3</DisplayOrder>
+    </Content>
+    <None Include="System\Hardware\Power Brick LV[1].hwsetup">
+      <SubType>Content</SubType>
+    </None>
+    <None Include="System\Hardware\Power Brick LV[0].hwsetup">
+      <SubType>Content</SubType>
+    </None>
+    <Folder Include="C Language\" />
+    <Folder Include="C Language\Background Programs\" />
+    <Folder Include="C Language\Background Programs\capp1" />
+    <Compile Include="C Language\Background Programs\capp1\capp1.c" />
+    <Folder Include="C Language\CPLCs\" />
+    <Folder Include="C Language\CPLCs\bgcplc00" />
+    <Content Include="C Language\CPLCs\bgcplc00\bgcplc.c" />
+    <Folder Include="C Language\CPLCs\rticplc" />
+    <Content Include="C Language\CPLCs\rticplc\rticplc.c" />
+    <Folder Include="C Language\Include" />
+    <Content Include="C Language\Include\pp_proj.h" />
+    <Folder Include="C Language\Libraries" />
+    <Folder Include="C Language\Realtime Routines" />
+    <Content Include="C Language\Realtime Routines\usrcode.c" />
+    <Content Include="C Language\Realtime Routines\usrcode.h" />
+    <Folder Include="Configuration" />
+    <None Include="Configuration\pp_custom_save.cfg" />
+    <None Include="Configuration\pp_custom_save.tpl" />
+    <None Include="Configuration\pp_disable.txt" />
+    <None Include="Configuration\pp_inc_disable.txt" />
+    <None Include="Configuration\pp_inc_startup.txt" />
+    <None Include="Configuration\pp_save.cfg" />
+    <None Include="Configuration\pp_startup.txt" />
+    <None Include="Configuration\systemsetup.cfg" />
+    <Folder Include="Documentation" />
+    <Content Include="Documentation\note.txt" />
+    <Folder Include="Log" />
+    <None Include="Log\pp_error.log" />
+    <None Include="Log\pp_error_hist.log" />
+    <None Include="Log\pp_proj.log" />
+    <Folder Include="PMAC Script Language\" />
+    <Folder Include="PMAC Script Language\Global Includes" />
+    <None Include="PMAC Script Language\Global Includes\global definitions.pmh">
+      <DisplayOrder>0</DisplayOrder>
+    </None>
+    <Folder Include="PMAC Script Language\Kinematic Routines" />
+    <Folder Include="PMAC Script Language\Libraries" />
+    <Content Include="PMAC Script Language\Libraries\poweronresetsub.pmc">
+      <DisplayOrder>0</DisplayOrder>
+    </Content>
+    <None Include="PMAC Script Language\Libraries\timersub.pmc">
+      <DisplayOrder>1</DisplayOrder>
+    </None>
+    <Folder Include="PMAC Script Language\Motion Programs" />
+    <Folder Include="PMAC Script Language\PLC Programs" />
+    <Folder Include="System" />
+    <Folder Include="System\Hardware" />
+    <Folder Include="System\CPU" />
+    <None Include="System\CPU\System.cpusetup" />
+    <Folder Include="System\Motors" />
+    <Folder Include="System\Coordinate Systems" />
+    <Folder Include="System\Encoder" />
+    <None Include="System\Encoder\Encoder.encsetup" />
+    <Folder Include="System\EtherCAT" />
+    <None Include="System\EtherCAT\Master0.ecatmaster" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.Common.targets" />
+  <Target Name="Build">
+    <CompileTask Files="@(Compile)" OutputPath="$(OutputPath)" DebugSymbols="$(DebugSymbols)" ProjectPath="$(MSBuildProjectDirectory)" PPCPUType="$(PPCPUType)" RealtimeRoutinesBuildFlag="$(RealtimeRoutinesBuildFlag)" CustomCompileFlags="@(CustomCompile)" CustomLibraryFlags="@(CustomLibrary)" CustomMakeFilePath="@(CustomMakeFilePath)" />
+  </Target>
+  <Target Name="Rebuild">
+    <CompileTask Files="@(Compile)" OutputPath="$(OutputPath)" DebugSymbols="$(DebugSymbols)" ProjectPath="$(MSBuildProjectDirectory)" PPCPUType="$(PPCPUType)" RealtimeRoutinesBuildFlag="$(RealtimeRoutinesBuildFlag)" CustomCompileFlags="@(CustomCompile)" CustomLibraryFlags="@(CustomLibrary)" CustomMakeFilePath="@(CustomMakeFilePath)" />
+  </Target>
+  <Target Name="Clean">
+    <RemoveDir Directories="$(OutputPath)" />
+    <MakeDir Directories="$(OutputPath)" />
+  </Target>
+</Project>

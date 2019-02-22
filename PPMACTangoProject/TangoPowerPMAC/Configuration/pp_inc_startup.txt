@@ -1,0 +1,5 @@
+Sys.WpKey=$AAAAAAAA
+Sys.pAbortAll = 0
+
+Sys.MaxCoords = 5
+Sys.MaxMotors = 9

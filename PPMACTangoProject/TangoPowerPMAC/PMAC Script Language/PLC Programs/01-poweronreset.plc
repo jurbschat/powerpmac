@@ -1,0 +1,4 @@
+open plc PowerOnResetPLC
+	send 1"running PowerOnResetPLC";
+	call PowerOnResetSub();
+CLOSE

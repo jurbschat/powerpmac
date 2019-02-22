@@ -1,0 +1,13 @@
+// Power PMAC PROGRAM Template.
+// The following Sample PROGRAM is the standard template for creating Motion Programs.
+// Sample PROGRAM
+/****************************************/
+open prog ZeroMotors
+	//rapid;
+	linear;
+	ta1000;
+	f10000;
+	X0 Y0 Z0;
+close
+/****************************************/
+

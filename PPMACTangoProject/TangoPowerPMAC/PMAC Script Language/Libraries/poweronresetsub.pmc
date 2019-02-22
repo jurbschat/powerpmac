@@ -1,0 +1,36 @@
+// ******************************************************************
+// Please read the section of the Power Brick-LV manual
+// describing the funtions and requirements of the PowerOnResetPLC.
+//
+// The implementation here is a subprogram to be called by your
+// project???s initialization PLC. This code should be run as PLC only.
+// This may require modification specific to your project code.
+// ******************************************************************
+ 
+ 
+OPEN SUBPROG PowerOnResetSub                    // This should be used as Program subroutine
+ 
+DISABLE PLC 0,2..31                             // May require user modification here.
+                                                // Disable all other PLCs except the one
+                                                // that called this subroutine (assumes PLC 1).
+ 
+Sys.WDTReset = 5000 / (Sys.ServoPeriod * 2.258) // Increase Foreground WD Timer Threshold
+CALL Timer(0.250);                              // 250 msec delay
+ 
+BrickLV.Reset = 1;                              // Apply changes / clear fault(s)
+WHILE (BrickLV.Reset == 1) {}                   // Wait while resetting
+ 
+IF (BrickLV.Reset == 0)                         // Operation successful?
+{
+      Sys.WDTReset = 0                          // Restore Foreground WD timer Threshold 
+      CALL Timer(0.005)                        
+}
+ELSE                                            // Operation failed?
+{                                               // Requires user modification here.
+                                                // Take action in case of fault here
+      Sys.WDTReset = 0                          // Restore Foreground WD timer Threshold
+      CALL Timer(0.005)                        
+}                                               // Requires user modification here.
+                                                // Re-enable PLCs as needed
+ 
+CLOSE      

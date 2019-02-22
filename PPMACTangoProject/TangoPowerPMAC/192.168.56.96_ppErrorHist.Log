@@ -1,0 +1,11 @@
+[PMAC_HARDWARE]
+[PMAC_CONFIG]
+[PMAC_PROJECT]
+[PMAC_PROJECT]
+[PMAC_PROJECT]
+[PMAC_PROJECT]
+[PMAC_PROJECT]
+/var/ftp/usrflash/Project/Configuration/pp_startup.txt:513:30: error #20: ILLEGAL CMD: CompTable[0].Nx[0] = 11 data zones in 1st dim
+Error: downloading preprocessed File: "/var/ftp/usrflash/Temp/pp_proj.pma"
+[PMAC_PROJECT]
+[PMAC_PROJECT]

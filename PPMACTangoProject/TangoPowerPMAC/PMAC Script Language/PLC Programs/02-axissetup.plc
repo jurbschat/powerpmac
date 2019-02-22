@@ -1,0 +1,32 @@
+// Power PMAC Script PLC Program Template.
+// The following Sample PLC PROGRAM is the standard template for creating Script PLC Programs.
+// Sample PLC PROGRAM
+
+#define Dis1	Tdata[XformNum].Bias[XaxisIndex]
+#define Dis2	Tdata[XformNum].Bias[YaxisIndex]
+#define Dis3	Tdata[XformNum].Bias[ZaxisIndex]
+#define Dis4	Tdata[XformNum].Bias[UaxisIndex]
+#define Dis5	Tdata[XformNum].Bias[VaxisIndex]
+#define Dis6	Tdata[XformNum].Bias[WaxisIndex]
+#define Dis7	Tdata[XformNum].Bias[AaxisIndex]
+#define Dis8	Tdata[XformNum].Bias[BaxisIndex]
+#define Dis9	Tdata[XformNum].Bias[CaxisIndex]
+#define Rot11	Tdata[XformNum].Diag[XaxisIndex]
+#define Rot12	Tdata[XformNum].XYZ[0]
+#define Rot13	Tdata[XformNum].XYZ[1]
+#define Rot21	Tdata[XformNum].XYZ[2]
+#define Rot22	Tdata[XformNum].Diag[YaxisIndex]
+#define Rot23	Tdata[XformNum].XYZ[3]
+#define Rot31	Tdata[XformNum].XYZ[4]
+#define Rot32	Tdata[XformNum].XYZ[5]
+#define Rot33	Tdata[XformNum].Diag[ZaxisIndex]
+
+/****************************************/
+open plc AxisSetup
+	cmd"#1,2,6,7,8$"
+	call Timer(0.5)
+	cmd"#1,2,6,7,8j/"
+	call Timer(0.5)
+	disable plc AxisSetup
+close
+/****************************************/

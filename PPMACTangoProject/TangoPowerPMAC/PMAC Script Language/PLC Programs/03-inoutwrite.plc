@@ -1,0 +1,8 @@
+// Power PMAC Script PLC Program Template.
+// The following Sample PLC PROGRAM is the standard template for creating Script PLC Programs.
+// Sample PLC PROGRAM
+/****************************************/
+open plc 3
+	Sys.Udata[101] = Sys.Udata[100]
+close
+/****************************************/

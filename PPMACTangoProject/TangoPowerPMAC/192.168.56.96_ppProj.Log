@@ -1,0 +1,164 @@
+[PMAC_HARDWARE]
+Gate1AutoDetect=0x0
+Gate2AutoDetect=0x0
+Gate3AutoDetect=0x3
+CardIOAutoDetect=0x0
+CardDPRAutoDetect=0x0
+[PMAC_CONFIG]
+// *** EOF 
+Successful Configuration using "/var/ftp/usrflash/Project/Configuration/pp_save.cfg"
+// *** EOF 
+Successful Custom Configuration using "/var/ftp/usrflash/Project/Configuration/pp_custom_save.cfg"
+[PMAC_PROJECT]
+Start of Project Loading using INI File: "/var/ftp/usrflash/Project/Configuration/pp_proj.ini"
+Including Project File: /var/ftp/usrflash/Project/Configuration/pp_disable.txt 
+Including Project File: /var/ftp/usrflash/Project/PMAC Script Language/Global Includes/global definitions.pmh 
+Including Project File: /var/ftp/usrflash/Project/PMAC Script Language/Global Includes/tango.pmh 
+Including Project File: /var/ftp/usrflash/Project/PMAC Script Language/Libraries/poweronresetsub.pmc 
+Including Project File: /var/ftp/usrflash/Project/PMAC Script Language/Libraries/timersub.pmc 
+Including Project File: /var/ftp/usrflash/Project/PMAC Script Language/Motion Programs/movetopos.pmc 
+Including Project File: /var/ftp/usrflash/Project/PMAC Script Language/Motion Programs/zeromotors.pmc 
+Including Project File: /var/ftp/usrflash/Project/PMAC Script Language/PLC Programs/01-poweronreset.plc 
+Including Project File: /var/ftp/usrflash/Project/PMAC Script Language/PLC Programs/03-test.plc 
+Including Project File: /var/ftp/usrflash/Project/Configuration/pp_startup.txt 
+80 Project Symbols were created for gpascii -2 communication
+Status: Successful load of preprocessed File: "/var/ftp/usrflash/Temp/pp_proj.pma"
+[PMAC_PROJECT]
+Start of Project Loading using INI File: "/var/ftp/usrflash/Project/Configuration/pp_proj.ini"
+LoadRTUserCode() Delta Time (sec) = 0.062215
+Including Project File: /var/ftp/usrflash/Project/Configuration/pp_disable.txt 
+Including Project File: /var/ftp/usrflash/Project/PMAC Script Language/Global Includes/global definitions.pmh 
+Including Project File: /var/ftp/usrflash/Project/PMAC Script Language/Global Includes/tango.pmh 
+Including Project File: /var/ftp/usrflash/Project/PMAC Script Language/Libraries/poweronresetsub.pmc 
+Including Project File: /var/ftp/usrflash/Project/PMAC Script Language/Libraries/timersub.pmc 
+Including Project File: /var/ftp/usrflash/Project/PMAC Script Language/Motion Programs/movetopos.pmc 
+Including Project File: /var/ftp/usrflash/Project/PMAC Script Language/Motion Programs/zeromotors.pmc 
+Including Project File: /var/ftp/usrflash/Project/PMAC Script Language/PLC Programs/01-poweronreset.plc 
+Including Project File: /var/ftp/usrflash/Project/PMAC Script Language/PLC Programs/03-inoutwrite.plc 
+Including Project File: /var/ftp/usrflash/Project/PMAC Script Language/PLC Programs/02-axissetup.plc 
+Including Project File: /var/ftp/usrflash/Project/PMAC Script Language/PLC Programs/04-matrixtest.plc 
+Including Project File: /var/ftp/usrflash/Project/Configuration/pp_startup.txt 
+Status: Pass 1 Create debug file, #defines, *.h & .sym files, Time (sec) = 0.070787
+Status: Pass 2 Verify prog calls, local stack & labels, Time (sec)  = 0.006123
+103 Project Symbols were created for gpascii -2 communication
+Status: Create PPMAC Symbol Table & Run CPP Time (sec) = 0.304168
+Status: Successful load of preprocessed File: "/var/ftp/usrflash/Temp/pp_proj.pma"
+Status: Download to PPMAC Command Processor, Time (sec) = 0.019004
+Status: Final pp_proj.h & Run Background C Apps, Time (sec) = 0.237237
+Project Preprocessing & Load Total Time (sec) = 0.700119
+[PMAC_PROJECT]
+Start of Project Loading using INI File: "/var/ftp/usrflash/Project/Configuration/pp_proj.ini"
+LoadRTUserCode() Delta Time (sec) = 0.080440
+Including Project File: /var/ftp/usrflash/Project/Configuration/pp_disable.txt 
+Including Project File: /var/ftp/usrflash/Project/PMAC Script Language/Global Includes/global definitions.pmh 
+Including Project File: /var/ftp/usrflash/Project/PMAC Script Language/Global Includes/tango.pmh 
+Including Project File: /var/ftp/usrflash/Project/PMAC Script Language/Libraries/poweronresetsub.pmc 
+Including Project File: /var/ftp/usrflash/Project/PMAC Script Language/Libraries/timersub.pmc 
+Including Project File: /var/ftp/usrflash/Project/PMAC Script Language/Motion Programs/movetopos.pmc 
+Including Project File: /var/ftp/usrflash/Project/PMAC Script Language/Motion Programs/zeromotors.pmc 
+Including Project File: /var/ftp/usrflash/Project/PMAC Script Language/PLC Programs/01-poweronreset.plc 
+Including Project File: /var/ftp/usrflash/Project/PMAC Script Language/PLC Programs/03-inoutwrite.plc 
+Including Project File: /var/ftp/usrflash/Project/PMAC Script Language/PLC Programs/02-axissetup.plc 
+Including Project File: /var/ftp/usrflash/Project/PMAC Script Language/PLC Programs/04-matrixtest.plc 
+Including Project File: /var/ftp/usrflash/Project/Configuration/pp_startup.txt 
+Status: Pass 1 Create debug file, #defines, *.h & .sym files, Time (sec) = 0.067572
+Status: Pass 2 Verify prog calls, local stack & labels, Time (sec)  = 0.007086
+103 Project Symbols were created for gpascii -2 communication
+Status: Create PPMAC Symbol Table & Run CPP Time (sec) = 0.352904
+Status: Successful load of preprocessed File: "/var/ftp/usrflash/Temp/pp_proj.pma"
+Status: Download to PPMAC Command Processor, Time (sec) = 0.011663
+Status: Final pp_proj.h & Run Background C Apps, Time (sec) = 0.256358
+Project Preprocessing & Load Total Time (sec) = 0.776296
+[PMAC_PROJECT]
+Start of Project Loading using INI File: "/var/ftp/usrflash/Project/Configuration/pp_proj.ini"
+LoadRTUserCode() Delta Time (sec) = 0.075010
+Including Project File: /var/ftp/usrflash/Project/Configuration/pp_disable.txt 
+Including Project File: /var/ftp/usrflash/Project/PMAC Script Language/Global Includes/global definitions.pmh 
+Including Project File: /var/ftp/usrflash/Project/PMAC Script Language/Global Includes/tango.pmh 
+Including Project File: /var/ftp/usrflash/Project/PMAC Script Language/Libraries/poweronresetsub.pmc 
+Including Project File: /var/ftp/usrflash/Project/PMAC Script Language/Libraries/timersub.pmc 
+Including Project File: /var/ftp/usrflash/Project/PMAC Script Language/Motion Programs/movetopos.pmc 
+Including Project File: /var/ftp/usrflash/Project/PMAC Script Language/Motion Programs/zeromotors.pmc 
+Including Project File: /var/ftp/usrflash/Project/PMAC Script Language/PLC Programs/01-poweronreset.plc 
+Including Project File: /var/ftp/usrflash/Project/PMAC Script Language/PLC Programs/03-inoutwrite.plc 
+Including Project File: /var/ftp/usrflash/Project/PMAC Script Language/PLC Programs/02-axissetup.plc 
+Including Project File: /var/ftp/usrflash/Project/PMAC Script Language/PLC Programs/04-matrixtest.plc 
+Including Project File: /var/ftp/usrflash/Project/Configuration/pp_startup.txt 
+Status: Pass 1 Create debug file, #defines, *.h & .sym files, Time (sec) = 0.067003
+Status: Pass 2 Verify prog calls, local stack & labels, Time (sec)  = 0.006665
+103 Project Symbols were created for gpascii -2 communication
+Status: Create PPMAC Symbol Table & Run CPP Time (sec) = 0.329838
+Status: Successful load of preprocessed File: "/var/ftp/usrflash/Temp/pp_proj.pma"
+Status: Download to PPMAC Command Processor, Time (sec) = 0.011519
+Status: Final pp_proj.h & Run Background C Apps, Time (sec) = 0.254875
+Project Preprocessing & Load Total Time (sec) = 0.745287
+[PMAC_PROJECT]
+Start of Project Loading using INI File: "/var/ftp/usrflash/Project/Configuration/pp_proj.ini"
+LoadRTUserCode() Delta Time (sec) = 0.086956
+Including Project File: /var/ftp/usrflash/Project/Configuration/pp_disable.txt 
+Including Project File: /var/ftp/usrflash/Project/PMAC Script Language/Global Includes/global definitions.pmh 
+Including Project File: /var/ftp/usrflash/Project/PMAC Script Language/Global Includes/tango.pmh 
+Including Project File: /var/ftp/usrflash/Project/PMAC Script Language/Libraries/poweronresetsub.pmc 
+Including Project File: /var/ftp/usrflash/Project/PMAC Script Language/Libraries/timersub.pmc 
+Including Project File: /var/ftp/usrflash/Project/PMAC Script Language/Motion Programs/movetopos.pmc 
+Including Project File: /var/ftp/usrflash/Project/PMAC Script Language/Motion Programs/zeromotors.pmc 
+Including Project File: /var/ftp/usrflash/Project/PMAC Script Language/PLC Programs/01-poweronreset.plc 
+Including Project File: /var/ftp/usrflash/Project/PMAC Script Language/PLC Programs/03-inoutwrite.plc 
+Including Project File: /var/ftp/usrflash/Project/PMAC Script Language/PLC Programs/02-axissetup.plc 
+Including Project File: /var/ftp/usrflash/Project/PMAC Script Language/PLC Programs/04-matrixtest.plc 
+Including Project File: /var/ftp/usrflash/Project/Configuration/pp_startup.txt 
+Status: Pass 1 Create debug file, #defines, *.h & .sym files, Time (sec) = 0.062466
+Status: Pass 2 Verify prog calls, local stack & labels, Time (sec)  = 0.024384
+103 Project Symbols were created for gpascii -2 communication
+Status: Create PPMAC Symbol Table & Run CPP Time (sec) = 0.315459
+0
+No targets defined
+Error: downloading preprocessed File: "/var/ftp/usrflash/Temp/pp_proj.pma"
+Status: Download to PPMAC Command Processor, Time (sec) = 0.023576
+Project Preprocessing & Load Total Time (sec) = 0.515675
+[PMAC_PROJECT]
+Start of Project Loading using INI File: "/var/ftp/usrflash/Project/Configuration/pp_proj.ini"
+LoadRTUserCode() Delta Time (sec) = 0.072550
+Including Project File: /var/ftp/usrflash/Project/Configuration/pp_disable.txt 
+Including Project File: /var/ftp/usrflash/Project/PMAC Script Language/Global Includes/global definitions.pmh 
+Including Project File: /var/ftp/usrflash/Project/PMAC Script Language/Global Includes/tango.pmh 
+Including Project File: /var/ftp/usrflash/Project/PMAC Script Language/Libraries/poweronresetsub.pmc 
+Including Project File: /var/ftp/usrflash/Project/PMAC Script Language/Libraries/timersub.pmc 
+Including Project File: /var/ftp/usrflash/Project/PMAC Script Language/Motion Programs/movetopos.pmc 
+Including Project File: /var/ftp/usrflash/Project/PMAC Script Language/Motion Programs/zeromotors.pmc 
+Including Project File: /var/ftp/usrflash/Project/PMAC Script Language/PLC Programs/01-poweronreset.plc 
+Including Project File: /var/ftp/usrflash/Project/PMAC Script Language/PLC Programs/03-inoutwrite.plc 
+Including Project File: /var/ftp/usrflash/Project/PMAC Script Language/PLC Programs/02-axissetup.plc 
+Including Project File: /var/ftp/usrflash/Project/PMAC Script Language/PLC Programs/04-matrixtest.plc 
+Including Project File: /var/ftp/usrflash/Project/Configuration/pp_startup.txt 
+Status: Pass 1 Create debug file, #defines, *.h & .sym files, Time (sec) = 0.071006
+Status: Pass 2 Verify prog calls, local stack & labels, Time (sec)  = 0.006762
+103 Project Symbols were created for gpascii -2 communication
+Status: Create PPMAC Symbol Table & Run CPP Time (sec) = 0.333058
+Status: Successful load of preprocessed File: "/var/ftp/usrflash/Temp/pp_proj.pma"
+Status: Download to PPMAC Command Processor, Time (sec) = 0.011822
+Status: Final pp_proj.h & Run Background C Apps, Time (sec) = 0.258300
+Project Preprocessing & Load Total Time (sec) = 0.753782
+[PMAC_PROJECT]
+Start of Project Loading using INI File: "/var/ftp/usrflash/Project/Configuration/pp_proj.ini"
+LoadRTUserCode() Delta Time (sec) = 0.091575
+Including Project File: /var/ftp/usrflash/Project/Configuration/pp_disable.txt 
+Including Project File: /var/ftp/usrflash/Project/PMAC Script Language/Global Includes/global definitions.pmh 
+Including Project File: /var/ftp/usrflash/Project/PMAC Script Language/Global Includes/tango.pmh 
+Including Project File: /var/ftp/usrflash/Project/PMAC Script Language/Libraries/poweronresetsub.pmc 
+Including Project File: /var/ftp/usrflash/Project/PMAC Script Language/Libraries/timersub.pmc 
+Including Project File: /var/ftp/usrflash/Project/PMAC Script Language/Motion Programs/movetopos.pmc 
+Including Project File: /var/ftp/usrflash/Project/PMAC Script Language/Motion Programs/zeromotors.pmc 
+Including Project File: /var/ftp/usrflash/Project/PMAC Script Language/PLC Programs/01-poweronreset.plc 
+Including Project File: /var/ftp/usrflash/Project/PMAC Script Language/PLC Programs/03-inoutwrite.plc 
+Including Project File: /var/ftp/usrflash/Project/PMAC Script Language/PLC Programs/02-axissetup.plc 
+Including Project File: /var/ftp/usrflash/Project/PMAC Script Language/PLC Programs/04-matrixtest.plc 
+Including Project File: /var/ftp/usrflash/Project/Configuration/pp_startup.txt 
+Status: Pass 1 Create debug file, #defines, *.h & .sym files, Time (sec) = 0.081423
+Status: Pass 2 Verify prog calls, local stack & labels, Time (sec)  = 0.007360
+103 Project Symbols were created for gpascii -2 communication
+Status: Create PPMAC Symbol Table & Run CPP Time (sec) = 0.352378
+Status: Successful load of preprocessed File: "/var/ftp/usrflash/Temp/pp_proj.pma"
+Status: Download to PPMAC Command Processor, Time (sec) = 0.013128
+Status: Final pp_proj.h & Run Background C Apps, Time (sec) = 0.273085
+Project Preprocessing & Load Total Time (sec) = 0.819382

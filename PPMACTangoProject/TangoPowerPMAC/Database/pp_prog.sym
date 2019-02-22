@@ -1,0 +1,7 @@
+SUBPROGPowerOnResetSub	SUBPROG	PowerOnResetSub	100000
+SUBPROGTimer	SUBPROG	Timer	100001
+PROGMoveToPos	PROG	MoveToPos	100000
+PROGZeroMotors	PROG	ZeroMotors	100001
+PLCPowerOnResetPLC	PLC	PowerOnResetPLC	1
+PLCAxisSetup	PLC	AxisSetup	2
+PLCMatrixTest	PLC	MatrixTest	4
