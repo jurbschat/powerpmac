@@ -207,6 +207,9 @@ namespace ppmac {
 
 		void UpdateMotorValues() {
 			std::lock_guard<std::mutex> lock(stateMutex);
+			if(state.global.maxMotors == 0) {
+				return;
+			}
 			auto query = query::MotorGetInfoRange(stdext::make_span(state.motors), 0, state.global.maxMotors - 1);
 			auto result = rs.ChannelWriteRead(query.command);
 			try {
@@ -252,8 +255,6 @@ namespace ppmac {
 
 		void UpdateCoordValues() {
 			std::lock_guard<std::mutex> lock(stateMutex);
-			// zero motors means we cant do anything, zero coords is a valid state
-			// where we just skip the coord update
 			if(state.global.maxCoords == 0) {
 				return;
 			}
