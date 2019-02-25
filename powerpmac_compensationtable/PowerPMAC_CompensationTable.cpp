@@ -514,8 +514,8 @@ void PowerPMAC_CompensationTable::write_CompensationTable(Tango::WAttribute &att
 		size_t validElementCount = validIndex + 1;
 		auto cmd = ppmac::cmd::SetCompensationTable(
 			static_cast<ppmac::CompensationTableID>(tableID),
-			static_cast<ppmac::MotorID >(*attr_SourceMotor_read),
-			static_cast<ppmac::MotorID >(*attr_TargetMotor_read),
+			static_cast<ppmac::MotorID>(*attr_SourceMotor_read),
+			static_cast<ppmac::MotorID>(*attr_TargetMotor_read),
 			*attr_From_read,
 			*attr_To_read,
 			std::vector<double>(w_val, w_val + validElementCount)

@@ -201,8 +201,8 @@ namespace ppmac {
 					deadTimer.RemoveAlreadyExecuted();
 				}
 				std::this_thread::sleep_for(std::chrono::milliseconds{10});
-			} catch (std::exception& e) {
-				SPDLOG_WARN("exception in dead timer: '{}'", e.what());
+			} catch (std::exception) {
+				SPDLOG_WARN("exception in dead timer:\n{}", StringifyException(std::current_exception(), 4, '>'));
 			}
 		}
 	}

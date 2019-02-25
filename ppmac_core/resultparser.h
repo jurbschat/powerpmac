@@ -10,20 +10,18 @@
 #include <boost/container/small_vector.hpp>
 #include <boost/algorithm/string.hpp>
 #include <string>
+#include <experimental/optional>
 
 namespace ppmac::parser {
 
 	namespace detail {
-		inline bool CheckForError(const std::string& str) {
-			auto pos = str.find("error");
-			return pos != std::string::npos;
-		}
+		bool CheckForError(const std::string& str);
+		void ThrowIfError(const std::string& str);
+		std::experimental::optional<std::pair<int32_t, std::string>> GetError(const std::string& str);
+	}
 
-		inline void ThrowIfError(const std::string& str) {
-			if(CheckForError(str)) {
-				THROW_RUNTIME_ERROR("response contained error '{}'", str);
-			}
-		}
+	namespace EC {
+		const int OUT_OF_RANGE_NUMBER = 23;
 	}
 
 	// target = result type e.g. float, int etc. could also be int to inverse and parse bytes to string
@@ -181,7 +179,6 @@ namespace ppmac::parser {
 	boost::container::small_vector<std::string, VALUE_COUNT>
 	Split1D(const std::string &str, SepPred pred)
 	{
-		detail::ThrowIfError(str);
 		boost::container::small_vector<std::string, VALUE_COUNT> splitVector;
 		boost::algorithm::split(splitVector, str, pred, boost::token_compress_on);
 		if(splitVector.empty()) {
@@ -194,7 +191,6 @@ namespace ppmac::parser {
 	boost::container::small_vector<boost::container::small_vector<std::string, LINE_COUNT>, VALUE_COUNT>
 	Split2D(const std::string &str, SepPred1 pred1, SepPred2 pred2)
 	{
-		detail::ThrowIfError(str);
 		boost::container::small_vector<boost::container::small_vector<std::string, LINE_COUNT>, VALUE_COUNT> resultVector;
 		boost::container::small_vector<std::string, LINE_COUNT> lineSplitVector;
 		boost::algorithm::split(lineSplitVector, str, pred1, boost::token_compress_on);

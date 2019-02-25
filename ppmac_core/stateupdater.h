@@ -99,7 +99,8 @@ namespace ppmac {
 			: core(core),
 			rs(rs),
 			shouldUpdate(true),
-			running(false)
+			running(false),
+			motorOrCoordOutOfSync(true)
 		{
 			state.motors.resize(MAX_MOTORS);
 			state.ios.resize(MAX_PORTS);
@@ -181,13 +182,18 @@ namespace ppmac {
 	private:
 		void UpdateGeneralInfo() {
 			std::lock_guard<std::mutex> lock(stateMutex);
-			//SPDLOG_DEBUG("updating general status");
 			auto query = query::GeneralGetInfo(stdext::span<GlobalInfo>(&state.global, 1));
 			auto result = rs.ChannelWriteRead(query.command);
 			try {
 				if(result) {
+					if(parser::detail::CheckForError(*result)) {
+						THROW_RUNTIME_ERROR("response contained error '{}'", *result);
+					}
 					auto parserResult = query.splitter(*result);
 					Update1D(parserResult, query);
+					motorOrCoordOutOfSync = false;
+				} else {
+					SPDLOG_ERROR("unable to get general result, channel error: {}", wise_enum::to_string(result.error()));
 				}
 			} catch(std::exception) {
 				if(result) {
@@ -201,11 +207,22 @@ namespace ppmac {
 
 		void UpdateMotorValues() {
 			std::lock_guard<std::mutex> lock(stateMutex);
-			//SPDLOG_DEBUG("updating motor status");
 			auto query = query::MotorGetInfoRange(stdext::make_span(state.motors), 0, state.global.maxMotors - 1);
 			auto result = rs.ChannelWriteRead(query.command);
 			try {
 				if(result) {
+					auto error = parser::detail::GetError(*result);
+					// we have an invalid count of motor/coords we need to request
+					// the right values again
+					if(error && error->first == parser::EC::OUT_OF_RANGE_NUMBER) {
+						motorOrCoordOutOfSync = true;
+						SPDLOG_WARN("motor count out of sync, request refresh");
+						return;
+					}
+					// otherwise we just throw the error and handle it further up
+					else if(error) {
+						THROW_RUNTIME_ERROR("response contained error '{}'", *result);
+					}
 					auto parserResult = query.splitter(*result);
 					Update2D(parserResult, query);
 					// now we need to check if some statues changed and if so need to
@@ -220,6 +237,8 @@ namespace ppmac {
 							motor.prevStatus = motor.status;
 						}
 					}
+				} else {
+					SPDLOG_ERROR("unable to get motor result, channel error: {}", wise_enum::to_string(result.error()));
 				}
 			} catch(std::exception) {
 				if(result) {
@@ -233,11 +252,27 @@ namespace ppmac {
 
 		void UpdateCoordValues() {
 			std::lock_guard<std::mutex> lock(stateMutex);
-			//SPDLOG_DEBUG("updating coord status");
+			// zero motors means we cant do anything, zero coords is a valid state
+			// where we just skip the coord update
+			if(state.global.maxCoords == 0) {
+				return;
+			}
 			auto query = query::CoordGetInfoRange(stdext::make_span(state.coords), 0, state.global.maxCoords - 1);
 			auto result = rs.ChannelWriteRead(query.command);
 			try {
 				if(result) {
+					auto error = parser::detail::GetError(*result);
+					// we have an invalid count of motor/coords we need to request
+					// the right values again
+					if(error && error->first == parser::EC::OUT_OF_RANGE_NUMBER) {
+						motorOrCoordOutOfSync = true;
+						SPDLOG_WARN("coord count out of sync, request refresh");
+						return;
+					}
+					// otherwise we just throw the error and handle it further up
+					else if(error) {
+						THROW_RUNTIME_ERROR("response contained error '{}'", *result);
+					}
 					auto parserResult = query.splitter(*result);
 					UpdateCoord(parserResult, query);
 					// notofy for state changes
@@ -257,6 +292,9 @@ namespace ppmac {
 							coord.prevAvailableAxis = coord.availableAxis;
 						}
 					}
+				}
+				else {
+					SPDLOG_ERROR("unable to get coord result, channel error: {}", wise_enum::to_string(result.error()));
 				}
 			} catch(std::exception) {
 				if(result) {
@@ -530,7 +568,7 @@ namespace ppmac {
 			while(shouldUpdate) {
 				if(rs.IsConnected()) {
 					// we need the max motors count to know how many we need to update
-					if(state.global.maxMotors == 0) {
+					if(state.global.maxMotors == 0 || motorOrCoordOutOfSync) {
 						UpdateGeneralInfo();
 						// still no active motors? sleep and continue
 						if(state.global.maxMotors == 0) {
@@ -542,7 +580,7 @@ namespace ppmac {
 					try {
 						updateIntervals.Update();
 					} catch(std::exception& e) {
-						SPDLOG_ERROR("exception in update timer:\n{}", StringifyException(std::current_exception(), 4, '>'));
+						SPDLOG_ERROR("exception in update state timer:\n{}", StringifyException(std::current_exception(), 4, '>'));
 					}
 					RemoveElapsedUpdateTimers();
 					sl.unlock();
@@ -646,6 +684,7 @@ namespace ppmac {
 		std::mutex stateMutex;
 		FairDualMutex timerMutex;
 		TicketSpinLock sl;
+		bool motorOrCoordOutOfSync;
 	};
 
 }
