@@ -443,13 +443,13 @@ void PowerPMAC_CoordinateSystems::CoordinateStateChanged(uint64_t newState, uint
 	try {
 		if(ppmac::bits::rising(newState, changes, ppmac::CoordStatusBits::DestVelZero)) {
 			set_state(Tango::ON);
-			fmt::print("set state to ON\n");
+			//fmt::print("set state to ON\n");
 		}
 		else if(ppmac::bits::falling(newState, changes, ppmac::CoordStatusBits::DestVelZero)) {
 			set_state(Tango::MOVING);
 			ClearMoveStatusWaitTimer();
-			fmt::print("clearing move timer timeout!\n");
-			fmt::print("set state to MOVING\n");
+			//fmt::print("clearing move timer timeout!\n");
+			//fmt::print("set state to MOVING\n");
 		}
 		lastCoordState = newState;
 	} catch (ppmac::RuntimeError& e) {

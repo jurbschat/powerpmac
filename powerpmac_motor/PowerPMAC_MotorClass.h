@@ -211,6 +211,19 @@ public:
 		{return (static_cast<PowerPMAC_Motor *>(dev))->is_CcwLimitFault_allowed(ty);}
 };
 
+//	Attribute MotorStates class definition
+class MotorStatesAttrib: public Tango::Attr
+{
+public:
+	MotorStatesAttrib():Attr("MotorStates",
+			Tango::DEV_STRING, Tango::READ) {};
+	~MotorStatesAttrib() {};
+	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
+		{(static_cast<PowerPMAC_Motor *>(dev))->read_MotorStates(att);}
+	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
+		{return (static_cast<PowerPMAC_Motor *>(dev))->is_MotorStates_allowed(ty);}
+};
+
 
 //=========================================
 //	Define classes for commands
@@ -374,6 +387,29 @@ public:
 	virtual CORBA::Any *execute (Tango::DeviceImpl *dev, const CORBA::Any &any);
 	virtual bool is_allowed (Tango::DeviceImpl *dev, const CORBA::Any &any)
 	{return (static_cast<PowerPMAC_Motor *>(dev))->is_Kill_allowed(any);}
+};
+
+//	Command Reset class definition
+class ResetClass : public Tango::Command
+{
+public:
+	ResetClass(const char   *name,
+	               Tango::CmdArgType in,
+				   Tango::CmdArgType out,
+				   const char        *in_desc,
+				   const char        *out_desc,
+				   Tango::DispLevel  level)
+	:Command(name,in,out,in_desc,out_desc, level)	{};
+
+	ResetClass(const char   *name,
+	               Tango::CmdArgType in,
+				   Tango::CmdArgType out)
+	:Command(name,in,out)	{};
+	~ResetClass() {};
+	
+	virtual CORBA::Any *execute (Tango::DeviceImpl *dev, const CORBA::Any &any);
+	virtual bool is_allowed (Tango::DeviceImpl *dev, const CORBA::Any &any)
+	{return (static_cast<PowerPMAC_Motor *>(dev))->is_Reset_allowed(any);}
 };
 
 

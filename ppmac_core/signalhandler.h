@@ -24,6 +24,9 @@ namespace ppmac {
 		sigs::Signal<void(uint64_t newState, uint64_t changes)>& StatusChanged(MotorID id) {
 			return motorStatusChanged[id];
 		}
+		sigs::Signal<void(uint64_t newState, uint64_t changes)>& CtrlChanged(MotorID id) {
+			return motorCtrlChanged[id];
+		}
 		sigs::Signal<void(uint64_t newState, uint64_t changes)>& StatusChanged(CoordID id) {
 			return coordStatusChanged[id];
 		}
@@ -34,6 +37,7 @@ namespace ppmac {
 		sigs::Signal<void()> connectionEstablished;
 		sigs::Signal<void()> connectionLost;
 		std::map<MotorID, sigs::Signal<void(uint64_t newState, uint64_t changes)>> motorStatusChanged;
+		std::map<MotorID, sigs::Signal<void(uint64_t newState, uint64_t changes)>> motorCtrlChanged;
 		std::map<CoordID, sigs::Signal<void(uint64_t newState, uint64_t changes)>> coordStatusChanged;
 		std::map<CoordID, sigs::Signal<void(uint32_t axis)>> coordChanged;
 	};

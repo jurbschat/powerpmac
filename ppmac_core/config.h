@@ -16,6 +16,9 @@ namespace ppmac {
 	const int MAX_COORDS = 256;
 	using HandleType = std::pair<unsigned, unsigned>;
 	static const ppmac::HandleType INVALID_HANDLE = ppmac::HandleType{0xFFFFFFFF, 0xFFFFFFFF};
+	namespace config {
+		extern bool dumpAllCommunication;
+	}
 }
 
 #endif //POWERPMAC_CONFIG_H

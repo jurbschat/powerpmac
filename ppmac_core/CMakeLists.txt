@@ -7,9 +7,9 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -fasynchronous-unwind-tables 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wredundant-decls -Wcast-align -Wmissing-declarations -Wmissing-include-dirs -Wswitch-enum -Winvalid-pch")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wformat=2 -Wmissing-format-attribute -Wformat-nonliteral -Wodr -Wpointer-arith -Wshadow -Wcast-qual -Wstrict-aliasing=1")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Woverloaded-virtual -Werror=return-type -Wsign-compare -Wnull-dereference") #-Wduplicated-branches (gcc 7+)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wold-style-cast -Wno-shadow") #-Wself-assign"
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wold-style-cast -Wno-shadow ") #-Wself-assign"
 
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_FORTIFY_SOURCE=2") # -D_GLIBCXX_DEBUG
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_FORTIFY_SOURCE=2")
 
 set(CMAKE_EXE_LINKER_FLAGS "-Wl,-export-dynamic")
 
@@ -33,14 +33,16 @@ add_library(ppmac_core STATIC coreinterface.cpp
         utility.cpp
         test-main.cpp
         pmac/defines.cpp
+        pmac/datastructures.cpp
         exception.cpp
         udpsink.cpp
         uuid.cpp
         commandbuilder.cpp
-        resultparser.cpp)
+        resultparser.cpp
+        config.cpp)
 
 target_include_directories(ppmac_core SYSTEM PRIVATE ../fmt-5.3.0/include ../spdlog-1.3.0/include ../wise_enum-master ../catch2-master/single_include)
-target_link_libraries(ppmac_core PRIVATE stdc++ fmt spdlog ssh2 boost_system boost_regex pthread dl) #ssh2 rt pthread libPowerPmacControl boost_system crypto ssl
+target_link_libraries(ppmac_core PRIVATE stdc++ fmt spdlog ssh2 boost_system boost_regex pthread unwind dl) #ssh2 rt pthread libPowerPmacControl boost_system crypto ssl
 
 # test stuff
 

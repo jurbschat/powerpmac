@@ -71,6 +71,11 @@ namespace ppmac {
 		stdext::expected<std::string, RemoteShellErrorCode> ChannelWriteRead(const std::string& str, std::chrono::milliseconds timeout = std::chrono::milliseconds{1000});
 
 		/*
+		 * Same as WriteRead but does not read untill terminator but until timeout
+		 */
+		stdext::expected<std::string, RemoteShellErrorCode> ChannelWriteConsume(const std::string& str, std::chrono::milliseconds timeout  = std::chrono::milliseconds{1000});
+
+		/*
 		 * Get the native socket
 		 */
 		int GetSocket();
@@ -113,7 +118,7 @@ namespace ppmac {
 		std::vector<char> readBuffer;
 		std::vector<char> writeBuffer;
 		ReceiveBuffer messageBuffer;
-		std::recursive_mutex readWriteMtx;
+		std::mutex readWriteMtx;
 		CoreNotifyInterface* core;
 	};
 }

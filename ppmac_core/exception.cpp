@@ -28,7 +28,7 @@ namespace ppmac {
 
 			void *callstack[128];
 			const int nMaxFrames = sizeof(callstack) / sizeof(callstack[0]);
-			char buf[1024];
+			char buf[8192];
 			int nFrames = backtrace(callstack, nMaxFrames);
 			char **symbols = backtrace_symbols(callstack, nFrames);
 
@@ -52,17 +52,21 @@ namespace ppmac {
 					snprintf(buf, sizeof(buf), "%-3d %*p %s",
 							i, int(2 + sizeof(void*) * 2), callstack[i], symbols[i]);
 				}
-				int p = 0;
-				while(symbols[i][p] != '(' && symbols[i][p] != ' ' && symbols[i][p] != 0) {
-					++p;
+				trace_buf << buf;
+				if(callstack[i] != nullptr) {
+					int p = 0;
+					while(symbols[i][p] != '(' && symbols[i][p] != ' ' && symbols[i][p] != 0) {
+						++p;
+					}
+					char syscom[256];
+					sprintf(syscom,"addr2line %p -e %.*s", callstack[i], p, symbols[i]);
+					auto res = ExecuteWithReturn(syscom);
+					boost::algorithm::trim(res);
+					if(res.find("??") == std::string::npos) {
+						trace_buf << " (src: " << res << ")";
+					}
 				}
-				char syscom[256];
-				sprintf(syscom,"addr2line %p -e %.*s", callstack[i], p, symbols[i]);
-				//last parameter is the file name of the symbol
-				//system(syscom);
-				auto res = ExecuteWithReturn(syscom);
-				boost::algorithm::trim(res);
-				trace_buf << buf << " (src: " << res << ")\n";
+				trace_buf << "\n";
 			}
 			free(symbols);
 			if (nFrames == nMaxFrames)

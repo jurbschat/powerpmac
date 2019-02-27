@@ -164,8 +164,7 @@ PowerPMAC_GlobalClass *PowerPMAC_GlobalClass::instance()
 CORBA::Any *ResetAmpClass::execute(Tango::DeviceImpl *device, TANGO_UNUSED(const CORBA::Any &in_any))
 {
 	cout2 << "ResetAmpClass::execute(): arrived" << endl;
-	((static_cast<PowerPMAC_Global *>(device))->reset_amp());
-	return new CORBA::Any();
+	return insert((static_cast<PowerPMAC_Global *>(device))->reset_amp());
 }
 
 //--------------------------------------------------------
@@ -335,6 +334,20 @@ void PowerPMAC_GlobalClass::set_default_property()
 	prop_desc = "";
 	prop_def  = "";
 	vect_data.clear();
+	if (prop_def.length()>0)
+	{
+		Tango::DbDatum	data(prop_name);
+		data << vect_data ;
+		dev_def_prop.push_back(data);
+		add_wiz_dev_prop(prop_name, prop_desc,  prop_def);
+	}
+	else
+		add_wiz_dev_prop(prop_name, prop_desc);
+	prop_name = "dumpCommunication";
+	prop_desc = "dump all communication to the power pmac, this is only a debugging helper";
+	prop_def  = "false";
+	vect_data.clear();
+	vect_data.push_back("false");
 	if (prop_def.length()>0)
 	{
 		Tango::DbDatum	data(prop_name);
@@ -738,7 +751,7 @@ void PowerPMAC_GlobalClass::command_factory()
 	//	Command ResetAmp
 	ResetAmpClass	*pResetAmpCmd =
 		new ResetAmpClass("ResetAmp",
-			Tango::DEV_VOID, Tango::DEV_VOID,
+			Tango::DEV_VOID, Tango::DEV_STRING,
 			"",
 			"",
 			Tango::OPERATOR);

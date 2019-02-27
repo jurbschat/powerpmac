@@ -65,9 +65,11 @@ private:
 	sigs::Connection connectionEstablished;
 	sigs::Connection connectionLost;
 	sigs::Connection motorStateChanged;
+	sigs::Connection motorCtrlChanged;
 	uint64_t lastMotorState;
 	std::string hardLimitAddress;
 	ppmac::HandleType movingTimerHandle;
+	bool started;
 
 /*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::Data Members
 
@@ -93,6 +95,7 @@ public:
 	Tango::DevBoolean	*attr_SoftCcwLimitFault_read;
 	Tango::DevBoolean	*attr_CwLimitFault_read;
 	Tango::DevBoolean	*attr_CcwLimitFault_read;
+	Tango::DevString	*attr_MotorStates_read;
 
 //	Constructors and destructors
 public:
@@ -271,6 +274,15 @@ public:
  */
 	virtual void read_CcwLimitFault(Tango::Attribute &attr);
 	virtual bool is_CcwLimitFault_allowed(Tango::AttReqType type);
+/**
+ *	Attribute MotorStates related methods
+ *	Description: 
+ *
+ *	Data type:	Tango::DevString
+ *	Attr type:	Scalar
+ */
+	virtual void read_MotorStates(Tango::Attribute &attr);
+	virtual bool is_MotorStates_allowed(Tango::AttReqType type);
 
 
 	//--------------------------------------------------------
@@ -335,6 +347,13 @@ public:
 	 */
 	virtual void kill();
 	virtual bool is_Kill_allowed(const CORBA::Any &any);
+	/**
+	 *	Command Reset related method
+	 *	Description: 
+	 *
+	 */
+	virtual void reset();
+	virtual bool is_Reset_allowed(const CORBA::Any &any);
 
 
 	//--------------------------------------------------------
@@ -351,7 +370,9 @@ public:
 	void StartMotor();
 	void StopMotor();
 	void MotorStateChanged(uint64_t newValue, uint64_t changes);
+	void MotorCtrlChanged(uint64_t newValue, uint64_t changes);
 	void ClearMoveStatusWaitTimer();
+	void UpdateStateFromCurrentStatus(uint64_t motorStatus);
 
 /*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::Additional Method prototypes
 };

@@ -74,7 +74,7 @@ namespace ppmac {
 					px = GetNestedExceptionPtr(e);
 				}
 				catch (...) {
-					fmt::format_to(buffer, "{}{}oops... unknown :(", indentStr, (isCause ? "<because> " : ""));
+					fmt::format_to(buffer, "{}{}oops... unknown exception :(", indentStr, (isCause ? "<because> " : ""));
 					break;
 				}
 				isCause = true;

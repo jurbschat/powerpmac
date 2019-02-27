@@ -64,6 +64,7 @@
 //  Disable       |  disable
 //  Stop          |  stop
 //  Kill          |  kill
+//  Reset         |  reset
 //================================================================
 
 //================================================================
@@ -80,6 +81,7 @@
 //  SoftCcwLimitFault  |  Tango::DevBoolean	Scalar
 //  CwLimitFault       |  Tango::DevBoolean	Scalar
 //  CcwLimitFault      |  Tango::DevBoolean	Scalar
+//  MotorStates        |  Tango::DevString	Scalar
 //================================================================
 
 namespace PowerPMAC_Motor_ns
@@ -148,6 +150,7 @@ void PowerPMAC_Motor::delete_device()
 	delete[] attr_SoftCcwLimitFault_read;
 	delete[] attr_CwLimitFault_read;
 	delete[] attr_CcwLimitFault_read;
+	delete[] attr_MotorStates_read;
 }
 
 //--------------------------------------------------------
@@ -179,6 +182,7 @@ void PowerPMAC_Motor::init_device()
 	attr_SoftCcwLimitFault_read = new Tango::DevBoolean[1];
 	attr_CwLimitFault_read = new Tango::DevBoolean[1];
 	attr_CcwLimitFault_read = new Tango::DevBoolean[1];
+	attr_MotorStates_read = new Tango::DevString[1];
 	//	No longer if mandatory property not set. 
 	if (mandatoryNotDefined)
 		return;
@@ -195,8 +199,10 @@ void PowerPMAC_Motor::init_device()
 	*attr_SoftCcwLimitFault_read = false;
 	*attr_CwLimitFault_read = false;
 	*attr_CcwLimitFault_read = false;
+	*attr_MotorStates_read = nullptr;
 
 	motorId = static_cast<ppmac::MotorID>(motorIndex);
+	started = false;
 	ppmac::CoreInterface& ci = ppmac::GetCoreObject();
 
 	connectionEstablished = ci.Signals().ConnectionEstablished().connect([this](){
@@ -209,6 +215,10 @@ void PowerPMAC_Motor::init_device()
 
 	motorStateChanged = ci.Signals().StatusChanged(motorId).connect([this](uint64_t newValue, uint64_t changed){
 		MotorStateChanged(newValue, changed);
+	});
+
+	motorCtrlChanged = ci.Signals().CtrlChanged(motorId).connect([this](uint64_t newValue, uint64_t changed){
+		MotorCtrlChanged(newValue, changed);
 	});
 
 	if(ci.IsConnected()) {
@@ -419,8 +429,8 @@ void PowerPMAC_Motor::write_Position(Tango::WAttribute &attr)
 		movingTimerHandle = ci.AddDeadTimer(std::chrono::milliseconds{50}, [this](){
 			if(get_state() == Tango::MOVING) {
 				set_state(Tango::ON);
-				movingTimerHandle = ppmac::INVALID_HANDLE;
 			}
+			movingTimerHandle = ppmac::INVALID_HANDLE;
 		});
 		set_state(Tango::MOVING);
 	} catch (ppmac::RuntimeError& e) {
@@ -874,6 +884,34 @@ void PowerPMAC_Motor::read_CcwLimitFault(Tango::Attribute &attr)
 	
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::read_CcwLimitFault
 }
+//--------------------------------------------------------
+/**
+ *	Read attribute MotorStates related method
+ *	Description: 
+ *
+ *	Data type:	Tango::DevString
+ *	Attr type:	Scalar
+ */
+//--------------------------------------------------------
+void PowerPMAC_Motor::read_MotorStates(Tango::Attribute &attr)
+{
+	DEBUG_STREAM << "PowerPMAC_Motor::read_MotorStates(Tango::Attribute &attr) entering... " << endl;
+	/*----- PROTECTED REGION ID(PowerPMAC_Motor::read_MotorStates) ENABLED START -----*/
+	//	Set the attribute value
+
+	try {
+		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
+
+		uint64_t motorStatus = ci.GetMotorInfo(motorId).status.registerValue;
+		auto aciveStates = ppmac::states::GetMotorStateNames(motorStatus, 0xFFFFFFFFFFFFFFFF);
+		tu::SetStringValue(attr_MotorStates_read, aciveStates);
+		attr.set_value(attr_MotorStates_read);
+	} catch (ppmac::RuntimeError& e) {
+		tu::TranslateException(e);
+	}
+	
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::read_MotorStates
+}
 
 //--------------------------------------------------------
 /**
@@ -1030,6 +1068,27 @@ void PowerPMAC_Motor::kill()
 }
 //--------------------------------------------------------
 /**
+ *	Command Reset related method
+ *	Description: 
+ *
+ */
+//--------------------------------------------------------
+void PowerPMAC_Motor::reset()
+{
+	DEBUG_STREAM << "PowerPMAC_Motor::Reset()  - " << device_name << endl;
+	/*----- PROTECTED REGION ID(PowerPMAC_Motor::reset) ENABLED START -----*/
+
+	try {
+		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
+		ci.ExecuteCommand(ppmac::cmd::MotorReset(motorId));
+	} catch (ppmac::RuntimeError& e) {
+		tu::TranslateException(e);
+	}
+	
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::reset
+}
+//--------------------------------------------------------
+/**
  *	Method      : PowerPMAC_Motor::add_dynamic_commands()
  *	Description : Create the dynamic commands if any
  *                for specified device.
@@ -1048,10 +1107,19 @@ void PowerPMAC_Motor::add_dynamic_commands()
 
 //	Additional Methods
 
-void PowerPMAC_Motor::StartMotor()
-{
+void PowerPMAC_Motor::StartMotor() {
+	if(started) {
+		return;
+	}
+	started = true;
 	try {
 		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
+		auto motorInfo = ci.GetMotorInfo(motorId);
+		if(!motorInfo.servoCtrl) {
+			set_status(fmt::format("motor {} is via ServoCtrl disabled", motorIndex));
+			set_state(Tango::OFF);
+			return;
+		}
 		if(disableHardLimits) {
 			auto getLimitCmd = ppmac::cmd::MotorGetHardLimitAddr(motorId);
 			hardLimitAddress = ci.ExecuteCommand(getLimitCmd);
@@ -1064,17 +1132,17 @@ void PowerPMAC_Motor::StartMotor()
 		if(*attr_SoftCwLimit_read != 0 || *attr_SoftCcwLimit_read != 0) {
 			*attr_SoftLimitEnable_read = true;
 		}
-		if(ci.GetMotorInfo(motorId).status.named.DestVelZero) {
-			set_state(Tango::ON);
-		} else {
-			set_state(Tango::MOVING);
-		}
+		UpdateStateFromCurrentStatus(motorInfo.status.registerValue);
 	} catch (ppmac::RuntimeError& e) {
 		tu::TranslateException(e);
 	}
 }
 
 void PowerPMAC_Motor::StopMotor() {
+	if(!started) {
+		return;
+	}
+	started = false;
 	try {
 		if(disableHardLimits) {
 			// restore the limits if the device goes down
@@ -1083,7 +1151,7 @@ void PowerPMAC_Motor::StopMotor() {
 			ci.ExecuteCommand(stoppingMotorCmd);
 			auto setLimitCmd = ppmac::cmd::MotorSetHardLimits(motorId, hardLimitAddress);
 			ci.ExecuteCommand(setLimitCmd);
-			fmt::print("restoring hard limits to: {}\n", hardLimitAddress);
+			fmt::print("restoring hard limits to motor: {}\n", hardLimitAddress);
 			ClearMoveStatusWaitTimer();
 		}
 	} catch (ppmac::RuntimeError& e) {
@@ -1094,20 +1162,36 @@ void PowerPMAC_Motor::StopMotor() {
 
 void PowerPMAC_Motor::MotorStateChanged(uint64_t newState, uint64_t changes)
 {
-	try {
-		if(ppmac::bits::rising(newState, changes, ppmac::MotorStatusBits::DestVelZero)) {
-			set_state(Tango::ON);
-			fmt::print("set state to ON\n");
+	UpdateStateFromCurrentStatus(newState);
+
+	if(tu::IsOneOf(get_state(), Tango::ON, Tango::MOVING)) {
+		try {
+			if(ppmac::bits::rising(newState, changes, ppmac::MotorStatusBits::DestVelZero)) {
+				set_state(Tango::ON);
+			}
+			else if(ppmac::bits::falling(newState, changes, ppmac::MotorStatusBits::DestVelZero)) {
+				set_state(Tango::MOVING);
+				ClearMoveStatusWaitTimer();
+			}
+			lastMotorState = newState;
+		} catch (ppmac::RuntimeError& e) {
+			tu::TranslateException(e);
 		}
-		else if(ppmac::bits::falling(newState, changes, ppmac::MotorStatusBits::DestVelZero)) {
-			set_state(Tango::MOVING);
-			ClearMoveStatusWaitTimer();
-			fmt::print("clearing move timer timeout!\n");
-			fmt::print("set state to MOVING\n");
-		}
-		lastMotorState = newState;
-	} catch (ppmac::RuntimeError& e) {
-		tu::TranslateException(e);
+	}
+}
+
+void PowerPMAC_Motor::MotorCtrlChanged(uint64_t newValue, uint64_t changes) {
+	ppmac::CoreInterface& ci = ppmac::GetCoreObject();
+	// we need to execute start/stop from a different thread that the callback one
+	// otherwise we would get a deadlock
+	if(ppmac::bits::rising(newValue, changes, ppmac::AuxMotorStatusBits::ServoCtrl)) {
+		ci.AddDeadTimer(std::chrono::seconds{0}, [this](){
+			StartMotor();
+		});
+	} else if(ppmac::bits::falling(newValue, changes, ppmac::AuxMotorStatusBits::ServoCtrl)) {
+		ci.AddDeadTimer(std::chrono::seconds{0}, [this](){
+			StopMotor();
+		});
 	}
 }
 
@@ -1116,6 +1200,36 @@ void PowerPMAC_Motor::ClearMoveStatusWaitTimer() {
 	if(movingTimerHandle != ppmac::INVALID_HANDLE) {
 		ci.RemoveDeadTimer(movingTimerHandle);
 		movingTimerHandle = ppmac::INVALID_HANDLE;
+	}
+}
+
+void PowerPMAC_Motor::UpdateStateFromCurrentStatus(uint64_t motorStatus) {
+	bool badState = false;
+	if(ppmac::bits::AnyBitSet(motorStatus, ppmac::motorErrorStatusBits)) {
+		set_state(Tango::FAULT);
+		badState = true;
+	}
+	else if(ppmac::bits::AnyBitSet(motorStatus, ppmac::motorFatalStatusBits)) {
+		set_state(Tango::DISABLE);
+		badState = true;
+	}
+	else if(!ppmac::bits::AllBitsSet(motorStatus, ppmac::motorNeededGoodStates)) {
+		set_state(Tango::INIT);
+		badState = true;
+	}
+	if(badState) {
+		auto needed = ppmac::states::GetMotorStateNames(motorStatus, ppmac::motorNeededGoodStates, 0x0);
+		auto error = ppmac::states::GetMotorStateNames(motorStatus, ppmac::motorErrorStatusBits);
+		auto fatal = ppmac::states::GetMotorStateNames(motorStatus, ppmac::motorFatalStatusBits);
+		set_status(fmt::format("motor status needs attention:\nmissing: {}\nerror: {}\nfatal: {}", needed, error, fatal));
+	}
+	else {
+		if (ppmac::bits::set(motorStatus, ppmac::MotorStatusBits::DestVelZero)) {
+			set_state(Tango::ON);
+		} else {
+			set_state(Tango::MOVING);
+		}
+		set_status(Tango::StatusNotSet);
 	}
 }
 

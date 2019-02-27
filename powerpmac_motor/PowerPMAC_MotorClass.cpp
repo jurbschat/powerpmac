@@ -276,6 +276,24 @@ CORBA::Any *KillClass::execute(Tango::DeviceImpl *device, TANGO_UNUSED(const COR
 	return new CORBA::Any();
 }
 
+//--------------------------------------------------------
+/**
+ * method : 		ResetClass::execute()
+ * description : 	method to trigger the execution of the command.
+ *
+ * @param	device	The device on which the command must be executed
+ * @param	in_any	The command input data
+ *
+ *	returns The command output data (packed in the Any object)
+ */
+//--------------------------------------------------------
+CORBA::Any *ResetClass::execute(Tango::DeviceImpl *device, TANGO_UNUSED(const CORBA::Any &in_any))
+{
+	cout2 << "ResetClass::execute(): arrived" << endl;
+	((static_cast<PowerPMAC_Motor *>(device))->reset());
+	return new CORBA::Any();
+}
+
 
 //===================================================================
 //	Properties management
@@ -742,6 +760,30 @@ void PowerPMAC_MotorClass::attribute_factory(vector<Tango::Attr *> &att_list)
 	//	Not Memorized
 	att_list.push_back(ccwlimitfault);
 
+	//	Attribute : MotorStates
+	MotorStatesAttrib	*motorstates = new MotorStatesAttrib();
+	Tango::UserDefaultAttrProp	motorstates_prop;
+	//	description	not set for MotorStates
+	//	label	not set for MotorStates
+	//	unit	not set for MotorStates
+	//	standard_unit	not set for MotorStates
+	//	display_unit	not set for MotorStates
+	//	format	not set for MotorStates
+	//	max_value	not set for MotorStates
+	//	min_value	not set for MotorStates
+	//	max_alarm	not set for MotorStates
+	//	min_alarm	not set for MotorStates
+	//	max_warning	not set for MotorStates
+	//	min_warning	not set for MotorStates
+	//	delta_t	not set for MotorStates
+	//	delta_val	not set for MotorStates
+	
+	motorstates->set_default_properties(motorstates_prop);
+	//	Not Polled
+	motorstates->set_disp_level(Tango::EXPERT);
+	//	Not Memorized
+	att_list.push_back(motorstates);
+
 
 	//	Create a list of static attributes
 	create_static_attribute_list(get_class_attr()->get_attr_list());
@@ -793,7 +835,7 @@ void PowerPMAC_MotorClass::command_factory()
 			Tango::DEV_VOID, Tango::DEV_VOID,
 			"",
 			"",
-			Tango::EXPERT);
+			Tango::OPERATOR);
 	command_list.push_back(pPhaseCmd);
 
 	//	Command Home
@@ -849,6 +891,15 @@ void PowerPMAC_MotorClass::command_factory()
 			"",
 			Tango::OPERATOR);
 	command_list.push_back(pKillCmd);
+
+	//	Command Reset
+	ResetClass	*pResetCmd =
+		new ResetClass("Reset",
+			Tango::DEV_VOID, Tango::DEV_VOID,
+			"",
+			"",
+			Tango::OPERATOR);
+	command_list.push_back(pResetCmd);
 
 	/*----- PROTECTED REGION ID(PowerPMAC_MotorClass::command_factory_after) ENABLED START -----*/
 	

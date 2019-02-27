@@ -24,11 +24,19 @@ namespace ppmac {
 		return std::experimental::optional<std::string>{};
 	}
 
-	bool ReceiveBuffer::HasMessage() {
+	bool ReceiveBuffer::HasMessage() const {
 		return std::find(buffer.begin(), buffer.end(), RESPONSE_TERMINATOR) != buffer.end();
 	}
 
 	void ReceiveBuffer::Clear() {
 		buffer.clear();
+	}
+
+	bool ReceiveBuffer::Empty() const {
+		return buffer.empty();
+	}
+
+	std::string ReceiveBuffer::AsString() const {
+		return std::string(buffer.begin(), buffer.end());
 	}
 }

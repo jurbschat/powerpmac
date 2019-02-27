@@ -289,6 +289,27 @@ namespace ppmac::query {
 		);
 	}
 
+	inline auto MotorGetServoCtrlStatus(stdext::span<MotorInfo> data, int32_t first, int32_t last) {
+		boost::container::small_vector<std::tuple<int>, 32> tuples;
+		for(int i = first; i <= (last - first); i++) {
+			tuples.push_back((std::make_tuple(i)));
+		}
+		fmt::memory_buffer buffer = builder::detail::MakeMultiCommand("Motor[{0}].ServoCtrl", stdext::make_span(tuples));
+		return MakeCommandQuery(
+			fmt::to_string(buffer),
+				first, last+1,
+			MakeObjectPointerList(
+				data,
+				MakeObjectPtrInfo<parser::IntParser>(&MotorInfo::servoCtrl)
+			),
+			[](const std::string& str){
+				return parser::Split1D(str, boost::is_any_of("\r\n"));
+			}
+		);
+	}
+
+
+
 	/*
 	 * this query updates all raw motor values. (poition, velocity, following error and motor statuses)
 	 */

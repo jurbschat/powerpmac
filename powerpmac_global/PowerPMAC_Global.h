@@ -74,6 +74,8 @@ public:
 	string	loggingHost;
 	//	loggingPort:	
 	Tango::DevLong	loggingPort;
+	//	dumpCommunication:	dump all communication to the power pmac, this is only a debugging helper
+	Tango::DevBoolean	dumpCommunication;
 
 	bool	mandatoryNotDefined;
 
@@ -263,8 +265,9 @@ public:
 	 *	Command ResetAmp related method
 	 *	Description: 
 	 *
+	 *	@returns 
 	 */
-	virtual void reset_amp();
+	virtual Tango::DevString reset_amp();
 	virtual bool is_ResetAmp_allowed(const CORBA::Any &any);
 	/**
 	 *	Command ExecuteCommand related method

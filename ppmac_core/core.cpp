@@ -71,6 +71,7 @@ namespace ppmac {
 				SPDLOG_WARN("unable to create udp sink: {}", e.what());
 			}
 		}
+		config::dumpAllCommunication = init.dumpCommunication;
 		remoteHost = init.host;
 		remotePort = init.port;
 		keepConnectionAlive = true;
@@ -78,15 +79,6 @@ namespace ppmac {
 			KeepAliveRunner();
 		});
 		stateUpdater.Start();
-		/*auto res = SetupRemoteShell(remoteHost, remotePort);
-		if(res == RemoteShellErrorCode::Ok) {
-			SPDLOG_DEBUG("remote shell setup complete!");
-			stateUpdater.Start();
-			OnConnectionEstablished();
-		} else {
-			SPDLOG_DEBUG("unable to create remote shell (exiting), error: ", wise_enum::to_string(res));
-			exit(-1);
-		}*/
 	}
 
 	RemoteShellErrorCode Core::SetupRemoteShell(const std::string& host, int port) {
@@ -125,7 +117,7 @@ namespace ppmac {
 			auto res = SetupRemoteShell(remoteHost, remotePort);
 			if(res == RemoteShellErrorCode::Ok) {
 				SPDLOG_DEBUG("remote shell setup complete!");
-				OnConnectionEstablished();
+				//OnConnectionEstablished();
 			} else {
 				SPDLOG_ERROR("unable to create remote shell, error: {}", wise_enum::to_string(res));
 				std::this_thread::sleep_for(std::chrono::seconds{1});
@@ -153,7 +145,13 @@ namespace ppmac {
 	}
 
 	void Core::OnMotorStateChanged(int32_t motorIndex, uint64_t newState, uint64_t changes) {
+		// this is actually quite stupid that we need to make revalue refs out if this
+		// but i have no time to fix it and it doesnt do anything here, same for the other handlers
 		signalHandler.StatusChanged(to_enum_motor(motorIndex))(std::move(newState), std::move(changes));
+	}
+
+	void Core::OnMotorCtrlChanged(int32_t motorIndex, uint64_t newState, uint64_t changes) {
+		signalHandler.CtrlChanged(to_enum_motor(motorIndex))(std::move(newState), std::move(changes));
 	}
 
 	void Core::OnCoordStateChanged(int32_t coordIndex, uint64_t newState, uint64_t changes) {
@@ -164,8 +162,25 @@ namespace ppmac {
 		signalHandler.CoordChanged(to_enum_coord(coordIndex))(std::move(availableAxis));
 	}
 
+	void Core::OnStateupdaterInitialized() {
+		AddDeadTimer(std::chrono::seconds{0}, [this](){
+			OnConnectionEstablished();
+		});
+	}
+
 	std::string Core::ExecuteCommand(const std::string& str) {
 		auto result = remoteShell.ChannelWriteRead(str);
+		if(!result){
+			THROW_RUNTIME_ERROR("command '{}' stopped with error {}", str, wise_enum::to_string(result.error()));
+		}
+		if(parser::detail::CheckForError(*result)) {
+			THROW_RUNTIME_ERROR("command '{}' returned '{}'", str, *result);
+		}
+		return *result;
+	}
+
+	std::string Core::ExecuteCommandConsume(const std::string& str, std::chrono::milliseconds timeout) {
+		auto result = remoteShell.ChannelWriteConsume(str, timeout);
 		if(!result){
 			THROW_RUNTIME_ERROR("command '{}' stopped with error {}", str, wise_enum::to_string(result.error()));
 		}

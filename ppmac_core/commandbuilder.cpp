@@ -31,6 +31,10 @@ namespace ppmac::cmd {
 		return fmt::format("#{}hm", static_cast<int>(motor));
 	}
 
+	std::string MotorReset(MotorID motor) {
+		return fmt::format("#{}j/", static_cast<int>(motor));
+	}
+
 	std::string MotorSetConversion(MotorID motor, double value) {
 		return fmt::format("Motor[{}].PosSf={}", static_cast<int>(motor), value);
 	}
@@ -89,6 +93,13 @@ namespace ppmac::cmd {
 
 	std::string MotorSetMaxVelocity(MotorID motor, double value) {
 		return fmt::format("Motor[{}].MaxSpeed={}", static_cast<int>(motor), value);
+	}
+
+	std::string MotorSetServoControl(MotorID motor, bool enable) {
+		return fmt::format("Motor[{}].ServoCtrl={}", static_cast<int>(motor), static_cast<int>(enable));
+	}
+	std::string MotorGetServoControl(MotorID motor) {
+		return fmt::format("Motor[{}].ServoCtrl", static_cast<int>(motor));
 	}
 
 	///////////////////////////////////////////////////////////////

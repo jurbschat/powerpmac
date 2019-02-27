@@ -41,7 +41,10 @@ namespace ppmac {
 	}
 
 	namespace bits {
-		template<typename T, void* = std::enable_if<std::is_unsigned<T>::value, void>::value >
+		template<
+	        typename T,
+	        typename = std::enable_if_t<std::is_unsigned<T>::value>
+		>
 		T set(T value, uint32_t bitIndex) {
 			value = value | (1ull << bitIndex);
 			return value;
@@ -50,6 +53,17 @@ namespace ppmac {
 		T reset(T value, uint32_t bitIndex) {
 			value = value & ~(1ull << bitIndex);
 			return value;
+		}
+		template<
+			typename T,
+			typename = std::enable_if_t<std::is_unsigned<T>::value>
+		>
+		T set(T value, uint32_t bitIndex, bool set) {
+			if(set) {
+				return bits::set(value, bitIndex);
+			} else {
+				return bits::reset(value, bitIndex);
+			}
 		}
 		template<typename T>
 		bool isSet(const T &value, uint32_t bitIndex) {
@@ -71,6 +85,13 @@ namespace ppmac {
 			return !isSet(state, bitIndex) && isSet(change, bitIndex);
 		}
 
+		bool AllBitsSet(uint64_t state, uint64_t check);
+		bool AnyBitSet(uint64_t state, uint64_t check);
+	}
+
+	namespace states {
+		std::string GetMotorStateNamesForFlagMatch(uint64_t state, uint64_t significantBits, uint64_t expectedState = 0xFFFFFFFFFFFFFFFF);
+		std::string GetCoordStateNamesForFlagMatch(uint64_t state, uint64_t significantBits, uint64_t expectedState = 0xFFFFFFFFFFFFFFFF);
 	}
 
 	union MotorStatusUnion{
@@ -145,8 +166,8 @@ namespace ppmac {
 			unsigned int SoftMinusLimit : 1;
 			unsigned int AmpFault : 1;
 			unsigned int LimitStop : 1;
-			unsigned int FeWarn : 1;
 			unsigned int FeFatal : 1;
+			unsigned int FeWarn : 1;
 			unsigned int PlusLimit : 1;
 			unsigned int MinusLimit : 1;
 			unsigned int HomeInProgress : 1;
@@ -215,14 +236,44 @@ namespace ppmac {
 			SoftMinusLimit = 55,
 			AmpFault = 56,
 			LimitStop = 57,
-			FeWarn = 58,
-			FeFatal = 59,
+			FeFatal = 58,
+			FeWarn = 59,
 			PlusLimit = 60,
 			MinusLimit = 61,
 			HomeInProgress = 62,
 			TriggerMove = 63
 		};
 	}
+
+	namespace AuxMotorStatusBits {
+		enum TYPE : uint64_t {
+			ServoCtrl = 0,
+		};
+	}
+
+	// contains a list of stats bits that we count as "error" state
+	// these should not need a manual reset
+	const uint64_t motorErrorStatusBits =
+			//(1ull << MotorStatusBits::AmpWarn) |
+			//(1ull << MotorStatusBits::SoftPlusLimit) |
+			//(1ull << MotorStatusBits::SoftMinusLimit) |
+			//(1ull << MotorStatusBits::LimitStop) |
+			//(1ull << MotorStatusBits::PlusLimit) |
+			//(1ull << MotorStatusBits::MinusLimit) |
+			(1ull << MotorStatusBits::FeFatal);
+
+	// contains a list of stats bits that we count as "fatal" state
+	// these need some kind of reset
+	const uint64_t motorFatalStatusBits =
+			(1ull << MotorStatusBits::AmpFault) |
+			(1ull << MotorStatusBits::I2tFault) |
+			(1ull << MotorStatusBits::EncLoss);
+
+	// contains a list of stats bits that we count as "fatal" state
+	// these need some kind of reset
+	const uint64_t motorNeededGoodStates =
+			(1ull << MotorStatusBits::AmpEna) |
+			(1ull << MotorStatusBits::PhaseFound);
 
 	union CoordStatusUnion{
 		CoordStatusUnion() {
@@ -347,6 +398,29 @@ namespace ppmac {
 		};
 	}
 
+	// contains a list of stats bits that we count as "error" state
+	// these should not need a manual reset
+	const uint64_t coordErrorStatusBits =
+			//(1ull << CoordStatusBits::AmpWarn) |
+			//(1ull << CoordStatusBits::SoftPlusLimit) |
+			//(1ull << CoordStatusBits::SoftMinusLimit) |
+			//(1ull << CoordStatusBits::LimitStop) |
+			//(1ull << CoordStatusBits::PlusLimit) |
+			//(1ull << CoordStatusBits::MinusLimit) |
+			(1ull << CoordStatusBits::FeFatal);
+
+	// contains a list of stats bits that we count as "fatal" state
+	// these need some kind of reset
+	const uint64_t coordFatalStatusBits =
+			(1ull << CoordStatusBits::AmpFault) |
+			(1ull << CoordStatusBits::I2tFault) |
+			(1ull << CoordStatusBits::EncLoss);
+
+	// contains a list of stats bits that we count as "fatal" state
+	// these need some kind of reset
+	const uint64_t coordNeededGoodStates =
+			(1ull << CoordStatusBits::AmpEna);
+
 	struct MotorInfo {
 		double position;
 		double velocity;
@@ -355,6 +429,8 @@ namespace ppmac {
 		int unitType;
 		MotorStatusUnion status;
 		MotorStatusUnion prevStatus;
+		bool servoCtrl;
+		bool prevServoCtrl;
 	};
 
 	union Coord26Axis {

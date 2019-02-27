@@ -21,7 +21,7 @@ namespace ppmac::parser {
 		}
 
 		std::experimental::optional<std::pair<int32_t, std::string>> GetError(const std::string& str) {
-			boost::regex rgx(R"(error\W+#(\d+):\W*(.*))");
+			boost::regex rgx(R"(error\W*#(\d+):\W*(.*))");
 			boost::smatch what;
 			if(boost::regex_search(str, what, rgx)) {
 				int32_t errorCode = IntParser::convert(what[1]);

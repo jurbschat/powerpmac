@@ -203,7 +203,8 @@ void PowerPMAC_Global::init_device()
 		.host = host,
 		.port = port,
 		.logginHost = loggingHost,
-		.loggingPort = loggingPort
+		.loggingPort = loggingPort,
+		.dumpCommunication = dumpCommunication
 	});
 
 	connectionEstablished = ci.Signals().ConnectionEstablished().connect([this](){
@@ -245,6 +246,7 @@ void PowerPMAC_Global::get_device_property()
 	dev_prop.push_back(Tango::DbDatum("port"));
 	dev_prop.push_back(Tango::DbDatum("loggingHost"));
 	dev_prop.push_back(Tango::DbDatum("loggingPort"));
+	dev_prop.push_back(Tango::DbDatum("dumpCommunication"));
 
 	//	is there at least one property to be read ?
 	if (dev_prop.size()>0)
@@ -306,6 +308,17 @@ void PowerPMAC_Global::get_device_property()
 		}
 		//	And try to extract loggingPort value from database
 		if (dev_prop[i].is_empty()==false)	dev_prop[i]  >>  loggingPort;
+
+		//	Try to initialize dumpCommunication from class property
+		cl_prop = ds_class->get_class_property(dev_prop[++i].name);
+		if (cl_prop.is_empty()==false)	cl_prop  >>  dumpCommunication;
+		else {
+			//	Try to initialize dumpCommunication from default device value
+			def_prop = ds_class->get_default_device_property(dev_prop[i].name);
+			if (def_prop.is_empty()==false)	def_prop  >>  dumpCommunication;
+		}
+		//	And try to extract dumpCommunication value from database
+		if (dev_prop[i].is_empty()==false)	dev_prop[i]  >>  dumpCommunication;
 
 	}
 
@@ -667,21 +680,29 @@ void PowerPMAC_Global::add_dynamic_attributes()
  *	Command ResetAmp related method
  *	Description: 
  *
+ *	@returns 
  */
 //--------------------------------------------------------
-void PowerPMAC_Global::reset_amp()
+Tango::DevString PowerPMAC_Global::reset_amp()
 {
+	Tango::DevString argout;
 	DEBUG_STREAM << "PowerPMAC_Global::ResetAmp()  - " << device_name << endl;
 	/*----- PROTECTED REGION ID(PowerPMAC_Global::reset_amp) ENABLED START -----*/
 
 	try {
 		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
-		ci.ExecuteCommand(ppmac::cmd::GlobalResetBrickLVAmp());
+		auto str = ci.ExecuteCommandConsume(ppmac::cmd::GlobalResetBrickLVAmp(), std::chrono::milliseconds{3000});
+		str.erase(std::remove_if(str.begin(), str.end(),
+			[](char c) {
+				return !std::isprint(c);
+			}), str.end());
+		tu::SetStringValue(&argout, str, true);
 	} catch (ppmac::RuntimeError& e) {
 		tu::TranslateException(e);
 	}
 	
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Global::reset_amp
+	return argout;
 }
 //--------------------------------------------------------
 /**

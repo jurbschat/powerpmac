@@ -21,6 +21,7 @@ namespace ppmac {
 		int port;
 		std::string logginHost;
 		int loggingPort;
+		bool dumpCommunication;
 	};
 
 	class CoreInterface
@@ -40,6 +41,7 @@ namespace ppmac {
 		virtual bool IsConnected() = 0;
 
 		virtual std::string ExecuteCommand(const std::string& str) = 0;
+		virtual std::string ExecuteCommandConsume(const std::string& str, std::chrono::milliseconds timeout) = 0;
 		//virtual void RunUpdater() = 0;
 
 		virtual MotorInfo GetMotorInfo(MotorID motor) = 0;

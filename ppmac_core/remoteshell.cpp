@@ -49,6 +49,10 @@ namespace ppmac {
 					SPDLOG_DEBUG("ssh read error: {}", rc);
 					return RemoteShellErrorCode::ConnectionReset;
 				}
+				if(config::dumpAllCommunication) {
+					std::string s(recvBuffer.begin(), recvBuffer.begin() + rc);
+					SPDLOG_TRACE("read: '{}'", s);
+				}
 				ReadCallbackAction action = cb(stdext::span<char>{recvBuffer.begin(), recvBuffer.begin() + rc});
 				if(action == ReadCallbackAction::Break) {
 					break;
@@ -77,7 +81,7 @@ namespace ppmac {
 	 * Channel read reads a message that is terminated by the 0x06 terminator which is the terminator the pmac uses.
 	 */
 	stdext::expected<std::string, RemoteShellErrorCode> RemoteShell::ChannelRead(std::chrono::milliseconds timeout) {
-		std::lock_guard<std::recursive_mutex> guard(readWriteMtx);
+		std::lock_guard<std::mutex> guard(readWriteMtx);
 		return ReadUntilTerminator(timeout);
 	}
 
@@ -85,7 +89,7 @@ namespace ppmac {
 	 * Consume simply reads everything it can get untill the timeout is reached.
 	 */
 	stdext::expected<std::string, RemoteShellErrorCode> RemoteShell::ChannelConsume(std::chrono::milliseconds timeout) {
-		std::lock_guard<std::recursive_mutex> guard(readWriteMtx);
+		std::lock_guard<std::mutex> guard(readWriteMtx);
 		return Consume(timeout);
 	}
 
@@ -93,7 +97,7 @@ namespace ppmac {
 	 * Sends a command to the server
 	 */
 	RemoteShellErrorCode RemoteShell::ChannelWrite(const std::string& str, std::chrono::milliseconds timeout) {
-		std::lock_guard<std::recursive_mutex> guard(readWriteMtx);
+		std::lock_guard<std::mutex> guard(readWriteMtx);
 		return Write(str, timeout);
 	}
 
@@ -104,16 +108,36 @@ namespace ppmac {
 	 * before receiving.
 	 */
 	stdext::expected<std::string, RemoteShellErrorCode> RemoteShell::ChannelWriteRead(const std::string& str, std::chrono::milliseconds timeout) {
-		std::lock_guard<std::recursive_mutex> guard(readWriteMtx);
+		std::lock_guard<std::mutex> guard(readWriteMtx);
 		auto writeRes = Write(str, timeout);
 		if(writeRes == RemoteShellErrorCode::Ok) {
 			auto readRes = ReadUntilTerminator(timeout);
 			if(readRes) {
-				messageBuffer.Clear();
+				//messageBuffer.Clear();
 				auto& s = *readRes;
 				auto pos = s.find_first_of(str);
 				// erase everything until the end of the string we send
 				// before, if we cant find it something is off
+				if(pos == std::string::npos) {
+					return stdext::make_unexpected(RemoteShellErrorCode::InvalidWriteReadResponse);
+				};
+				s.erase(0, str.size() + pos);
+				boost::algorithm::trim(s);
+				return readRes;
+			}
+			return readRes;
+		}
+		return stdext::make_unexpected(writeRes);
+	}
+
+	stdext::expected<std::string, RemoteShellErrorCode> RemoteShell::ChannelWriteConsume(const std::string& str, std::chrono::milliseconds timeout) {
+		std::lock_guard<std::mutex> guard(readWriteMtx);
+		auto writeRes = Write(str, timeout);
+		if(writeRes == RemoteShellErrorCode::Ok) {
+			auto readRes = Consume(timeout);
+			if(readRes) {
+				auto& s = *readRes;
+				auto pos = s.find_first_of(str);
 				if(pos == std::string::npos) {
 					return stdext::make_unexpected(RemoteShellErrorCode::InvalidWriteReadResponse);
 				};
@@ -137,7 +161,7 @@ namespace ppmac {
 	 * Connect to a remote host and setup the ssh connection
 	 */
 	RemoteShellErrorCode RemoteShell::Connect(std::string host_, int port_) {
-		std::lock_guard<std::recursive_mutex> guard(readWriteMtx);
+		std::lock_guard<std::mutex> guard(readWriteMtx);
 		host = host_;
 		port = port_;
 		sock = socket(AF_INET, SOCK_STREAM, 0);
@@ -173,7 +197,7 @@ namespace ppmac {
 	 * Close the ssh connection and the socket
 	 */
 	void RemoteShell::Disconnect() {
-		std::lock_guard<std::recursive_mutex> guard(readWriteMtx);
+		std::lock_guard<std::mutex> guard(readWriteMtx);
 		channel.reset();
 		session.reset();
 		CloseSocket();
@@ -202,10 +226,10 @@ namespace ppmac {
 			SPDLOG_DEBUG("unable to write channel if not connected");
 			return RemoteShellErrorCode::ConnectionIsClosed;
 		}
-		ssize_t bytesWritten = 0;
+		size_t bytesWritten = 0;
 		SetupWriteBuffer(str, '\n', writeBuffer);
 		StopWatch<> sw(true);
-		while(bytesWritten < static_cast<ssize_t>(writeBuffer.size())) {
+		while(bytesWritten < writeBuffer.size()) {
 			ssize_t rc = libssh2_channel_write(channel.get(), writeBuffer.data() + bytesWritten, writeBuffer.size() - bytesWritten);
 			if(rc == LIBSSH2_ERROR_EAGAIN) {
 				auto tmp = sw.Elapsed();
@@ -222,6 +246,10 @@ namespace ppmac {
 				Disconnect();
 				return RemoteShellErrorCode::ConnectionReset;
 			}
+			if(config::dumpAllCommunication) {
+				std::string s(writeBuffer.data() + bytesWritten, static_cast<ssize_t>(writeBuffer.size() - bytesWritten));
+				SPDLOG_TRACE("write: '{}'", s);
+			}
 			bytesWritten += rc;
 		}
 		return RemoteShellErrorCode::Ok;
@@ -232,17 +260,15 @@ namespace ppmac {
 			SPDLOG_DEBUG("unable to read channel if not connected");
 			return stdext::make_unexpected(RemoteShellErrorCode::ConnectionIsClosed);
 		}
-		// check if we had an extra message from the last recv
-		auto msg = messageBuffer.ExtractMessage();
-		if(msg) {
-			SPDLOG_DEBUG("returning message from buffer");
-			return *msg;
-		}
+		messageBuffer.Clear();
 		std::string message;
 		auto result = detail::ReceiveToBuffer(channel, timeout, [this, &message](stdext::span<char> data){
 			messageBuffer.AddData(data);
 			auto msg = messageBuffer.ExtractMessage();
 			if(msg) {
+				if(!messageBuffer.Empty()){
+					SPDLOG_DEBUG("message buffer not empty, remaining: '{}'", messageBuffer.AsString());
+				}
 				message = *msg;
 				return detail::ReadCallbackAction::Break;
 			}

@@ -22,6 +22,7 @@ namespace ppmac::cmd {
 	std::string MotorKill(MotorID motor);
 	std::string MotorZeroPosition(MotorID motor);
 	std::string MotorHome(MotorID motor);
+	std::string MotorReset(MotorID motor);
 	std::string MotorSetConversion(MotorID motor, double value);
 	std::string MotorSetHardLimits(MotorID motor, std::string value);
 	std::string MotorGetHardLimitAddr(MotorID motor);
@@ -37,6 +38,8 @@ namespace ppmac::cmd {
 	std::string MotorSetHomeOffset(MotorID motor, double value) ;
 	std::string MotorGetHomeOffset(MotorID motor);
 	std::string MotorSetMaxVelocity(MotorID motor, double value);
+	std::string MotorSetServoControl(MotorID motor, bool enable);
+	std::string MotorGetServoControl(MotorID motor);
 
 	///////////////////////////////////////////////////////////////
 	// port commands

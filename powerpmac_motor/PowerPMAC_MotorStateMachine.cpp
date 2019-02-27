@@ -65,7 +65,8 @@ bool PowerPMAC_Motor::is_Position_allowed(TANGO_UNUSED(Tango::AttReqType type))
 		if (get_state()==Tango::OFF ||
 			get_state()==Tango::INIT ||
 			get_state()==Tango::MOVING ||
-			get_state()==Tango::FAULT)
+			get_state()==Tango::FAULT ||
+			get_state()==Tango::DISABLE)
 		{
 		/*----- PROTECTED REGION ID(PowerPMAC_Motor::PositionStateAllowed_WRITE) ENABLED START -----*/
 	
@@ -107,7 +108,8 @@ bool PowerPMAC_Motor::is_Acceleration_allowed(TANGO_UNUSED(Tango::AttReqType typ
 		if (get_state()==Tango::OFF ||
 			get_state()==Tango::INIT ||
 			get_state()==Tango::MOVING ||
-			get_state()==Tango::FAULT)
+			get_state()==Tango::FAULT ||
+			get_state()==Tango::DISABLE)
 		{
 		/*----- PROTECTED REGION ID(PowerPMAC_Motor::AccelerationStateAllowed_WRITE) ENABLED START -----*/
 	
@@ -149,7 +151,8 @@ bool PowerPMAC_Motor::is_Velocity_allowed(TANGO_UNUSED(Tango::AttReqType type))
 		if (get_state()==Tango::OFF ||
 			get_state()==Tango::INIT ||
 			get_state()==Tango::MOVING ||
-			get_state()==Tango::FAULT)
+			get_state()==Tango::FAULT ||
+			get_state()==Tango::DISABLE)
 		{
 		/*----- PROTECTED REGION ID(PowerPMAC_Motor::VelocityStateAllowed_WRITE) ENABLED START -----*/
 	
@@ -184,15 +187,37 @@ bool PowerPMAC_Motor::is_Velocity_allowed(TANGO_UNUSED(Tango::AttReqType type))
 //--------------------------------------------------------
 bool PowerPMAC_Motor::is_HomeOffset_allowed(TANGO_UNUSED(Tango::AttReqType type))
 {
-	//	Not any excluded states for HomeOffset attribute in Write access.
-	/*----- PROTECTED REGION ID(PowerPMAC_Motor::HomeOffsetStateAllowed_WRITE) ENABLED START -----*/
+	//	Check access type.
+	if ( type!=Tango::READ_REQ )
+	{
+		//	Compare device state with not allowed states for WRITE 
+		if (get_state()==Tango::OFF ||
+			get_state()==Tango::MOVING ||
+			get_state()==Tango::FAULT ||
+			get_state()==Tango::DISABLE)
+		{
+		/*----- PROTECTED REGION ID(PowerPMAC_Motor::HomeOffsetStateAllowed_WRITE) ENABLED START -----*/
 	
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::HomeOffsetStateAllowed_WRITE
+			return false;
+		}
+		return true;
+	}
+	else
 
-	//	Not any excluded states for HomeOffset attribute in read access.
-	/*----- PROTECTED REGION ID(PowerPMAC_Motor::HomeOffsetStateAllowed_READ) ENABLED START -----*/
+	//	Check access type.
+	if ( type==Tango::READ_REQ )
+	{
+		//	Compare device state with not allowed states for READ 
+		if (get_state()==Tango::OFF)
+		{
+		/*----- PROTECTED REGION ID(PowerPMAC_Motor::HomeOffsetStateAllowed_READ) ENABLED START -----*/
 	
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::HomeOffsetStateAllowed_READ
+			return false;
+		}
+		return true;
+	}
 	return true;
 }
 
@@ -208,7 +233,10 @@ bool PowerPMAC_Motor::is_SoftCwLimit_allowed(TANGO_UNUSED(Tango::AttReqType type
 	if ( type!=Tango::READ_REQ )
 	{
 		//	Compare device state with not allowed states for WRITE 
-		if (get_state()==Tango::OFF)
+		if (get_state()==Tango::OFF ||
+			get_state()==Tango::MOVING ||
+			get_state()==Tango::FAULT ||
+			get_state()==Tango::DISABLE)
 		{
 		/*----- PROTECTED REGION ID(PowerPMAC_Motor::SoftCwLimitStateAllowed_WRITE) ENABLED START -----*/
 	
@@ -247,7 +275,10 @@ bool PowerPMAC_Motor::is_SoftCcwLimit_allowed(TANGO_UNUSED(Tango::AttReqType typ
 	if ( type!=Tango::READ_REQ )
 	{
 		//	Compare device state with not allowed states for WRITE 
-		if (get_state()==Tango::OFF)
+		if (get_state()==Tango::OFF ||
+			get_state()==Tango::MOVING ||
+			get_state()==Tango::FAULT ||
+			get_state()==Tango::DISABLE)
 		{
 		/*----- PROTECTED REGION ID(PowerPMAC_Motor::SoftCcwLimitStateAllowed_WRITE) ENABLED START -----*/
 	
@@ -286,7 +317,10 @@ bool PowerPMAC_Motor::is_SoftLimitEnable_allowed(TANGO_UNUSED(Tango::AttReqType 
 	if ( type!=Tango::READ_REQ )
 	{
 		//	Compare device state with not allowed states for WRITE 
-		if (get_state()==Tango::OFF)
+		if (get_state()==Tango::OFF ||
+			get_state()==Tango::MOVING ||
+			get_state()==Tango::FAULT ||
+			get_state()==Tango::DISABLE)
 		{
 		/*----- PROTECTED REGION ID(PowerPMAC_Motor::SoftLimitEnableStateAllowed_WRITE) ENABLED START -----*/
 		
@@ -413,6 +447,22 @@ bool PowerPMAC_Motor::is_CcwLimitFault_allowed(TANGO_UNUSED(Tango::AttReqType ty
 	return true;
 }
 
+//--------------------------------------------------------
+/**
+ *	Method      : PowerPMAC_Motor::is_MotorStates_allowed()
+ *	Description : Execution allowed for MotorStates attribute
+ */
+//--------------------------------------------------------
+bool PowerPMAC_Motor::is_MotorStates_allowed(TANGO_UNUSED(Tango::AttReqType type))
+{
+
+	//	Not any excluded states for MotorStates attribute in read access.
+	/*----- PROTECTED REGION ID(PowerPMAC_Motor::MotorStatesStateAllowed_READ) ENABLED START -----*/
+	
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::MotorStatesStateAllowed_READ
+	return true;
+}
+
 
 //=================================================
 //		Commands Allowed Methods
@@ -428,7 +478,6 @@ bool PowerPMAC_Motor::is_Phase_allowed(TANGO_UNUSED(const CORBA::Any &any))
 {
 	//	Compare device state with not allowed states.
 	if (get_state()==Tango::OFF ||
-		get_state()==Tango::INIT ||
 		get_state()==Tango::MOVING ||
 		get_state()==Tango::FAULT ||
 		get_state()==Tango::DISABLE)
@@ -562,6 +611,26 @@ bool PowerPMAC_Motor::is_Kill_allowed(TANGO_UNUSED(const CORBA::Any &any))
 	/*----- PROTECTED REGION ID(PowerPMAC_Motor::KillStateAllowed) ENABLED START -----*/
 	
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::KillStateAllowed
+	return true;
+}
+
+//--------------------------------------------------------
+/**
+ *	Method      : PowerPMAC_Motor::is_Reset_allowed()
+ *	Description : Execution allowed for Reset attribute
+ */
+//--------------------------------------------------------
+bool PowerPMAC_Motor::is_Reset_allowed(TANGO_UNUSED(const CORBA::Any &any))
+{
+	//	Compare device state with not allowed states.
+	if (get_state()==Tango::OFF ||
+		get_state()==Tango::MOVING)
+	{
+	/*----- PROTECTED REGION ID(PowerPMAC_Motor::ResetStateAllowed) ENABLED START -----*/
+	
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::ResetStateAllowed
+		return false;
+	}
 	return true;
 }
 

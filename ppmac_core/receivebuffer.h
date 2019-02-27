@@ -19,8 +19,10 @@ namespace ppmac {
 		ReceiveBuffer();
 		void AddData(stdext::span<char> data);
 		std::experimental::optional<std::string> ExtractMessage();
-		bool HasMessage();
+		bool HasMessage() const;
 		void Clear();
+		bool Empty() const;
+		std::string AsString() const;
 	private:
 		std::vector<char> buffer;
 	};

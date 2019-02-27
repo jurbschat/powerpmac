@@ -18,6 +18,7 @@
 #include "stopwatch.h"
 
 #include <spdlog/spdlog.h>
+#include <wise_enum.h>
 
 #include <vector>
 #include <cstdint>
@@ -32,19 +33,31 @@ namespace ppmac {
 		using time_point = std::chrono::high_resolution_clock::time_point;
 		using clock = std::chrono::high_resolution_clock;
 
-		enum class DataRequestType {
+		WISE_ENUM_MEMBER(DataRequestType,
 			Global,
 			Motor,
+			MotorCtrl,
 			Coord,
 			IO
-		};
+		);
 
 		struct DataRequestInfo {
 			time_point lastRequest;
-			time_point lastUpdate;
+			//time_point lastUpdate;
 			std::chrono::microseconds updateInterval;
+			std::chrono::milliseconds timeout;
 			HandleType timerHandle;
 		};
+
+		DataRequestInfo MakeDataRequestInfo(std::chrono::microseconds updateInterval, std::chrono::milliseconds timeout) {
+			return DataRequestInfo{
+				time_point{},
+				//time_point{},
+				updateInterval,
+				timeout,
+				INVALID_HANDLE
+			};
+		}
 
 		class SpinLock {
 			std::atomic_flag locked = ATOMIC_FLAG_INIT ;
@@ -100,17 +113,19 @@ namespace ppmac {
 			rs(rs),
 			shouldUpdate(true),
 			running(false),
-			motorOrCoordOutOfSync(true)
+			motorOrCoordOutOfSync(true),
+			updateOnce(false)
 		{
 			state.motors.resize(MAX_MOTORS);
 			state.ios.resize(MAX_PORTS);
 			state.coords.resize(MAX_COORDS);
 			state.global.plcs.resize(MAX_PLC);
 
-			lastRequestTimes[DataRequestType::Global] = DataRequestInfo{ time_point{}, time_point{}, std::chrono::milliseconds{1000},   INVALID_HANDLE };
-			lastRequestTimes[DataRequestType::Motor] =  DataRequestInfo{ time_point{}, time_point{}, std::chrono::milliseconds{50},    INVALID_HANDLE };
-			lastRequestTimes[DataRequestType::Coord] =  DataRequestInfo{ time_point{}, time_point{}, std::chrono::milliseconds{50},    INVALID_HANDLE };
-			lastRequestTimes[DataRequestType::IO] =     DataRequestInfo{ time_point{}, time_point{}, std::chrono::milliseconds{100},    INVALID_HANDLE };
+			lastRequestTimes[DataRequestType::Global] =     MakeDataRequestInfo(std::chrono::milliseconds{1000}, std::chrono::seconds{10});
+			lastRequestTimes[DataRequestType::Motor] =      MakeDataRequestInfo(std::chrono::milliseconds{50}, std::chrono::seconds{10});
+			lastRequestTimes[DataRequestType::MotorCtrl] =  MakeDataRequestInfo(std::chrono::milliseconds{3000}, std::chrono::hours{0xFFFFFFFF});
+			lastRequestTimes[DataRequestType::Coord] =      MakeDataRequestInfo(std::chrono::milliseconds{50}, std::chrono::seconds{10});
+			lastRequestTimes[DataRequestType::IO] =         MakeDataRequestInfo(std::chrono::milliseconds{100}, std::chrono::seconds{10});
 		}
 
 		~StateUpdater() {
@@ -249,6 +264,37 @@ namespace ppmac {
 				}
 				else {
 					RETHROW_RUNTIME_ERROR("unable to update motor info:\nquery: '{}'\nerror: '{}'", query.command, wise_enum::to_string(result.error()));
+				}
+			}
+		}
+
+		void UpdateMotorCtrl() {
+			std::lock_guard<std::mutex> lock(stateMutex);
+			auto query = query::MotorGetServoCtrlStatus(stdext::make_span(state.motors), 0, state.global.maxMotors - 1);
+			auto result = rs.ChannelWriteRead(query.command);
+			try {
+				if(result) {
+					if(parser::detail::CheckForError(*result)) {
+						THROW_RUNTIME_ERROR("response contained error '{}'", *result);
+					}
+					auto parserResult = query.splitter(*result);
+					Update1D(parserResult, query);
+					for(size_t i = 0; i < state.motors.size(); i++) {
+						auto& motor = state.motors[i];
+						if(motor.servoCtrl != motor.prevServoCtrl) {
+							core.OnMotorCtrlChanged(i, bits::set(0ull, AuxMotorStatusBits::ServoCtrl, motor.servoCtrl), bits::set(0ull, AuxMotorStatusBits::ServoCtrl));
+							motor.prevServoCtrl = motor.servoCtrl;
+						}
+					}
+				} else {
+					SPDLOG_ERROR("unable to get general result, channel error: {}", wise_enum::to_string(result.error()));
+				}
+			} catch(std::exception) {
+				if(result) {
+					RETHROW_RUNTIME_ERROR("unable to update general info:\nquery: '{}'\nresult: '{}'", query.command, *result);
+				}
+				else {
+					RETHROW_RUNTIME_ERROR("unable to update general info:\nquery: '{}'\nerror: '{}'", query.command, wise_enum::to_string(result.error()));
 				}
 			}
 		}
@@ -568,6 +614,11 @@ namespace ppmac {
 		void RunRemoteUpdateTimer() {
 			while(shouldUpdate) {
 				if(rs.IsConnected()) {
+					if(!updateOnce) {
+						OnUpdateThreadRunOnce();
+						SPDLOG_DEBUG("stateupdater initialized");
+						core.OnStateupdaterInitialized();
+					}
 					// we need the max motors count to know how many we need to update
 					if(state.global.maxMotors == 0 || motorOrCoordOutOfSync) {
 						UpdateGeneralInfo();
@@ -593,7 +644,7 @@ namespace ppmac {
 			running = false;
 		}
 
-		void UpdateCacheIfElapsed(DataRequestType type) {
+		/*void UpdateCacheIfElapsed(DataRequestType type) {
 			DataRequestInfo& info = lastRequestTimes[type];
 			auto now = clock::now();
 			//SPDLOG_DEBUG("checking if type {} needs an update time left: {}", (int)type, std::chrono::duration_cast<std::chrono::milliseconds>(now - (info.lastUpdate + info.updateInterval)).count());
@@ -618,7 +669,7 @@ namespace ppmac {
 			} else {
 				SPDLOG_DEBUG("update skipped through caching");
 			}
-		}
+		}*/
 
 		// will be called from the "GetMotor|Coord|etc.." functions
 		void CreateUpdateTimer(DataRequestType type) {
@@ -630,7 +681,7 @@ namespace ppmac {
 					CallUpdateFunctionByRequestType(type);
 				}});
 				info.lastRequest = clock::now();
-				SPDLOG_DEBUG("starting update timer for {}", static_cast<int>(type));
+				SPDLOG_DEBUG("starting update timer for {}", wise_enum::to_string(type));
 			} else {
 				info.lastRequest = clock::now();
 			}
@@ -645,18 +696,27 @@ namespace ppmac {
 				if(info.timerHandle == INVALID_HANDLE) {
 					continue;
 				}
-				if(clock::now() >= info.lastRequest + std::chrono::seconds{10}) {
+				if(clock::now() >= info.lastRequest + info.timeout) {
 					updateIntervals.RemoveTimer(info.timerHandle);
 					info.timerHandle = INVALID_HANDLE;
-					SPDLOG_DEBUG("stopping update timer for {}", static_cast<int>(type));
+					SPDLOG_DEBUG("stopping update timer for {}", wise_enum::to_string(type));
 				}
 			}
+		}
+
+		void OnUpdateThreadRunOnce() {
+			UpdateGeneralInfo();
+			CreateUpdateTimer(DataRequestType::MotorCtrl);
+			updateOnce = true;
 		}
 
 		void CallUpdateFunctionByRequestType(DataRequestType type) {
 			switch (type) {
 				case DataRequestType::Motor:
 					UpdateMotorValues();
+					break;
+				case DataRequestType::MotorCtrl:
+					UpdateMotorCtrl();
 					break;
 				case DataRequestType::Global:
 					UpdateGeneralInfo();
@@ -686,6 +746,7 @@ namespace ppmac {
 		FairDualMutex timerMutex;
 		TicketSpinLock sl;
 		bool motorOrCoordOutOfSync;
+		bool updateOnce;
 	};
 
 }

@@ -20,6 +20,12 @@ namespace tu {
 	uint64_t ParsePmacHex64(const std::string &str);
 
 	void SetStringValue(char **ptr, const std::string& value, bool forceNoDelete = false);
+
+	template<class VarType, class... Params>
+	bool IsOneOf(const VarType& needle, const Params&... params)
+	{
+		return ((needle == params) || ...);
+	}
 }
 
 #endif //POWERPMAC_TANGOUTIL_H

@@ -12,8 +12,31 @@ int main() {
 		.host = "192.168.56.96",
 		//.host = "192.168.83.130",
 		.port = 22,
-		//.logginHost = "131.169.131.127", // cfeld-pcx34931
-		//.loggingPort = 5555
+		.logginHost = "131.169.131.127", // cfeld-pcx34931
+		.loggingPort = 5555,
+		.dumpCommunication = false
+	});
+
+	const ppmac::MotorID myMotor = ppmac::MotorID::Motor2;
+	ci->Signals().StatusChanged(myMotor).connect([&](uint64_t newState, uint64_t changed){
+		//uint64_t status = ci->GetMotorInfo(myMotor).status.registerValue;
+		if(!ppmac::bits::AllBitsSet(newState, ppmac::motorNeededGoodStates)) {
+			SPDLOG_DEBUG("missing states: " + ppmac::states::GetMotorStateNames(newState, ppmac::motorNeededGoodStates));
+			SPDLOG_DEBUG("motor not initialized correctly");
+		}
+		if(ppmac::bits::AnyBitSet(newState, ppmac::motorFatalStatusBits)) {
+			SPDLOG_DEBUG("fatal states: " + ppmac::states::GetMotorStateNames(newState, ppmac::motorFatalStatusBits, 0x0));
+			SPDLOG_DEBUG("disabling motor, manual intervention needed");
+		}
+		if(ppmac::bits::AnyBitSet(newState, ppmac::motorErrorStatusBits)) {
+			SPDLOG_DEBUG("error states: " + ppmac::states::GetMotorStateNames(newState, ppmac::motorErrorStatusBits, 0x0));
+			SPDLOG_DEBUG("motor error, should fix itselves");
+		}
+	});
+	ci->Signals().CtrlChanged(myMotor).connect([&](uint64_t newState, uint64_t changed){
+		if(ppmac::bits::isSet(changed, ppmac::AuxMotorStatusBits::ServoCtrl)) {
+			SPDLOG_DEBUG("control changed: {}", newState);
+		}
 	});
 	while(true) {
 		while(!ci->IsConnected()) {
@@ -28,7 +51,7 @@ int main() {
 					SPDLOG_DEBUG("coord pos {}: {}", ppmac::AvailableAxis::MapAxisToChar(i), ci->GetCoordInfo(ppmac::CoordID::Coord1).position.array[i]);
 				}
 			}*/
-			auto motorInfo = ci->GetMotorInfo(ppmac::MotorID::Motor1);
+			auto motorInfo = ci->GetMotorInfo(myMotor);
 			SPDLOG_DEBUG("motor pos {}", motorInfo.position);
 			std::this_thread::sleep_for(std::chrono::milliseconds{500});
 		}

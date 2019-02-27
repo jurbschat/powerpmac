@@ -34,7 +34,7 @@ public:
 
 	// pmac logic
 	std::string ExecuteCommand(const std::string& str);
-	//void RunUpdater();
+	std::string ExecuteCommandConsume(const std::string& str, std::chrono::milliseconds timeout);
 
 	MotorInfo GetMotorInfo(MotorID motor);
 	virtual IOInfo GetIoInfo(IoID io);
@@ -53,9 +53,11 @@ private:
 	void KeepAliveRunner();
 	void OnConnectionEstablished();
 	void OnConnectionLost();
-	void OnMotorStateChanged(int32_t motorIndex, uint64_t oldState, uint64_t newState);
-	void OnCoordStateChanged(int32_t coordIndex, uint64_t oldState, uint64_t newState);
+	void OnMotorStateChanged(int32_t motorIndex, uint64_t newState, uint64_t changes);
+	void OnMotorCtrlChanged(int32_t motorIndex, uint64_t newState, uint64_t changes);
+	void OnCoordStateChanged(int32_t coordIndex, uint64_t newState, uint64_t changes);
 	void OnCoordAxisChanged(int32_t coordIndex, uint32_t availableAxis);
+	void OnStateupdaterInitialized();
 	void DeadTimerRunner();
 
 	std::string remoteHost;
