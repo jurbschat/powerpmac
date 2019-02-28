@@ -26,6 +26,7 @@ namespace ppmac {
 	}
 
 	Core::~Core() {
+		signalHandler.Clear();
 		stateUpdater.Stop();
 		keepConnectionAlive = false;
 		if(remoteShellKeepAlive.joinable()) {
@@ -207,6 +208,10 @@ namespace ppmac {
 		return stateUpdater.GetCoordInfo(coord);
 	}
 
+	std::vector<CoordAxisDefinitionInfo> Core::GetMotorAxisDefinitions(CoordID id) {
+		return stateUpdater.GetMotorAxisDefinitions(id);
+	}
+
 	void Core::DeadTimerRunner() {
 		while (runDeadTimer) {
 			try {
@@ -216,7 +221,7 @@ namespace ppmac {
 					deadTimer.RemoveAlreadyExecuted();
 				}
 				std::this_thread::sleep_for(std::chrono::milliseconds{10});
-			} catch (std::exception) {
+			} catch (const std::exception&) {
 				SPDLOG_WARN("exception in dead timer:\n{}", StringifyException(std::current_exception(), 4, '>'));
 			}
 		}

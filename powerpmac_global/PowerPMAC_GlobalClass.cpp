@@ -703,6 +703,30 @@ void PowerPMAC_GlobalClass::attribute_factory(vector<Tango::Attr *> &att_list)
 	//	Not Memorized
 	att_list.push_back(uptime);
 
+	//	Attribute : AmpStatus
+	AmpStatusAttrib	*ampstatus = new AmpStatusAttrib();
+	Tango::UserDefaultAttrProp	ampstatus_prop;
+	//	description	not set for AmpStatus
+	//	label	not set for AmpStatus
+	//	unit	not set for AmpStatus
+	//	standard_unit	not set for AmpStatus
+	//	display_unit	not set for AmpStatus
+	//	format	not set for AmpStatus
+	//	max_value	not set for AmpStatus
+	//	min_value	not set for AmpStatus
+	//	max_alarm	not set for AmpStatus
+	//	min_alarm	not set for AmpStatus
+	//	max_warning	not set for AmpStatus
+	//	min_warning	not set for AmpStatus
+	//	delta_t	not set for AmpStatus
+	//	delta_val	not set for AmpStatus
+	
+	ampstatus->set_default_properties(ampstatus_prop);
+	//	Not Polled
+	ampstatus->set_disp_level(Tango::OPERATOR);
+	//	Not Memorized
+	att_list.push_back(ampstatus);
+
 
 	//	Create a list of static attributes
 	create_static_attribute_list(get_class_attr()->get_attr_list());

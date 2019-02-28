@@ -6,6 +6,7 @@
 #define POWERPMAC_COMMANDPARSER_H
 
 #include "throw.h"
+#include "pmac/datastructures.h"
 
 #include <boost/container/small_vector.hpp>
 #include <boost/algorithm/string.hpp>
@@ -44,7 +45,7 @@ namespace ppmac::parser {
 		static result_type convert(const std::string& s) {
 			try {
 				return std::stof(s);
-			} catch(std::exception) {
+			} catch(const std::exception&) {
 				RETHROW_RUNTIME_ERROR("unable to parse float '{}'", s);
 			}
 		}
@@ -56,7 +57,7 @@ namespace ppmac::parser {
 		static result_type convert(const std::string& s) {
 			try {
 				return std::stod(s);
-			} catch(std::exception) {
+			} catch(const std::exception&) {
 				RETHROW_RUNTIME_ERROR("unable to parse double '{}'", s);
 			}
 		}
@@ -72,7 +73,7 @@ namespace ppmac::parser {
 					THROW_RUNTIME_ERROR("out of range '{}' for int32_t", s);
 				}
 				return result;
-			} catch(std::exception) {
+			} catch(const std::exception&) {
 				RETHROW_RUNTIME_ERROR("unable to parse int32 from '{}'", s);
 			}
 		}
@@ -88,7 +89,7 @@ namespace ppmac::parser {
 					THROW_RUNTIME_ERROR("out of range '{}' for uint32_t", s);
 				}
 				return result;
-			} catch(std::exception) {
+			} catch(const std::exception&) {
 				RETHROW_RUNTIME_ERROR("unable to parse uint32 from '{}'", s);
 			}
 		}
@@ -101,7 +102,7 @@ namespace ppmac::parser {
 			try {
 				int64_t result = std::stoll(s);
 				return result;
-			} catch(std::exception) {
+			} catch(const std::exception&) {
 				RETHROW_RUNTIME_ERROR("unable to parse int64 from '{}'", s);
 			}
 		}
@@ -114,7 +115,7 @@ namespace ppmac::parser {
 			try {
 				long result = std::stoull(s);
 				return result;
-			} catch(std::exception) {
+			} catch(const std::exception&) {
 				RETHROW_RUNTIME_ERROR("unable to parse uint64 from '{}'", s);
 			}
 		}
@@ -132,7 +133,7 @@ namespace ppmac::parser {
 					THROW_RUNTIME_ERROR("out of range '{}' for uint32_t", s);
 				}
 				return result;
-			} catch(std::exception) {
+			} catch(const std::exception&) {
 				RETHROW_RUNTIME_ERROR("unable to parse 32bit hex from '{}'", s);
 			}
 		}
@@ -144,7 +145,7 @@ namespace ppmac::parser {
 		static result_type convert(const std::string& s) {
 			try {
 				return std::stoull(s.substr(1), nullptr, 16);
-			} catch(std::exception) {
+			} catch(const std::exception&) {
 				RETHROW_RUNTIME_ERROR("unable to parse 64bit hex from '{}'", s);
 			}
 		}
@@ -158,7 +159,7 @@ namespace ppmac::parser {
 		static result_type convert(const std::string& s) {
 			try {
 				return std::stod(s.substr(1));
-			} catch(std::exception) {
+			} catch(const std::exception&) {
 				RETHROW_RUNTIME_ERROR("unable to parse double '{}'", s);
 			}
 		}
@@ -194,14 +195,16 @@ namespace ppmac::parser {
 		boost::container::small_vector<boost::container::small_vector<std::string, LINE_COUNT>, VALUE_COUNT> resultVector;
 		boost::container::small_vector<std::string, LINE_COUNT> lineSplitVector;
 		boost::algorithm::split(lineSplitVector, str, pred1, boost::token_compress_on);
-		if(lineSplitVector.empty()) {
+		if (lineSplitVector.empty()) {
 			THROW_RUNTIME_ERROR("unable to parse '{}' as multiline", str);
 		}
-		for(auto& l : lineSplitVector) {
+		for (auto &l : lineSplitVector) {
 			resultVector.emplace_back(Split1D<SepPred2, VALUE_COUNT>(l, pred2));
 		}
 		return resultVector;
 	}
+
+	CoordAxisDefinitionInfo ParseCoordAxisQueryResult(const std::string& str);
 
 }
 

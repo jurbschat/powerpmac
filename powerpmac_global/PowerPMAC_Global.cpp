@@ -79,6 +79,7 @@
 //  CpuType       |  Tango::DevString	Scalar
 //  CpuFrequency  |  Tango::DevLong	Scalar
 //  Uptime        |  Tango::DevString	Scalar
+//  AmpStatus     |  Tango::DevString	Spectrum  ( max = 8)
 //================================================================
 
 namespace PowerPMAC_Global_ns
@@ -147,6 +148,7 @@ void PowerPMAC_Global::delete_device()
 	delete[] attr_CpuType_read;
 	delete[] attr_CpuFrequency_read;
 	delete[] attr_Uptime_read;
+	delete[] attr_AmpStatus_read;
 }
 
 //--------------------------------------------------------
@@ -178,6 +180,7 @@ void PowerPMAC_Global::init_device()
 	attr_CpuType_read = new Tango::DevString[1];
 	attr_CpuFrequency_read = new Tango::DevLong[1];
 	attr_Uptime_read = new Tango::DevString[1];
+	attr_AmpStatus_read = new Tango::DevString[8];
 	//	No longer if mandatory property not set. 
 	if (mandatoryNotDefined)
 		return;
@@ -194,17 +197,18 @@ void PowerPMAC_Global::init_device()
 	*attr_CpuType_read = nullptr;
 	*attr_CpuFrequency_read = 0;
 	*attr_Uptime_read = nullptr;
+	std::fill(attr_AmpStatus_read, attr_AmpStatus_read + 8, nullptr);
 
 	ppmac::CoreInterface& ci = ppmac::GetCoreObject();
 
 	// we set the power pmac address and start the automatic
 	// connect/reconnect machinery.
 	ci.Initialize(ppmac::InitObject{
-		.host = host,
-		.port = port,
-		.logginHost = loggingHost,
-		.loggingPort = loggingPort,
-		.dumpCommunication = dumpCommunication
+		host,
+		port,
+		loggingHost,
+		loggingPort,
+		dumpCommunication
 	});
 
 	connectionEstablished = ci.Signals().ConnectionEstablished().connect([this](){
@@ -657,6 +661,36 @@ void PowerPMAC_Global::read_Uptime(Tango::Attribute &attr)
 	}
 	
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Global::read_Uptime
+}
+//--------------------------------------------------------
+/**
+ *	Read attribute AmpStatus related method
+ *	Description: 
+ *
+ *	Data type:	Tango::DevString
+ *	Attr type:	Spectrum max = 8
+ */
+//--------------------------------------------------------
+void PowerPMAC_Global::read_AmpStatus(Tango::Attribute &attr)
+{
+	DEBUG_STREAM << "PowerPMAC_Global::read_AmpStatus(Tango::Attribute &attr) entering... " << endl;
+	/*----- PROTECTED REGION ID(PowerPMAC_Global::read_AmpStatus) ENABLED START -----*/
+	//	Set the attribute value
+
+	for(int i = 0; i < 8; i++) {
+		//tu::SetStringValue(&attr_AmpStatus_read[i], "");
+		try {
+			ppmac::CoreInterface& ci = ppmac::GetCoreObject();
+			auto channelState = ci.ExecuteCommand(ppmac::cmd::GlobalGetAmpChannelState(i));
+			tu::SetStringValue(&attr_AmpStatus_read[i], fmt::format("Chan[{}]: {}", i, channelState));
+		} catch (ppmac::RuntimeError& e) {
+			tu::TranslateException(e);
+		}
+		attr.set_value(attr_AmpStatus_read, 8);
+	}
+
+	
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Global::read_AmpStatus
 }
 
 //--------------------------------------------------------

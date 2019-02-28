@@ -184,6 +184,19 @@ public:
 		{return (static_cast<PowerPMAC_Global *>(dev))->is_Uptime_allowed(ty);}
 };
 
+//	Attribute AmpStatus class definition
+class AmpStatusAttrib: public Tango::SpectrumAttr
+{
+public:
+	AmpStatusAttrib():SpectrumAttr("AmpStatus",
+			Tango::DEV_STRING, Tango::READ, 8) {};
+	~AmpStatusAttrib() {};
+	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
+		{(static_cast<PowerPMAC_Global *>(dev))->read_AmpStatus(att);}
+	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
+		{return (static_cast<PowerPMAC_Global *>(dev))->is_AmpStatus_allowed(ty);}
+};
+
 
 //=========================================
 //	Define classes for commands

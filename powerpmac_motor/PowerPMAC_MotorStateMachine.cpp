@@ -478,9 +478,7 @@ bool PowerPMAC_Motor::is_Phase_allowed(TANGO_UNUSED(const CORBA::Any &any))
 {
 	//	Compare device state with not allowed states.
 	if (get_state()==Tango::OFF ||
-		get_state()==Tango::MOVING ||
-		get_state()==Tango::FAULT ||
-		get_state()==Tango::DISABLE)
+		get_state()==Tango::MOVING)
 	{
 	/*----- PROTECTED REGION ID(PowerPMAC_Motor::PhaseStateAllowed) ENABLED START -----*/
 	
@@ -500,10 +498,7 @@ bool PowerPMAC_Motor::is_Home_allowed(TANGO_UNUSED(const CORBA::Any &any))
 {
 	//	Compare device state with not allowed states.
 	if (get_state()==Tango::OFF ||
-		get_state()==Tango::INIT ||
-		get_state()==Tango::MOVING ||
-		get_state()==Tango::FAULT ||
-		get_state()==Tango::DISABLE)
+		get_state()==Tango::MOVING)
 	{
 	/*----- PROTECTED REGION ID(PowerPMAC_Motor::HomeStateAllowed) ENABLED START -----*/
 	
@@ -523,10 +518,7 @@ bool PowerPMAC_Motor::is_Calibrate_allowed(TANGO_UNUSED(const CORBA::Any &any))
 {
 	//	Compare device state with not allowed states.
 	if (get_state()==Tango::OFF ||
-		get_state()==Tango::INIT ||
-		get_state()==Tango::MOVING ||
-		get_state()==Tango::FAULT ||
-		get_state()==Tango::DISABLE)
+		get_state()==Tango::MOVING)
 	{
 	/*----- PROTECTED REGION ID(PowerPMAC_Motor::CalibrateStateAllowed) ENABLED START -----*/
 	
@@ -546,10 +538,7 @@ bool PowerPMAC_Motor::is_Enable_allowed(TANGO_UNUSED(const CORBA::Any &any))
 {
 	//	Compare device state with not allowed states.
 	if (get_state()==Tango::ON ||
-		get_state()==Tango::INIT ||
-		get_state()==Tango::MOVING ||
-		get_state()==Tango::FAULT ||
-		get_state()==Tango::DISABLE)
+		get_state()==Tango::MOVING)
 	{
 	/*----- PROTECTED REGION ID(PowerPMAC_Motor::EnableStateAllowed) ENABLED START -----*/
 	
@@ -587,9 +576,7 @@ bool PowerPMAC_Motor::is_Disable_allowed(TANGO_UNUSED(const CORBA::Any &any))
 bool PowerPMAC_Motor::is_Stop_allowed(TANGO_UNUSED(const CORBA::Any &any))
 {
 	//	Compare device state with not allowed states.
-	if (get_state()==Tango::OFF ||
-		get_state()==Tango::FAULT ||
-		get_state()==Tango::DISABLE)
+	if (get_state()==Tango::OFF)
 	{
 	/*----- PROTECTED REGION ID(PowerPMAC_Motor::StopStateAllowed) ENABLED START -----*/
 	
@@ -616,19 +603,19 @@ bool PowerPMAC_Motor::is_Kill_allowed(TANGO_UNUSED(const CORBA::Any &any))
 
 //--------------------------------------------------------
 /**
- *	Method      : PowerPMAC_Motor::is_Reset_allowed()
- *	Description : Execution allowed for Reset attribute
+ *	Method      : PowerPMAC_Motor::is_ActivateAndReset_allowed()
+ *	Description : Execution allowed for ActivateAndReset attribute
  */
 //--------------------------------------------------------
-bool PowerPMAC_Motor::is_Reset_allowed(TANGO_UNUSED(const CORBA::Any &any))
+bool PowerPMAC_Motor::is_ActivateAndReset_allowed(TANGO_UNUSED(const CORBA::Any &any))
 {
 	//	Compare device state with not allowed states.
 	if (get_state()==Tango::OFF ||
 		get_state()==Tango::MOVING)
 	{
-	/*----- PROTECTED REGION ID(PowerPMAC_Motor::ResetStateAllowed) ENABLED START -----*/
+	/*----- PROTECTED REGION ID(PowerPMAC_Motor::ActivateAndResetStateAllowed) ENABLED START -----*/
 	
-	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::ResetStateAllowed
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::ActivateAndResetStateAllowed
 		return false;
 	}
 	return true;

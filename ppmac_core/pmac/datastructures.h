@@ -253,25 +253,25 @@ namespace ppmac {
 
 	// contains a list of stats bits that we count as "error" state
 	// these should not need a manual reset
-	const uint64_t motorErrorStatusBits =
+	const uint64_t motorSoftErrorStatusBits =
 			//(1ull << MotorStatusBits::AmpWarn) |
 			//(1ull << MotorStatusBits::SoftPlusLimit) |
 			//(1ull << MotorStatusBits::SoftMinusLimit) |
 			//(1ull << MotorStatusBits::LimitStop) |
 			//(1ull << MotorStatusBits::PlusLimit) |
 			//(1ull << MotorStatusBits::MinusLimit) |
+			(1ull << MotorStatusBits::AmpFault) |
+			(1ull << MotorStatusBits::I2tFault) |
 			(1ull << MotorStatusBits::FeFatal);
 
 	// contains a list of stats bits that we count as "fatal" state
 	// these need some kind of reset
-	const uint64_t motorFatalStatusBits =
-			(1ull << MotorStatusBits::AmpFault) |
-			(1ull << MotorStatusBits::I2tFault) |
+	const uint64_t motorHardErrorStatusBits =
 			(1ull << MotorStatusBits::EncLoss);
 
 	// contains a list of stats bits that we count as "fatal" state
 	// these need some kind of reset
-	const uint64_t motorNeededGoodStates =
+	const uint64_t motorNeededStatusBits =
 			(1ull << MotorStatusBits::AmpEna) |
 			(1ull << MotorStatusBits::PhaseFound);
 
@@ -400,7 +400,7 @@ namespace ppmac {
 
 	// contains a list of stats bits that we count as "error" state
 	// these should not need a manual reset
-	const uint64_t coordErrorStatusBits =
+	const uint64_t coordSoftErrorStatusBits =
 			//(1ull << CoordStatusBits::AmpWarn) |
 			//(1ull << CoordStatusBits::SoftPlusLimit) |
 			//(1ull << CoordStatusBits::SoftMinusLimit) |
@@ -411,14 +411,14 @@ namespace ppmac {
 
 	// contains a list of stats bits that we count as "fatal" state
 	// these need some kind of reset
-	const uint64_t coordFatalStatusBits =
+	const uint64_t coordHardErrorStatusBits =
 			(1ull << CoordStatusBits::AmpFault) |
 			(1ull << CoordStatusBits::I2tFault) |
 			(1ull << CoordStatusBits::EncLoss);
 
 	// contains a list of stats bits that we count as "fatal" state
 	// these need some kind of reset
-	const uint64_t coordNeededGoodStates =
+	const uint64_t coordNeededStatusBits =
 			(1ull << CoordStatusBits::AmpEna);
 
 	struct MotorInfo {
@@ -532,6 +532,52 @@ namespace ppmac {
 		CoordStatusUnion prevStatus;
 		uint32_t availableAxis;
 		uint32_t prevAvailableAxis;
+	};
+
+
+	struct CoordAxisDefinitionInfo {
+		std::string axisName;
+		int32_t coordId;
+		int32_t motorId;
+	};
+
+	enum class MotorUnit {
+		None,
+		FeedbackUnit,
+		Meter,
+		Millimeter,
+		MicroMeter,
+		NanoMeter,
+		PicoMeter,
+		Inch,
+		Mil,
+		Revolution,
+		Radian,
+		Degree,
+		Gradian,
+		ArcMinute,
+		ArcSecond,
+		Reserved
+	};
+
+	// this is only used for the name mapping via wise_enum
+	enum class MotorUnitShort {
+		None,
+		ct,
+		m,
+		mm,
+		um,
+		nm,
+		pm,
+		in,
+		mil,
+		rev,
+		rad,
+		deg,
+		grad,
+		arcm,
+		arcs,
+		Reserved
 	};
 
 	struct IOInfo {

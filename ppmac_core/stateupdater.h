@@ -27,6 +27,56 @@
 
 namespace ppmac {
 
+
+
+	class SpinLock {
+		std::atomic_flag locked = ATOMIC_FLAG_INIT ;
+	public:
+		void lock() {
+			while (locked.test_and_set(std::memory_order_acquire)) { ; }
+		}
+		void unlock() {
+			locked.clear(std::memory_order_release);
+		}
+	};
+
+	class TicketSpinLock
+	{
+	public:
+		void lock()
+		{
+			const auto myTicketNo = NextTicketNo.fetch_add(1, std::memory_order_relaxed);
+
+			while (ServingTicketNo.load(std::memory_order_acquire) != myTicketNo) {
+				__asm__ ( "pause;" );
+			}
+		}
+
+		void unlock()
+		{
+			// We can get around a more expensive read-modify-write operation
+			// (std::atomic_size_t::fetch_add()), because no one can modify
+			// ServingTicketNo while we're in the critical section.
+			const auto newNo = ServingTicketNo.load(std::memory_order_relaxed)+1;
+			ServingTicketNo.store(newNo, std::memory_order_release);
+		}
+
+	private:
+		std::atomic_size_t ServingTicketNo = {0};
+		std::atomic_size_t NextTicketNo = {0};
+	};
+
+	class FairDualMutex : public std::mutex {
+	public:
+		void lock() {
+			_fairness_mutex.lock();
+			std::mutex::lock();
+			_fairness_mutex.unlock();
+		}
+	private:
+		std::mutex _fairness_mutex;
+	};
+
 	class StateUpdater
 	{
 	private:
@@ -51,61 +101,13 @@ namespace ppmac {
 
 		DataRequestInfo MakeDataRequestInfo(std::chrono::microseconds updateInterval, std::chrono::milliseconds timeout) {
 			return DataRequestInfo{
-				time_point{},
-				//time_point{},
-				updateInterval,
-				timeout,
-				INVALID_HANDLE
+					time_point{},
+					//time_point{},
+					updateInterval,
+					timeout,
+					INVALID_HANDLE
 			};
 		}
-
-		class SpinLock {
-			std::atomic_flag locked = ATOMIC_FLAG_INIT ;
-		public:
-			void lock() {
-				while (locked.test_and_set(std::memory_order_acquire)) { ; }
-			}
-			void unlock() {
-				locked.clear(std::memory_order_release);
-			}
-		};
-
-		class TicketSpinLock
-		{
-		public:
-			void lock()
-			{
-				const auto myTicketNo = NextTicketNo.fetch_add(1, std::memory_order_relaxed);
-
-				while (ServingTicketNo.load(std::memory_order_acquire) != myTicketNo) {
-					__asm__ ( "pause;" );
-				}
-			}
-
-			void unlock()
-			{
-				// We can get around a more expensive read-modify-write operation
-				// (std::atomic_size_t::fetch_add()), because no one can modify
-				// ServingTicketNo while we're in the critical section.
-				const auto newNo = ServingTicketNo.load(std::memory_order_relaxed)+1;
-				ServingTicketNo.store(newNo, std::memory_order_release);
-			}
-
-		private:
-			std::atomic_size_t ServingTicketNo = {0};
-			std::atomic_size_t NextTicketNo = {0};
-		};
-
-		class FairDualMutex : public std::mutex {
-		public:
-			void lock() {
-				_fairness_mutex.lock();
-				std::mutex::lock();
-				_fairness_mutex.unlock();
-			}
-		private:
-			std::mutex _fairness_mutex;
-		};
 
 	public:
 		StateUpdater(CoreNotifyInterface& core, RemoteShell& rs)
@@ -194,29 +196,48 @@ namespace ppmac {
 			return state.global;
 		}
 
+		std::vector<CoordAxisDefinitionInfo> GetMotorAxisDefinitions(CoordID id) {
+			std::unordered_map<int32_t, std::vector<CoordAxisDefinitionInfo>> out;
+			for(int i = 0; i < state.global.maxMotors; i++) {
+				auto cmd = cmd::detail::MotorGetCoordAxisDefinition(i);
+				auto result = rs.ChannelWriteRead(cmd);
+				if(result) {
+					try {
+						auto cadi = parser::ParseCoordAxisQueryResult(*result);
+						out[cadi.coordId].push_back(cadi);
+					} catch(const std::exception&) {
+						RETHROW_RUNTIME_ERROR("unable to query axis to motor mapping:\nquery: '{}'\nresult: '{}'", cmd, *result);
+					}
+				}
+				else {
+					SPDLOG_ERROR("unable to get axis mapping result, channel error: {}", wise_enum::to_string(result.error()));
+				}
+			}
+			return out[static_cast<int32_t>(id)];
+		};
+
+		MotorUnit GetMotorUnit(MotorID id) {
+			return MotorUnit::None;
+		};
+
 	private:
 		void UpdateGeneralInfo() {
 			std::lock_guard<std::mutex> lock(stateMutex);
 			auto query = query::GeneralGetInfo(stdext::span<GlobalInfo>(&state.global, 1));
 			auto result = rs.ChannelWriteRead(query.command);
-			try {
-				if(result) {
+			if(result) {
+				try {
 					if(parser::detail::CheckForError(*result)) {
 						THROW_RUNTIME_ERROR("response contained error '{}'", *result);
 					}
 					auto parserResult = query.splitter(*result);
 					Update1D(parserResult, query);
 					motorOrCoordOutOfSync = false;
-				} else {
-					SPDLOG_ERROR("unable to get general result, channel error: {}", wise_enum::to_string(result.error()));
-				}
-			} catch(std::exception) {
-				if(result) {
+				} catch(const std::exception&) {
 					RETHROW_RUNTIME_ERROR("unable to update general info:\nquery: '{}'\nresult: '{}'", query.command, *result);
 				}
-				else {
-					RETHROW_RUNTIME_ERROR("unable to update general info:\nquery: '{}'\nerror: '{}'", query.command, wise_enum::to_string(result.error()));
-				}
+			} else {
+				SPDLOG_ERROR("unable to get general result, channel error: {}", wise_enum::to_string(result.error()));
 			}
 		}
 
@@ -227,18 +248,18 @@ namespace ppmac {
 			}
 			auto query = query::MotorGetInfoRange(stdext::make_span(state.motors), 0, state.global.maxMotors - 1);
 			auto result = rs.ChannelWriteRead(query.command);
-			try {
-				if(result) {
+			if(result) {
+				try {
 					auto error = parser::detail::GetError(*result);
 					// we have an invalid count of motor/coords we need to request
 					// the right values again
-					if(error && error->first == parser::EC::OUT_OF_RANGE_NUMBER) {
+					if (error && error->first == parser::EC::OUT_OF_RANGE_NUMBER) {
 						motorOrCoordOutOfSync = true;
 						SPDLOG_WARN("motor count out of sync, request refresh");
 						return;
 					}
-					// otherwise we just throw the error and handle it further up
-					else if(error) {
+						// otherwise we just throw the error and handle it further up
+					else if (error) {
 						THROW_RUNTIME_ERROR("response contained error '{}'", *result);
 					}
 					auto parserResult = query.splitter(*result);
@@ -246,25 +267,21 @@ namespace ppmac {
 					// now we need to check if some statues changed and if so need to
 					// call the status modified callbacks
 					// TODO: the callback will be called from another thread.. do we need to lock some shit there?
-					for(size_t i = 0; i < state.motors.size(); i++) {
-						auto& motor = state.motors[i];
-						if(motor.status.registerValue != motor.prevStatus.registerValue) {
-							uint64_t changes = motor.prevStatus.registerValue ^ motor.status.registerValue;
+					for (size_t i = 0; i < state.motors.size(); i++) {
+						auto &motor = state.motors[i];
+						if (motor.status.registerValue != motor.prevStatus.registerValue) {
+							uint64_t changes = motor.prevStatus.registerValue ^motor.status.registerValue;
 							core.OnMotorStateChanged(i, motor.status.registerValue, changes);
 							//PrintStateChanges(i, m.prevStatus.registerValue, m.status.registerValue);
 							motor.prevStatus = motor.status;
 						}
 					}
-				} else {
-					SPDLOG_ERROR("unable to get motor result, channel error: {}", wise_enum::to_string(result.error()));
-				}
-			} catch(std::exception) {
-				if(result) {
+				} catch (const std::exception&) {
 					RETHROW_RUNTIME_ERROR("unable to update motor info:\nquery: '{}'\nresult: '{}'", query.command, *result);
 				}
-				else {
-					RETHROW_RUNTIME_ERROR("unable to update motor info:\nquery: '{}'\nerror: '{}'", query.command, wise_enum::to_string(result.error()));
-				}
+			}
+			else {
+				SPDLOG_ERROR("unable to get motor result, channel error: {}", wise_enum::to_string(result.error()));
 			}
 		}
 
@@ -272,8 +289,8 @@ namespace ppmac {
 			std::lock_guard<std::mutex> lock(stateMutex);
 			auto query = query::MotorGetServoCtrlStatus(stdext::make_span(state.motors), 0, state.global.maxMotors - 1);
 			auto result = rs.ChannelWriteRead(query.command);
-			try {
-				if(result) {
+			if(result) {
+				try {
 					if(parser::detail::CheckForError(*result)) {
 						THROW_RUNTIME_ERROR("response contained error '{}'", *result);
 					}
@@ -286,16 +303,11 @@ namespace ppmac {
 							motor.prevServoCtrl = motor.servoCtrl;
 						}
 					}
-				} else {
-					SPDLOG_ERROR("unable to get general result, channel error: {}", wise_enum::to_string(result.error()));
-				}
-			} catch(std::exception) {
-				if(result) {
+				} catch(const std::exception&) {
 					RETHROW_RUNTIME_ERROR("unable to update general info:\nquery: '{}'\nresult: '{}'", query.command, *result);
 				}
-				else {
-					RETHROW_RUNTIME_ERROR("unable to update general info:\nquery: '{}'\nerror: '{}'", query.command, wise_enum::to_string(result.error()));
-				}
+			} else {
+				SPDLOG_ERROR("unable to get general result, channel error: {}", wise_enum::to_string(result.error()));
 			}
 		}
 
@@ -306,50 +318,45 @@ namespace ppmac {
 			}
 			auto query = query::CoordGetInfoRange(stdext::make_span(state.coords), 0, state.global.maxCoords - 1);
 			auto result = rs.ChannelWriteRead(query.command);
-			try {
-				if(result) {
+			if(result) {
+				try {
 					auto error = parser::detail::GetError(*result);
 					// we have an invalid count of motor/coords we need to request
 					// the right values again
-					if(error && error->first == parser::EC::OUT_OF_RANGE_NUMBER) {
+					if (error && error->first == parser::EC::OUT_OF_RANGE_NUMBER) {
 						motorOrCoordOutOfSync = true;
 						SPDLOG_WARN("coord count out of sync, request refresh");
 						return;
 					}
-					// otherwise we just throw the error and handle it further up
-					else if(error) {
+						// otherwise we just throw the error and handle it further up
+					else if (error) {
 						THROW_RUNTIME_ERROR("response contained error '{}'", *result);
 					}
 					auto parserResult = query.splitter(*result);
 					UpdateCoord(parserResult, query);
 					// notofy for state changes
-					for(size_t i = 0; i < state.coords.size(); i++) {
-						auto& coord = state.coords[i];
-						if(coord.status.registerValue != coord.prevStatus.registerValue) {
-							uint64_t changes = coord.status.registerValue ^ coord.prevStatus.registerValue;
+					for (size_t i = 0; i < state.coords.size(); i++) {
+						auto &coord = state.coords[i];
+						if (coord.status.registerValue != coord.prevStatus.registerValue) {
+							uint64_t changes = coord.status.registerValue ^coord.prevStatus.registerValue;
 							core.OnCoordStateChanged(i, coord.status.registerValue, changes);
 							coord.prevStatus = coord.status;
 						}
 					}
 					// notify for axis changes
-					for(size_t i = 0; i < state.coords.size(); i++) {
-						auto& coord = state.coords[i];
-						if(coord.availableAxis != coord.prevAvailableAxis) {
+					for (size_t i = 0; i < state.coords.size(); i++) {
+						auto &coord = state.coords[i];
+						if (coord.availableAxis != coord.prevAvailableAxis) {
 							core.OnCoordAxisChanged(i, coord.availableAxis);
 							coord.prevAvailableAxis = coord.availableAxis;
 						}
 					}
-				}
-				else {
-					SPDLOG_ERROR("unable to get coord result, channel error: {}", wise_enum::to_string(result.error()));
-				}
-			} catch(std::exception) {
-				if(result) {
+				} catch (const std::exception&) {
 					RETHROW_RUNTIME_ERROR("unable to update coord info:\nquery: '{}'\nresult: '{}'", query.command, *result);
 				}
-				else {
-					RETHROW_RUNTIME_ERROR("unable to update coord info:\nquery: '{}'\nerror: '{}'", query.command, wise_enum::to_string(result.error()));
-				}
+			}
+			else {
+				SPDLOG_ERROR("unable to get coord result, channel error: {}", wise_enum::to_string(result.error()));
 			}
 		}
 

@@ -238,4 +238,41 @@ WISE_ENUM_ADAPT(ppmac::CoordStatusBits::TYPE,
 		(TriggerMove, 63)
 		);
 
+WISE_ENUM_ADAPT(ppmac::MotorUnit,
+		None,
+		FeedbackUnit,
+		Meter,
+		Millimeter,
+		MicroMeter,
+		NanoMeter,
+		PicoMeter,
+		Inch,
+		Mil,
+		Revolution,
+		Radian,
+		Degree,
+		Gradian,
+		ArcMinute,
+		ArcSecond,
+		Reserved);
+
+
+WISE_ENUM_ADAPT(ppmac::MotorUnitShort,
+		None,
+		ct,
+		m,
+		mm,
+		um,
+		nm,
+		pm,
+		in,
+		mil,
+		rev,
+		rad,
+		deg,
+		grad,
+		arcm,
+		arcs,
+		Reserved);
+
 #endif //POWERPMAC_ENUMADAPT_H

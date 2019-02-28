@@ -61,9 +61,10 @@
 //================================================================
 
 //================================================================
-//  Attributes managed is:
+//  Attributes managed are:
 //================================================================
-//  NumAxis  |  Tango::DevLong	Scalar
+//  NumAxis      |  Tango::DevLong	Scalar
+//  AxisMapping  |  Tango::DevString	Spectrum  ( max = 26)
 //================================================================
 
 namespace PowerPMAC_CoordinateSystems_ns
@@ -118,9 +119,12 @@ void PowerPMAC_CoordinateSystems::delete_device()
 {
 	DEBUG_STREAM << "PowerPMAC_CoordinateSystems::delete_device() " << device_name << endl;
 	/*----- PROTECTED REGION ID(PowerPMAC_CoordinateSystems::delete_device) ENABLED START -----*/
+
+	StopCoordinateSystem();
 	
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_CoordinateSystems::delete_device
 	delete[] attr_NumAxis_read;
+	delete[] attr_AxisMapping_read;
 }
 
 //--------------------------------------------------------
@@ -143,6 +147,7 @@ void PowerPMAC_CoordinateSystems::init_device()
 	get_device_property();
 	
 	attr_NumAxis_read = new Tango::DevLong[1];
+	attr_AxisMapping_read = new Tango::DevString[26];
 	//	No longer if mandatory property not set. 
 	if (mandatoryNotDefined)
 		return;
@@ -150,7 +155,10 @@ void PowerPMAC_CoordinateSystems::init_device()
 	/*----- PROTECTED REGION ID(PowerPMAC_CoordinateSystems::init_device) ENABLED START -----*/
 
 	*attr_NumAxis_read = 0;
+	std::fill(attr_AxisMapping_read, attr_AxisMapping_read + 26, nullptr);
 	coordId = static_cast<ppmac::CoordID>(coordinateIndex);
+
+	fmt::print("init called for coord {}\n", coordinateIndex);
 
 	ppmac::CoreInterface& ci = ppmac::GetCoreObject();
 
@@ -328,6 +336,35 @@ void PowerPMAC_CoordinateSystems::read_NumAxis(Tango::Attribute &attr)
 	
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_CoordinateSystems::read_NumAxis
 }
+//--------------------------------------------------------
+/**
+ *	Read attribute AxisMapping related method
+ *	Description: 
+ *
+ *	Data type:	Tango::DevString
+ *	Attr type:	Spectrum max = 26
+ */
+//--------------------------------------------------------
+void PowerPMAC_CoordinateSystems::read_AxisMapping(Tango::Attribute &attr)
+{
+	DEBUG_STREAM << "PowerPMAC_CoordinateSystems::read_AxisMapping(Tango::Attribute &attr) entering... " << endl;
+	/*----- PROTECTED REGION ID(PowerPMAC_CoordinateSystems::read_AxisMapping) ENABLED START -----*/
+	//	Set the attribute value
+
+	try {
+		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
+		auto axisDef = ci.GetMotorAxisDefinitions(coordId);
+		for (size_t i = 0; i < axisDef.size(); i++) {
+			auto& ad = axisDef[i];
+			tu::SetStringValue(&attr_AxisMapping_read[i], fmt::format("Motor {} -> {}", ad.motorId, ad.axisName));
+		}
+		attr.set_value(attr_AxisMapping_read, axisDef.size());
+	} catch (ppmac::RuntimeError& e) {
+		tu::TranslateException(e);
+	}
+	
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_CoordinateSystems::read_AxisMapping
+}
 
 //--------------------------------------------------------
 /**
@@ -414,6 +451,11 @@ void PowerPMAC_CoordinateSystems::add_dynamic_commands()
 /*----- PROTECTED REGION ID(PowerPMAC_CoordinateSystems::namespace_ending) ENABLED START -----*/
 
 void PowerPMAC_CoordinateSystems::StartCoordinateSystem() {
+	if(started) {
+		return;
+	}
+	started = true;
+	fmt::print("starting coord {}\n", coordinateIndex);
 	try {
 		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
 		// get the number of axis
@@ -424,15 +466,20 @@ void PowerPMAC_CoordinateSystems::StartCoordinateSystem() {
 			Tango::Except::throw_exception("invalid coordinate system", "number of axis must be <= 26 (A-Z)", "PowerPMAC_CoordinateSystems::StartCoordinateSystem");
 		}
 		*attr_NumAxis_read = val;
-		UpdateAxisToMatchCurrent(ci.GetCoordInfo(coordId).availableAxis);
+		auto coordInfo = ci.GetCoordInfo(coordId);
+		UpdateAxisToMatchCurrent(coordInfo.availableAxis);
+		UpdateStateFromCurrentStatus(coordInfo.status.registerValue);
 	} catch (ppmac::RuntimeError& e) {
 		tu::TranslateException(e);
 	}
-
-	set_state(Tango::ON);
 }
 
 void PowerPMAC_CoordinateSystems::StopCoordinateSystem() {
+	if(!started) {
+		return;
+	}
+	started = false;
+	fmt::print("stopping coord {}\n", coordinateIndex);
 	for(auto& it : attribs) {
 		remove_attribute(it.second.get());
 	}
@@ -440,39 +487,41 @@ void PowerPMAC_CoordinateSystems::StopCoordinateSystem() {
 }
 
 void PowerPMAC_CoordinateSystems::CoordinateStateChanged(uint64_t newState, uint64_t changes) {
-	try {
-		if(ppmac::bits::rising(newState, changes, ppmac::CoordStatusBits::DestVelZero)) {
-			set_state(Tango::ON);
-			//fmt::print("set state to ON\n");
+	UpdateStateFromCurrentStatus(newState);
+
+	if(tu::IsOneOf(get_state(), Tango::ON, Tango::MOVING)) {
+		try {
+			if (ppmac::bits::rising(newState, changes, ppmac::CoordStatusBits::DestVelZero)) {
+				set_state(Tango::ON);
+				//fmt::print("set state to ON\n");
+			} else if (ppmac::bits::falling(newState, changes, ppmac::CoordStatusBits::DestVelZero)) {
+				set_state(Tango::MOVING);
+				ClearMoveStatusWaitTimer();
+				//fmt::print("clearing move timer timeout!\n");
+				//fmt::print("set state to MOVING\n");
+			}
+			lastCoordState = newState;
+		} catch (ppmac::RuntimeError &e) {
+			tu::TranslateException(e);
 		}
-		else if(ppmac::bits::falling(newState, changes, ppmac::CoordStatusBits::DestVelZero)) {
-			set_state(Tango::MOVING);
-			ClearMoveStatusWaitTimer();
-			//fmt::print("clearing move timer timeout!\n");
-			//fmt::print("set state to MOVING\n");
-		}
-		lastCoordState = newState;
-	} catch (ppmac::RuntimeError& e) {
-		tu::TranslateException(e);
 	}
 }
 
 void PowerPMAC_CoordinateSystems::CoordinateSystemChanged(int32_t axis) {
 	UpdateAxisToMatchCurrent(axis);
 }
-
 void PowerPMAC_CoordinateSystems::UpdateAxisToMatchCurrent(int32_t axis) {
 	auto MakeAttrib = [this](int32_t axis, const std::string& axisName){
 		std::unique_ptr<MyAttrib> mya = std::make_unique<MyAttrib>(axis, axisName,
-				[this](int32_t axis){
-					return ReadAxisAttrib(axis);
-				},
-				[this](int32_t axis, double val){
-					WriteAxisAttrib(axis, val);
-				},
-				[this](int32_t axis, Tango::AttReqType type){
-					return IsAxisAttribAccessible(axis, type);
-				}
+			[this](int32_t axis){
+				return ReadAxisAttrib(axis);
+			},
+			[this](int32_t axis, double val){
+				WriteAxisAttrib(axis, val);
+			},
+			[this](int32_t axis, Tango::AttReqType type){
+				return IsAxisAttribAccessible(axis, type);
+			}
 		);
 		Tango::UserDefaultAttrProp	x_prop;
 		mya->set_default_properties(x_prop);
@@ -519,7 +568,7 @@ void PowerPMAC_CoordinateSystems::WriteAxisAttrib(int32_t axis, double value) {
 }
 bool PowerPMAC_CoordinateSystems::IsAxisAttribAccessible(int32_t axis, Tango::AttReqType type) {
 	if(type == Tango::AttReqType::READ_REQ) {
-		return get_state() == Tango::ON || get_state() == Tango::MOVING;
+		return get_state() != Tango::OFF;
 	} else {
 		return get_state() == Tango::ON;
 	}
@@ -530,6 +579,37 @@ void PowerPMAC_CoordinateSystems::ClearMoveStatusWaitTimer() {
 	if(movingTimerHandle != ppmac::INVALID_HANDLE) {
 		ci.RemoveDeadTimer(movingTimerHandle);
 		movingTimerHandle = ppmac::INVALID_HANDLE;
+	}
+}
+
+void PowerPMAC_CoordinateSystems::UpdateStateFromCurrentStatus(uint64_t coordStatus) {
+	bool badState = false;
+
+	if(ppmac::bits::AnyBitSet(coordStatus, ppmac::coordHardErrorStatusBits)) {
+		set_state(Tango::DISABLE);
+		badState = true;
+	}
+	else if(ppmac::bits::AnyBitSet(coordStatus, ppmac::coordSoftErrorStatusBits)) {
+		set_state(Tango::FAULT);
+		badState = true;
+	}
+	else if(!ppmac::bits::AllBitsSet(coordStatus, ppmac::coordNeededStatusBits)) {
+		set_state(Tango::INIT);
+		badState = true;
+	}
+	if(badState) {
+		auto needed = ppmac::states::GetCoordStateNamesForFlagMatch(coordStatus, ppmac::coordNeededStatusBits, 0x0);
+		auto softError = ppmac::states::GetCoordStateNamesForFlagMatch(coordStatus, ppmac::coordSoftErrorStatusBits);
+		auto hardError = ppmac::states::GetCoordStateNamesForFlagMatch(coordStatus, ppmac::coordHardErrorStatusBits);
+		set_status(fmt::format("Check coord status\nMissing: {}\nSoft Errors: {}\nHard Errors: {}", needed, softError, hardError));
+	}
+	else {
+		if (ppmac::bits::isSet(coordStatus, ppmac::MotorStatusBits::DestVelZero)) {
+			set_state(Tango::ON);
+		} else {
+			set_state(Tango::MOVING);
+		}
+		set_status(Tango::StatusNotSet);
 	}
 }
 

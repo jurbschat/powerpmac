@@ -64,6 +64,22 @@ bool PowerPMAC_CoordinateSystems::is_NumAxis_allowed(TANGO_UNUSED(Tango::AttReqT
 	return true;
 }
 
+//--------------------------------------------------------
+/**
+ *	Method      : PowerPMAC_CoordinateSystems::is_AxisMapping_allowed()
+ *	Description : Execution allowed for AxisMapping attribute
+ */
+//--------------------------------------------------------
+bool PowerPMAC_CoordinateSystems::is_AxisMapping_allowed(TANGO_UNUSED(Tango::AttReqType type))
+{
+
+	//	Not any excluded states for AxisMapping attribute in read access.
+	/*----- PROTECTED REGION ID(PowerPMAC_CoordinateSystems::AxisMappingStateAllowed_READ) ENABLED START -----*/
+	
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_CoordinateSystems::AxisMappingStateAllowed_READ
+	return true;
+}
+
 
 //=================================================
 //		Commands Allowed Methods

@@ -9,27 +9,27 @@ int main() {
 
 	ppmac::Core* ci = static_cast<ppmac::Core*>(&ppmac::GetCoreObject());
 	ci->Initialize(ppmac::InitObject{
-		.host = "192.168.56.96",
+		"192.168.56.96",
 		//.host = "192.168.83.130",
-		.port = 22,
-		.logginHost = "131.169.131.127", // cfeld-pcx34931
-		.loggingPort = 5555,
-		.dumpCommunication = false
+		22,
+		"131.169.131.127", // cfeld-pcx34931
+		5555,
+		false
 	});
 
 	const ppmac::MotorID myMotor = ppmac::MotorID::Motor2;
 	ci->Signals().StatusChanged(myMotor).connect([&](uint64_t newState, uint64_t changed){
 		//uint64_t status = ci->GetMotorInfo(myMotor).status.registerValue;
-		if(!ppmac::bits::AllBitsSet(newState, ppmac::motorNeededGoodStates)) {
-			SPDLOG_DEBUG("missing states: " + ppmac::states::GetMotorStateNames(newState, ppmac::motorNeededGoodStates));
+		if(!ppmac::bits::AllBitsSet(newState, ppmac::motorNeededStatusBits)) {
+			SPDLOG_DEBUG("missing states: " + ppmac::states::GetMotorStateNamesForFlagMatch(newState, ppmac::motorNeededStatusBits, 0x0));
 			SPDLOG_DEBUG("motor not initialized correctly");
 		}
-		if(ppmac::bits::AnyBitSet(newState, ppmac::motorFatalStatusBits)) {
-			SPDLOG_DEBUG("fatal states: " + ppmac::states::GetMotorStateNames(newState, ppmac::motorFatalStatusBits, 0x0));
+		if(ppmac::bits::AnyBitSet(newState, ppmac::motorHardErrorStatusBits)) {
+			SPDLOG_DEBUG("fatal states: " + ppmac::states::GetMotorStateNamesForFlagMatch(newState, ppmac::motorHardErrorStatusBits));
 			SPDLOG_DEBUG("disabling motor, manual intervention needed");
 		}
-		if(ppmac::bits::AnyBitSet(newState, ppmac::motorErrorStatusBits)) {
-			SPDLOG_DEBUG("error states: " + ppmac::states::GetMotorStateNames(newState, ppmac::motorErrorStatusBits, 0x0));
+		if(ppmac::bits::AnyBitSet(newState, ppmac::motorSoftErrorStatusBits)) {
+			SPDLOG_DEBUG("error states: " + ppmac::states::GetMotorStateNamesForFlagMatch(newState, ppmac::motorSoftErrorStatusBits));
 			SPDLOG_DEBUG("motor error, should fix itselves");
 		}
 	});

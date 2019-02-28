@@ -207,6 +207,22 @@ bool PowerPMAC_Global::is_Uptime_allowed(TANGO_UNUSED(Tango::AttReqType type))
 	return true;
 }
 
+//--------------------------------------------------------
+/**
+ *	Method      : PowerPMAC_Global::is_AmpStatus_allowed()
+ *	Description : Execution allowed for AmpStatus attribute
+ */
+//--------------------------------------------------------
+bool PowerPMAC_Global::is_AmpStatus_allowed(TANGO_UNUSED(Tango::AttReqType type))
+{
+
+	//	Not any excluded states for AmpStatus attribute in read access.
+	/*----- PROTECTED REGION ID(PowerPMAC_Global::AmpStatusStateAllowed_READ) ENABLED START -----*/
+	
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Global::AmpStatusStateAllowed_READ
+	return true;
+}
+
 
 //=================================================
 //		Commands Allowed Methods

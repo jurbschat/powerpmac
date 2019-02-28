@@ -48,6 +48,7 @@ namespace ppmac {
 		virtual IOInfo GetIoInfo(IoID io) = 0;
 		virtual GlobalInfo GetGlobalInfo() = 0;
 		virtual CoordInfo GetCoordInfo(CoordID coord) = 0;
+		virtual std::vector<CoordAxisDefinitionInfo> GetMotorAxisDefinitions(CoordID id) = 0;
 
 		virtual SignalHandler& Signals() = 0;
 

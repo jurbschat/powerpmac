@@ -33,6 +33,26 @@ namespace ppmac {
 		sigs::Signal<void(uint32_t axis)>& CoordChanged(CoordID id) {
 			return coordChanged[id];
 		}
+		void Clear() {
+			connectionEstablished.clear();
+			connectionLost.clear();
+			motorStatusChanged.clear();
+			motorCtrlChanged.clear();
+			coordStatusChanged.clear();
+			coordChanged.clear();
+			/*for(auto& s : motorStatusChanged) {
+				s.second.clear();
+			}
+			for(auto& s : motorStatusChanged) {
+				s.second.clear();
+			}
+			for(auto& s : motorStatusChanged) {
+				s.second.clear();
+			}
+			for(auto& s : motorStatusChanged) {
+				s.second.clear();
+			}*/
+		}
 	private:
 		sigs::Signal<void()> connectionEstablished;
 		sigs::Signal<void()> connectionLost;

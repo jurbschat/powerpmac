@@ -40,7 +40,9 @@ namespace ppmac::cmd {
 	std::string MotorSetMaxVelocity(MotorID motor, double value);
 	std::string MotorSetServoControl(MotorID motor, bool enable);
 	std::string MotorGetServoControl(MotorID motor);
-
+	namespace detail {
+		std::string MotorGetCoordAxisDefinition(int32_t motorIndex);
+	}
 	///////////////////////////////////////////////////////////////
 	// port commands
 
@@ -59,6 +61,7 @@ namespace ppmac::cmd {
 	// global commands
 
 	std::string GlobalResetBrickLVAmp();
+	std::string GlobalGetAmpChannelState(int32_t channel);
 	std::string GlobalReboot();
 	// resets and default initializes all structures
 	std::string GlobalResetAndReinitialize();

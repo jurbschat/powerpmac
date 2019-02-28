@@ -91,6 +91,7 @@ public:
 	Tango::DevString	*attr_CpuType_read;
 	Tango::DevLong	*attr_CpuFrequency_read;
 	Tango::DevString	*attr_Uptime_read;
+	Tango::DevString	*attr_AmpStatus_read;
 
 //	Constructors and destructors
 public:
@@ -246,6 +247,15 @@ public:
  */
 	virtual void read_Uptime(Tango::Attribute &attr);
 	virtual bool is_Uptime_allowed(Tango::AttReqType type);
+/**
+ *	Attribute AmpStatus related methods
+ *	Description: 
+ *
+ *	Data type:	Tango::DevString
+ *	Attr type:	Spectrum max = 8
+ */
+	virtual void read_AmpStatus(Tango::Attribute &attr);
+	virtual bool is_AmpStatus_allowed(Tango::AttReqType type);
 
 
 	//--------------------------------------------------------

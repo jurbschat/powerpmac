@@ -45,10 +45,10 @@ namespace ppmac {
 
 	namespace states {
 
-		std::string GetMotorStateNames(uint64_t state, uint64_t checkBits, uint64_t expected) {
+		std::string GetMotorStateNamesForFlagMatch(uint64_t state, uint64_t checkBits, uint64_t expected) {
 			return detail::GetEnumNamesForBitMatch<MotorStatusBits::TYPE>(state, checkBits, expected);
 		}
-		std::string GetCoordStateNames(uint64_t state, uint64_t checkBits, uint64_t expected) {
+		std::string GetCoordStateNamesForFlagMatch(uint64_t state, uint64_t checkBits, uint64_t expected) {
 			return detail::GetEnumNamesForBitMatch<CoordStatusBits::TYPE>(state, checkBits, expected);
 		}
 	}

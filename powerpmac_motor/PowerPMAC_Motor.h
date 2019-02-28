@@ -75,7 +75,7 @@ private:
 
 //	Device property data members
 public:
-	//	MotorIndex:	the index of the motor
+	//	MotorIndex:	index of the motor
 	Tango::DevULong	motorIndex;
 	//	DisableHardLimits:	
 	Tango::DevBoolean	disableHardLimits;
@@ -348,12 +348,12 @@ public:
 	virtual void kill();
 	virtual bool is_Kill_allowed(const CORBA::Any &any);
 	/**
-	 *	Command Reset related method
+	 *	Command ActivateAndReset related method
 	 *	Description: 
 	 *
 	 */
-	virtual void reset();
-	virtual bool is_Reset_allowed(const CORBA::Any &any);
+	virtual void activate_and_reset();
+	virtual bool is_ActivateAndReset_allowed(const CORBA::Any &any);
 
 
 	//--------------------------------------------------------

@@ -53,18 +53,18 @@
 //  The following table gives the correspondence
 //  between command and method names.
 //
-//  Command name  |  Method name
+//  Command name      |  Method name
 //================================================================
-//  State         |  Inherited (no method)
-//  Status        |  Inherited (no method)
-//  Phase         |  phase
-//  Home          |  home
-//  Calibrate     |  calibrate
-//  Enable        |  enable
-//  Disable       |  disable
-//  Stop          |  stop
-//  Kill          |  kill
-//  Reset         |  reset
+//  State             |  Inherited (no method)
+//  Status            |  Inherited (no method)
+//  Phase             |  phase
+//  Home              |  home
+//  Calibrate         |  calibrate
+//  Enable            |  enable
+//  Disable           |  disable
+//  Stop              |  stop
+//  Kill              |  kill
+//  ActivateAndReset  |  activate_and_reset
 //================================================================
 
 //================================================================
@@ -203,6 +203,9 @@ void PowerPMAC_Motor::init_device()
 
 	motorId = static_cast<ppmac::MotorID>(motorIndex);
 	started = false;
+
+	fmt::print("init called for motor {}\n", motorIndex);
+
 	ppmac::CoreInterface& ci = ppmac::GetCoreObject();
 
 	connectionEstablished = ci.Signals().ConnectionEstablished().connect([this](){
@@ -903,7 +906,7 @@ void PowerPMAC_Motor::read_MotorStates(Tango::Attribute &attr)
 		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
 
 		uint64_t motorStatus = ci.GetMotorInfo(motorId).status.registerValue;
-		auto aciveStates = ppmac::states::GetMotorStateNames(motorStatus, 0xFFFFFFFFFFFFFFFF);
+		auto aciveStates = ppmac::states::GetMotorStateNamesForFlagMatch(motorStatus, 0xFFFFFFFFFFFFFFFF);
 		tu::SetStringValue(attr_MotorStates_read, aciveStates);
 		attr.set_value(attr_MotorStates_read);
 	} catch (ppmac::RuntimeError& e) {
@@ -1068,15 +1071,15 @@ void PowerPMAC_Motor::kill()
 }
 //--------------------------------------------------------
 /**
- *	Command Reset related method
+ *	Command ActivateAndReset related method
  *	Description: 
  *
  */
 //--------------------------------------------------------
-void PowerPMAC_Motor::reset()
+void PowerPMAC_Motor::activate_and_reset()
 {
-	DEBUG_STREAM << "PowerPMAC_Motor::Reset()  - " << device_name << endl;
-	/*----- PROTECTED REGION ID(PowerPMAC_Motor::reset) ENABLED START -----*/
+	DEBUG_STREAM << "PowerPMAC_Motor::ActivateAndReset()  - " << device_name << endl;
+	/*----- PROTECTED REGION ID(PowerPMAC_Motor::activate_and_reset) ENABLED START -----*/
 
 	try {
 		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
@@ -1085,7 +1088,7 @@ void PowerPMAC_Motor::reset()
 		tu::TranslateException(e);
 	}
 	
-	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::reset
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::activate_and_reset
 }
 //--------------------------------------------------------
 /**
@@ -1112,6 +1115,7 @@ void PowerPMAC_Motor::StartMotor() {
 		return;
 	}
 	started = true;
+	fmt::print("starting motor {}\n", motorIndex);
 	try {
 		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
 		auto motorInfo = ci.GetMotorInfo(motorId);
@@ -1143,6 +1147,7 @@ void PowerPMAC_Motor::StopMotor() {
 		return;
 	}
 	started = false;
+	fmt::print("stopping motor {}", motorIndex);
 	try {
 		if(disableHardLimits) {
 			// restore the limits if the device goes down
@@ -1205,26 +1210,27 @@ void PowerPMAC_Motor::ClearMoveStatusWaitTimer() {
 
 void PowerPMAC_Motor::UpdateStateFromCurrentStatus(uint64_t motorStatus) {
 	bool badState = false;
-	if(ppmac::bits::AnyBitSet(motorStatus, ppmac::motorErrorStatusBits)) {
-		set_state(Tango::FAULT);
-		badState = true;
-	}
-	else if(ppmac::bits::AnyBitSet(motorStatus, ppmac::motorFatalStatusBits)) {
+
+	if(ppmac::bits::AnyBitSet(motorStatus, ppmac::motorHardErrorStatusBits)) {
 		set_state(Tango::DISABLE);
 		badState = true;
 	}
-	else if(!ppmac::bits::AllBitsSet(motorStatus, ppmac::motorNeededGoodStates)) {
+	else if(ppmac::bits::AnyBitSet(motorStatus, ppmac::motorSoftErrorStatusBits)) {
+		set_state(Tango::FAULT);
+		badState = true;
+	}
+	else if(!ppmac::bits::AllBitsSet(motorStatus, ppmac::motorNeededStatusBits)) {
 		set_state(Tango::INIT);
 		badState = true;
 	}
 	if(badState) {
-		auto needed = ppmac::states::GetMotorStateNames(motorStatus, ppmac::motorNeededGoodStates, 0x0);
-		auto error = ppmac::states::GetMotorStateNames(motorStatus, ppmac::motorErrorStatusBits);
-		auto fatal = ppmac::states::GetMotorStateNames(motorStatus, ppmac::motorFatalStatusBits);
-		set_status(fmt::format("motor status needs attention:\nmissing: {}\nerror: {}\nfatal: {}", needed, error, fatal));
+		auto needed = ppmac::states::GetMotorStateNamesForFlagMatch(motorStatus, ppmac::motorNeededStatusBits, 0x0);
+		auto softError = ppmac::states::GetMotorStateNamesForFlagMatch(motorStatus, ppmac::motorSoftErrorStatusBits);
+		auto hardError = ppmac::states::GetMotorStateNamesForFlagMatch(motorStatus, ppmac::motorHardErrorStatusBits);
+		set_status(fmt::format("Check motor status\nMissing: {}\nSoft Errors: {}\nHard Errors: {}", needed, softError, hardError));
 	}
 	else {
-		if (ppmac::bits::set(motorStatus, ppmac::MotorStatusBits::DestVelZero)) {
+		if (ppmac::bits::isSet(motorStatus, ppmac::MotorStatusBits::DestVelZero)) {
 			set_state(Tango::ON);
 		} else {
 			set_state(Tango::MOVING);

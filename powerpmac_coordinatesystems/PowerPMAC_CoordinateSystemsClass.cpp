@@ -258,7 +258,7 @@ void PowerPMAC_CoordinateSystemsClass::set_default_property()
 
 	//	Set Default device Properties
 	prop_name = "CoordinateIndex";
-	prop_desc = "coordinate system id";
+	prop_desc = "index of the coordinate system";
 	prop_def  = "";
 	vect_data.clear();
 	if (prop_def.length()>0)
@@ -399,6 +399,30 @@ void PowerPMAC_CoordinateSystemsClass::attribute_factory(vector<Tango::Attr *> &
 	numaxis->set_disp_level(Tango::OPERATOR);
 	//	Not Memorized
 	att_list.push_back(numaxis);
+
+	//	Attribute : AxisMapping
+	AxisMappingAttrib	*axismapping = new AxisMappingAttrib();
+	Tango::UserDefaultAttrProp	axismapping_prop;
+	//	description	not set for AxisMapping
+	//	label	not set for AxisMapping
+	//	unit	not set for AxisMapping
+	//	standard_unit	not set for AxisMapping
+	//	display_unit	not set for AxisMapping
+	//	format	not set for AxisMapping
+	//	max_value	not set for AxisMapping
+	//	min_value	not set for AxisMapping
+	//	max_alarm	not set for AxisMapping
+	//	min_alarm	not set for AxisMapping
+	//	max_warning	not set for AxisMapping
+	//	min_warning	not set for AxisMapping
+	//	delta_t	not set for AxisMapping
+	//	delta_val	not set for AxisMapping
+	
+	axismapping->set_default_properties(axismapping_prop);
+	//	Not Polled
+	axismapping->set_disp_level(Tango::OPERATOR);
+	//	Not Memorized
+	att_list.push_back(axismapping);
 
 
 	//	Create a list of static attributes

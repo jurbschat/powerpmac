@@ -5,7 +5,7 @@
       <inheritances classname="Device_Impl" sourcePath=""/>
       <identification contact="at desy.de - jakob.urbschat" author="jakob.urbschat" emailDomain="desy.de" classFamily="Motion" siteSpecific="" platform="All Platforms" bus="TCP/UDP" manufacturer="DeltaTau" reference=""/>
     </description>
-    <deviceProperties name="CoordinateIndex" mandatory="true" description="coordinate system id">
+    <deviceProperties name="CoordinateIndex" mandatory="true" description="index of the coordinate system">
       <type xsi:type="pogoDsl:IntType"/>
       <status abstract="false" inherited="false" concrete="true" concreteHere="true"/>
     </deviceProperties>
@@ -47,6 +47,14 @@
     </commands>
     <attributes name="NumAxis" attType="Scalar" rwType="READ" displayLevel="OPERATOR" polledPeriod="0" maxX="" maxY="" allocReadMember="true" isDynamic="false">
       <dataType xsi:type="pogoDsl:IntType"/>
+      <changeEvent fire="false" libCheckCriteria="false"/>
+      <archiveEvent fire="false" libCheckCriteria="false"/>
+      <dataReadyEvent fire="false" libCheckCriteria="true"/>
+      <status abstract="false" inherited="false" concrete="true" concreteHere="true"/>
+      <properties description="" label="" unit="" standardUnit="" displayUnit="" format="" maxValue="" minValue="" maxAlarm="" minAlarm="" maxWarning="" minWarning="" deltaTime="" deltaValue=""/>
+    </attributes>
+    <attributes name="AxisMapping" attType="Spectrum" rwType="READ" displayLevel="OPERATOR" polledPeriod="0" maxX="26" maxY="" allocReadMember="true" isDynamic="false">
+      <dataType xsi:type="pogoDsl:StringType"/>
       <changeEvent fire="false" libCheckCriteria="false"/>
       <archiveEvent fire="false" libCheckCriteria="false"/>
       <dataReadyEvent fire="false" libCheckCriteria="true"/>

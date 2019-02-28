@@ -108,12 +108,13 @@ class PowerPMAC_CoordinateSystems : public TANGO_BASE_CLASS
 	std::map<int32_t, std::unique_ptr<MyAttrib>> attribs;
 	ppmac::HandleType movingTimerHandle;
 	uint64_t lastCoordState;
+	bool started;
 
 /*----- PROTECTED REGION END -----*/	//	PowerPMAC_CoordinateSystems::Data Members
 
 //	Device property data members
 public:
-	//	CoordinateIndex:	coordinate system id
+	//	CoordinateIndex:	index of the coordinate system
 	Tango::DevLong	coordinateIndex;
 
 	bool	mandatoryNotDefined;
@@ -121,6 +122,7 @@ public:
 //	Attribute data members
 public:
 	Tango::DevLong	*attr_NumAxis_read;
+	Tango::DevString	*attr_AxisMapping_read;
 
 //	Constructors and destructors
 public:
@@ -195,6 +197,15 @@ public:
  */
 	virtual void read_NumAxis(Tango::Attribute &attr);
 	virtual bool is_NumAxis_allowed(Tango::AttReqType type);
+/**
+ *	Attribute AxisMapping related methods
+ *	Description: 
+ *
+ *	Data type:	Tango::DevString
+ *	Attr type:	Spectrum max = 26
+ */
+	virtual void read_AxisMapping(Tango::Attribute &attr);
+	virtual bool is_AxisMapping_allowed(Tango::AttReqType type);
 
 
 	//--------------------------------------------------------
@@ -246,6 +257,7 @@ public:
 	void WriteAxisAttrib(int32_t axis, double value);
 	bool IsAxisAttribAccessible(int32_t axis, Tango::AttReqType type);
 	void ClearMoveStatusWaitTimer();
+	void UpdateStateFromCurrentStatus(uint64_t motorStatus);
 
 /*----- PROTECTED REGION END -----*/	//	PowerPMAC_CoordinateSystems::Additional Method prototypes
 };

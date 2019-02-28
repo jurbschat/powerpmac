@@ -389,11 +389,11 @@ public:
 	{return (static_cast<PowerPMAC_Motor *>(dev))->is_Kill_allowed(any);}
 };
 
-//	Command Reset class definition
-class ResetClass : public Tango::Command
+//	Command ActivateAndReset class definition
+class ActivateAndResetClass : public Tango::Command
 {
 public:
-	ResetClass(const char   *name,
+	ActivateAndResetClass(const char   *name,
 	               Tango::CmdArgType in,
 				   Tango::CmdArgType out,
 				   const char        *in_desc,
@@ -401,15 +401,15 @@ public:
 				   Tango::DispLevel  level)
 	:Command(name,in,out,in_desc,out_desc, level)	{};
 
-	ResetClass(const char   *name,
+	ActivateAndResetClass(const char   *name,
 	               Tango::CmdArgType in,
 				   Tango::CmdArgType out)
 	:Command(name,in,out)	{};
-	~ResetClass() {};
+	~ActivateAndResetClass() {};
 	
 	virtual CORBA::Any *execute (Tango::DeviceImpl *dev, const CORBA::Any &any);
 	virtual bool is_allowed (Tango::DeviceImpl *dev, const CORBA::Any &any)
-	{return (static_cast<PowerPMAC_Motor *>(dev))->is_Reset_allowed(any);}
+	{return (static_cast<PowerPMAC_Motor *>(dev))->is_ActivateAndReset_allowed(any);}
 };
 
 

@@ -37,11 +37,12 @@ public:
 	std::string ExecuteCommandConsume(const std::string& str, std::chrono::milliseconds timeout);
 
 	MotorInfo GetMotorInfo(MotorID motor);
-	virtual IOInfo GetIoInfo(IoID io);
-	virtual GlobalInfo GetGlobalInfo();
-	virtual CoordInfo GetCoordInfo(CoordID coord);
+	IOInfo GetIoInfo(IoID io);
+	GlobalInfo GetGlobalInfo();
+	CoordInfo GetCoordInfo(CoordID coord);
+	std::vector<CoordAxisDefinitionInfo> GetMotorAxisDefinitions(CoordID id);
 
-	virtual SignalHandler& Signals();
+	SignalHandler& Signals();
 	HandleType AddDeadTimer(std::chrono::microseconds timeout, std::function<void()> callback);
 	void RemoveDeadTimer(HandleType handle);
 private:

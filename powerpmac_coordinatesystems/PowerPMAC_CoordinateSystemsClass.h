@@ -67,6 +67,19 @@ public:
 		{return (static_cast<PowerPMAC_CoordinateSystems *>(dev))->is_NumAxis_allowed(ty);}
 };
 
+//	Attribute AxisMapping class definition
+class AxisMappingAttrib: public Tango::SpectrumAttr
+{
+public:
+	AxisMappingAttrib():SpectrumAttr("AxisMapping",
+			Tango::DEV_STRING, Tango::READ, 26) {};
+	~AxisMappingAttrib() {};
+	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
+		{(static_cast<PowerPMAC_CoordinateSystems *>(dev))->read_AxisMapping(att);}
+	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
+		{return (static_cast<PowerPMAC_CoordinateSystems *>(dev))->is_AxisMapping_allowed(ty);}
+};
+
 
 //=========================================
 //	Define classes for commands

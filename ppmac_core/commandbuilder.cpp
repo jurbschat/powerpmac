@@ -102,6 +102,12 @@ namespace ppmac::cmd {
 		return fmt::format("Motor[{}].ServoCtrl", static_cast<int>(motor));
 	}
 
+	namespace detail {
+		std::string MotorGetCoordAxisDefinition(int32_t motorIndex) {
+			return fmt::format("&0#{}->", motorIndex);
+		}
+	}
+
 	///////////////////////////////////////////////////////////////
 	// port commands
 
@@ -132,6 +138,10 @@ namespace ppmac::cmd {
 
 	std::string GlobalResetBrickLVAmp() {
 		return fmt::format("BrickLV.Reset=1");
+	}
+
+	std::string GlobalGetAmpChannelState(int32_t channel) {
+		return fmt::format("BrickLV.Chan[{}].OverCurrent", channel);
 	}
 
 	std::string GlobalReboot() {
