@@ -86,7 +86,7 @@ namespace ppmac {
 		WISE_ENUM_MEMBER(DataRequestType,
 			Global,
 			Motor,
-			MotorCtrl,
+			MotorSecondary,
 			Coord,
 			IO
 		);
@@ -123,11 +123,11 @@ namespace ppmac {
 			state.coords.resize(MAX_COORDS);
 			state.global.plcs.resize(MAX_PLC);
 
-			lastRequestTimes[DataRequestType::Global] =     MakeDataRequestInfo(std::chrono::milliseconds{1000}, std::chrono::seconds{10});
-			lastRequestTimes[DataRequestType::Motor] =      MakeDataRequestInfo(std::chrono::milliseconds{50}, std::chrono::seconds{10});
-			lastRequestTimes[DataRequestType::MotorCtrl] =  MakeDataRequestInfo(std::chrono::milliseconds{3000}, std::chrono::hours{0xFFFFFFFF});
-			lastRequestTimes[DataRequestType::Coord] =      MakeDataRequestInfo(std::chrono::milliseconds{50}, std::chrono::seconds{10});
-			lastRequestTimes[DataRequestType::IO] =         MakeDataRequestInfo(std::chrono::milliseconds{100}, std::chrono::seconds{10});
+			lastRequestTimes[DataRequestType::Global] =         MakeDataRequestInfo(std::chrono::milliseconds{1000}, std::chrono::seconds{10});
+			lastRequestTimes[DataRequestType::Motor] =          MakeDataRequestInfo(std::chrono::milliseconds{50}, std::chrono::seconds{10});
+			lastRequestTimes[DataRequestType::MotorSecondary] = MakeDataRequestInfo(std::chrono::milliseconds{3000}, std::chrono::hours{0xFFFFFFFF});
+			lastRequestTimes[DataRequestType::Coord] =          MakeDataRequestInfo(std::chrono::milliseconds{50}, std::chrono::seconds{10});
+			lastRequestTimes[DataRequestType::IO] =             MakeDataRequestInfo(std::chrono::milliseconds{100}, std::chrono::seconds{10});
 		}
 
 		~StateUpdater() {
@@ -216,9 +216,42 @@ namespace ppmac {
 			return out[static_cast<int32_t>(id)];
 		};
 
-		MotorUnit GetMotorUnit(MotorID id) {
+		/*MotorUnit GetMotorUnit(MotorID id) {
+			auto cmd = cmd::detail::MotorGetUnit(static_cast<int32_t>(id));
+			auto result = rs.ChannelWriteRead(cmd);
+			if(result) {
+				try {
+					auto unitAsInt = parser::IntParser::convert(*result);
+					return static_cast<MotorUnit>(unitAsInt);
+				} catch (const std::exception &) {
+					RETHROW_RUNTIME_ERROR("unable to query axis to motor mapping:\nquery: '{}'\nresult: '{}'", cmd, *result);
+				}
+			}
+			else {
+				SPDLOG_ERROR("unable to get motor unit result, channel error: {}", wise_enum::to_string(result.error()));
+			}
 			return MotorUnit::None;
 		};
+
+		std::vector<MotorUnit> GetMotorUnits() {
+			std::vector<MotorUnit> out;
+			for(int i = 0; i < state.global.maxMotors; i++) {
+				auto cmd = cmd::detail::MotorGetUnit(i);
+				auto result = rs.ChannelWriteRead(cmd);
+				if(result) {
+					try {
+						auto unitAsInt = parser::IntParser::convert(*result);
+						out.push_back(static_cast<MotorUnit>(unitAsInt));
+					} catch(const std::exception&) {
+						RETHROW_RUNTIME_ERROR("unable to query axis to motor mapping:\nquery: '{}'\nresult: '{}'", cmd, *result);
+					}
+				}
+				else {
+					SPDLOG_ERROR("unable to get axis mapping result, channel error: {}", wise_enum::to_string(result.error()));
+				}
+			}
+			return out;
+		}*/
 
 	private:
 		void UpdateGeneralInfo() {
@@ -285,9 +318,9 @@ namespace ppmac {
 			}
 		}
 
-		void UpdateMotorCtrl() {
+		void UpdateMotorSecondaryValues() {
 			std::lock_guard<std::mutex> lock(stateMutex);
-			auto query = query::MotorGetServoCtrlStatus(stdext::make_span(state.motors), 0, state.global.maxMotors - 1);
+			auto query = query::MotorGetSecondaryValues(stdext::make_span(state.motors), 0, state.global.maxMotors - 1);
 			auto result = rs.ChannelWriteRead(query.command);
 			if(result) {
 				try {
@@ -304,12 +337,13 @@ namespace ppmac {
 						}
 					}
 				} catch(const std::exception&) {
-					RETHROW_RUNTIME_ERROR("unable to update general info:\nquery: '{}'\nresult: '{}'", query.command, *result);
+					RETHROW_RUNTIME_ERROR("unable to update secondary motor values:\nquery: '{}'\nresult: '{}'", query.command, *result);
 				}
 			} else {
-				SPDLOG_ERROR("unable to get general result, channel error: {}", wise_enum::to_string(result.error()));
+				SPDLOG_ERROR("unable to get secondary motor values, channel error: {}", wise_enum::to_string(result.error()));
 			}
 		}
+
 
 		void UpdateCoordValues() {
 			std::lock_guard<std::mutex> lock(stateMutex);
@@ -713,7 +747,7 @@ namespace ppmac {
 
 		void OnUpdateThreadRunOnce() {
 			UpdateGeneralInfo();
-			CreateUpdateTimer(DataRequestType::MotorCtrl);
+			CreateUpdateTimer(DataRequestType::MotorSecondary);
 			updateOnce = true;
 		}
 
@@ -722,8 +756,8 @@ namespace ppmac {
 				case DataRequestType::Motor:
 					UpdateMotorValues();
 					break;
-				case DataRequestType::MotorCtrl:
-					UpdateMotorCtrl();
+				case DataRequestType::MotorSecondary:
+					UpdateMotorSecondaryValues();
 					break;
 				case DataRequestType::Global:
 					UpdateGeneralInfo();

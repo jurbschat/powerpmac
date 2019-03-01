@@ -525,7 +525,7 @@ void PowerPMAC_MotorClass::attribute_factory(vector<Tango::Attr *> &att_list)
 	Tango::UserDefaultAttrProp	acceleration_prop;
 	//	description	not set for Acceleration
 	//	label	not set for Acceleration
-	acceleration_prop.set_unit("untis/s^2");
+	//	unit	not set for Acceleration
 	//	standard_unit	not set for Acceleration
 	//	display_unit	not set for Acceleration
 	acceleration_prop.set_format("%10.3f");
@@ -549,7 +549,7 @@ void PowerPMAC_MotorClass::attribute_factory(vector<Tango::Attr *> &att_list)
 	Tango::UserDefaultAttrProp	velocity_prop;
 	//	description	not set for Velocity
 	//	label	not set for Velocity
-	velocity_prop.set_unit("untis/s");
+	//	unit	not set for Velocity
 	//	standard_unit	not set for Velocity
 	//	display_unit	not set for Velocity
 	velocity_prop.set_format("%10.3f");
@@ -597,7 +597,7 @@ void PowerPMAC_MotorClass::attribute_factory(vector<Tango::Attr *> &att_list)
 	Tango::UserDefaultAttrProp	softcwlimit_prop;
 	//	description	not set for SoftCwLimit
 	//	label	not set for SoftCwLimit
-	softcwlimit_prop.set_unit("untis");
+	//	unit	not set for SoftCwLimit
 	//	standard_unit	not set for SoftCwLimit
 	//	display_unit	not set for SoftCwLimit
 	softcwlimit_prop.set_format("%10.3f");
@@ -621,7 +621,7 @@ void PowerPMAC_MotorClass::attribute_factory(vector<Tango::Attr *> &att_list)
 	Tango::UserDefaultAttrProp	softccwlimit_prop;
 	//	description	not set for SoftCcwLimit
 	//	label	not set for SoftCcwLimit
-	softccwlimit_prop.set_unit("untis");
+	//	unit	not set for SoftCcwLimit
 	//	standard_unit	not set for SoftCcwLimit
 	//	display_unit	not set for SoftCcwLimit
 	softccwlimit_prop.set_format("%10.3f");

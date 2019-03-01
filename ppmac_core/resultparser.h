@@ -165,6 +165,21 @@ namespace ppmac::parser {
 		}
 	};
 
+	struct enum_tag;
+
+	template<typename U>
+	struct parser_traits<U, enum_tag> {
+		using result_type = U;
+		static result_type convert(const std::string& s) {
+			try {
+				auto val = parser_traits<typename std::underlying_type<U>::type>::convert(s);
+				return static_cast<U>(val);
+			} catch(const std::exception&) {
+				RETHROW_RUNTIME_ERROR("unable to parse int as enum '{}'", s);
+			}
+		}
+	};
+
 	using NoneParser = parser_traits<std::string>;
 	using FloatParser = parser_traits<float>;
 	using DoubleParser = parser_traits<double>;
@@ -175,6 +190,8 @@ namespace ppmac::parser {
 	using Hex32Parser = parser_traits<uint32_t, parser_gate_tag>;
 	using Hex64Parser = parser_traits<uint64_t, parser_gate_tag>;
 	using CoordDoubleParser = parser_traits<double, coord_tag>;
+	template<typename T, typename = std::enable_if_t<std::is_enum<T>::value>>
+	using EnumParser = parser_traits<T, enum_tag>;
 
 	template<typename SepPred, size_t VALUE_COUNT = 32>
 	boost::container::small_vector<std::string, VALUE_COUNT>

@@ -421,16 +421,37 @@ namespace ppmac {
 	const uint64_t coordNeededStatusBits =
 			(1ull << CoordStatusBits::AmpEna);
 
+	enum class MotorUnit {
+		None,
+		FeedbackUnit,
+		Meter,
+		Millimeter,
+		MicroMeter,
+		NanoMeter,
+		PicoMeter,
+		Inch,
+		Mil,
+		Revolution,
+		Radian,
+		Degree,
+		Gradian,
+		ArcMinute,
+		ArcSecond,
+		Reserved
+	};
+
+	std::string GetMotorUnitString(ppmac::MotorUnit motorUnit);
+
 	struct MotorInfo {
 		double position;
 		double velocity;
 		double followingError;
 		double conversion;
-		int unitType;
 		MotorStatusUnion status;
 		MotorStatusUnion prevStatus;
 		bool servoCtrl;
 		bool prevServoCtrl;
+		MotorUnit unit;
 	};
 
 	union Coord26Axis {
@@ -539,45 +560,6 @@ namespace ppmac {
 		std::string axisName;
 		int32_t coordId;
 		int32_t motorId;
-	};
-
-	enum class MotorUnit {
-		None,
-		FeedbackUnit,
-		Meter,
-		Millimeter,
-		MicroMeter,
-		NanoMeter,
-		PicoMeter,
-		Inch,
-		Mil,
-		Revolution,
-		Radian,
-		Degree,
-		Gradian,
-		ArcMinute,
-		ArcSecond,
-		Reserved
-	};
-
-	// this is only used for the name mapping via wise_enum
-	enum class MotorUnitShort {
-		None,
-		ct,
-		m,
-		mm,
-		um,
-		nm,
-		pm,
-		in,
-		mil,
-		rev,
-		rad,
-		deg,
-		grad,
-		arcm,
-		arcs,
-		Reserved
 	};
 
 	struct IOInfo {

@@ -7,6 +7,7 @@
 
 #include "defines.h"
 #include "datastructures.h"
+#include "motorunitshort.h"
 
 #include <wise_enum.h>
 

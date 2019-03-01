@@ -39,7 +39,8 @@ add_library(ppmac_core STATIC coreinterface.cpp
         uuid.cpp
         commandbuilder.cpp
         resultparser.cpp
-        config.cpp)
+        config.cpp
+        throw.cpp)
 
 target_include_directories(ppmac_core SYSTEM PRIVATE ../fmt-5.3.0/include ../spdlog-1.3.0/include ../wise_enum-master ../catch2-master/single_include)
 target_link_libraries(ppmac_core PRIVATE stdc++ fmt spdlog ssh2 boost_system boost_regex pthread dl) #ssh2 rt pthread libPowerPmacControl boost_system crypto ssl

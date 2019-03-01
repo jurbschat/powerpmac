@@ -106,6 +106,10 @@ namespace ppmac::cmd {
 		std::string MotorGetCoordAxisDefinition(int32_t motorIndex) {
 			return fmt::format("&0#{}->", motorIndex);
 		}
+
+		std::string MotorGetUnit(int32_t motorIndex) {
+			return fmt::format("Motor[{}].PosUnit", motorIndex);
+		}
 	}
 
 	///////////////////////////////////////////////////////////////

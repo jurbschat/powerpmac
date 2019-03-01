@@ -36,6 +36,7 @@
 #include "libs/sigs.h"
 #include "pmac/defines.h"
 #include "config.h"
+#include "MyAttribute.h"
 #include <tango.h>
 #include <map>
 /*----- PROTECTED REGION END -----*/	//	PowerPMAC_CoordinateSystems.h
@@ -48,48 +49,6 @@
 namespace PowerPMAC_CoordinateSystems_ns
 {
 /*----- PROTECTED REGION ID(PowerPMAC_CoordinateSystems::Additional Class Declarations) ENABLED START -----*/
-
-	class MyAttrib : public Tango::Attr
-	{
-	public:
-		MyAttrib(int32_t axis, const string &att_name, std::function<double(int32_t axis)> read,
-		         std::function<void(int32_t axis, double)> write,
-		         std::function<bool(int32_t axis, Tango::AttReqType type)> allowed)
-				:Attr(att_name.c_str(), Tango::DEV_DOUBLE, Tango::READ_WRITE),
-				 axis_(axis),
-				 read_(read),
-				 write_(write),
-				 allowed_(allowed)
-		{};
-
-		~MyAttrib() {};
-
-		virtual void read(Tango::DeviceImpl *dev, Tango::Attribute &att) {
-			(void)dev;
-			//(static_cast<PowerPMAC_CoordinateSystems *>(dev))->read_X(att);
-			Tango::DevDouble val = read_(axis_);
-			att.set_value(&val);
-		}
-
-		virtual void write(Tango::DeviceImpl *dev, Tango::WAttribute &att) {
-			(void)dev;
-			//(static_cast<PowerPMAC_CoordinateSystems *>(dev))->write_X(att);
-			Tango::DevDouble	w_val;
-			att.get_write_value(w_val);
-			write_(axis_, w_val);
-		}
-
-		virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty) {
-			(void)dev;
-			//return (static_cast<PowerPMAC_CoordinateSystems *>(dev))->is_X_allowed(ty);
-			return allowed_(axis_, ty);
-		}
-
-		int32_t axis_;
-		std::function<double(int32_t)> read_;
-		std::function<void(int32_t, double)> write_;
-		std::function<bool(int32_t, Tango::AttReqType type)> allowed_;
-	};
 
 /*----- PROTECTED REGION END -----*/	//	PowerPMAC_CoordinateSystems::Additional Class Declarations
 

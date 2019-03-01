@@ -376,18 +376,6 @@ void PowerPMAC_CoordinateSystems::read_AxisMapping(Tango::Attribute &attr)
 void PowerPMAC_CoordinateSystems::add_dynamic_attributes()
 {
 	/*----- PROTECTED REGION ID(PowerPMAC_CoordinateSystems::add_dynamic_attributes) ENABLED START -----*/
-
-	/*for(auto& axis : addAxis) {
-		if(axis == "X") {
-			add_X_dynamic_attribute(axis.c_str());
-		} else if(axis == "Y") {
-			add_Y_dynamic_attribute(axis.c_str());
-		} else if(axis == "Z") {
-			add_Z_dynamic_attribute(axis.c_str());
-		} else if(axis == "W") {
-			add_W_dynamic_attribute(axis.c_str());
-		}
-	}*/
 	
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_CoordinateSystems::add_dynamic_attributes
 }
@@ -511,31 +499,16 @@ void PowerPMAC_CoordinateSystems::CoordinateSystemChanged(int32_t axis) {
 	UpdateAxisToMatchCurrent(axis);
 }
 void PowerPMAC_CoordinateSystems::UpdateAxisToMatchCurrent(int32_t axis) {
-	auto MakeAttrib = [this](int32_t axis, const std::string& axisName){
-		std::unique_ptr<MyAttrib> mya = std::make_unique<MyAttrib>(axis, axisName,
-			[this](int32_t axis){
-				return ReadAxisAttrib(axis);
-			},
-			[this](int32_t axis, double val){
-				WriteAxisAttrib(axis, val);
-			},
-			[this](int32_t axis, Tango::AttReqType type){
-				return IsAxisAttribAccessible(axis, type);
-			}
-		);
-		Tango::UserDefaultAttrProp	x_prop;
-		mya->set_default_properties(x_prop);
-		mya->set_disp_level(Tango::OPERATOR);
-		//X_data.insert(make_pair(axisName, 0.0));
-		add_attribute(mya.get());
-		attribs.emplace(axis, std::move(mya));
-	};
-
 	for(int32_t i = 0; i < ppmac::AvailableAxis::maxAxis; i++) {
 		bool isSet = ppmac::bits::isSet(axis, i);
 		auto it = attribs.find(i);
 		if(isSet && it == attribs.end()) {
-			MakeAttrib(i, ppmac::AvailableAxis::MapAxisToString(i));
+			auto attrib = std::make_unique<MyAttrib>(i, ppmac::AvailableAxis::MapAxisToString(i));
+			Tango::UserDefaultAttrProp	prop;
+			attrib->set_default_properties(prop);
+			attrib->set_disp_level(Tango::OPERATOR);
+			add_attribute(attrib.get());
+			attribs[i] = std::move(attrib);
 		} else if(!isSet && it != attribs.end()) {
 			remove_attribute(it->second.get());
 			attribs.erase(it);
@@ -545,7 +518,10 @@ void PowerPMAC_CoordinateSystems::UpdateAxisToMatchCurrent(int32_t axis) {
 double PowerPMAC_CoordinateSystems::ReadAxisAttrib(int32_t axis) {
 	try {
 		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
-		return ci.GetCoordInfo(coordId).position.array[axis];
+		auto coordInfo = ci.GetCoordInfo(coordId);
+		double pos = coordInfo.position.array[axis];
+		//fmt::print("coord:{}, axis:{}, value:{}\n", coordinateIndex, axis, pos);
+		return pos;
 	} catch (ppmac::RuntimeError& e) {
 		tu::TranslateException(e);
 	}

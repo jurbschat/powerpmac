@@ -3,10 +3,16 @@
 //
 
 #include "datastructures.h"
+#include "motorunitshort.h"
 #include "enumadapt.h"
 #include <fmt/format.h>
 
 namespace ppmac {
+
+	std::string GetMotorUnitString(ppmac::MotorUnit motorUnit) {
+		auto shortUnit = static_cast<ppmac::MotorUnitShort>(motorUnit);
+		return wise_enum::to_string(shortUnit);
+	}
 
 	namespace detail {
 		template<typename T>

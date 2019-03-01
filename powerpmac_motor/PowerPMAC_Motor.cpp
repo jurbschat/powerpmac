@@ -1124,6 +1124,27 @@ void PowerPMAC_Motor::StartMotor() {
 			set_state(Tango::OFF);
 			return;
 		}
+
+		// OMFG! it there no other way to change the property unit without doing a local connection!?
+		try {
+			auto myName = get_name();
+			auto proxy = Tango::DeviceProxy(myName);
+			std::vector<std::string> names = {"Position", "Acceleration", "Velocity", "HomeOffset", "SoftCwLimit", "SoftCcwLimit"};
+			std::vector<std::string> formats = {"{}", "{} / s^2", "{}", "{}", "{}", "{}"};
+			for(size_t i = 0; i < names.size(); i++) {
+				auto& name = names[i];
+				auto& format = formats[i];
+				auto attrInfo = proxy.get_attribute_config(name);
+				attrInfo.unit = fmt::format(format, ppmac::GetMotorUnitString(motorInfo.unit));
+				Tango::AttributeInfoList attrInfoList;
+				attrInfoList.push_back(attrInfo);
+				proxy.set_attribute_config(attrInfoList);
+			}
+		} catch(const Tango::DevFailed& e) {
+			fmt::print("unable to set motor units\n");
+			Tango::Except::print_exception(e);
+		}
+
 		if(disableHardLimits) {
 			auto getLimitCmd = ppmac::cmd::MotorGetHardLimitAddr(motorId);
 			hardLimitAddress = ci.ExecuteCommand(getLimitCmd);

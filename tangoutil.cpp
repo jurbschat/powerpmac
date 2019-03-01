@@ -57,6 +57,5 @@ namespace tu {
 			*ptr = CORBA::string_dup(value.c_str());
 		}
 	}
-
 }
 

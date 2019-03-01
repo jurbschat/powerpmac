@@ -58,7 +58,7 @@ namespace ppmac {
 					while(symbols[i][p] != '(' && symbols[i][p] != ' ' && symbols[i][p] != 0) {
 						++p;
 					}
-					char syscom[256];
+					char syscom[4096];
 					sprintf(syscom,"addr2line %p -e %.*s", callstack[i], p, symbols[i]);
 					auto res = ExecuteWithReturn(syscom);
 					boost::algorithm::trim(res);
@@ -77,7 +77,7 @@ namespace ppmac {
 		void TerminateHandler() {
 			auto eptr = std::current_exception();
 			if(eptr) {
-				SPDLOG_CRITICAL("unhandled exception (exiting):\n{}", StringifyException(std::current_exception(), 4, '>'));
+				SPDLOG_CRITICAL("unhandled error (exiting):\n{}", StringifyException(std::current_exception(), 4, '>'));
 			} else {
 				SPDLOG_CRITICAL("terminate without exception. e.g. segfault");
 			}

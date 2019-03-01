@@ -289,18 +289,19 @@ namespace ppmac::query {
 		);
 	}
 
-	inline auto MotorGetServoCtrlStatus(stdext::span<MotorInfo> data, int32_t first, int32_t last) {
+	inline auto MotorGetSecondaryValues(stdext::span<MotorInfo> data, int32_t first, int32_t last) {
 		boost::container::small_vector<std::tuple<int>, 32> tuples;
 		for(int i = first; i <= (last - first); i++) {
 			tuples.push_back((std::make_tuple(i)));
 		}
-		fmt::memory_buffer buffer = builder::detail::MakeMultiCommand("Motor[{0}].ServoCtrl", stdext::make_span(tuples));
+		fmt::memory_buffer buffer = builder::detail::MakeMultiCommand("Motor[{0}].ServoCtrl; Motor[{0}].PosUnit", stdext::make_span(tuples));
 		return MakeCommandQuery(
 			fmt::to_string(buffer),
 				first, last+1,
 			MakeObjectPointerList(
 				data,
-				MakeObjectPtrInfo<parser::IntParser>(&MotorInfo::servoCtrl)
+				MakeObjectPtrInfo<parser::IntParser>(&MotorInfo::servoCtrl),
+				MakeObjectPtrInfo<parser::EnumParser<MotorUnit>>(&MotorInfo::unit)
 			),
 			[](const std::string& str){
 				return parser::Split1D(str, boost::is_any_of("\r\n"));
@@ -357,7 +358,7 @@ namespace ppmac::query {
 	/*
 	 * gets motor conversion info, e.g. mapping of motor units to engineering units and the unit type
 	 */
-	inline auto MotorGetConversionInfoRange(stdext::span<MotorInfo> data, int32_t first, int32_t last) {
+	/*inline auto MotorGetConversionInfoRange(stdext::span<MotorInfo> data, int32_t first, int32_t last) {
 		builder::ValidateIdentifierRange(first, last);
 		boost::container::small_vector<std::tuple<int>, 32> tuples;
 		for(int i = first; i < (last - first); i++) {
@@ -376,7 +377,7 @@ namespace ppmac::query {
 				return parser::Split1D(str, boost::is_any_of("\r\n"));
 			}
 		);
-	}
+	}*/
 
 }
 

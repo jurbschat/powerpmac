@@ -377,7 +377,7 @@ namespace ppmac {
 
 	void RemoteShell::ResetTimeouts() {
 		if(consecutiveTimeouts != 0) {
-			SPDLOG_DEBUG("tresetting timeouts");
+			SPDLOG_DEBUG("resetting timeouts");
 		}
 		consecutiveTimeouts = 0;
 	}

@@ -118,7 +118,6 @@ namespace ppmac {
 			auto res = SetupRemoteShell(remoteHost, remotePort);
 			if(res == RemoteShellErrorCode::Ok) {
 				SPDLOG_DEBUG("remote shell setup complete!");
-				//OnConnectionEstablished();
 			} else {
 				SPDLOG_ERROR("unable to create remote shell, error: {}", wise_enum::to_string(res));
 				std::this_thread::sleep_for(std::chrono::seconds{1});

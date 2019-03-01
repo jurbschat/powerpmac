@@ -9,8 +9,6 @@
 #include <vector>
 #include <string>
 
-// Motor[{}].PosUnit for the type of motor unit
-
 namespace ppmac::cmd {
 
 	///////////////////////////////////////////////////////////////
@@ -42,6 +40,7 @@ namespace ppmac::cmd {
 	std::string MotorGetServoControl(MotorID motor);
 	namespace detail {
 		std::string MotorGetCoordAxisDefinition(int32_t motorIndex);
+		std::string MotorGetUnit(int32_t motorIndex);
 	}
 	///////////////////////////////////////////////////////////////
 	// port commands
