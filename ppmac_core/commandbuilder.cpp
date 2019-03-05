@@ -144,8 +144,12 @@ namespace ppmac::cmd {
 		return fmt::format("BrickLV.Reset=1");
 	}
 
-	std::string GlobalGetAmpChannelState(int32_t channel) {
+	std::string GlobalGetAmpChannelOverCurrent(int32_t channel) {
 		return fmt::format("BrickLV.Chan[{}].OverCurrent", channel);
+	}
+
+	std::string GlobalGetAmpChannelOverLoad(int32_t channel) {
+		return fmt::format("BrickLV.Chan[{}].I2TFaultStatus", channel);
 	}
 
 	std::string GlobalReboot() {
@@ -227,39 +231,89 @@ namespace ppmac::cmd {
 	///////////////////////////////////////////////////////////////
 	// compensation table setup
 
-	std::string SetCompensationTable(CompensationTableID table,
+	std::string CompensationTableGetSource(CompensationTableID table) {
+		return fmt::format("CompTable[{}].Source[0]", static_cast<int>(table));
+	}
+	std::string CompensationTableSetSource(CompensationTableID table, int32_t source) {
+		return fmt::format("CompTable[{}].Source[0]={}", static_cast<int>(table), source);
+	}
+	std::string CompensationTableGetTarget(CompensationTableID table) {
+		return fmt::format("CompTable[{}].Target[0]", static_cast<int>(table));
+	}
+	std::string CompensationTableSetTarget(CompensationTableID table, int32_t target) {
+		return fmt::format("CompTable[{table}].Target[0]=Motor[{motor}].CompPos.a;CompTable[{table}].Target[1]=Motor[{motor}].CompPos2.a;",
+				fmt::arg("table", static_cast<int>(table)),
+				fmt::arg("motor", target));
+	}
+	std::string CompensationTableGetStartX(CompensationTableID table) {
+		return fmt::format("CompTable[{}].X0[0]", static_cast<int>(table));
+	}
+	std::string CompensationTableSetStartX(CompensationTableID table, int32_t startx) {
+		return fmt::format("CompTable[{}].X0[0]={}", static_cast<int>(table), startx);
+	}
+	std::string CompensationTableGetDeltaX(CompensationTableID table) {
+		return fmt::format("CompTable[{}].Dx[0]", static_cast<int>(table));
+	}
+	std::string CompensationTableSetDeltaX(CompensationTableID table, int32_t deltax) {
+		return fmt::format("CompTable[{}].Dx[0]={}", static_cast<int>(table), deltax);
+	}
+	std::string CompensationTableGetDataEntry(CompensationTableID table, int32_t idx) {
+		return fmt::format("CompTable[{}].Data[{}]", static_cast<int>(table), idx);
+	}
+	std::string CompensationTableSetDataEntry(CompensationTableID table, int32_t idx, double val) {
+		return fmt::format("CompTable[{}].Data[{}]={}", static_cast<int>(table), idx, val);
+	}
+	std::string CompensationTableGetActiveTableCount() {
+		return fmt::format("Sys.CompEnable");
+	}
+	std::string CompensationTableSetActiveTableCount(int32_t activeTables) {
+		return fmt::format("Sys.CompEnable={}", activeTables);
+	}
+	std::string CompensationTableSetAll(CompensationTableID table,
 	                                        MotorID source,
 	                                        MotorID target,
 	                                        double from,
 	                                        double to,
 	                                        const std::vector<double>& values) {
-		const char* templ = R"(CompTable[{table}].Source[0] = {source};
-CompTable[{table}].Nx[0] = {valueCount};
-CompTable[{table}].Nx[1] = 0 ;
-CompTable[{table}].Nx[2] = 0;
-CompTable[{table}].X0[0] = {from};
-CompTable[{table}].Dx[0] = {dist};
-CompTable[{table}].Target[0] = Motor[{target}].CompPos.a;
-CompTable[{table}].Target[1] = Motor[{target}].CompPos2.a;
-CompTable[{table}].Sf[0] = 1;
-CompTable[{table}].Sf[0] = 1;
-CompTable[{table}].Ctrl = 7 ;
-CompTable[{table}].OutCtrl = 0;
-CompTable[{table}].Data[0] = {values};)";
+		const char* templ = "CompTable[{table}].Source[0] = {source};"
+			"CompTable[{table}].Nx[0] = {segmentCount};"
+			"CompTable[{table}].Nx[1] = 0;"
+			"CompTable[{table}].Nx[2] = 0;"
+			"CompTable[{table}].X0[0] = {from};"
+			"CompTable[{table}].Dx[0] = {dist};"
+			"CompTable[{table}].Target[0] = Motor[{target}].CompPos.a;"
+			"CompTable[{table}].Target[1] = Motor[{target}].CompPos2.a;"
+			"CompTable[{table}].Sf[0] = 1;"
+			"CompTable[{table}].Sf[0] = 1;"
+			"CompTable[{table}].Ctrl = 7;"
+			"CompTable[{table}].OutCtrl = 0;"
+			"CompTable[{table}].Data[0] = {values};";
 		fmt::memory_buffer valStrBuff;
 		for(size_t i = 0; i < values.size(); i++) {
 			fmt::format_to(valStrBuff, "{}{}", (i != 0 ? "," : ""), values[i]);
 		}
 		return fmt::format(templ,
-				fmt::arg("valueCount", values.size()),
-				fmt::arg("table", static_cast<int>(table)),
-				fmt::arg("source", static_cast<int>(source)),
-				fmt::arg("target", static_cast<int>(target)),
-				fmt::arg("from", from),
-				fmt::arg("dist", to - from),
-				fmt::arg("values", fmt::to_string(valStrBuff))
+			fmt::arg("segmentCount", values.size() - 1), // segments, not points
+			fmt::arg("table", static_cast<int>(table)),
+			fmt::arg("source", static_cast<int>(source)),
+			fmt::arg("target", static_cast<int>(target)),
+			fmt::arg("from", from),
+			fmt::arg("dist", to - from),
+			fmt::arg("values", fmt::to_string(valStrBuff))
 		);
 	}
-
+	std::string CompensationTableSetData(CompensationTableID table, const std::vector<double>& values) {
+		const char* templ = "CompTable[{table}].Nx[0] = {segmentCount};"
+			"CompTable[{table}].Data[0] = {values}";
+		fmt::memory_buffer valStrBuff;
+		for(size_t i = 0; i < values.size(); i++) {
+			fmt::format_to(valStrBuff, "{}{}", (i != 0 ? "," : ""), values[i]);
+		}
+		return fmt::format(templ,
+			fmt::arg("segmentCount", values.size() - 1), // segments, not points
+			fmt::arg("table", static_cast<int>(table)),
+			fmt::arg("values", fmt::to_string(valStrBuff))
+		);
+	}
 }
 

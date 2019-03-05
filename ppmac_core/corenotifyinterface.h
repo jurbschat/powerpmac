@@ -14,6 +14,7 @@ namespace ppmac {
 		virtual void OnMotorCtrlChanged(int32_t motorIndex, uint64_t newState, uint64_t changes) = 0;
 		virtual void OnCoordStateChanged(int32_t coordIndex, uint64_t newState, uint64_t changes) = 0;
 		virtual void OnCoordAxisChanged(int32_t coordIndex, uint32_t availableAxis) = 0;
+		virtual void OnCompensationTablesChanged(int32_t compensationTable, bool active) = 0;
 		virtual void OnStateupdaterInitialized() = 0;
 	};
 

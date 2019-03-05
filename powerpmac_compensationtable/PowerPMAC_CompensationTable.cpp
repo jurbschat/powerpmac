@@ -38,10 +38,12 @@
 #include "pmac/defines.h"
 #include "coreinterface.h"
 #include "../tangoutil.h"
+#include "../executehelper.h"
 #include <fmt/format.h>
 #include <PowerPMAC_CompensationTable.h>
 #include <PowerPMAC_CompensationTableClass.h>
 #include <cmath>
+#include <boost/regex.hpp>
 
 /*----- PROTECTED REGION END -----*/	//	PowerPMAC_CompensationTable.cpp
 
@@ -163,12 +165,33 @@ void PowerPMAC_CompensationTable::init_device()
 
 	/*----- PROTECTED REGION ID(PowerPMAC_CompensationTable::init_device) ENABLED START -----*/
 
+	tableID = static_cast<ppmac::CompensationTableID>(tableIndex);
+
 	*attr_SourceMotor_read = 0;
 	*attr_TargetMotor_read = 0;
 	*attr_From_read = 0;
 	*attr_To_read = 0;
-	// we initialize all values with inf if they are disabled
-	std::fill(attr_CompensationTable_read, attr_CompensationTable_read + 100, INFINITY);
+
+	ppmac::CoreInterface& ci = ppmac::GetCoreObject();
+	connectionEstablished = ci.Signals().ConnectionEstablished().connect([this](){
+		StartCompensationTables();
+	});
+
+	connectionLost = ci.Signals().ConnectionLost().connect([this](){
+		StopCompensationTables();
+	});
+
+	stateChanged = ci.Signals().CompTableChanged(tableID).connect([this](bool enable){
+		if(enable) {
+			StartCompensationTables();
+		} else {
+			StopCompensationTables();
+		}
+	});
+
+	if(ci.IsConnected()) {
+		StartCompensationTables();
+	}
 	
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_CompensationTable::init_device
 }
@@ -191,7 +214,7 @@ void PowerPMAC_CompensationTable::get_device_property()
 
 	//	Read device properties from database.
 	Tango::DbData	dev_prop;
-	dev_prop.push_back(Tango::DbDatum("TableID"));
+	dev_prop.push_back(Tango::DbDatum("tableIndex"));
 
 	//	is there at least one property to be read ?
 	if (dev_prop.size()>0)
@@ -206,16 +229,16 @@ void PowerPMAC_CompensationTable::get_device_property()
 			(static_cast<PowerPMAC_CompensationTableClass *>(get_device_class()));
 		int	i = -1;
 
-		//	Try to initialize TableID from class property
+		//	Try to initialize tableIndex from class property
 		cl_prop = ds_class->get_class_property(dev_prop[++i].name);
-		if (cl_prop.is_empty()==false)	cl_prop  >>  tableID;
+		if (cl_prop.is_empty()==false)	cl_prop  >>  tableIndex;
 		else {
-			//	Try to initialize TableID from default device value
+			//	Try to initialize tableIndex from default device value
 			def_prop = ds_class->get_default_device_property(dev_prop[i].name);
-			if (def_prop.is_empty()==false)	def_prop  >>  tableID;
+			if (def_prop.is_empty()==false)	def_prop  >>  tableIndex;
 		}
-		//	And try to extract TableID value from database
-		if (dev_prop[i].is_empty()==false)	dev_prop[i]  >>  tableID;
+		//	And try to extract tableIndex value from database
+		if (dev_prop[i].is_empty()==false)	dev_prop[i]  >>  tableIndex;
 		//	Property StartDsPath is mandatory, check if has been defined in database.
 		check_mandatory_property(cl_prop, dev_prop[i]);
 
@@ -325,7 +348,15 @@ void PowerPMAC_CompensationTable::read_SourceMotor(Tango::Attribute &attr)
 	DEBUG_STREAM << "PowerPMAC_CompensationTable::read_SourceMotor(Tango::Attribute &attr) entering... " << endl;
 	/*----- PROTECTED REGION ID(PowerPMAC_CompensationTable::read_SourceMotor) ENABLED START -----*/
 	//	Set the attribute value
-	attr.set_value(attr_SourceMotor_read);
+	//attr.set_value(attr_SourceMotor_read);
+
+	try {
+		int32_t source = tu::ExecuteCommand<int32_t>(ppmac::GetCoreObject(), ppmac::cmd::CompensationTableGetSource(tableID));
+		attr.set_value(&source);
+		//*attr_SourceMotor_read = source;
+	} catch (ppmac::RuntimeError& e) {
+		tu::TranslateException(e);
+	}
 	
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_CompensationTable::read_SourceMotor
 }
@@ -345,7 +376,14 @@ void PowerPMAC_CompensationTable::write_SourceMotor(Tango::WAttribute &attr)
 	Tango::DevLong	w_val;
 	attr.get_write_value(w_val);
 	/*----- PROTECTED REGION ID(PowerPMAC_CompensationTable::write_SourceMotor) ENABLED START -----*/
-	
+
+	try {
+		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
+		ci.ExecuteCommand(ppmac::cmd::CompensationTableSetSource(tableID, w_val));
+		//*attr_SourceMotor_read = w_val;
+	} catch (ppmac::RuntimeError& e) {
+		tu::TranslateException(e);
+	}
 	
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_CompensationTable::write_SourceMotor
 }
@@ -363,7 +401,14 @@ void PowerPMAC_CompensationTable::read_TargetMotor(Tango::Attribute &attr)
 	DEBUG_STREAM << "PowerPMAC_CompensationTable::read_TargetMotor(Tango::Attribute &attr) entering... " << endl;
 	/*----- PROTECTED REGION ID(PowerPMAC_CompensationTable::read_TargetMotor) ENABLED START -----*/
 	//	Set the attribute value
-	attr.set_value(attr_TargetMotor_read);
+	//attr.set_value(attr_TargetMotor_read);
+
+	try {
+		int32_t target = GetTargetMotor();
+		attr.set_value(&target);
+	} catch (ppmac::RuntimeError& e) {
+		tu::TranslateException(e);
+	}
 	
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_CompensationTable::read_TargetMotor
 }
@@ -383,7 +428,14 @@ void PowerPMAC_CompensationTable::write_TargetMotor(Tango::WAttribute &attr)
 	Tango::DevLong	w_val;
 	attr.get_write_value(w_val);
 	/*----- PROTECTED REGION ID(PowerPMAC_CompensationTable::write_TargetMotor) ENABLED START -----*/
-	
+
+	try {
+		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
+		ci.ExecuteCommand(ppmac::cmd::CompensationTableSetTarget(tableID, w_val));
+		//*attr_TargetMotor_read = w_val;
+	} catch (ppmac::RuntimeError& e) {
+		tu::TranslateException(e);
+	}
 	
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_CompensationTable::write_TargetMotor
 }
@@ -401,7 +453,15 @@ void PowerPMAC_CompensationTable::read_From(Tango::Attribute &attr)
 	DEBUG_STREAM << "PowerPMAC_CompensationTable::read_From(Tango::Attribute &attr) entering... " << endl;
 	/*----- PROTECTED REGION ID(PowerPMAC_CompensationTable::read_From) ENABLED START -----*/
 	//	Set the attribute value
-	attr.set_value(attr_From_read);
+	//attr.set_value(attr_From_read);
+
+	try {
+		double startX = tu::ExecuteCommand<double>(ppmac::GetCoreObject(), ppmac::cmd::CompensationTableGetStartX(tableID));
+		attr.set_value(&startX);
+		//*attr_From_read = startX;
+	} catch (ppmac::RuntimeError& e) {
+		tu::TranslateException(e);
+	}
 	
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_CompensationTable::read_From
 }
@@ -421,7 +481,18 @@ void PowerPMAC_CompensationTable::write_From(Tango::WAttribute &attr)
 	Tango::DevDouble	w_val;
 	attr.get_write_value(w_val);
 	/*----- PROTECTED REGION ID(PowerPMAC_CompensationTable::write_From) ENABLED START -----*/
-	
+
+	try {
+		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
+		double startX = tu::ExecuteCommand<double>(ppmac::GetCoreObject(), ppmac::cmd::CompensationTableGetStartX(tableID));
+		double deltaX = tu::ExecuteCommand<double>(ppmac::GetCoreObject(), ppmac::cmd::CompensationTableGetDeltaX(tableID));
+		auto to = startX + deltaX;
+		ci.ExecuteCommand(ppmac::cmd::CompensationTableSetStartX(tableID, w_val));
+		ci.ExecuteCommand(ppmac::cmd::CompensationTableSetDeltaX(tableID, to - w_val));
+		//*attr_From_read = w_val;
+	} catch (ppmac::RuntimeError& e) {
+		tu::TranslateException(e);
+	}
 	
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_CompensationTable::write_From
 }
@@ -440,6 +511,16 @@ void PowerPMAC_CompensationTable::read_To(Tango::Attribute &attr)
 	/*----- PROTECTED REGION ID(PowerPMAC_CompensationTable::read_To) ENABLED START -----*/
 	//	Set the attribute value
 	attr.set_value(attr_To_read);
+
+	try {
+		double startX = tu::ExecuteCommand<double>(ppmac::GetCoreObject(), ppmac::cmd::CompensationTableGetStartX(tableID));
+		double deltaX = tu::ExecuteCommand<double>(ppmac::GetCoreObject(), ppmac::cmd::CompensationTableGetDeltaX(tableID));
+		double to = startX + deltaX;
+		attr.set_value(&to);
+		//*attr_To_read = to;
+	} catch (ppmac::RuntimeError& e) {
+		tu::TranslateException(e);
+	}
 	
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_CompensationTable::read_To
 }
@@ -459,7 +540,15 @@ void PowerPMAC_CompensationTable::write_To(Tango::WAttribute &attr)
 	Tango::DevDouble	w_val;
 	attr.get_write_value(w_val);
 	/*----- PROTECTED REGION ID(PowerPMAC_CompensationTable::write_To) ENABLED START -----*/
-	
+
+	try {
+		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
+		double startX = tu::ExecuteCommand<double>(ppmac::GetCoreObject(), ppmac::cmd::CompensationTableGetStartX(tableID));
+		ci.ExecuteCommand(ppmac::cmd::CompensationTableSetDeltaX(tableID, w_val - startX));
+		//*attr_To_read = w_val;
+	} catch (ppmac::RuntimeError& e) {
+		tu::TranslateException(e);
+	}
 	
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_CompensationTable::write_To
 }
@@ -477,7 +566,10 @@ void PowerPMAC_CompensationTable::read_CompensationTable(Tango::Attribute &attr)
 	DEBUG_STREAM << "PowerPMAC_CompensationTable::read_CompensationTable(Tango::Attribute &attr) entering... " << endl;
 	/*----- PROTECTED REGION ID(PowerPMAC_CompensationTable::read_CompensationTable) ENABLED START -----*/
 	//	Set the attribute value
-	attr.set_value(attr_CompensationTable_read, 100);
+	//attr.set_value(attr_CompensationTable_read, 100);
+
+	compensationTable = GetTableFromPmac();
+	attr.set_value(compensationTable.data(), compensationTable.size());
 	
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_CompensationTable::read_CompensationTable
 }
@@ -505,27 +597,16 @@ void PowerPMAC_CompensationTable::write_CompensationTable(Tango::WAttribute &att
 		return;
 	}
 
-	size_t maxCopy = std::min(w_length, 100);
-	std::copy(w_val, w_val + maxCopy, attr_CompensationTable_read);
+	compensationTable.clear();
+	compensationTable.insert(compensationTable.end(), w_val, w_val + w_length);
 
 	try {
 		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
-		size_t validIndex = GetLastValidIndex(w_val, w_length);
-		size_t validElementCount = validIndex + 1;
-		auto cmd = ppmac::cmd::SetCompensationTable(
-			static_cast<ppmac::CompensationTableID>(tableID),
-			static_cast<ppmac::MotorID>(*attr_SourceMotor_read),
-			static_cast<ppmac::MotorID>(*attr_TargetMotor_read),
-			*attr_From_read,
-			*attr_To_read,
-			std::vector<double>(w_val, w_val + validElementCount)
-		);
-		ci.ExecuteCommand(cmd);
+		ci.ExecuteCommand(ppmac::cmd::CompensationTableSetData(tableID, compensationTable));
 	} catch (ppmac::RuntimeError& e) {
 		tu::TranslateException(e);
 	}
-	
-	
+
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_CompensationTable::write_CompensationTable
 }
 
@@ -570,6 +651,116 @@ size_t PowerPMAC_CompensationTable::GetLastValidIndex(const double* array, int32
 		}
 	}
 	return 0;
+}
+
+void PowerPMAC_CompensationTable::WriteCompensationTable(const std::vector<double>& compTable,
+		int32_t table,
+		int32_t source,
+		int32_t target,
+		double from,
+		double to)
+{
+	try {
+		if(compensationTable.size() < 2) {
+			fmt::print("compensation table size must be >= 2, unable to proceed\n");
+			return;
+		}
+		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
+		auto cmd = ppmac::cmd::CompensationTableSetAll(
+			static_cast<ppmac::CompensationTableID >(table),
+			static_cast<ppmac::MotorID>(source),
+			static_cast<ppmac::MotorID>(target),
+			from,
+			to,
+			compTable
+		);
+		ci.ExecuteCommand(cmd);
+	} catch (ppmac::RuntimeError& e) {
+		tu::TranslateException(e);
+	}
+}
+
+std::vector<double> PowerPMAC_CompensationTable::GetTableFromPmac() {
+	std::vector<double> out;
+	try {
+		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
+		for(int32_t idx = 0;/*empty*/;idx++) {
+			auto valuesStr = ci.ExecuteCommand(ppmac::cmd::CompensationTableGetDataEntry(tableID, idx));
+			auto value = tu::ParseDouble(valuesStr);
+			if(std::isnan(value)) {
+				break;
+			}
+			out.push_back(value);
+		}
+	} catch (ppmac::RuntimeError& e) {
+		tu::TranslateException(e);
+	}
+	return out;
+}
+
+int32_t PowerPMAC_CompensationTable::GetTargetMotor() {
+	ppmac::CoreInterface& ci = ppmac::GetCoreObject();
+	auto result = ci.ExecuteCommand(ppmac::cmd::CompensationTableGetTarget(tableID));
+	boost::regex rgx(R"(Motor\[(\d+)\])");
+	boost::smatch what;
+	if(boost::regex_search(result, what, rgx)) {
+		int32_t target = tu::ParseInt32(what[1]);
+		return target;
+	} else {
+		fmt::print("invalid compensation table target: '{}', expected 'Motor[x].CompPos.a'\n", result);
+	}
+	return -1;
+}
+
+void PowerPMAC_CompensationTable::StartCompensationTables() {
+	if(started) {
+		return;
+	}
+	started = true;
+	int32_t enabledCompTables = tu::ExecuteCommand<int32_t>(ppmac::GetCoreObject(), ppmac::cmd::CompensationTableGetActiveTableCount());
+	if(enabledCompTables == 0) {
+		set_state(Tango::OFF);
+		set_status(fmt::format("compensation tables are disabled"));
+		return;
+	}
+	if(tableIndex >= enabledCompTables) {
+		set_state(Tango::OFF);
+		set_status(fmt::format("table index is not inside enabled compensation table range of [0, {}]", enabledCompTables - 1));
+		return;
+	}
+	//compensationTable = GetTableFromPmac();
+	/*double startX = tu::ExecuteCommand<double>(ppmac::GetCoreObject(), ppmac::cmd::CompensationTableGetStartX(tableID));
+	double deltaX = tu::ExecuteCommand<double>(ppmac::GetCoreObject(), ppmac::cmd::CompensationTableGetDeltaX(tableID));
+	int32_t source = tu::ExecuteCommand<int32_t>(ppmac::GetCoreObject(), ppmac::cmd::CompensationTableGetSource(tableID));
+	int32_t target = GetTargetMotor();
+	double to = startX + deltaX;
+	*attr_SourceMotor_read = source;
+	*attr_TargetMotor_read = target;
+	*attr_From_read = startX;
+	*attr_To_read = to;
+
+	if(target < 0) {
+		return;
+	}
+
+	ppmac::CoreInterface& ci = ppmac::GetCoreObject();
+	// This initializes all "other" compensation table values to default values.
+	// If its important to have a non standard compensation table it should not be
+	// managed via tango.
+	auto result = ci.ExecuteCommand(ppmac::cmd::CompensationTableSetAll(tableID,
+		static_cast<ppmac::MotorID>(source),
+		static_cast<ppmac::MotorID>(target),
+		startX,
+		to,
+		compensationTable));*/
+	set_state(Tango::ON);
+}
+void PowerPMAC_CompensationTable::StopCompensationTables() {
+	if(!started) {
+		return;
+	}
+	started = false;
+	set_state(Tango::OFF);
 }
 
 /*----- PROTECTED REGION END -----*/	//	PowerPMAC_CompensationTable::namespace_ending

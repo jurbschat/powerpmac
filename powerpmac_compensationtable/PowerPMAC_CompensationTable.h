@@ -34,6 +34,8 @@
 #define PowerPMAC_CompensationTable_H
 
 #include <tango.h>
+#include "libs/sigs.h"
+#include "pmac/defines.h"
 
 
 /*----- PROTECTED REGION END -----*/	//	PowerPMAC_CompensationTable.h
@@ -56,19 +58,24 @@ class PowerPMAC_CompensationTable : public TANGO_BASE_CLASS
 
 /*----- PROTECTED REGION ID(PowerPMAC_CompensationTable::Data Members) ENABLED START -----*/
 
-//	Add your own data members
+	sigs::Connection connectionEstablished;
+	sigs::Connection connectionLost;
+	sigs::Connection stateChanged;
+	ppmac::CompensationTableID tableID;
+	std::vector<double> compensationTable;
+	bool started;
 
 /*----- PROTECTED REGION END -----*/	//	PowerPMAC_CompensationTable::Data Members
 
 //	Device property data members
 public:
-	//	TableID:	The table id specifies the slot that this device server will use for its compensation table. 
+	//	tableIndex:	The table id specifies the slot that this device server will use for its compensation table. 
 	//  There are 256 slots but every slot takes computation time, therefore ids should be used 
 	//  consecutive starting from 0 as we can only enable an amount of tables, not specific ids.
 	//  E.g.: three device servers with the ids 0, 1 and 2 means we have to enable three tables,
 	//  two device servers with the ids 5 and 7 means we have to enable 7 compensation 
 	//  tables on the pmac.
-	Tango::DevLong	tableID;
+	Tango::DevLong	tableIndex;
 
 	bool	mandatoryNotDefined;
 
@@ -228,14 +235,18 @@ public:
 
 /*----- PROTECTED REGION ID(PowerPMAC_CompensationTable::Additional Method prototypes) ENABLED START -----*/
 
+	void StartCompensationTables();
+	void StopCompensationTables();
 	size_t GetLastValidIndex(const double* array, int32_t length);
+	void WriteCompensationTable(const std::vector<double>& compTable, int32_t table, int32_t source, int32_t target, double from, double to);
+	std::vector<double> GetTableFromPmac();
+	int32_t GetTargetMotor();
 
 /*----- PROTECTED REGION END -----*/	//	PowerPMAC_CompensationTable::Additional Method prototypes
 };
 
 /*----- PROTECTED REGION ID(PowerPMAC_CompensationTable::Additional Classes Definitions) ENABLED START -----*/
 
-//	Additional Classes Definitions
 
 /*----- PROTECTED REGION END -----*/	//	PowerPMAC_CompensationTable::Additional Classes Definitions
 

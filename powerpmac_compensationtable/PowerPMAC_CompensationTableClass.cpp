@@ -217,7 +217,7 @@ void PowerPMAC_CompensationTableClass::set_default_property()
 	//	Set Default Class Properties
 
 	//	Set Default device Properties
-	prop_name = "TableID";
+	prop_name = "tableIndex";
 	prop_desc = "The table id specifies the slot that this device server will use for its compensation table. \nThere are 256 slots but every slot takes computation time, therefore ids should be used \nconsecutive starting from 0 as we can only enable an amount of tables, not specific ids.\nE.g.: three device servers with the ids 0, 1 and 2 means we have to enable three tables,\ntwo device servers with the ids 5 and 7 means we have to enable 7 compensation \ntables on the pmac.";
 	prop_def  = "";
 	vect_data.clear();
@@ -392,7 +392,7 @@ void PowerPMAC_CompensationTableClass::attribute_factory(vector<Tango::Attr *> &
 	//	unit	not set for From
 	//	standard_unit	not set for From
 	//	display_unit	not set for From
-	//	format	not set for From
+	from_prop.set_format("%10.3f");
 	//	max_value	not set for From
 	//	min_value	not set for From
 	//	max_alarm	not set for From
@@ -416,7 +416,7 @@ void PowerPMAC_CompensationTableClass::attribute_factory(vector<Tango::Attr *> &
 	//	unit	not set for To
 	//	standard_unit	not set for To
 	//	display_unit	not set for To
-	//	format	not set for To
+	to_prop.set_format("%10.3f");
 	//	max_value	not set for To
 	//	min_value	not set for To
 	//	max_alarm	not set for To

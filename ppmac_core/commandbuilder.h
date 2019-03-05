@@ -60,7 +60,8 @@ namespace ppmac::cmd {
 	// global commands
 
 	std::string GlobalResetBrickLVAmp();
-	std::string GlobalGetAmpChannelState(int32_t channel);
+	std::string GlobalGetAmpChannelOverCurrent(int32_t channel);
+	std::string GlobalGetAmpChannelOverLoad(int32_t channel);
 	std::string GlobalReboot();
 	// resets and default initializes all structures
 	std::string GlobalResetAndReinitialize();
@@ -92,7 +93,20 @@ namespace ppmac::cmd {
 	///////////////////////////////////////////////////////////////
 	// compensation table setup
 
-	std::string SetCompensationTable(CompensationTableID table, MotorID source, MotorID target, double from, double to, const std::vector<double>& values);
+	std::string CompensationTableGetSource(CompensationTableID table);
+	std::string CompensationTableSetSource(CompensationTableID table, int32_t source);
+	std::string CompensationTableGetTarget(CompensationTableID table);
+	std::string CompensationTableSetTarget(CompensationTableID table, int32_t target);
+	std::string CompensationTableGetStartX(CompensationTableID table);
+	std::string CompensationTableSetStartX(CompensationTableID table, int32_t startx);
+	std::string CompensationTableGetDeltaX(CompensationTableID table);
+	std::string CompensationTableSetDeltaX(CompensationTableID table, int32_t deltax);
+	std::string CompensationTableGetDataEntry(CompensationTableID table, int32_t idx);
+	std::string CompensationTableSetDataEntry(CompensationTableID table, int32_t idx, double val);
+	std::string CompensationTableGetActiveTableCount();
+	std::string CompensationTableSetActiveTableCount(int32_t activeTables);
+	std::string CompensationTableSetAll(CompensationTableID table, MotorID source, MotorID target, double from, double to, const std::vector<double>& values);
+	std::string CompensationTableSetData(CompensationTableID table, const std::vector<double>& values);
 }
 
 #endif //POWERPMAC_COMMANDBUILDER_H

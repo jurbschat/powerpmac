@@ -85,6 +85,7 @@ namespace ppmac {
 
 		WISE_ENUM_MEMBER(DataRequestType,
 			Global,
+			GlobalSecondary,
 			Motor,
 			MotorSecondary,
 			Coord,
@@ -124,8 +125,9 @@ namespace ppmac {
 			state.global.plcs.resize(MAX_PLC);
 
 			lastRequestTimes[DataRequestType::Global] =         MakeDataRequestInfo(std::chrono::milliseconds{1000}, std::chrono::seconds{10});
+			lastRequestTimes[DataRequestType::GlobalSecondary] =MakeDataRequestInfo(std::chrono::milliseconds{3100}, std::chrono::hours{0xFFFFFFFF});
 			lastRequestTimes[DataRequestType::Motor] =          MakeDataRequestInfo(std::chrono::milliseconds{50}, std::chrono::seconds{10});
-			lastRequestTimes[DataRequestType::MotorSecondary] = MakeDataRequestInfo(std::chrono::milliseconds{3000}, std::chrono::hours{0xFFFFFFFF});
+			lastRequestTimes[DataRequestType::MotorSecondary] = MakeDataRequestInfo(std::chrono::milliseconds{2900}, std::chrono::hours{0xFFFFFFFF});
 			lastRequestTimes[DataRequestType::Coord] =          MakeDataRequestInfo(std::chrono::milliseconds{50}, std::chrono::seconds{10});
 			lastRequestTimes[DataRequestType::IO] =             MakeDataRequestInfo(std::chrono::milliseconds{100}, std::chrono::seconds{10});
 		}
@@ -224,34 +226,14 @@ namespace ppmac {
 					auto unitAsInt = parser::IntParser::convert(*result);
 					return static_cast<MotorUnit>(unitAsInt);
 				} catch (const std::exception &) {
-					RETHROW_RUNTIME_ERROR("unable to query axis to motor mapping:\nquery: '{}'\nresult: '{}'", cmd, *result);
+					RETHROW_RUNTIME_ERROR("unable to query motor unit:\nquery: '{}'\nresult: '{}'", cmd, *result);
 				}
 			}
 			else {
 				SPDLOG_ERROR("unable to get motor unit result, channel error: {}", wise_enum::to_string(result.error()));
 			}
 			return MotorUnit::None;
-		};
-
-		std::vector<MotorUnit> GetMotorUnits() {
-			std::vector<MotorUnit> out;
-			for(int i = 0; i < state.global.maxMotors; i++) {
-				auto cmd = cmd::detail::MotorGetUnit(i);
-				auto result = rs.ChannelWriteRead(cmd);
-				if(result) {
-					try {
-						auto unitAsInt = parser::IntParser::convert(*result);
-						out.push_back(static_cast<MotorUnit>(unitAsInt));
-					} catch(const std::exception&) {
-						RETHROW_RUNTIME_ERROR("unable to query axis to motor mapping:\nquery: '{}'\nresult: '{}'", cmd, *result);
-					}
-				}
-				else {
-					SPDLOG_ERROR("unable to get axis mapping result, channel error: {}", wise_enum::to_string(result.error()));
-				}
-			}
-			return out;
-		}*/
+		};*/
 
 	private:
 		void UpdateGeneralInfo() {
@@ -271,6 +253,34 @@ namespace ppmac {
 				}
 			} else {
 				SPDLOG_ERROR("unable to get general result, channel error: {}", wise_enum::to_string(result.error()));
+			}
+		}
+
+		void UpdateSecondaryGeneralInfo() {
+			std::lock_guard<std::mutex> lock(stateMutex);
+			auto query = query::GeneralGetInfo(stdext::span<GlobalInfo>(&state.global, 1));
+			auto result = rs.ChannelWriteRead(query.command);
+			if(result) {
+				try {
+					if(parser::detail::CheckForError(*result)) {
+						THROW_RUNTIME_ERROR("response contained error '{}'", *result);
+					}
+					auto parserResult = query.splitter(*result);
+					Update1D(parserResult, query);
+					int32_t seenAsActive = state.global.prevActiveCompensationTables;
+					int32_t actuallyActive = state.global.activeCompensationTables;
+					bool enableTable = (actuallyActive - seenAsActive) > 0;
+					int32_t startUpdate = std::min(seenAsActive, actuallyActive);
+					int32_t stopUpdate = std::max(seenAsActive, actuallyActive);
+					for(int32_t i = startUpdate; i < stopUpdate; i++) {
+						core.OnCompensationTablesChanged(i, enableTable);
+					}
+					state.global.prevActiveCompensationTables = state.global.activeCompensationTables;
+				} catch(const std::exception&) {
+					RETHROW_RUNTIME_ERROR("unable to update secondary motor values:\nquery: '{}'\nresult: '{}'", query.command, *result);
+				}
+			} else {
+				SPDLOG_ERROR("unable to get secondary motor values, channel error: {}", wise_enum::to_string(result.error()));
 			}
 		}
 
@@ -748,6 +758,7 @@ namespace ppmac {
 		void OnUpdateThreadRunOnce() {
 			UpdateGeneralInfo();
 			CreateUpdateTimer(DataRequestType::MotorSecondary);
+			CreateUpdateTimer(DataRequestType::GlobalSecondary);
 			updateOnce = true;
 		}
 
@@ -758,6 +769,9 @@ namespace ppmac {
 					break;
 				case DataRequestType::MotorSecondary:
 					UpdateMotorSecondaryValues();
+					break;
+				case DataRequestType::GlobalSecondary:
+					UpdateSecondaryGeneralInfo();
 					break;
 				case DataRequestType::Global:
 					UpdateGeneralInfo();

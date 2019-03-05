@@ -61,7 +61,7 @@ class PowerPMAC_Motor : public TANGO_BASE_CLASS
 
 //	Add your own data members
 private:
-	ppmac::MotorID motorId;
+	ppmac::MotorID motorID;
 	sigs::Connection connectionEstablished;
 	sigs::Connection connectionLost;
 	sigs::Connection motorStateChanged;

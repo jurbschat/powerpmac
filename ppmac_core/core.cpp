@@ -9,6 +9,7 @@
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <signal.h>
+#include <stdlib.h>
 
 namespace ppmac {
 
@@ -48,6 +49,9 @@ namespace ppmac {
 
 	void Core::ErrorHandlingSetup() {
 		std::set_terminate(exception::TerminateHandler);
+		signal(SIGABRT, [](int signum){
+
+		});
 	}
 
 	void Core::SetupDeadTimer() {
@@ -142,6 +146,9 @@ namespace ppmac {
 		//stateUpdater.Stop();
 		SPDLOG_ERROR("connection to { }:{} lost", remoteHost, remotePort);
 		signalHandler.ConnectionLost()();
+		AddDeadTimer(std::chrono::seconds{0}, [this](){
+			stateUpdater.Stop();
+		});
 	}
 
 	void Core::OnMotorStateChanged(int32_t motorIndex, uint64_t newState, uint64_t changes) {
@@ -160,6 +167,11 @@ namespace ppmac {
 
 	void Core::OnCoordAxisChanged(int32_t coordIndex, uint32_t availableAxis) {
 		signalHandler.CoordChanged(to_enum_coord(coordIndex))(std::move(availableAxis));
+	}
+
+	void Core::OnCompensationTablesChanged(int32_t compensationTable, bool active) {
+		signalHandler.CompTableChanged(to_enum_comp_table(compensationTable))(std::move(active));
+		//SPDLOG_DEBUG("setting CT {}: {}", compensationTable, active);
 	}
 
 	void Core::OnStateupdaterInitialized() {

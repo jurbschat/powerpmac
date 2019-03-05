@@ -54,15 +54,34 @@ namespace PowerPMAC_CompensationTable_ns
 //--------------------------------------------------------
 bool PowerPMAC_CompensationTable::is_SourceMotor_allowed(TANGO_UNUSED(Tango::AttReqType type))
 {
-	//	Not any excluded states for SourceMotor attribute in Write access.
-	/*----- PROTECTED REGION ID(PowerPMAC_CompensationTable::SourceMotorStateAllowed_WRITE) ENABLED START -----*/
+	//	Check access type.
+	if ( type!=Tango::READ_REQ )
+	{
+		//	Compare device state with not allowed states for WRITE 
+		if (get_state()==Tango::OFF)
+		{
+		/*----- PROTECTED REGION ID(PowerPMAC_CompensationTable::SourceMotorStateAllowed_WRITE) ENABLED START -----*/
 	
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_CompensationTable::SourceMotorStateAllowed_WRITE
+			return false;
+		}
+		return true;
+	}
+	else
 
-	//	Not any excluded states for SourceMotor attribute in read access.
-	/*----- PROTECTED REGION ID(PowerPMAC_CompensationTable::SourceMotorStateAllowed_READ) ENABLED START -----*/
+	//	Check access type.
+	if ( type==Tango::READ_REQ )
+	{
+		//	Compare device state with not allowed states for READ 
+		if (get_state()==Tango::OFF)
+		{
+		/*----- PROTECTED REGION ID(PowerPMAC_CompensationTable::SourceMotorStateAllowed_READ) ENABLED START -----*/
 	
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_CompensationTable::SourceMotorStateAllowed_READ
+			return false;
+		}
+		return true;
+	}
 	return true;
 }
 
@@ -74,15 +93,34 @@ bool PowerPMAC_CompensationTable::is_SourceMotor_allowed(TANGO_UNUSED(Tango::Att
 //--------------------------------------------------------
 bool PowerPMAC_CompensationTable::is_TargetMotor_allowed(TANGO_UNUSED(Tango::AttReqType type))
 {
-	//	Not any excluded states for TargetMotor attribute in Write access.
-	/*----- PROTECTED REGION ID(PowerPMAC_CompensationTable::TargetMotorStateAllowed_WRITE) ENABLED START -----*/
+	//	Check access type.
+	if ( type!=Tango::READ_REQ )
+	{
+		//	Compare device state with not allowed states for WRITE 
+		if (get_state()==Tango::OFF)
+		{
+		/*----- PROTECTED REGION ID(PowerPMAC_CompensationTable::TargetMotorStateAllowed_WRITE) ENABLED START -----*/
 	
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_CompensationTable::TargetMotorStateAllowed_WRITE
+			return false;
+		}
+		return true;
+	}
+	else
 
-	//	Not any excluded states for TargetMotor attribute in read access.
-	/*----- PROTECTED REGION ID(PowerPMAC_CompensationTable::TargetMotorStateAllowed_READ) ENABLED START -----*/
+	//	Check access type.
+	if ( type==Tango::READ_REQ )
+	{
+		//	Compare device state with not allowed states for READ 
+		if (get_state()==Tango::OFF)
+		{
+		/*----- PROTECTED REGION ID(PowerPMAC_CompensationTable::TargetMotorStateAllowed_READ) ENABLED START -----*/
 	
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_CompensationTable::TargetMotorStateAllowed_READ
+			return false;
+		}
+		return true;
+	}
 	return true;
 }
 
@@ -94,15 +132,34 @@ bool PowerPMAC_CompensationTable::is_TargetMotor_allowed(TANGO_UNUSED(Tango::Att
 //--------------------------------------------------------
 bool PowerPMAC_CompensationTable::is_From_allowed(TANGO_UNUSED(Tango::AttReqType type))
 {
-	//	Not any excluded states for From attribute in Write access.
-	/*----- PROTECTED REGION ID(PowerPMAC_CompensationTable::FromStateAllowed_WRITE) ENABLED START -----*/
+	//	Check access type.
+	if ( type!=Tango::READ_REQ )
+	{
+		//	Compare device state with not allowed states for WRITE 
+		if (get_state()==Tango::OFF)
+		{
+		/*----- PROTECTED REGION ID(PowerPMAC_CompensationTable::FromStateAllowed_WRITE) ENABLED START -----*/
 	
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_CompensationTable::FromStateAllowed_WRITE
+			return false;
+		}
+		return true;
+	}
+	else
 
-	//	Not any excluded states for From attribute in read access.
-	/*----- PROTECTED REGION ID(PowerPMAC_CompensationTable::FromStateAllowed_READ) ENABLED START -----*/
+	//	Check access type.
+	if ( type==Tango::READ_REQ )
+	{
+		//	Compare device state with not allowed states for READ 
+		if (get_state()==Tango::OFF)
+		{
+		/*----- PROTECTED REGION ID(PowerPMAC_CompensationTable::FromStateAllowed_READ) ENABLED START -----*/
 	
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_CompensationTable::FromStateAllowed_READ
+			return false;
+		}
+		return true;
+	}
 	return true;
 }
 
@@ -114,15 +171,34 @@ bool PowerPMAC_CompensationTable::is_From_allowed(TANGO_UNUSED(Tango::AttReqType
 //--------------------------------------------------------
 bool PowerPMAC_CompensationTable::is_To_allowed(TANGO_UNUSED(Tango::AttReqType type))
 {
-	//	Not any excluded states for To attribute in Write access.
-	/*----- PROTECTED REGION ID(PowerPMAC_CompensationTable::ToStateAllowed_WRITE) ENABLED START -----*/
+	//	Check access type.
+	if ( type!=Tango::READ_REQ )
+	{
+		//	Compare device state with not allowed states for WRITE 
+		if (get_state()==Tango::OFF)
+		{
+		/*----- PROTECTED REGION ID(PowerPMAC_CompensationTable::ToStateAllowed_WRITE) ENABLED START -----*/
 	
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_CompensationTable::ToStateAllowed_WRITE
+			return false;
+		}
+		return true;
+	}
+	else
 
-	//	Not any excluded states for To attribute in read access.
-	/*----- PROTECTED REGION ID(PowerPMAC_CompensationTable::ToStateAllowed_READ) ENABLED START -----*/
+	//	Check access type.
+	if ( type==Tango::READ_REQ )
+	{
+		//	Compare device state with not allowed states for READ 
+		if (get_state()==Tango::OFF)
+		{
+		/*----- PROTECTED REGION ID(PowerPMAC_CompensationTable::ToStateAllowed_READ) ENABLED START -----*/
 	
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_CompensationTable::ToStateAllowed_READ
+			return false;
+		}
+		return true;
+	}
 	return true;
 }
 
@@ -134,15 +210,34 @@ bool PowerPMAC_CompensationTable::is_To_allowed(TANGO_UNUSED(Tango::AttReqType t
 //--------------------------------------------------------
 bool PowerPMAC_CompensationTable::is_CompensationTable_allowed(TANGO_UNUSED(Tango::AttReqType type))
 {
-	//	Not any excluded states for CompensationTable attribute in Write access.
-	/*----- PROTECTED REGION ID(PowerPMAC_CompensationTable::CompensationTableStateAllowed_WRITE) ENABLED START -----*/
+	//	Check access type.
+	if ( type!=Tango::READ_REQ )
+	{
+		//	Compare device state with not allowed states for WRITE 
+		if (get_state()==Tango::OFF)
+		{
+		/*----- PROTECTED REGION ID(PowerPMAC_CompensationTable::CompensationTableStateAllowed_WRITE) ENABLED START -----*/
 	
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_CompensationTable::CompensationTableStateAllowed_WRITE
+			return false;
+		}
+		return true;
+	}
+	else
 
-	//	Not any excluded states for CompensationTable attribute in read access.
-	/*----- PROTECTED REGION ID(PowerPMAC_CompensationTable::CompensationTableStateAllowed_READ) ENABLED START -----*/
+	//	Check access type.
+	if ( type==Tango::READ_REQ )
+	{
+		//	Compare device state with not allowed states for READ 
+		if (get_state()==Tango::OFF)
+		{
+		/*----- PROTECTED REGION ID(PowerPMAC_CompensationTable::CompensationTableStateAllowed_READ) ENABLED START -----*/
 	
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_CompensationTable::CompensationTableStateAllowed_READ
+			return false;
+		}
+		return true;
+	}
 	return true;
 }
 

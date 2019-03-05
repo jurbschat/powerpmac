@@ -33,6 +33,9 @@ namespace ppmac {
 		sigs::Signal<void(uint32_t axis)>& CoordChanged(CoordID id) {
 			return coordChanged[id];
 		}
+		sigs::Signal<void(bool enabled)>& CompTableChanged(CompensationTableID id) {
+			return compTableStatusChanged[id];
+		}
 		void Clear() {
 			connectionEstablished.clear();
 			connectionLost.clear();
@@ -40,6 +43,7 @@ namespace ppmac {
 			motorCtrlChanged.clear();
 			coordStatusChanged.clear();
 			coordChanged.clear();
+			compTableStatusChanged.clear();
 			/*for(auto& s : motorStatusChanged) {
 				s.second.clear();
 			}
@@ -60,6 +64,7 @@ namespace ppmac {
 		std::map<MotorID, sigs::Signal<void(uint64_t newState, uint64_t changes)>> motorCtrlChanged;
 		std::map<CoordID, sigs::Signal<void(uint64_t newState, uint64_t changes)>> coordStatusChanged;
 		std::map<CoordID, sigs::Signal<void(uint32_t axis)>> coordChanged;
+		std::map<CompensationTableID, sigs::Signal<void(bool enabled)>> compTableStatusChanged;
 	};
 
 }

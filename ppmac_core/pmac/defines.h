@@ -144,14 +144,17 @@ namespace ppmac
 	MotorID to_enum_motor(int32_t index);
 	IoID to_enum_io(int32_t index);
 	CoordID to_enum_coord(int32_t index);
+	CompensationTableID to_enum_comp_table(int32_t index);
 
 	MotorID to_enum(int_with_tag<MotorID> index);
 	IoID to_enum(int_with_tag<IoID> index);
 	CoordID to_enum(int_with_tag<CoordID> index);
+	CompensationTableID to_enum(int_with_tag<CompensationTableID> index);
 
 	int32_t from_enum(MotorID motor);
-	int32_t from_enum(IoID motor);
-	int32_t from_enum(CoordID motor);
+	int32_t from_enum(IoID io);
+	int32_t from_enum(CoordID coord);
+	int32_t from_enum(CompensationTableID table);
 }
 
 #endif //POWERPMAC_DEFINES_H

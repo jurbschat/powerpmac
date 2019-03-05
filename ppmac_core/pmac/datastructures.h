@@ -451,7 +451,7 @@ namespace ppmac {
 		MotorStatusUnion prevStatus;
 		bool servoCtrl;
 		bool prevServoCtrl;
-		MotorUnit unit;
+		//MotorUnit unit;
 	};
 
 	union Coord26Axis {
@@ -587,6 +587,8 @@ namespace ppmac {
 		int64_t cpuFrequency;
 		// plcs are currently directly queried and not updated by the core
 		std::vector<PlcInfo> plcs;
+		int32_t activeCompensationTables;
+		int32_t prevActiveCompensationTables;
 	};
 }
 

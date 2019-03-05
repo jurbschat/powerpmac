@@ -58,6 +58,7 @@ private:
 	void OnMotorCtrlChanged(int32_t motorIndex, uint64_t newState, uint64_t changes);
 	void OnCoordStateChanged(int32_t coordIndex, uint64_t newState, uint64_t changes);
 	void OnCoordAxisChanged(int32_t coordIndex, uint32_t availableAxis);
+	void OnCompensationTablesChanged(int32_t compensationTable, bool active);
 	void OnStateupdaterInitialized();
 	void DeadTimerRunner();
 

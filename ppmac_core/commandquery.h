@@ -242,7 +242,7 @@ namespace ppmac::query {
 	 * retuns a a query that will update general info like max motors, abortAll etc...
 	 */
 	inline auto GeneralGetInfo(stdext::span<GlobalInfo> data) {
-		fmt::memory_buffer buffer = builder::detail::MakePlain("Sys.MaxMotors; Sys.maxCoords; Sys.AbortAll; Sys.CpuTemp; BrickLV.OverTemp; Sys.Time; Sys.CpuFreq; type; vers; cpu;");
+		fmt::memory_buffer buffer = builder::detail::MakePlain("Sys.MaxMotors; Sys.maxCoords; Sys.AbortAll; Sys.CpuTemp; BrickLV.OverTemp; Sys.Time; Sys.CpuFreq; type; vers; cpu; Sys.CompEnable");
 		return MakeCommandQuery(
 			fmt::to_string(buffer),
 			0, 1,
@@ -257,7 +257,23 @@ namespace ppmac::query {
 				MakeObjectPtrInfo<parser::Int64Parser>(&GlobalInfo::cpuFrequency),
 				MakeObjectPtrInfo<parser::NoneParser>(&GlobalInfo::type),
 				MakeObjectPtrInfo<parser::NoneParser>(&GlobalInfo::firmware),
-				MakeObjectPtrInfo<parser::NoneParser>(&GlobalInfo::cpuType)
+				MakeObjectPtrInfo<parser::NoneParser>(&GlobalInfo::cpuType),
+				MakeObjectPtrInfo<parser::IntParser>(&GlobalInfo::activeCompensationTables)
+			),
+			[](const std::string& str){
+				return parser::Split1D(str, boost::is_any_of("\r\n"));
+			}
+		);
+	}
+
+	inline auto GeneralGetSecondaryInfo(stdext::span<GlobalInfo> data) {
+		fmt::memory_buffer buffer = builder::detail::MakePlain("Sys.CompEnable");
+		return MakeCommandQuery(
+			fmt::to_string(buffer),
+			0, 1,
+			MakeObjectPointerList(
+				data,
+				MakeObjectPtrInfo<parser::IntParser>(&GlobalInfo::activeCompensationTables)
 			),
 			[](const std::string& str){
 				return parser::Split1D(str, boost::is_any_of("\r\n"));
@@ -294,14 +310,14 @@ namespace ppmac::query {
 		for(int i = first; i <= (last - first); i++) {
 			tuples.push_back((std::make_tuple(i)));
 		}
-		fmt::memory_buffer buffer = builder::detail::MakeMultiCommand("Motor[{0}].ServoCtrl; Motor[{0}].PosUnit", stdext::make_span(tuples));
+		fmt::memory_buffer buffer = builder::detail::MakeMultiCommand("Motor[{0}].ServoCtrl;" /* Motor[{0}].PosUnit" */, stdext::make_span(tuples));
 		return MakeCommandQuery(
 			fmt::to_string(buffer),
 				first, last+1,
 			MakeObjectPointerList(
 				data,
-				MakeObjectPtrInfo<parser::IntParser>(&MotorInfo::servoCtrl),
-				MakeObjectPtrInfo<parser::EnumParser<MotorUnit>>(&MotorInfo::unit)
+				MakeObjectPtrInfo<parser::IntParser>(&MotorInfo::servoCtrl)
+				//MakeObjectPtrInfo<parser::EnumParser<MotorUnit>>(&MotorInfo::unit)
 			),
 			[](const std::string& str){
 				return parser::Split1D(str, boost::is_any_of("\r\n"));

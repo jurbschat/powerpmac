@@ -42,7 +42,9 @@
 #include "commandbuilder.h"
 #include <fmt/format.h>
 #include <fmt/printf.h>
+#include <fmt/ranges.h>
 
+#include <set>
 #include <unordered_map>
 
 /*----- PROTECTED REGION END -----*/	//	PowerPMAC_Global.cpp
@@ -678,11 +680,22 @@ void PowerPMAC_Global::read_AmpStatus(Tango::Attribute &attr)
 	//	Set the attribute value
 
 	for(int i = 0; i < 8; i++) {
-		//tu::SetStringValue(&attr_AmpStatus_read[i], "");
 		try {
 			ppmac::CoreInterface& ci = ppmac::GetCoreObject();
-			auto channelState = ci.ExecuteCommand(ppmac::cmd::GlobalGetAmpChannelState(i));
-			tu::SetStringValue(&attr_AmpStatus_read[i], fmt::format("Chan[{}]: {}", i, channelState));
+			auto overCurrentStatus = tu::ParseInt32(ci.ExecuteCommand(ppmac::cmd::GlobalGetAmpChannelOverCurrent(i)));
+			auto overLoadStatus = tu::ParseInt32(ci.ExecuteCommand(ppmac::cmd::GlobalGetAmpChannelOverLoad(i)));
+			std::set<std::string> states;
+			if(overCurrentStatus) {
+				states.insert("OverCurrent");
+			}
+			if(overLoadStatus) {
+				states.insert("OverLoad");
+			}
+			if(!states.empty()) {
+				tu::SetStringValue(&attr_AmpStatus_read[i], fmt::format("Chan[{}]: {}", i, states));
+			} else {
+				tu::SetStringValue(&attr_AmpStatus_read[i], fmt::format("Chan[{}]: Ok", i));
+			}
 		} catch (ppmac::RuntimeError& e) {
 			tu::TranslateException(e);
 		}
@@ -838,48 +851,6 @@ void PowerPMAC_Global::SetErrorState() {
 	auto msg = fmt::format("", 1);
 	set_status(msg.c_str());
 }
-
-// //--------------------------------------------------------
-// /**
-//  *	Read attribute PhaseClock related method
-//  *	Description: 
-//  *
-//  *	Data type:	Tango::DevDouble
-//  *	Attr type:	Scalar
-//  */
-// //--------------------------------------------------------
-// void PowerPMAC_Global::read_PhaseClock(Tango::Attribute &attr)
-// {
-// 	DEBUG_STREAM << "PowerPMAC_Global::read_PhaseClock(Tango::Attribute &attr) entering... " << endl;
-// 	//	Set the attribute value
-// 	attr.set_value(attr_PhaseClock_read);
-// 	
-// }
-
-// //--------------------------------------------------------
-// /**
-//  *	Read attribute ServoClock related method
-//  *	Description: 
-//  *
-//  *	Data type:	Tango::DevDouble
-//  *	Attr type:	Scalar
-//  */
-// //--------------------------------------------------------
-// void PowerPMAC_Global::read_ServoClock(Tango::Attribute &attr)
-// {
-// 	DEBUG_STREAM << "PowerPMAC_Global::read_ServoClock(Tango::Attribute &attr) entering... " << endl;
-// 	//	Set the attribute value
-// 	attr.set_value(attr_ServoClock_read);
-// 	try {
-// 		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
-// 		auto aa = ci.GetGlobalInfo().abortAll; // stinkt
-// 		attr.set_value(&aa);
-// 	} catch (ppmac::RuntimeError& e) {
-// 		tu::TranslateException(e);
-// 	}
-// 	
-// }
-
 
 /*----- PROTECTED REGION END -----*/	//	PowerPMAC_Global::namespace_ending
 } //	namespace
