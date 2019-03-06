@@ -407,13 +407,13 @@ namespace ppmac {
 			//(1ull << CoordStatusBits::LimitStop) |
 			//(1ull << CoordStatusBits::PlusLimit) |
 			//(1ull << CoordStatusBits::MinusLimit) |
+			(1ull << CoordStatusBits::AmpFault) |
+			(1ull << CoordStatusBits::I2tFault) |
 			(1ull << CoordStatusBits::FeFatal);
 
 	// contains a list of stats bits that we count as "fatal" state
 	// these need some kind of reset
 	const uint64_t coordHardErrorStatusBits =
-			(1ull << CoordStatusBits::AmpFault) |
-			(1ull << CoordStatusBits::I2tFault) |
 			(1ull << CoordStatusBits::EncLoss);
 
 	// contains a list of stats bits that we count as "fatal" state

@@ -201,10 +201,8 @@ void PowerPMAC_Motor::init_device()
 	*attr_CcwLimitFault_read = false;
 	*attr_MotorStates_read = nullptr;
 
-	motorID = static_cast<ppmac::MotorID>(motorIndex);
+	motorID = ppmac::MotorID(motorIndex);
 	started = false;
-
-	fmt::print("init called for motor {}\n", motorIndex);
 
 	ppmac::CoreInterface& ci = ppmac::GetCoreObject();
 
@@ -1115,7 +1113,7 @@ void PowerPMAC_Motor::StartMotor() {
 		return;
 	}
 	started = true;
-	fmt::print("starting motor {}\n", motorIndex);
+	//fmt::print("starting motor {}\n", motorIndex);
 	try {
 		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
 		auto motorInfo = ci.GetMotorInfo(motorID);
@@ -1127,7 +1125,7 @@ void PowerPMAC_Motor::StartMotor() {
 
 		auto unitStr = ci.ExecuteCommand(ppmac::cmd::detail::MotorGetUnit(motorIndex));
 		auto unitInt = tu::ParseInt32(unitStr);
-		auto motorUnit = static_cast<ppmac::MotorUnit>(unitInt);
+		auto motorUnit = ppmac::MotorUnit(unitInt);
 
 		// OMFG! it there no other way to change the property unit without doing a connection!?
 		try {

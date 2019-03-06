@@ -91,6 +91,7 @@ public:
 	Tango::DevString	*attr_CpuType_read;
 	Tango::DevLong	*attr_CpuFrequency_read;
 	Tango::DevString	*attr_Uptime_read;
+	Tango::DevLong	*attr_ActiveCompensationTables_read;
 	Tango::DevString	*attr_AmpStatus_read;
 
 //	Constructors and destructors
@@ -156,6 +157,13 @@ public:
 	 */
 	//--------------------------------------------------------
 	virtual void read_attr_hardware(vector<long> &attr_list);
+	//--------------------------------------------------------
+	/*
+	 *	Method      : PowerPMAC_Global::write_attr_hardware()
+	 *	Description : Hardware writing for attributes.
+	 */
+	//--------------------------------------------------------
+	virtual void write_attr_hardware(vector<long> &attr_list);
 
 /**
  *	Attribute MaxMotors related methods
@@ -247,6 +255,16 @@ public:
  */
 	virtual void read_Uptime(Tango::Attribute &attr);
 	virtual bool is_Uptime_allowed(Tango::AttReqType type);
+/**
+ *	Attribute ActiveCompensationTables related methods
+ *	Description: 
+ *
+ *	Data type:	Tango::DevLong
+ *	Attr type:	Scalar
+ */
+	virtual void read_ActiveCompensationTables(Tango::Attribute &attr);
+	virtual void write_ActiveCompensationTables(Tango::WAttribute &attr);
+	virtual bool is_ActiveCompensationTables_allowed(Tango::AttReqType type);
 /**
  *	Attribute AmpStatus related methods
  *	Description: 

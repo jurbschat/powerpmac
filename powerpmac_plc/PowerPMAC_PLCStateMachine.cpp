@@ -50,33 +50,65 @@ namespace PowerPMAC_PLC_ns
 
 //--------------------------------------------------------
 /**
- *	Method      : PowerPMAC_PLC::is_active_allowed()
- *	Description : Execution allowed for active attribute
+ *	Method      : PowerPMAC_PLC::is_Name_allowed()
+ *	Description : Execution allowed for Name attribute
  */
 //--------------------------------------------------------
-bool PowerPMAC_PLC::is_active_allowed(TANGO_UNUSED(Tango::AttReqType type))
+bool PowerPMAC_PLC::is_Name_allowed(TANGO_UNUSED(Tango::AttReqType type))
 {
 
-	//	Not any excluded states for active attribute in read access.
-	/*----- PROTECTED REGION ID(PowerPMAC_PLC::activeStateAllowed_READ) ENABLED START -----*/
+	//	Not any excluded states for Name attribute in read access.
+	/*----- PROTECTED REGION ID(PowerPMAC_PLC::NameStateAllowed_READ) ENABLED START -----*/
 	
-	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_PLC::activeStateAllowed_READ
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_PLC::NameStateAllowed_READ
 	return true;
 }
 
 //--------------------------------------------------------
 /**
- *	Method      : PowerPMAC_PLC::is_running_allowed()
- *	Description : Execution allowed for running attribute
+ *	Method      : PowerPMAC_PLC::is_Id_allowed()
+ *	Description : Execution allowed for Id attribute
  */
 //--------------------------------------------------------
-bool PowerPMAC_PLC::is_running_allowed(TANGO_UNUSED(Tango::AttReqType type))
+bool PowerPMAC_PLC::is_Id_allowed(TANGO_UNUSED(Tango::AttReqType type))
 {
 
-	//	Not any excluded states for running attribute in read access.
-	/*----- PROTECTED REGION ID(PowerPMAC_PLC::runningStateAllowed_READ) ENABLED START -----*/
+	//	Not any excluded states for Id attribute in read access.
+	/*----- PROTECTED REGION ID(PowerPMAC_PLC::IdStateAllowed_READ) ENABLED START -----*/
 	
-	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_PLC::runningStateAllowed_READ
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_PLC::IdStateAllowed_READ
+	return true;
+}
+
+//--------------------------------------------------------
+/**
+ *	Method      : PowerPMAC_PLC::is_Active_allowed()
+ *	Description : Execution allowed for Active attribute
+ */
+//--------------------------------------------------------
+bool PowerPMAC_PLC::is_Active_allowed(TANGO_UNUSED(Tango::AttReqType type))
+{
+
+	//	Not any excluded states for Active attribute in read access.
+	/*----- PROTECTED REGION ID(PowerPMAC_PLC::ActiveStateAllowed_READ) ENABLED START -----*/
+	
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_PLC::ActiveStateAllowed_READ
+	return true;
+}
+
+//--------------------------------------------------------
+/**
+ *	Method      : PowerPMAC_PLC::is_Running_allowed()
+ *	Description : Execution allowed for Running attribute
+ */
+//--------------------------------------------------------
+bool PowerPMAC_PLC::is_Running_allowed(TANGO_UNUSED(Tango::AttReqType type))
+{
+
+	//	Not any excluded states for Running attribute in read access.
+	/*----- PROTECTED REGION ID(PowerPMAC_PLC::RunningStateAllowed_READ) ENABLED START -----*/
+	
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_PLC::RunningStateAllowed_READ
 	return true;
 }
 

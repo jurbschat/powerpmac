@@ -217,7 +217,7 @@ void PowerPMAC_CompensationTableClass::set_default_property()
 	//	Set Default Class Properties
 
 	//	Set Default device Properties
-	prop_name = "tableIndex";
+	prop_name = "TableIndex";
 	prop_desc = "The table id specifies the slot that this device server will use for its compensation table. \nThere are 256 slots but every slot takes computation time, therefore ids should be used \nconsecutive starting from 0 as we can only enable an amount of tables, not specific ids.\nE.g.: three device servers with the ids 0, 1 and 2 means we have to enable three tables,\ntwo device servers with the ids 5 and 7 means we have to enable 7 compensation \ntables on the pmac.";
 	prop_def  = "";
 	vect_data.clear();

@@ -68,16 +68,20 @@ namespace ppmac::cmd {
 	// resets and reloads the configuration
 	std::string GlobalReset();
 	std::string GlobalSetAbortAll(bool abort);
+	std::string GlobalSetBrickLVMonitoring(bool mode);
+	std::string GlobalGetBrickLVMonitoring();
+	std::string GlobalGetActiveCompensationTableCount();
+	std::string GlobalSetActiveCompensationTableCount(int32_t activeTables);
 
 	///////////////////////////////////////////////////////////////
 	// plc commands
 
-	std::string GetPlcActive(int32_t plcIndex);
-	std::string GetPlcRunning(int32_t plcIndex);
-	std::string SetPLCActice(int32_t plcIndex);
-	std::string SetPLCDeactive(int32_t plcIndex);
-	std::string SetPlcRunning(int32_t plcIndex);
-	std::string SetPlcPause(int32_t plcIndex);
+	std::string GetPlcActive(PlcID plcIndex);
+	std::string GetPlcRunning(PlcID plcIndex);
+	std::string SetPLCActice(PlcID plcIndex);
+	std::string SetPLCDeactive(PlcID plcIndex);
+	std::string SetPlcRunning(PlcID plcIndex);
+	std::string SetPlcPause(PlcID plcIndex);
 
 	///////////////////////////////////////////////////////////////
 	// coord commands
@@ -103,8 +107,6 @@ namespace ppmac::cmd {
 	std::string CompensationTableSetDeltaX(CompensationTableID table, int32_t deltax);
 	std::string CompensationTableGetDataEntry(CompensationTableID table, int32_t idx);
 	std::string CompensationTableSetDataEntry(CompensationTableID table, int32_t idx, double val);
-	std::string CompensationTableGetActiveTableCount();
-	std::string CompensationTableSetActiveTableCount(int32_t activeTables);
 	std::string CompensationTableSetAll(CompensationTableID table, MotorID source, MotorID target, double from, double to, const std::vector<double>& values);
 	std::string CompensationTableSetData(CompensationTableID table, const std::vector<double>& values);
 }

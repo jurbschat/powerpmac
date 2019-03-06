@@ -54,30 +54,56 @@ namespace PowerPMAC_PLC_ns
 //=========================================
 //	Define classes for attributes
 //=========================================
-//	Attribute active class definition
-class activeAttrib: public Tango::Attr
+//	Attribute Name class definition
+class NameAttrib: public Tango::Attr
 {
 public:
-	activeAttrib():Attr("active",
-			Tango::DEV_BOOLEAN, Tango::READ) {};
-	~activeAttrib() {};
+	NameAttrib():Attr("Name",
+			Tango::DEV_STRING, Tango::READ) {};
+	~NameAttrib() {};
 	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
-		{(static_cast<PowerPMAC_PLC *>(dev))->read_active(att);}
+		{(static_cast<PowerPMAC_PLC *>(dev))->read_Name(att);}
 	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
-		{return (static_cast<PowerPMAC_PLC *>(dev))->is_active_allowed(ty);}
+		{return (static_cast<PowerPMAC_PLC *>(dev))->is_Name_allowed(ty);}
 };
 
-//	Attribute running class definition
-class runningAttrib: public Tango::Attr
+//	Attribute Id class definition
+class IdAttrib: public Tango::Attr
 {
 public:
-	runningAttrib():Attr("running",
-			Tango::DEV_BOOLEAN, Tango::READ) {};
-	~runningAttrib() {};
+	IdAttrib():Attr("Id",
+			Tango::DEV_LONG, Tango::READ) {};
+	~IdAttrib() {};
 	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
-		{(static_cast<PowerPMAC_PLC *>(dev))->read_running(att);}
+		{(static_cast<PowerPMAC_PLC *>(dev))->read_Id(att);}
 	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
-		{return (static_cast<PowerPMAC_PLC *>(dev))->is_running_allowed(ty);}
+		{return (static_cast<PowerPMAC_PLC *>(dev))->is_Id_allowed(ty);}
+};
+
+//	Attribute Active class definition
+class ActiveAttrib: public Tango::Attr
+{
+public:
+	ActiveAttrib():Attr("Active",
+			Tango::DEV_BOOLEAN, Tango::READ) {};
+	~ActiveAttrib() {};
+	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
+		{(static_cast<PowerPMAC_PLC *>(dev))->read_Active(att);}
+	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
+		{return (static_cast<PowerPMAC_PLC *>(dev))->is_Active_allowed(ty);}
+};
+
+//	Attribute Running class definition
+class RunningAttrib: public Tango::Attr
+{
+public:
+	RunningAttrib():Attr("Running",
+			Tango::DEV_BOOLEAN, Tango::READ) {};
+	~RunningAttrib() {};
+	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
+		{(static_cast<PowerPMAC_PLC *>(dev))->read_Running(att);}
+	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
+		{return (static_cast<PowerPMAC_PLC *>(dev))->is_Running_allowed(ty);}
 };
 
 

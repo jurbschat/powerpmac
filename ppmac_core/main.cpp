@@ -4,6 +4,7 @@
 
 #include "coreinterface.h"
 #include "core.h"
+#include "pmac/defines.h"
 
 int main() {
 
@@ -17,9 +18,10 @@ int main() {
 		false
 	});
 
-	const ppmac::MotorID myMotor = ppmac::MotorID::Motor2;
+	const ppmac::MotorID myMotor = ppmac::MotorID(2);
 	ci->Signals().StatusChanged(myMotor).connect([&](uint64_t newState, uint64_t changed){
 		//uint64_t status = ci->GetMotorInfo(myMotor).status.registerValue;
+		(void)changed;
 		if(!ppmac::bits::AllBitsSet(newState, ppmac::motorNeededStatusBits)) {
 			SPDLOG_DEBUG("missing states: " + ppmac::states::GetMotorStateNamesForFlagMatch(newState, ppmac::motorNeededStatusBits, 0x0));
 			SPDLOG_DEBUG("motor not initialized correctly");

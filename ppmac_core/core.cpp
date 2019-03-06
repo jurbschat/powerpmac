@@ -49,9 +49,6 @@ namespace ppmac {
 
 	void Core::ErrorHandlingSetup() {
 		std::set_terminate(exception::TerminateHandler);
-		signal(SIGABRT, [](int signum){
-
-		});
 	}
 
 	void Core::SetupDeadTimer() {
@@ -151,27 +148,26 @@ namespace ppmac {
 		});
 	}
 
-	void Core::OnMotorStateChanged(int32_t motorIndex, uint64_t newState, uint64_t changes) {
+	void Core::OnMotorStateChanged(MotorID motorID, uint64_t newState, uint64_t changes) {
 		// this is actually quite stupid that we need to make revalue refs out if this
 		// but i have no time to fix it and it doesnt do anything here, same for the other handlers
-		signalHandler.StatusChanged(to_enum_motor(motorIndex))(std::move(newState), std::move(changes));
+		signalHandler.StatusChanged(motorID)(std::move(newState), std::move(changes));
 	}
 
-	void Core::OnMotorCtrlChanged(int32_t motorIndex, uint64_t newState, uint64_t changes) {
-		signalHandler.CtrlChanged(to_enum_motor(motorIndex))(std::move(newState), std::move(changes));
+	void Core::OnMotorCtrlChanged(MotorID motorID, uint64_t newState, uint64_t changes) {
+		signalHandler.CtrlChanged(motorID)(std::move(newState), std::move(changes));
 	}
 
-	void Core::OnCoordStateChanged(int32_t coordIndex, uint64_t newState, uint64_t changes) {
-		signalHandler.StatusChanged(to_enum_coord(coordIndex))(std::move(newState), std::move(changes));
+	void Core::OnCoordStateChanged(CoordID coordID, uint64_t newState, uint64_t changes) {
+		signalHandler.StatusChanged(coordID)(std::move(newState), std::move(changes));
 	}
 
-	void Core::OnCoordAxisChanged(int32_t coordIndex, uint32_t availableAxis) {
-		signalHandler.CoordChanged(to_enum_coord(coordIndex))(std::move(availableAxis));
+	void Core::OnCoordAxisChanged(CoordID coordID, uint32_t availableAxis) {
+		signalHandler.CoordChanged(coordID)(std::move(availableAxis));
 	}
 
-	void Core::OnCompensationTablesChanged(int32_t compensationTable, bool active) {
-		signalHandler.CompTableChanged(to_enum_comp_table(compensationTable))(std::move(active));
-		//SPDLOG_DEBUG("setting CT {}: {}", compensationTable, active);
+	void Core::OnCompensationTablesChanged(CompensationTableID compensationTable, bool active) {
+		signalHandler.CompTableChanged(compensationTable)(std::move(active));
 	}
 
 	void Core::OnStateupdaterInitialized() {

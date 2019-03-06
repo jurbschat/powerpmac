@@ -5,7 +5,7 @@
       <inheritances classname="Device_Impl" sourcePath=""/>
       <identification contact="at desy.de - jakob.urbschat" author="jakob.urbschat" emailDomain="desy.de" classFamily="Motion" siteSpecific="" platform="All Platforms" bus="TCP/UDP" manufacturer="DeltaTAU" reference=""/>
     </description>
-    <deviceProperties name="tableIndex" mandatory="true" description="The table id specifies the slot that this device server will use for its compensation table. &#xA;There are 256 slots but every slot takes computation time, therefore ids should be used &#xA;consecutive starting from 0 as we can only enable an amount of tables, not specific ids.&#xA;E.g.: three device servers with the ids 0, 1 and 2 means we have to enable three tables,&#xA;two device servers with the ids 5 and 7 means we have to enable 7 compensation &#xA;tables on the pmac.">
+    <deviceProperties name="TableIndex" mandatory="true" description="The table id specifies the slot that this device server will use for its compensation table. &#xA;There are 256 slots but every slot takes computation time, therefore ids should be used &#xA;consecutive starting from 0 as we can only enable an amount of tables, not specific ids.&#xA;E.g.: three device servers with the ids 0, 1 and 2 means we have to enable three tables,&#xA;two device servers with the ids 5 and 7 means we have to enable 7 compensation &#xA;tables on the pmac.">
       <type xsi:type="pogoDsl:IntType"/>
       <status abstract="false" inherited="false" concrete="true" concreteHere="true"/>
     </deviceProperties>

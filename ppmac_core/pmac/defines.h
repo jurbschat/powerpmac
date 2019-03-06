@@ -6,155 +6,111 @@
 #define POWERPMAC_DEFINES_H
 
 #include <cstdint>
+#include <type_safe/strong_typedef.hpp>
+#include <fmt/format.h>
 
 namespace ppmac
 {
-	enum class MotorID : int32_t {
-		INVALID = -1,
-		Motor0 = 0,
-		Motor1,
-		Motor2,
-		Motor3,
-		Motor4,
-		Motor5,
-		Motor6,
-		Motor7,
-		Motor8,
-		Motor9,
-		Motor10,
-		Motor11,
-		Motor12,
-		Motor13,
-		Motor14,
-		Motor15,
-		Motor16,
-		Motor17,
-		Motor18,
-		Motor19,
-		Motor20,
-		Motor21,
-		Motor22,
-		Motor23,
-		Motor24,
-		Motor25,
-		Motor26,
-		Motor27,
-		Motor28,
-		Motor29,
-		Motor30,
-		Motor31
+	struct MotorID : type_safe::strong_typedef<MotorID, int32_t>,
+		type_safe::strong_typedef_op::relational_comparison<MotorID>,
+		type_safe::strong_typedef_op::equality_comparison<MotorID>,
+		type_safe::strong_typedef_op::integer_arithmetic<MotorID>
+	{
+		using strong_typedef::strong_typedef;
 	};
 
-	enum class IoID : int32_t {
-		INVALID = -1,
-		Port0 = 0
+	struct CoordID : type_safe::strong_typedef<CoordID, int32_t>,
+		type_safe::strong_typedef_op::relational_comparison<CoordID>,
+		type_safe::strong_typedef_op::equality_comparison<CoordID>,
+		type_safe::strong_typedef_op::integer_arithmetic<CoordID>
+	{
+		using strong_typedef::strong_typedef;
 	};
 
-	enum class CoordID : int32_t {
-		INVALID = -1,
-		Coord0 = 0,
-		Coord1,
-		Coord2,
-		Coord3,
-		Coord4,
-		Coord5,
-		Coord6,
-		Coord7,
-		Coord8,
-		Coord9,
-		Coord10,
-		Coord11,
-		Coord12,
-		Coord13,
-		Coord14,
-		Coord15,
-		Coord16,
-		Coord17,
-		Coord18,
-		Coord19,
-		Coord20,
-		Coord21,
-		Coord22,
-		Coord23,
-		Coord24,
-		Coord25,
-		Coord26,
-		Coord27,
-		Coord28,
-		Coord29,
-		Coord30,
-		Coord31
+	struct CompensationTableID : type_safe::strong_typedef<CompensationTableID, int32_t>,
+	    type_safe::strong_typedef_op::relational_comparison<CompensationTableID>,
+	    type_safe::strong_typedef_op::equality_comparison<CompensationTableID>,
+	    type_safe::strong_typedef_op::integer_arithmetic<CompensationTableID>
+	{
+		using strong_typedef::strong_typedef;
 	};
 
-	enum class CompensationTableID : int32_t {
-		INVALID = -1,
-		Table0 = 0,
-		Table1,
-		Table2,
-		Table3,
-		Table4,
-		Table5,
-		Table6,
-		Table7,
-		Table8,
-		Table9,
-		Table10,
-		Table11,
-		Table12,
-		Table13,
-		Table14,
-		Table15,
-		Table16,
-		Table17,
-		Table18,
-		Table19,
-		Table20,
-		Table21,
-		Table22,
-		Table23,
-		Table24,
-		Table25,
-		Table26,
-		Table27,
-		Table28,
-		Table29,
-		Table30,
-		Table31
+	struct IoID : type_safe::strong_typedef<IoID, int32_t>,
+         type_safe::strong_typedef_op::relational_comparison<IoID>,
+         type_safe::strong_typedef_op::equality_comparison<IoID>,
+         type_safe::strong_typedef_op::integer_arithmetic<IoID>
+	{
+		using strong_typedef::strong_typedef;
 	};
 
-	template<typename T>
-	struct int_with_tag {
-		int_with_tag(int32_t value)
-				: val(value)
-		{}
-		operator int32_t () {
-			return val;
+	struct PlcID : type_safe::strong_typedef<PlcID, int32_t>,
+		type_safe::strong_typedef_op::relational_comparison<PlcID>,
+		type_safe::strong_typedef_op::equality_comparison<PlcID>,
+		type_safe::strong_typedef_op::integer_arithmetic<PlcID>
+	{
+		using strong_typedef::strong_typedef;
+	};
+}
+namespace fmt {
+	template <>
+	struct formatter<ppmac::MotorID> {
+		template <typename ParseContext>
+		constexpr auto parse(ParseContext &ctx) {
+			return ctx.begin();
 		}
-		operator T () {
-			return static_cast<T>(val);
+		template <typename FormatContext>
+		auto format(const ppmac::MotorID &d, FormatContext &ctx) {
+			return format_to(ctx.out(), "{}", int32_t(d));
 		}
-		int32_t val;
 	};
 
-	template<typename T>
-	int_with_tag<T> make_typed_int(T val) {
-		return int_with_tag<T>{val};
-	}
+	template <>
+	struct formatter<ppmac::CoordID> {
+		template <typename ParseContext>
+		constexpr auto parse(ParseContext &ctx) {
+			return ctx.begin();
+		}
+		template <typename FormatContext>
+		auto format(const ppmac::CoordID &d, FormatContext &ctx) {
+			return format_to(ctx.out(), "{}", int32_t(d));
+		}
+	};
 
-	MotorID to_enum_motor(int32_t index);
-	IoID to_enum_io(int32_t index);
-	CoordID to_enum_coord(int32_t index);
-	CompensationTableID to_enum_comp_table(int32_t index);
+	template <>
+	struct formatter<ppmac::CompensationTableID> {
+		template <typename ParseContext>
+		constexpr auto parse(ParseContext &ctx) {
+			return ctx.begin();
+		}
+		template <typename FormatContext>
+		auto format(const ppmac::CompensationTableID &d, FormatContext &ctx) {
+			return format_to(ctx.out(), "{}", int32_t(d));
+		}
+	};
 
-	MotorID to_enum(int_with_tag<MotorID> index);
-	IoID to_enum(int_with_tag<IoID> index);
-	CoordID to_enum(int_with_tag<CoordID> index);
-	CompensationTableID to_enum(int_with_tag<CompensationTableID> index);
+	template <>
+	struct formatter<ppmac::IoID> {
+		template <typename ParseContext>
+		constexpr auto parse(ParseContext &ctx) {
+			return ctx.begin();
+		}
+		template <typename FormatContext>
+		auto format(const ppmac::IoID &d, FormatContext &ctx) {
+			return format_to(ctx.out(), "{}", int32_t(d));
+		}
+	};
 
-	int32_t from_enum(MotorID motor);
-	int32_t from_enum(IoID io);
-	int32_t from_enum(CoordID coord);
-	int32_t from_enum(CompensationTableID table);
+	template <>
+	struct formatter<ppmac::PlcID> {
+		template <typename ParseContext>
+		constexpr auto parse(ParseContext &ctx) {
+			return ctx.begin();
+		}
+		template <typename FormatContext>
+		auto format(const ppmac::PlcID &d, FormatContext &ctx) {
+			return format_to(ctx.out(), "{}", int32_t(d));
+		}
+	};
 }
 
 #endif //POWERPMAC_DEFINES_H

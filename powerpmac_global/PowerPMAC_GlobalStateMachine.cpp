@@ -56,10 +56,19 @@ namespace PowerPMAC_Global_ns
 bool PowerPMAC_Global::is_MaxMotors_allowed(TANGO_UNUSED(Tango::AttReqType type))
 {
 
-	//	Not any excluded states for MaxMotors attribute in read access.
-	/*----- PROTECTED REGION ID(PowerPMAC_Global::MaxMotorsStateAllowed_READ) ENABLED START -----*/
+	//	Check access type.
+	if ( type==Tango::READ_REQ )
+	{
+		//	Compare device state with not allowed states for READ 
+		if (get_state()==Tango::OFF)
+		{
+		/*----- PROTECTED REGION ID(PowerPMAC_Global::MaxMotorsStateAllowed_READ) ENABLED START -----*/
 	
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Global::MaxMotorsStateAllowed_READ
+			return false;
+		}
+		return true;
+	}
 	return true;
 }
 
@@ -72,10 +81,19 @@ bool PowerPMAC_Global::is_MaxMotors_allowed(TANGO_UNUSED(Tango::AttReqType type)
 bool PowerPMAC_Global::is_MaxCoords_allowed(TANGO_UNUSED(Tango::AttReqType type))
 {
 
-	//	Not any excluded states for MaxCoords attribute in read access.
-	/*----- PROTECTED REGION ID(PowerPMAC_Global::MaxCoordsStateAllowed_READ) ENABLED START -----*/
+	//	Check access type.
+	if ( type==Tango::READ_REQ )
+	{
+		//	Compare device state with not allowed states for READ 
+		if (get_state()==Tango::OFF)
+		{
+		/*----- PROTECTED REGION ID(PowerPMAC_Global::MaxCoordsStateAllowed_READ) ENABLED START -----*/
 	
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Global::MaxCoordsStateAllowed_READ
+			return false;
+		}
+		return true;
+	}
 	return true;
 }
 
@@ -88,10 +106,19 @@ bool PowerPMAC_Global::is_MaxCoords_allowed(TANGO_UNUSED(Tango::AttReqType type)
 bool PowerPMAC_Global::is_AbortAll_allowed(TANGO_UNUSED(Tango::AttReqType type))
 {
 
-	//	Not any excluded states for AbortAll attribute in read access.
-	/*----- PROTECTED REGION ID(PowerPMAC_Global::AbortAllStateAllowed_READ) ENABLED START -----*/
+	//	Check access type.
+	if ( type==Tango::READ_REQ )
+	{
+		//	Compare device state with not allowed states for READ 
+		if (get_state()==Tango::OFF)
+		{
+		/*----- PROTECTED REGION ID(PowerPMAC_Global::AbortAllStateAllowed_READ) ENABLED START -----*/
 	
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Global::AbortAllStateAllowed_READ
+			return false;
+		}
+		return true;
+	}
 	return true;
 }
 
@@ -104,10 +131,19 @@ bool PowerPMAC_Global::is_AbortAll_allowed(TANGO_UNUSED(Tango::AttReqType type))
 bool PowerPMAC_Global::is_CpuTemp_allowed(TANGO_UNUSED(Tango::AttReqType type))
 {
 
-	//	Not any excluded states for CpuTemp attribute in read access.
-	/*----- PROTECTED REGION ID(PowerPMAC_Global::CpuTempStateAllowed_READ) ENABLED START -----*/
+	//	Check access type.
+	if ( type==Tango::READ_REQ )
+	{
+		//	Compare device state with not allowed states for READ 
+		if (get_state()==Tango::OFF)
+		{
+		/*----- PROTECTED REGION ID(PowerPMAC_Global::CpuTempStateAllowed_READ) ENABLED START -----*/
 	
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Global::CpuTempStateAllowed_READ
+			return false;
+		}
+		return true;
+	}
 	return true;
 }
 
@@ -120,10 +156,19 @@ bool PowerPMAC_Global::is_CpuTemp_allowed(TANGO_UNUSED(Tango::AttReqType type))
 bool PowerPMAC_Global::is_AmpOverTemp_allowed(TANGO_UNUSED(Tango::AttReqType type))
 {
 
-	//	Not any excluded states for AmpOverTemp attribute in read access.
-	/*----- PROTECTED REGION ID(PowerPMAC_Global::AmpOverTempStateAllowed_READ) ENABLED START -----*/
+	//	Check access type.
+	if ( type==Tango::READ_REQ )
+	{
+		//	Compare device state with not allowed states for READ 
+		if (get_state()==Tango::OFF)
+		{
+		/*----- PROTECTED REGION ID(PowerPMAC_Global::AmpOverTempStateAllowed_READ) ENABLED START -----*/
 	
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Global::AmpOverTempStateAllowed_READ
+			return false;
+		}
+		return true;
+	}
 	return true;
 }
 
@@ -136,10 +181,19 @@ bool PowerPMAC_Global::is_AmpOverTemp_allowed(TANGO_UNUSED(Tango::AttReqType typ
 bool PowerPMAC_Global::is_Firmware_allowed(TANGO_UNUSED(Tango::AttReqType type))
 {
 
-	//	Not any excluded states for Firmware attribute in read access.
-	/*----- PROTECTED REGION ID(PowerPMAC_Global::FirmwareStateAllowed_READ) ENABLED START -----*/
+	//	Check access type.
+	if ( type==Tango::READ_REQ )
+	{
+		//	Compare device state with not allowed states for READ 
+		if (get_state()==Tango::OFF)
+		{
+		/*----- PROTECTED REGION ID(PowerPMAC_Global::FirmwareStateAllowed_READ) ENABLED START -----*/
 	
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Global::FirmwareStateAllowed_READ
+			return false;
+		}
+		return true;
+	}
 	return true;
 }
 
@@ -152,10 +206,19 @@ bool PowerPMAC_Global::is_Firmware_allowed(TANGO_UNUSED(Tango::AttReqType type))
 bool PowerPMAC_Global::is_SystemType_allowed(TANGO_UNUSED(Tango::AttReqType type))
 {
 
-	//	Not any excluded states for SystemType attribute in read access.
-	/*----- PROTECTED REGION ID(PowerPMAC_Global::SystemTypeStateAllowed_READ) ENABLED START -----*/
+	//	Check access type.
+	if ( type==Tango::READ_REQ )
+	{
+		//	Compare device state with not allowed states for READ 
+		if (get_state()==Tango::OFF)
+		{
+		/*----- PROTECTED REGION ID(PowerPMAC_Global::SystemTypeStateAllowed_READ) ENABLED START -----*/
 	
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Global::SystemTypeStateAllowed_READ
+			return false;
+		}
+		return true;
+	}
 	return true;
 }
 
@@ -168,10 +231,19 @@ bool PowerPMAC_Global::is_SystemType_allowed(TANGO_UNUSED(Tango::AttReqType type
 bool PowerPMAC_Global::is_CpuType_allowed(TANGO_UNUSED(Tango::AttReqType type))
 {
 
-	//	Not any excluded states for CpuType attribute in read access.
-	/*----- PROTECTED REGION ID(PowerPMAC_Global::CpuTypeStateAllowed_READ) ENABLED START -----*/
+	//	Check access type.
+	if ( type==Tango::READ_REQ )
+	{
+		//	Compare device state with not allowed states for READ 
+		if (get_state()==Tango::OFF)
+		{
+		/*----- PROTECTED REGION ID(PowerPMAC_Global::CpuTypeStateAllowed_READ) ENABLED START -----*/
 	
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Global::CpuTypeStateAllowed_READ
+			return false;
+		}
+		return true;
+	}
 	return true;
 }
 
@@ -184,10 +256,19 @@ bool PowerPMAC_Global::is_CpuType_allowed(TANGO_UNUSED(Tango::AttReqType type))
 bool PowerPMAC_Global::is_CpuFrequency_allowed(TANGO_UNUSED(Tango::AttReqType type))
 {
 
-	//	Not any excluded states for CpuFrequency attribute in read access.
-	/*----- PROTECTED REGION ID(PowerPMAC_Global::CpuFrequencyStateAllowed_READ) ENABLED START -----*/
+	//	Check access type.
+	if ( type==Tango::READ_REQ )
+	{
+		//	Compare device state with not allowed states for READ 
+		if (get_state()==Tango::OFF)
+		{
+		/*----- PROTECTED REGION ID(PowerPMAC_Global::CpuFrequencyStateAllowed_READ) ENABLED START -----*/
 	
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Global::CpuFrequencyStateAllowed_READ
+			return false;
+		}
+		return true;
+	}
 	return true;
 }
 
@@ -200,10 +281,58 @@ bool PowerPMAC_Global::is_CpuFrequency_allowed(TANGO_UNUSED(Tango::AttReqType ty
 bool PowerPMAC_Global::is_Uptime_allowed(TANGO_UNUSED(Tango::AttReqType type))
 {
 
-	//	Not any excluded states for Uptime attribute in read access.
-	/*----- PROTECTED REGION ID(PowerPMAC_Global::UptimeStateAllowed_READ) ENABLED START -----*/
+	//	Check access type.
+	if ( type==Tango::READ_REQ )
+	{
+		//	Compare device state with not allowed states for READ 
+		if (get_state()==Tango::OFF)
+		{
+		/*----- PROTECTED REGION ID(PowerPMAC_Global::UptimeStateAllowed_READ) ENABLED START -----*/
 	
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Global::UptimeStateAllowed_READ
+			return false;
+		}
+		return true;
+	}
+	return true;
+}
+
+//--------------------------------------------------------
+/**
+ *	Method      : PowerPMAC_Global::is_ActiveCompensationTables_allowed()
+ *	Description : Execution allowed for ActiveCompensationTables attribute
+ */
+//--------------------------------------------------------
+bool PowerPMAC_Global::is_ActiveCompensationTables_allowed(TANGO_UNUSED(Tango::AttReqType type))
+{
+	//	Check access type.
+	if ( type!=Tango::READ_REQ )
+	{
+		//	Compare device state with not allowed states for WRITE 
+		if (get_state()==Tango::OFF)
+		{
+		/*----- PROTECTED REGION ID(PowerPMAC_Global::ActiveCompensationTablesStateAllowed_WRITE) ENABLED START -----*/
+	
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Global::ActiveCompensationTablesStateAllowed_WRITE
+			return false;
+		}
+		return true;
+	}
+	else
+
+	//	Check access type.
+	if ( type==Tango::READ_REQ )
+	{
+		//	Compare device state with not allowed states for READ 
+		if (get_state()==Tango::OFF)
+		{
+		/*----- PROTECTED REGION ID(PowerPMAC_Global::ActiveCompensationTablesStateAllowed_READ) ENABLED START -----*/
+	
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Global::ActiveCompensationTablesStateAllowed_READ
+			return false;
+		}
+		return true;
+	}
 	return true;
 }
 
@@ -216,10 +345,19 @@ bool PowerPMAC_Global::is_Uptime_allowed(TANGO_UNUSED(Tango::AttReqType type))
 bool PowerPMAC_Global::is_AmpStatus_allowed(TANGO_UNUSED(Tango::AttReqType type))
 {
 
-	//	Not any excluded states for AmpStatus attribute in read access.
-	/*----- PROTECTED REGION ID(PowerPMAC_Global::AmpStatusStateAllowed_READ) ENABLED START -----*/
+	//	Check access type.
+	if ( type==Tango::READ_REQ )
+	{
+		//	Compare device state with not allowed states for READ 
+		if (get_state()==Tango::OFF)
+		{
+		/*----- PROTECTED REGION ID(PowerPMAC_Global::AmpStatusStateAllowed_READ) ENABLED START -----*/
 	
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Global::AmpStatusStateAllowed_READ
+			return false;
+		}
+		return true;
+	}
 	return true;
 }
 

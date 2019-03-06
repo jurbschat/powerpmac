@@ -703,6 +703,30 @@ void PowerPMAC_GlobalClass::attribute_factory(vector<Tango::Attr *> &att_list)
 	//	Not Memorized
 	att_list.push_back(uptime);
 
+	//	Attribute : ActiveCompensationTables
+	ActiveCompensationTablesAttrib	*activecompensationtables = new ActiveCompensationTablesAttrib();
+	Tango::UserDefaultAttrProp	activecompensationtables_prop;
+	//	description	not set for ActiveCompensationTables
+	//	label	not set for ActiveCompensationTables
+	//	unit	not set for ActiveCompensationTables
+	//	standard_unit	not set for ActiveCompensationTables
+	//	display_unit	not set for ActiveCompensationTables
+	//	format	not set for ActiveCompensationTables
+	//	max_value	not set for ActiveCompensationTables
+	//	min_value	not set for ActiveCompensationTables
+	//	max_alarm	not set for ActiveCompensationTables
+	//	min_alarm	not set for ActiveCompensationTables
+	//	max_warning	not set for ActiveCompensationTables
+	//	min_warning	not set for ActiveCompensationTables
+	//	delta_t	not set for ActiveCompensationTables
+	//	delta_val	not set for ActiveCompensationTables
+	
+	activecompensationtables->set_default_properties(activecompensationtables_prop);
+	//	Not Polled
+	activecompensationtables->set_disp_level(Tango::OPERATOR);
+	//	Not Memorized
+	att_list.push_back(activecompensationtables);
+
 	//	Attribute : AmpStatus
 	AmpStatusAttrib	*ampstatus = new AmpStatusAttrib();
 	Tango::UserDefaultAttrProp	ampstatus_prop;

@@ -10,7 +10,7 @@
 namespace ppmac {
 
 	std::string GetMotorUnitString(ppmac::MotorUnit motorUnit) {
-		auto shortUnit = static_cast<ppmac::MotorUnitShort>(motorUnit);
+		auto shortUnit = static_cast<MotorUnitShort>(motorUnit);
 		return wise_enum::to_string(shortUnit);
 	}
 

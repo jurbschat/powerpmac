@@ -69,7 +69,7 @@ class PowerPMAC_CompensationTable : public TANGO_BASE_CLASS
 
 //	Device property data members
 public:
-	//	tableIndex:	The table id specifies the slot that this device server will use for its compensation table. 
+	//	TableIndex:	The table id specifies the slot that this device server will use for its compensation table. 
 	//  There are 256 slots but every slot takes computation time, therefore ids should be used 
 	//  consecutive starting from 0 as we can only enable an amount of tables, not specific ids.
 	//  E.g.: three device servers with the ids 0, 1 and 2 means we have to enable three tables,

@@ -289,7 +289,7 @@ void PowerPMAC_PLCClass::set_default_property()
 	//	Set Default Class Properties
 
 	//	Set Default device Properties
-	prop_name = "plcIndex";
+	prop_name = "PlcIndex";
 	prop_desc = "The index of the plc clot, valid from 0..31";
 	prop_def  = "";
 	vect_data.clear();
@@ -408,23 +408,71 @@ void PowerPMAC_PLCClass::attribute_factory(vector<Tango::Attr *> &att_list)
 	//	Add your own code
 	
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_PLCClass::attribute_factory_before
-	//	Attribute : active
-	activeAttrib	*active = new activeAttrib();
+	//	Attribute : Name
+	NameAttrib	*name = new NameAttrib();
+	Tango::UserDefaultAttrProp	name_prop;
+	//	description	not set for Name
+	//	label	not set for Name
+	//	unit	not set for Name
+	//	standard_unit	not set for Name
+	//	display_unit	not set for Name
+	//	format	not set for Name
+	//	max_value	not set for Name
+	//	min_value	not set for Name
+	//	max_alarm	not set for Name
+	//	min_alarm	not set for Name
+	//	max_warning	not set for Name
+	//	min_warning	not set for Name
+	//	delta_t	not set for Name
+	//	delta_val	not set for Name
+	
+	name->set_default_properties(name_prop);
+	//	Not Polled
+	name->set_disp_level(Tango::OPERATOR);
+	//	Not Memorized
+	att_list.push_back(name);
+
+	//	Attribute : Id
+	IdAttrib	*id = new IdAttrib();
+	Tango::UserDefaultAttrProp	id_prop;
+	//	description	not set for Id
+	//	label	not set for Id
+	//	unit	not set for Id
+	//	standard_unit	not set for Id
+	//	display_unit	not set for Id
+	//	format	not set for Id
+	//	max_value	not set for Id
+	//	min_value	not set for Id
+	//	max_alarm	not set for Id
+	//	min_alarm	not set for Id
+	//	max_warning	not set for Id
+	//	min_warning	not set for Id
+	//	delta_t	not set for Id
+	//	delta_val	not set for Id
+	
+	id->set_default_properties(id_prop);
+	//	Not Polled
+	id->set_disp_level(Tango::OPERATOR);
+	//	Not Memorized
+	att_list.push_back(id);
+
+	//	Attribute : Active
+	ActiveAttrib	*active = new ActiveAttrib();
 	Tango::UserDefaultAttrProp	active_prop;
-	//	description	not set for active
-	//	label	not set for active
-	//	unit	not set for active
-	//	standard_unit	not set for active
-	//	display_unit	not set for active
-	//	format	not set for active
-	//	max_value	not set for active
-	//	min_value	not set for active
-	//	max_alarm	not set for active
-	//	min_alarm	not set for active
-	//	max_warning	not set for active
-	//	min_warning	not set for active
-	//	delta_t	not set for active
-	//	delta_val	not set for active
+	//	description	not set for Active
+	//	label	not set for Active
+	//	unit	not set for Active
+	//	standard_unit	not set for Active
+	//	display_unit	not set for Active
+	//	format	not set for Active
+	//	max_value	not set for Active
+	//	min_value	not set for Active
+	//	max_alarm	not set for Active
+	//	min_alarm	not set for Active
+	//	max_warning	not set for Active
+	//	min_warning	not set for Active
+	//	delta_t	not set for Active
+	//	delta_val	not set for Active
 	
 	active->set_default_properties(active_prop);
 	//	Not Polled
@@ -432,23 +480,23 @@ void PowerPMAC_PLCClass::attribute_factory(vector<Tango::Attr *> &att_list)
 	//	Not Memorized
 	att_list.push_back(active);
 
-	//	Attribute : running
-	runningAttrib	*running = new runningAttrib();
+	//	Attribute : Running
+	RunningAttrib	*running = new RunningAttrib();
 	Tango::UserDefaultAttrProp	running_prop;
-	//	description	not set for running
-	//	label	not set for running
-	//	unit	not set for running
-	//	standard_unit	not set for running
-	//	display_unit	not set for running
-	//	format	not set for running
-	//	max_value	not set for running
-	//	min_value	not set for running
-	//	max_alarm	not set for running
-	//	min_alarm	not set for running
-	//	max_warning	not set for running
-	//	min_warning	not set for running
-	//	delta_t	not set for running
-	//	delta_val	not set for running
+	//	description	not set for Running
+	//	label	not set for Running
+	//	unit	not set for Running
+	//	standard_unit	not set for Running
+	//	display_unit	not set for Running
+	//	format	not set for Running
+	//	max_value	not set for Running
+	//	min_value	not set for Running
+	//	max_alarm	not set for Running
+	//	min_alarm	not set for Running
+	//	max_warning	not set for Running
+	//	min_warning	not set for Running
+	//	delta_t	not set for Running
+	//	delta_val	not set for Running
 	
 	running->set_default_properties(running_prop);
 	//	Not Polled

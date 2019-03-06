@@ -71,17 +71,18 @@
 //================================================================
 //  Attributes managed are:
 //================================================================
-//  MaxMotors     |  Tango::DevLong	Scalar
-//  MaxCoords     |  Tango::DevLong	Scalar
-//  AbortAll      |  Tango::DevBoolean	Scalar
-//  CpuTemp       |  Tango::DevDouble	Scalar
-//  AmpOverTemp   |  Tango::DevBoolean	Scalar
-//  Firmware      |  Tango::DevString	Scalar
-//  SystemType    |  Tango::DevString	Scalar
-//  CpuType       |  Tango::DevString	Scalar
-//  CpuFrequency  |  Tango::DevLong	Scalar
-//  Uptime        |  Tango::DevString	Scalar
-//  AmpStatus     |  Tango::DevString	Spectrum  ( max = 8)
+//  MaxMotors                 |  Tango::DevLong	Scalar
+//  MaxCoords                 |  Tango::DevLong	Scalar
+//  AbortAll                  |  Tango::DevBoolean	Scalar
+//  CpuTemp                   |  Tango::DevDouble	Scalar
+//  AmpOverTemp               |  Tango::DevBoolean	Scalar
+//  Firmware                  |  Tango::DevString	Scalar
+//  SystemType                |  Tango::DevString	Scalar
+//  CpuType                   |  Tango::DevString	Scalar
+//  CpuFrequency              |  Tango::DevLong	Scalar
+//  Uptime                    |  Tango::DevString	Scalar
+//  ActiveCompensationTables  |  Tango::DevLong	Scalar
+//  AmpStatus                 |  Tango::DevString	Spectrum  ( max = 8)
 //================================================================
 
 namespace PowerPMAC_Global_ns
@@ -150,6 +151,7 @@ void PowerPMAC_Global::delete_device()
 	delete[] attr_CpuType_read;
 	delete[] attr_CpuFrequency_read;
 	delete[] attr_Uptime_read;
+	delete[] attr_ActiveCompensationTables_read;
 	delete[] attr_AmpStatus_read;
 }
 
@@ -182,6 +184,7 @@ void PowerPMAC_Global::init_device()
 	attr_CpuType_read = new Tango::DevString[1];
 	attr_CpuFrequency_read = new Tango::DevLong[1];
 	attr_Uptime_read = new Tango::DevString[1];
+	attr_ActiveCompensationTables_read = new Tango::DevLong[1];
 	attr_AmpStatus_read = new Tango::DevString[8];
 	//	No longer if mandatory property not set. 
 	if (mandatoryNotDefined)
@@ -401,6 +404,21 @@ void PowerPMAC_Global::read_attr_hardware(TANGO_UNUSED(vector<long> &attr_list))
 	//	Add your own code
 	
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Global::read_attr_hardware
+}
+//--------------------------------------------------------
+/**
+ *	Method      : PowerPMAC_Global::write_attr_hardware()
+ *	Description : Hardware writing for attributes
+ */
+//--------------------------------------------------------
+void PowerPMAC_Global::write_attr_hardware(TANGO_UNUSED(vector<long> &attr_list))
+{
+	DEBUG_STREAM << "PowerPMAC_Global::write_attr_hardware(vector<long> &attr_list) entering... " << endl;
+	/*----- PROTECTED REGION ID(PowerPMAC_Global::write_attr_hardware) ENABLED START -----*/
+	
+	//	Add your own code
+	
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Global::write_attr_hardware
 }
 
 //--------------------------------------------------------
@@ -666,6 +684,60 @@ void PowerPMAC_Global::read_Uptime(Tango::Attribute &attr)
 }
 //--------------------------------------------------------
 /**
+ *	Read attribute ActiveCompensationTables related method
+ *	Description: 
+ *
+ *	Data type:	Tango::DevLong
+ *	Attr type:	Scalar
+ */
+//--------------------------------------------------------
+void PowerPMAC_Global::read_ActiveCompensationTables(Tango::Attribute &attr)
+{
+	DEBUG_STREAM << "PowerPMAC_Global::read_ActiveCompensationTables(Tango::Attribute &attr) entering... " << endl;
+	/*----- PROTECTED REGION ID(PowerPMAC_Global::read_ActiveCompensationTables) ENABLED START -----*/
+	//	Set the attribute value
+	//attr.set_value(attr_ActiveCompensationTables_read);
+
+	try {
+		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
+		int32_t activeTableCount = tu::ParseInt32(ci.ExecuteCommand(ppmac::cmd::GlobalGetActiveCompensationTableCount()));
+		attr.set_value(&activeTableCount);
+
+	} catch (ppmac::RuntimeError& e) {
+		tu::TranslateException(e);
+	}
+	
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Global::read_ActiveCompensationTables
+}
+//--------------------------------------------------------
+/**
+ *	Write attribute ActiveCompensationTables related method
+ *	Description: 
+ *
+ *	Data type:	Tango::DevLong
+ *	Attr type:	Scalar
+ */
+//--------------------------------------------------------
+void PowerPMAC_Global::write_ActiveCompensationTables(Tango::WAttribute &attr)
+{
+	DEBUG_STREAM << "PowerPMAC_Global::write_ActiveCompensationTables(Tango::WAttribute &attr) entering... " << endl;
+	//	Retrieve write value
+	Tango::DevLong	w_val;
+	attr.get_write_value(w_val);
+	/*----- PROTECTED REGION ID(PowerPMAC_Global::write_ActiveCompensationTables) ENABLED START -----*/
+
+	try {
+		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
+		ci.ExecuteCommand(ppmac::cmd::GlobalSetActiveCompensationTableCount(w_val));
+	} catch (ppmac::RuntimeError& e) {
+		tu::TranslateException(e);
+	}
+	
+	
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Global::write_ActiveCompensationTables
+}
+//--------------------------------------------------------
+/**
  *	Read attribute AmpStatus related method
  *	Description: 
  *
@@ -678,6 +750,19 @@ void PowerPMAC_Global::read_AmpStatus(Tango::Attribute &attr)
 	DEBUG_STREAM << "PowerPMAC_Global::read_AmpStatus(Tango::Attribute &attr) entering... " << endl;
 	/*----- PROTECTED REGION ID(PowerPMAC_Global::read_AmpStatus) ENABLED START -----*/
 	//	Set the attribute value
+
+	try {
+		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
+		int32_t monitorStatus = tu::ParseInt32(ci.ExecuteCommand(ppmac::cmd::GlobalGetBrickLVMonitoring()));
+		if(monitorStatus != 1) {
+			tu::SetStringValue(&attr_AmpStatus_read[0], "BrickLV monitoring is disabled");
+			attr.set_value(attr_AmpStatus_read, 1);
+			return;
+		}
+
+	} catch (ppmac::RuntimeError& e) {
+		tu::TranslateException(e);
+	}
 
 	for(int i = 0; i < 8; i++) {
 		try {
@@ -738,12 +823,15 @@ Tango::DevString PowerPMAC_Global::reset_amp()
 
 	try {
 		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
-		auto str = ci.ExecuteCommandConsume(ppmac::cmd::GlobalResetBrickLVAmp(), std::chrono::milliseconds{3000});
-		str.erase(std::remove_if(str.begin(), str.end(),
+		ci.ExecuteCommand(ppmac::cmd::GlobalSetBrickLVMonitoring(0));
+		auto restartResult = ci.ExecuteCommandConsume(ppmac::cmd::GlobalResetBrickLVAmp(), std::chrono::milliseconds{3000});
+		restartResult.erase(std::remove_if(restartResult.begin(), restartResult.end(),
 			[](char c) {
 				return !std::isprint(c);
-			}), str.end());
-		tu::SetStringValue(&argout, str, true);
+			}), restartResult.end());
+		ci.ExecuteCommand(ppmac::cmd::GlobalSetBrickLVMonitoring(1));
+		auto monitoringResult = ci.ExecuteCommand(ppmac::cmd::GlobalGetBrickLVMonitoring());
+		tu::SetStringValue(&argout, fmt::format("Reset: {}\nMonitor: {}", restartResult, monitoringResult), true);
 	} catch (ppmac::RuntimeError& e) {
 		tu::TranslateException(e);
 	}
@@ -838,6 +926,8 @@ void PowerPMAC_Global::add_dynamic_commands()
 /*----- PROTECTED REGION ID(PowerPMAC_Global::namespace_ending) ENABLED START -----*/
 
 void PowerPMAC_Global::StartGlobal() {
+	ppmac::CoreInterface& ci = ppmac::GetCoreObject();
+	ci.ExecuteCommand(ppmac::cmd::GlobalSetBrickLVMonitoring(0));
 	set_state(Tango::ON);
 }
 

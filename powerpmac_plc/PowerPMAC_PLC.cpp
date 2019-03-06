@@ -64,8 +64,10 @@
 //================================================================
 //  Attributes managed are:
 //================================================================
-//  active   |  Tango::DevBoolean	Scalar
-//  running  |  Tango::DevBoolean	Scalar
+//  Name     |  Tango::DevString	Scalar
+//  Id       |  Tango::DevLong	Scalar
+//  Active   |  Tango::DevBoolean	Scalar
+//  Running  |  Tango::DevBoolean	Scalar
 //================================================================
 
 namespace PowerPMAC_PLC_ns
@@ -125,8 +127,10 @@ void PowerPMAC_PLC::delete_device()
 	StopPLC();
 	
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_PLC::delete_device
-	delete[] attr_active_read;
-	delete[] attr_running_read;
+	delete[] attr_Name_read;
+	delete[] attr_Id_read;
+	delete[] attr_Active_read;
+	delete[] attr_Running_read;
 }
 
 //--------------------------------------------------------
@@ -148,16 +152,24 @@ void PowerPMAC_PLC::init_device()
 	//	Get the device properties from database
 	get_device_property();
 	
-	attr_active_read = new Tango::DevBoolean[1];
-	attr_running_read = new Tango::DevBoolean[1];
+	attr_Name_read = new Tango::DevString[1];
+	attr_Id_read = new Tango::DevLong[1];
+	attr_Active_read = new Tango::DevBoolean[1];
+	attr_Running_read = new Tango::DevBoolean[1];
 	//	No longer if mandatory property not set. 
 	if (mandatoryNotDefined)
 		return;
 
 	/*----- PROTECTED REGION ID(PowerPMAC_PLC::init_device) ENABLED START -----*/
 
-	*attr_active_read = false;
-	*attr_running_read = false;
+	*attr_Name_read = nullptr;
+	*attr_Id_read = -1;
+	*attr_Active_read = false;
+	*attr_Running_read = false;
+
+	tu::SetStringValue(attr_Name_read, "not implemented");
+
+	plcId = ppmac::PlcID(plcIndex);
 
 	ppmac::CoreInterface& ci = ppmac::GetCoreObject();
 
@@ -194,7 +206,7 @@ void PowerPMAC_PLC::get_device_property()
 
 	//	Read device properties from database.
 	Tango::DbData	dev_prop;
-	dev_prop.push_back(Tango::DbDatum("plcIndex"));
+	dev_prop.push_back(Tango::DbDatum("PlcIndex"));
 
 	//	is there at least one property to be read ?
 	if (dev_prop.size()>0)
@@ -209,15 +221,15 @@ void PowerPMAC_PLC::get_device_property()
 			(static_cast<PowerPMAC_PLCClass *>(get_device_class()));
 		int	i = -1;
 
-		//	Try to initialize plcIndex from class property
+		//	Try to initialize PlcIndex from class property
 		cl_prop = ds_class->get_class_property(dev_prop[++i].name);
 		if (cl_prop.is_empty()==false)	cl_prop  >>  plcIndex;
 		else {
-			//	Try to initialize plcIndex from default device value
+			//	Try to initialize PlcIndex from default device value
 			def_prop = ds_class->get_default_device_property(dev_prop[i].name);
 			if (def_prop.is_empty()==false)	def_prop  >>  plcIndex;
 		}
-		//	And try to extract plcIndex value from database
+		//	And try to extract PlcIndex value from database
 		if (dev_prop[i].is_empty()==false)	dev_prop[i]  >>  plcIndex;
 		//	Property StartDsPath is mandatory, check if has been defined in database.
 		check_mandatory_property(cl_prop, dev_prop[i]);
@@ -301,60 +313,75 @@ void PowerPMAC_PLC::read_attr_hardware(TANGO_UNUSED(vector<long> &attr_list))
 
 //--------------------------------------------------------
 /**
- *	Read attribute active related method
+ *	Read attribute Name related method
  *	Description: 
  *
- *	Data type:	Tango::DevBoolean
+ *	Data type:	Tango::DevString
  *	Attr type:	Scalar
  */
 //--------------------------------------------------------
-void PowerPMAC_PLC::read_active(Tango::Attribute &attr)
+void PowerPMAC_PLC::read_Name(Tango::Attribute &attr)
 {
-	DEBUG_STREAM << "PowerPMAC_PLC::read_active(Tango::Attribute &attr) entering... " << endl;
-	/*----- PROTECTED REGION ID(PowerPMAC_PLC::read_active) ENABLED START -----*/
+	DEBUG_STREAM << "PowerPMAC_PLC::read_Name(Tango::Attribute &attr) entering... " << endl;
+	/*----- PROTECTED REGION ID(PowerPMAC_PLC::read_Name) ENABLED START -----*/
 	//	Set the attribute value
-
-	try {
-		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
-		std::string activeResult = ci.ExecuteCommand(ppmac::cmd::GetPlcActive(plcIndex));
-		bool activeValue = tu::ParseInt32(activeResult) != 0;
-		*attr_active_read = activeValue;
-		attr.set_value(attr_active_read);
-		UpdateState();
-	} catch (ppmac::RuntimeError& e) {
-		tu::TranslateException(e);
-	}
+	attr.set_value(attr_Name_read);
 	
-	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_PLC::read_active
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_PLC::read_Name
 }
 //--------------------------------------------------------
 /**
- *	Read attribute running related method
+ *	Read attribute Id related method
+ *	Description: 
+ *
+ *	Data type:	Tango::DevLong
+ *	Attr type:	Scalar
+ */
+//--------------------------------------------------------
+void PowerPMAC_PLC::read_Id(Tango::Attribute &attr)
+{
+	DEBUG_STREAM << "PowerPMAC_PLC::read_Id(Tango::Attribute &attr) entering... " << endl;
+	/*----- PROTECTED REGION ID(PowerPMAC_PLC::read_Id) ENABLED START -----*/
+	//	Set the attribute value
+	attr.set_value(attr_Id_read);
+	
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_PLC::read_Id
+}
+//--------------------------------------------------------
+/**
+ *	Read attribute Active related method
  *	Description: 
  *
  *	Data type:	Tango::DevBoolean
  *	Attr type:	Scalar
  */
 //--------------------------------------------------------
-void PowerPMAC_PLC::read_running(Tango::Attribute &attr)
+void PowerPMAC_PLC::read_Active(Tango::Attribute &attr)
 {
-	DEBUG_STREAM << "PowerPMAC_PLC::read_running(Tango::Attribute &attr) entering... " << endl;
-	/*----- PROTECTED REGION ID(PowerPMAC_PLC::read_running) ENABLED START -----*/
+	DEBUG_STREAM << "PowerPMAC_PLC::read_Active(Tango::Attribute &attr) entering... " << endl;
+	/*----- PROTECTED REGION ID(PowerPMAC_PLC::read_Active) ENABLED START -----*/
 	//	Set the attribute value
-
-	try {
-		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
-		std::string runningResult = ci.ExecuteCommand(ppmac::cmd::GetPlcRunning(plcIndex));
-		bool runningValue = tu::ParseInt32(runningResult) != 0;
-		*attr_running_read = runningValue;
-		attr.set_value(attr_running_read);
-		UpdateState();
-	} catch (ppmac::RuntimeError& e) {
-		tu::TranslateException(e);
-	}
-
+	attr.set_value(attr_Active_read);
 	
-	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_PLC::read_running
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_PLC::read_Active
+}
+//--------------------------------------------------------
+/**
+ *	Read attribute Running related method
+ *	Description: 
+ *
+ *	Data type:	Tango::DevBoolean
+ *	Attr type:	Scalar
+ */
+//--------------------------------------------------------
+void PowerPMAC_PLC::read_Running(Tango::Attribute &attr)
+{
+	DEBUG_STREAM << "PowerPMAC_PLC::read_Running(Tango::Attribute &attr) entering... " << endl;
+	/*----- PROTECTED REGION ID(PowerPMAC_PLC::read_Running) ENABLED START -----*/
+	//	Set the attribute value
+	attr.set_value(attr_Running_read);
+	
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_PLC::read_Running
 }
 
 //--------------------------------------------------------
@@ -387,7 +414,7 @@ void PowerPMAC_PLC::enable()
 
 	try {
 		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
-		ci.ExecuteCommand(ppmac::cmd::SetPLCActice(plcIndex));
+		ci.ExecuteCommand(ppmac::cmd::SetPLCActice(plcId));
 		PollNewState();
 		UpdateState();
 	} catch (ppmac::RuntimeError& e) {
@@ -410,7 +437,7 @@ void PowerPMAC_PLC::disable()
 
 	try {
 		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
-		ci.ExecuteCommand(ppmac::cmd::SetPLCDeactive(plcIndex));
+		ci.ExecuteCommand(ppmac::cmd::SetPLCDeactive(plcId));
 		PollNewState();
 		UpdateState();
 	} catch (ppmac::RuntimeError& e) {
@@ -433,7 +460,7 @@ void PowerPMAC_PLC::pause()
 
 	try {
 		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
-		ci.ExecuteCommand(ppmac::cmd::SetPlcPause(plcIndex));
+		ci.ExecuteCommand(ppmac::cmd::SetPlcPause(plcId));
 		PollNewState();
 		UpdateState();
 	} catch (ppmac::RuntimeError& e) {
@@ -456,7 +483,7 @@ void PowerPMAC_PLC::resume()
 
 	try {
 		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
-		ci.ExecuteCommand(ppmac::cmd::SetPlcRunning(plcIndex));
+		ci.ExecuteCommand(ppmac::cmd::SetPlcRunning(plcId));
 		PollNewState();
 		UpdateState();
 	} catch (ppmac::RuntimeError& e) {
@@ -494,25 +521,21 @@ void PowerPMAC_PLC::StopPLC() {
 }
 
 void PowerPMAC_PLC::PollNewState() {
-	try {
-		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
-		std::string activeResult = ci.ExecuteCommand(ppmac::cmd::GetPlcActive(plcIndex));
-		bool activeValue = tu::ParseInt32(activeResult) != 0;
-		std::string runningResult = ci.ExecuteCommand(ppmac::cmd::GetPlcRunning(plcIndex));
-		bool runningValue = tu::ParseInt32(runningResult) != 0;
-		*attr_running_read = runningValue;
-		*attr_active_read = activeValue;
-	} catch (ppmac::RuntimeError& e) {
-		tu::TranslateException(e);
-	}
+	ppmac::CoreInterface& ci = ppmac::GetCoreObject();
+	std::string activeResult = ci.ExecuteCommand(ppmac::cmd::GetPlcActive(plcId));
+	bool activeValue = tu::ParseInt32(activeResult) != 0;
+	std::string runningResult = ci.ExecuteCommand(ppmac::cmd::GetPlcRunning(plcId));
+	bool runningValue = tu::ParseInt32(runningResult) != 0;
+	*attr_Running_read = runningValue;
+	*attr_Active_read = activeValue;
 }
 
 void PowerPMAC_PLC::UpdateState() {
 	if(get_state() == Tango::FAULT) {
 		return;
 	}
-	if(*attr_active_read) {
-		if(*attr_running_read) {
+	if(*attr_Active_read) {
+		if(*attr_Running_read) {
 			set_state(Tango::ON);
 		} else {
 			set_state(Tango::STANDBY);

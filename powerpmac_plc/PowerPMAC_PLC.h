@@ -34,6 +34,7 @@
 #define PowerPMAC_PLC_H
 
 #include "libs/sigs.h"
+#include "pmac/defines.h"
 #include <tango.h>
 
 
@@ -63,20 +64,23 @@ class PowerPMAC_PLC : public TANGO_BASE_CLASS
 		bool running;
 		bool active;
 	} oldState;
+	ppmac::PlcID plcId;
 
 /*----- PROTECTED REGION END -----*/	//	PowerPMAC_PLC::Data Members
 
 //	Device property data members
 public:
-	//	plcIndex:	The index of the plc clot, valid from 0..31
+	//	PlcIndex:	The index of the plc clot, valid from 0..31
 	Tango::DevLong	plcIndex;
 
 	bool	mandatoryNotDefined;
 
 //	Attribute data members
 public:
-	Tango::DevBoolean	*attr_active_read;
-	Tango::DevBoolean	*attr_running_read;
+	Tango::DevString	*attr_Name_read;
+	Tango::DevLong	*attr_Id_read;
+	Tango::DevBoolean	*attr_Active_read;
+	Tango::DevBoolean	*attr_Running_read;
 
 //	Constructors and destructors
 public:
@@ -143,23 +147,41 @@ public:
 	virtual void read_attr_hardware(vector<long> &attr_list);
 
 /**
- *	Attribute active related methods
+ *	Attribute Name related methods
  *	Description: 
  *
- *	Data type:	Tango::DevBoolean
+ *	Data type:	Tango::DevString
  *	Attr type:	Scalar
  */
-	virtual void read_active(Tango::Attribute &attr);
-	virtual bool is_active_allowed(Tango::AttReqType type);
+	virtual void read_Name(Tango::Attribute &attr);
+	virtual bool is_Name_allowed(Tango::AttReqType type);
 /**
- *	Attribute running related methods
+ *	Attribute Id related methods
+ *	Description: 
+ *
+ *	Data type:	Tango::DevLong
+ *	Attr type:	Scalar
+ */
+	virtual void read_Id(Tango::Attribute &attr);
+	virtual bool is_Id_allowed(Tango::AttReqType type);
+/**
+ *	Attribute Active related methods
  *	Description: 
  *
  *	Data type:	Tango::DevBoolean
  *	Attr type:	Scalar
  */
-	virtual void read_running(Tango::Attribute &attr);
-	virtual bool is_running_allowed(Tango::AttReqType type);
+	virtual void read_Active(Tango::Attribute &attr);
+	virtual bool is_Active_allowed(Tango::AttReqType type);
+/**
+ *	Attribute Running related methods
+ *	Description: 
+ *
+ *	Data type:	Tango::DevBoolean
+ *	Attr type:	Scalar
+ */
+	virtual void read_Running(Tango::Attribute &attr);
+	virtual bool is_Running_allowed(Tango::AttReqType type);
 
 
 	//--------------------------------------------------------

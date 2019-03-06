@@ -400,6 +400,30 @@ void PowerPMAC_CoordinateSystemsClass::attribute_factory(vector<Tango::Attr *> &
 	//	Not Memorized
 	att_list.push_back(numaxis);
 
+	//	Attribute : CoordStates
+	CoordStatesAttrib	*coordstates = new CoordStatesAttrib();
+	Tango::UserDefaultAttrProp	coordstates_prop;
+	//	description	not set for CoordStates
+	//	label	not set for CoordStates
+	//	unit	not set for CoordStates
+	//	standard_unit	not set for CoordStates
+	//	display_unit	not set for CoordStates
+	//	format	not set for CoordStates
+	//	max_value	not set for CoordStates
+	//	min_value	not set for CoordStates
+	//	max_alarm	not set for CoordStates
+	//	min_alarm	not set for CoordStates
+	//	max_warning	not set for CoordStates
+	//	min_warning	not set for CoordStates
+	//	delta_t	not set for CoordStates
+	//	delta_val	not set for CoordStates
+	
+	coordstates->set_default_properties(coordstates_prop);
+	//	Not Polled
+	coordstates->set_disp_level(Tango::EXPERT);
+	//	Not Memorized
+	att_list.push_back(coordstates);
+
 	//	Attribute : AxisMapping
 	AxisMappingAttrib	*axismapping = new AxisMappingAttrib();
 	Tango::UserDefaultAttrProp	axismapping_prop;

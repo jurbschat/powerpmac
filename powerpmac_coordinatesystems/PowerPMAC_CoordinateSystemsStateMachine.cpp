@@ -57,10 +57,35 @@ namespace PowerPMAC_CoordinateSystems_ns
 bool PowerPMAC_CoordinateSystems::is_NumAxis_allowed(TANGO_UNUSED(Tango::AttReqType type))
 {
 
-	//	Not any excluded states for NumAxis attribute in read access.
-	/*----- PROTECTED REGION ID(PowerPMAC_CoordinateSystems::NumAxisStateAllowed_READ) ENABLED START -----*/
+	//	Check access type.
+	if ( type==Tango::READ_REQ )
+	{
+		//	Compare device state with not allowed states for READ 
+		if (get_state()==Tango::OFF)
+		{
+		/*----- PROTECTED REGION ID(PowerPMAC_CoordinateSystems::NumAxisStateAllowed_READ) ENABLED START -----*/
 	
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_CoordinateSystems::NumAxisStateAllowed_READ
+			return false;
+		}
+		return true;
+	}
+	return true;
+}
+
+//--------------------------------------------------------
+/**
+ *	Method      : PowerPMAC_CoordinateSystems::is_CoordStates_allowed()
+ *	Description : Execution allowed for CoordStates attribute
+ */
+//--------------------------------------------------------
+bool PowerPMAC_CoordinateSystems::is_CoordStates_allowed(TANGO_UNUSED(Tango::AttReqType type))
+{
+
+	//	Not any excluded states for CoordStates attribute in read access.
+	/*----- PROTECTED REGION ID(PowerPMAC_CoordinateSystems::CoordStatesStateAllowed_READ) ENABLED START -----*/
+	
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_CoordinateSystems::CoordStatesStateAllowed_READ
 	return true;
 }
 
@@ -73,10 +98,19 @@ bool PowerPMAC_CoordinateSystems::is_NumAxis_allowed(TANGO_UNUSED(Tango::AttReqT
 bool PowerPMAC_CoordinateSystems::is_AxisMapping_allowed(TANGO_UNUSED(Tango::AttReqType type))
 {
 
-	//	Not any excluded states for AxisMapping attribute in read access.
-	/*----- PROTECTED REGION ID(PowerPMAC_CoordinateSystems::AxisMappingStateAllowed_READ) ENABLED START -----*/
+	//	Check access type.
+	if ( type==Tango::READ_REQ )
+	{
+		//	Compare device state with not allowed states for READ 
+		if (get_state()==Tango::OFF)
+		{
+		/*----- PROTECTED REGION ID(PowerPMAC_CoordinateSystems::AxisMappingStateAllowed_READ) ENABLED START -----*/
 	
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_CoordinateSystems::AxisMappingStateAllowed_READ
+			return false;
+		}
+		return true;
+	}
 	return true;
 }
 
@@ -93,10 +127,14 @@ bool PowerPMAC_CoordinateSystems::is_AxisMapping_allowed(TANGO_UNUSED(Tango::Att
 //--------------------------------------------------------
 bool PowerPMAC_CoordinateSystems::is_Abort_allowed(TANGO_UNUSED(const CORBA::Any &any))
 {
-	//	Not any excluded states for Abort command.
+	//	Compare device state with not allowed states.
+	if (get_state()==Tango::OFF)
+	{
 	/*----- PROTECTED REGION ID(PowerPMAC_CoordinateSystems::AbortStateAllowed) ENABLED START -----*/
 	
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_CoordinateSystems::AbortStateAllowed
+		return false;
+	}
 	return true;
 }
 
@@ -108,10 +146,14 @@ bool PowerPMAC_CoordinateSystems::is_Abort_allowed(TANGO_UNUSED(const CORBA::Any
 //--------------------------------------------------------
 bool PowerPMAC_CoordinateSystems::is_RunMotionProgram_allowed(TANGO_UNUSED(const CORBA::Any &any))
 {
-	//	Not any excluded states for RunMotionProgram command.
+	//	Compare device state with not allowed states.
+	if (get_state()==Tango::OFF)
+	{
 	/*----- PROTECTED REGION ID(PowerPMAC_CoordinateSystems::RunMotionProgramStateAllowed) ENABLED START -----*/
 	
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_CoordinateSystems::RunMotionProgramStateAllowed
+		return false;
+	}
 	return true;
 }
 

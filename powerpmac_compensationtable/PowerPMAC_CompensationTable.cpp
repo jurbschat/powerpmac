@@ -165,7 +165,7 @@ void PowerPMAC_CompensationTable::init_device()
 
 	/*----- PROTECTED REGION ID(PowerPMAC_CompensationTable::init_device) ENABLED START -----*/
 
-	tableID = static_cast<ppmac::CompensationTableID>(tableIndex);
+	tableID = ppmac::CompensationTableID(tableIndex);
 
 	*attr_SourceMotor_read = 0;
 	*attr_TargetMotor_read = 0;
@@ -214,7 +214,7 @@ void PowerPMAC_CompensationTable::get_device_property()
 
 	//	Read device properties from database.
 	Tango::DbData	dev_prop;
-	dev_prop.push_back(Tango::DbDatum("tableIndex"));
+	dev_prop.push_back(Tango::DbDatum("TableIndex"));
 
 	//	is there at least one property to be read ?
 	if (dev_prop.size()>0)
@@ -229,15 +229,15 @@ void PowerPMAC_CompensationTable::get_device_property()
 			(static_cast<PowerPMAC_CompensationTableClass *>(get_device_class()));
 		int	i = -1;
 
-		//	Try to initialize tableIndex from class property
+		//	Try to initialize TableIndex from class property
 		cl_prop = ds_class->get_class_property(dev_prop[++i].name);
 		if (cl_prop.is_empty()==false)	cl_prop  >>  tableIndex;
 		else {
-			//	Try to initialize tableIndex from default device value
+			//	Try to initialize TableIndex from default device value
 			def_prop = ds_class->get_default_device_property(dev_prop[i].name);
 			if (def_prop.is_empty()==false)	def_prop  >>  tableIndex;
 		}
-		//	And try to extract tableIndex value from database
+		//	And try to extract TableIndex value from database
 		if (dev_prop[i].is_empty()==false)	dev_prop[i]  >>  tableIndex;
 		//	Property StartDsPath is mandatory, check if has been defined in database.
 		check_mandatory_property(cl_prop, dev_prop[i]);
@@ -667,9 +667,9 @@ void PowerPMAC_CompensationTable::WriteCompensationTable(const std::vector<doubl
 		}
 		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
 		auto cmd = ppmac::cmd::CompensationTableSetAll(
-			static_cast<ppmac::CompensationTableID >(table),
-			static_cast<ppmac::MotorID>(source),
-			static_cast<ppmac::MotorID>(target),
+			ppmac::CompensationTableID(table),
+			ppmac::MotorID(source),
+			ppmac::MotorID(target),
 			from,
 			to,
 			compTable
@@ -717,7 +717,7 @@ void PowerPMAC_CompensationTable::StartCompensationTables() {
 		return;
 	}
 	started = true;
-	int32_t enabledCompTables = tu::ExecuteCommand<int32_t>(ppmac::GetCoreObject(), ppmac::cmd::CompensationTableGetActiveTableCount());
+	int32_t enabledCompTables = tu::ExecuteCommand<int32_t>(ppmac::GetCoreObject(), ppmac::cmd::GlobalGetActiveCompensationTableCount());
 	if(enabledCompTables == 0) {
 		set_state(Tango::OFF);
 		set_status(fmt::format("compensation tables are disabled"));

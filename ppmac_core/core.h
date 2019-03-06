@@ -54,11 +54,11 @@ private:
 	void KeepAliveRunner();
 	void OnConnectionEstablished();
 	void OnConnectionLost();
-	void OnMotorStateChanged(int32_t motorIndex, uint64_t newState, uint64_t changes);
-	void OnMotorCtrlChanged(int32_t motorIndex, uint64_t newState, uint64_t changes);
-	void OnCoordStateChanged(int32_t coordIndex, uint64_t newState, uint64_t changes);
-	void OnCoordAxisChanged(int32_t coordIndex, uint32_t availableAxis);
-	void OnCompensationTablesChanged(int32_t compensationTable, bool active);
+	void OnMotorStateChanged(MotorID motorID, uint64_t newState, uint64_t changes);
+	void OnMotorCtrlChanged(MotorID motorID, uint64_t newState, uint64_t changes);
+	void OnCoordStateChanged(CoordID coordID, uint64_t newState, uint64_t changes);
+	void OnCoordAxisChanged(CoordID coordID, uint32_t availableAxis);
+	void OnCompensationTablesChanged(CompensationTableID compensationTable, bool active);
 	void OnStateupdaterInitialized();
 	void DeadTimerRunner();
 

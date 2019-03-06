@@ -31,7 +31,6 @@
 //        (Program Obviously used to Generate tango Object)
 //=============================================================================
 #include <tango.h>
-#include "coreinterface.h"
 
 int main(int argc,char *argv[])
 {

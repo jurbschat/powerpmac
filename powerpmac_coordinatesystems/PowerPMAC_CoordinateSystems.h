@@ -81,6 +81,7 @@ public:
 //	Attribute data members
 public:
 	Tango::DevLong	*attr_NumAxis_read;
+	Tango::DevString	*attr_CoordStates_read;
 	Tango::DevString	*attr_AxisMapping_read;
 
 //	Constructors and destructors
@@ -156,6 +157,15 @@ public:
  */
 	virtual void read_NumAxis(Tango::Attribute &attr);
 	virtual bool is_NumAxis_allowed(Tango::AttReqType type);
+/**
+ *	Attribute CoordStates related methods
+ *	Description: 
+ *
+ *	Data type:	Tango::DevString
+ *	Attr type:	Scalar
+ */
+	virtual void read_CoordStates(Tango::Attribute &attr);
+	virtual bool is_CoordStates_allowed(Tango::AttReqType type);
 /**
  *	Attribute AxisMapping related methods
  *	Description: 

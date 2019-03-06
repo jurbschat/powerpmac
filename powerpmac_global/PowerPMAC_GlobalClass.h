@@ -184,6 +184,21 @@ public:
 		{return (static_cast<PowerPMAC_Global *>(dev))->is_Uptime_allowed(ty);}
 };
 
+//	Attribute ActiveCompensationTables class definition
+class ActiveCompensationTablesAttrib: public Tango::Attr
+{
+public:
+	ActiveCompensationTablesAttrib():Attr("ActiveCompensationTables",
+			Tango::DEV_LONG, Tango::READ_WRITE) {};
+	~ActiveCompensationTablesAttrib() {};
+	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
+		{(static_cast<PowerPMAC_Global *>(dev))->read_ActiveCompensationTables(att);}
+	virtual void write(Tango::DeviceImpl *dev,Tango::WAttribute &att)
+		{(static_cast<PowerPMAC_Global *>(dev))->write_ActiveCompensationTables(att);}
+	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
+		{return (static_cast<PowerPMAC_Global *>(dev))->is_ActiveCompensationTables_allowed(ty);}
+};
+
 //	Attribute AmpStatus class definition
 class AmpStatusAttrib: public Tango::SpectrumAttr
 {

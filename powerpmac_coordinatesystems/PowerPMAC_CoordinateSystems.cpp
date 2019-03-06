@@ -64,6 +64,7 @@
 //  Attributes managed are:
 //================================================================
 //  NumAxis      |  Tango::DevLong	Scalar
+//  CoordStates  |  Tango::DevString	Scalar
 //  AxisMapping  |  Tango::DevString	Spectrum  ( max = 26)
 //================================================================
 
@@ -124,6 +125,7 @@ void PowerPMAC_CoordinateSystems::delete_device()
 	
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_CoordinateSystems::delete_device
 	delete[] attr_NumAxis_read;
+	delete[] attr_CoordStates_read;
 	delete[] attr_AxisMapping_read;
 }
 
@@ -147,6 +149,7 @@ void PowerPMAC_CoordinateSystems::init_device()
 	get_device_property();
 	
 	attr_NumAxis_read = new Tango::DevLong[1];
+	attr_CoordStates_read = new Tango::DevString[1];
 	attr_AxisMapping_read = new Tango::DevString[26];
 	//	No longer if mandatory property not set. 
 	if (mandatoryNotDefined)
@@ -155,10 +158,10 @@ void PowerPMAC_CoordinateSystems::init_device()
 	/*----- PROTECTED REGION ID(PowerPMAC_CoordinateSystems::init_device) ENABLED START -----*/
 
 	*attr_NumAxis_read = 0;
+	*attr_CoordStates_read = nullptr;
 	std::fill(attr_AxisMapping_read, attr_AxisMapping_read + 26, nullptr);
-	coordId = static_cast<ppmac::CoordID>(coordinateIndex);
 
-	fmt::print("init called for coord {}\n", coordinateIndex);
+	coordId = ppmac::CoordID(coordinateIndex);
 
 	ppmac::CoreInterface& ci = ppmac::GetCoreObject();
 
@@ -338,6 +341,35 @@ void PowerPMAC_CoordinateSystems::read_NumAxis(Tango::Attribute &attr)
 }
 //--------------------------------------------------------
 /**
+ *	Read attribute CoordStates related method
+ *	Description: 
+ *
+ *	Data type:	Tango::DevString
+ *	Attr type:	Scalar
+ */
+//--------------------------------------------------------
+void PowerPMAC_CoordinateSystems::read_CoordStates(Tango::Attribute &attr)
+{
+	DEBUG_STREAM << "PowerPMAC_CoordinateSystems::read_CoordStates(Tango::Attribute &attr) entering... " << endl;
+	/*----- PROTECTED REGION ID(PowerPMAC_CoordinateSystems::read_CoordStates) ENABLED START -----*/
+	//	Set the attribute value
+	attr.set_value(attr_CoordStates_read);
+
+	try {
+		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
+
+		uint64_t coordStatus = ci.GetCoordInfo(coordId).status.registerValue;
+		auto aciveStates = ppmac::states::GetCoordStateNamesForFlagMatch(coordStatus, 0xFFFFFFFFFFFFFFFF);
+		tu::SetStringValue(attr_CoordStates_read, aciveStates);
+		attr.set_value(attr_CoordStates_read);
+	} catch (ppmac::RuntimeError& e) {
+		tu::TranslateException(e);
+	}
+	
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_CoordinateSystems::read_CoordStates
+}
+//--------------------------------------------------------
+/**
  *	Read attribute AxisMapping related method
  *	Description: 
  *
@@ -443,7 +475,7 @@ void PowerPMAC_CoordinateSystems::StartCoordinateSystem() {
 		return;
 	}
 	started = true;
-	fmt::print("starting coord {}\n", coordinateIndex);
+	//fmt::print("starting coord {}\n", coordinateIndex);
 	try {
 		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
 		// get the number of axis
@@ -543,6 +575,7 @@ void PowerPMAC_CoordinateSystems::WriteAxisAttrib(int32_t axis, double value) {
 	}
 }
 bool PowerPMAC_CoordinateSystems::IsAxisAttribAccessible(int32_t axis, Tango::AttReqType type) {
+	(void)axis;
 	if(type == Tango::AttReqType::READ_REQ) {
 		return get_state() != Tango::OFF;
 	} else {

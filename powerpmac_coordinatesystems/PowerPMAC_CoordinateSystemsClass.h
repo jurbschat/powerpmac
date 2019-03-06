@@ -67,6 +67,19 @@ public:
 		{return (static_cast<PowerPMAC_CoordinateSystems *>(dev))->is_NumAxis_allowed(ty);}
 };
 
+//	Attribute CoordStates class definition
+class CoordStatesAttrib: public Tango::Attr
+{
+public:
+	CoordStatesAttrib():Attr("CoordStates",
+			Tango::DEV_STRING, Tango::READ) {};
+	~CoordStatesAttrib() {};
+	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
+		{(static_cast<PowerPMAC_CoordinateSystems *>(dev))->read_CoordStates(att);}
+	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
+		{return (static_cast<PowerPMAC_CoordinateSystems *>(dev))->is_CoordStates_allowed(ty);}
+};
+
 //	Attribute AxisMapping class definition
 class AxisMappingAttrib: public Tango::SpectrumAttr
 {

@@ -29,8 +29,9 @@ set(CMAKE_EXE_LINKER_FLAGS "-Wl,-export-dynamic")
 add_executable(PowerPMAC main.cpp MultiClassesFactory.cpp tangoutil.cpp)
 
 # all other includeded cmake files will have this
-include_directories(SYSTEM /usr/include/tango fmt-5.3.0/include)
+include_directories(SYSTEM /usr/include/tango)
 link_directories(/usr/lib/x86_64-linux-gnu/ /usr/lib/)
+target_include_directories(PowerPMAC PRIVATE fmt-5.3.0/include type_safe-master/include)
 
 add_subdirectory(powerpmac_coordinatesystems)
 add_subdirectory(powerpmac_global)
@@ -44,6 +45,7 @@ add_subdirectory(ppmac_core)
 #add_subdirectory(powerPMAC_ssh-master)
 add_subdirectory(fmt-5.3.0)
 add_subdirectory(spdlog-1.3.0)
+add_subdirectory(type_safe-master)
 #add_subdirectory(libssh2-master)
 
 # this is only for this main project

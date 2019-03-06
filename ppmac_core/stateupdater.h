@@ -165,9 +165,9 @@ namespace ppmac {
 		}*/
 
 		MotorInfo GetMotorInfo(MotorID id) {
-			int32_t idx = from_enum(id);
+			int32_t idx = int32_t(id);
 			if(idx >= static_cast<int32_t>(state.motors.size())) {
-				THROW_RUNTIME_ERROR("invalid motor id {}, valid: [{}, {}]", from_enum(id), 0, state.motors.size());
+				THROW_RUNTIME_ERROR("invalid motor id {}, valid: [{}, {}]", id, 0, state.motors.size());
 			}
 			//UpdateIfElapsed(DataRequestType::Motor);
 			CreateUpdateTimer(DataRequestType::Motor);
@@ -175,9 +175,9 @@ namespace ppmac {
 		}
 
 		IOInfo GetIoInfo(IoID id) {
-			int32_t idx = from_enum(id);
+			int32_t idx = int32_t(id);
 			if(idx >= static_cast<int32_t>(state.ios.size())) {
-				THROW_RUNTIME_ERROR("invalid IO id {}, valid: [{}, {}]", from_enum(id), 0, state.ios.size());
+				THROW_RUNTIME_ERROR("invalid IO id {}, valid: [{}, {}]", id, 0, state.ios.size());
 			}
 			//UpdateIfElapsed(DataRequestType::IO);
 			CreateUpdateTimer(DataRequestType::IO);
@@ -185,9 +185,9 @@ namespace ppmac {
 		}
 
 		CoordInfo GetCoordInfo(CoordID id) {
-			int32_t idx = from_enum(id);
+			int32_t idx = int32_t(id);
 			if(idx >= static_cast<int32_t>(state.coords.size())) {
-				THROW_RUNTIME_ERROR("invalid coord id {}, valid: [{}, {}]", from_enum(id), 0, state.coords.size());
+				THROW_RUNTIME_ERROR("invalid coord id {}, valid: [{}, {}]", id, 0, state.coords.size());
 			}
 			CreateUpdateTimer(DataRequestType::Coord);
 			return state.coords[idx];
@@ -273,7 +273,7 @@ namespace ppmac {
 					int32_t startUpdate = std::min(seenAsActive, actuallyActive);
 					int32_t stopUpdate = std::max(seenAsActive, actuallyActive);
 					for(int32_t i = startUpdate; i < stopUpdate; i++) {
-						core.OnCompensationTablesChanged(i, enableTable);
+						core.OnCompensationTablesChanged(CompensationTableID(i), enableTable);
 					}
 					state.global.prevActiveCompensationTables = state.global.activeCompensationTables;
 				} catch(const std::exception&) {
@@ -314,7 +314,7 @@ namespace ppmac {
 						auto &motor = state.motors[i];
 						if (motor.status.registerValue != motor.prevStatus.registerValue) {
 							uint64_t changes = motor.prevStatus.registerValue ^motor.status.registerValue;
-							core.OnMotorStateChanged(i, motor.status.registerValue, changes);
+							core.OnMotorStateChanged(MotorID(i), motor.status.registerValue, changes);
 							//PrintStateChanges(i, m.prevStatus.registerValue, m.status.registerValue);
 							motor.prevStatus = motor.status;
 						}
@@ -342,7 +342,7 @@ namespace ppmac {
 					for(size_t i = 0; i < state.motors.size(); i++) {
 						auto& motor = state.motors[i];
 						if(motor.servoCtrl != motor.prevServoCtrl) {
-							core.OnMotorCtrlChanged(i, bits::set(0ull, AuxMotorStatusBits::ServoCtrl, motor.servoCtrl), bits::set(0ull, AuxMotorStatusBits::ServoCtrl));
+							core.OnMotorCtrlChanged(MotorID(i), bits::set(0ull, AuxMotorStatusBits::ServoCtrl, motor.servoCtrl), bits::set(0ull, AuxMotorStatusBits::ServoCtrl));
 							motor.prevServoCtrl = motor.servoCtrl;
 						}
 					}
@@ -383,7 +383,7 @@ namespace ppmac {
 						auto &coord = state.coords[i];
 						if (coord.status.registerValue != coord.prevStatus.registerValue) {
 							uint64_t changes = coord.status.registerValue ^coord.prevStatus.registerValue;
-							core.OnCoordStateChanged(i, coord.status.registerValue, changes);
+							core.OnCoordStateChanged(CoordID(i), coord.status.registerValue, changes);
 							coord.prevStatus = coord.status;
 						}
 					}
@@ -391,7 +391,7 @@ namespace ppmac {
 					for (size_t i = 0; i < state.coords.size(); i++) {
 						auto &coord = state.coords[i];
 						if (coord.availableAxis != coord.prevAvailableAxis) {
-							core.OnCoordAxisChanged(i, coord.availableAxis);
+							core.OnCoordAxisChanged(CoordID(i), coord.availableAxis);
 							coord.prevAvailableAxis = coord.availableAxis;
 						}
 					}
