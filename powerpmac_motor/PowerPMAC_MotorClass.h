@@ -297,11 +297,11 @@ public:
 	{return (static_cast<PowerPMAC_Motor *>(dev))->is_Calibrate_allowed(any);}
 };
 
-//	Command Enable class definition
-class EnableClass : public Tango::Command
+//	Command EnableServoCtrl class definition
+class EnableServoCtrlClass : public Tango::Command
 {
 public:
-	EnableClass(const char   *name,
+	EnableServoCtrlClass(const char   *name,
 	               Tango::CmdArgType in,
 				   Tango::CmdArgType out,
 				   const char        *in_desc,
@@ -309,22 +309,22 @@ public:
 				   Tango::DispLevel  level)
 	:Command(name,in,out,in_desc,out_desc, level)	{};
 
-	EnableClass(const char   *name,
+	EnableServoCtrlClass(const char   *name,
 	               Tango::CmdArgType in,
 				   Tango::CmdArgType out)
 	:Command(name,in,out)	{};
-	~EnableClass() {};
+	~EnableServoCtrlClass() {};
 	
 	virtual CORBA::Any *execute (Tango::DeviceImpl *dev, const CORBA::Any &any);
 	virtual bool is_allowed (Tango::DeviceImpl *dev, const CORBA::Any &any)
-	{return (static_cast<PowerPMAC_Motor *>(dev))->is_Enable_allowed(any);}
+	{return (static_cast<PowerPMAC_Motor *>(dev))->is_EnableServoCtrl_allowed(any);}
 };
 
-//	Command Disable class definition
-class DisableClass : public Tango::Command
+//	Command DisableServoCtrl class definition
+class DisableServoCtrlClass : public Tango::Command
 {
 public:
-	DisableClass(const char   *name,
+	DisableServoCtrlClass(const char   *name,
 	               Tango::CmdArgType in,
 				   Tango::CmdArgType out,
 				   const char        *in_desc,
@@ -332,15 +332,15 @@ public:
 				   Tango::DispLevel  level)
 	:Command(name,in,out,in_desc,out_desc, level)	{};
 
-	DisableClass(const char   *name,
+	DisableServoCtrlClass(const char   *name,
 	               Tango::CmdArgType in,
 				   Tango::CmdArgType out)
 	:Command(name,in,out)	{};
-	~DisableClass() {};
+	~DisableServoCtrlClass() {};
 	
 	virtual CORBA::Any *execute (Tango::DeviceImpl *dev, const CORBA::Any &any);
 	virtual bool is_allowed (Tango::DeviceImpl *dev, const CORBA::Any &any)
-	{return (static_cast<PowerPMAC_Motor *>(dev))->is_Disable_allowed(any);}
+	{return (static_cast<PowerPMAC_Motor *>(dev))->is_DisableServoCtrl_allowed(any);}
 };
 
 //	Command Stop class definition

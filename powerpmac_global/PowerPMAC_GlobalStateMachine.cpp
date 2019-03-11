@@ -446,6 +446,21 @@ bool PowerPMAC_Global::is_Reboot_allowed(TANGO_UNUSED(const CORBA::Any &any))
 	return true;
 }
 
+//--------------------------------------------------------
+/**
+ *	Method      : PowerPMAC_Global::is_ForceReconnect_allowed()
+ *	Description : Execution allowed for ForceReconnect attribute
+ */
+//--------------------------------------------------------
+bool PowerPMAC_Global::is_ForceReconnect_allowed(TANGO_UNUSED(const CORBA::Any &any))
+{
+	//	Not any excluded states for ForceReconnect command.
+	/*----- PROTECTED REGION ID(PowerPMAC_Global::ForceReconnectStateAllowed) ENABLED START -----*/
+	
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Global::ForceReconnectStateAllowed
+	return true;
+}
+
 
 /*----- PROTECTED REGION ID(PowerPMAC_Global::PowerPMAC_GlobalStateAllowed.AdditionalMethods) ENABLED START -----*/
 

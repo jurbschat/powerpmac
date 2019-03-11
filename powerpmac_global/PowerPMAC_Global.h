@@ -320,6 +320,13 @@ public:
 	 */
 	virtual void reboot();
 	virtual bool is_Reboot_allowed(const CORBA::Any &any);
+	/**
+	 *	Command ForceReconnect related method
+	 *	Description: 
+	 *
+	 */
+	virtual void force_reconnect();
+	virtual bool is_ForceReconnect_allowed(const CORBA::Any &any);
 
 
 	//--------------------------------------------------------

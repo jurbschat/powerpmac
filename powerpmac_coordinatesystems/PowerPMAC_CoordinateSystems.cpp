@@ -160,23 +160,24 @@ void PowerPMAC_CoordinateSystems::init_device()
 	*attr_NumAxis_read = 0;
 	*attr_CoordStates_read = nullptr;
 	std::fill(attr_AxisMapping_read, attr_AxisMapping_read + 26, nullptr);
+	started=false;
 
 	coordId = ppmac::CoordID(coordinateIndex);
 
 	ppmac::CoreInterface& ci = ppmac::GetCoreObject();
 
-	connectionEstablished = ci.Signals().ConnectionEstablished().connect([this](){
+	connectionEstablished = ci.Signals().ConnectionEstablished([this](){
 		StartCoordinateSystem();
 	});
 
-	connectionLost = ci.Signals().ConnectionLost().connect([this](){
+	connectionLost = ci.Signals().ConnectionLost([this](){
 		StopCoordinateSystem();
 	});
 
-	statusChanged = ci.Signals().StatusChanged(coordId).connect([this](uint64_t newState, uint64_t changed){
+	statusChanged = ci.Signals().StatusChanged(coordId, [this](uint64_t newState, uint64_t changed){
 		CoordinateStateChanged(newState, changed);
 	});
-	coordChanged = ci.Signals().CoordChanged(coordId).connect([this](uint32_t axis){
+	coordChanged = ci.Signals().CoordChanged(coordId, [this](uint32_t axis){
 		CoordinateSystemChanged(axis);
 	});
 
@@ -475,7 +476,7 @@ void PowerPMAC_CoordinateSystems::StartCoordinateSystem() {
 		return;
 	}
 	started = true;
-	//fmt::print("starting coord {}\n", coordinateIndex);
+	fmt::print("starting coord {}\n", coordinateIndex);
 	try {
 		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
 		// get the number of axis

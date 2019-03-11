@@ -530,19 +530,19 @@ bool PowerPMAC_Motor::is_Calibrate_allowed(TANGO_UNUSED(const CORBA::Any &any))
 
 //--------------------------------------------------------
 /**
- *	Method      : PowerPMAC_Motor::is_Enable_allowed()
- *	Description : Execution allowed for Enable attribute
+ *	Method      : PowerPMAC_Motor::is_EnableServoCtrl_allowed()
+ *	Description : Execution allowed for EnableServoCtrl attribute
  */
 //--------------------------------------------------------
-bool PowerPMAC_Motor::is_Enable_allowed(TANGO_UNUSED(const CORBA::Any &any))
+bool PowerPMAC_Motor::is_EnableServoCtrl_allowed(TANGO_UNUSED(const CORBA::Any &any))
 {
 	//	Compare device state with not allowed states.
 	if (get_state()==Tango::ON ||
 		get_state()==Tango::MOVING)
 	{
-	/*----- PROTECTED REGION ID(PowerPMAC_Motor::EnableStateAllowed) ENABLED START -----*/
+	/*----- PROTECTED REGION ID(PowerPMAC_Motor::EnableServoCtrlStateAllowed) ENABLED START -----*/
 	
-	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::EnableStateAllowed
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::EnableServoCtrlStateAllowed
 		return false;
 	}
 	return true;
@@ -550,18 +550,18 @@ bool PowerPMAC_Motor::is_Enable_allowed(TANGO_UNUSED(const CORBA::Any &any))
 
 //--------------------------------------------------------
 /**
- *	Method      : PowerPMAC_Motor::is_Disable_allowed()
- *	Description : Execution allowed for Disable attribute
+ *	Method      : PowerPMAC_Motor::is_DisableServoCtrl_allowed()
+ *	Description : Execution allowed for DisableServoCtrl attribute
  */
 //--------------------------------------------------------
-bool PowerPMAC_Motor::is_Disable_allowed(TANGO_UNUSED(const CORBA::Any &any))
+bool PowerPMAC_Motor::is_DisableServoCtrl_allowed(TANGO_UNUSED(const CORBA::Any &any))
 {
 	//	Compare device state with not allowed states.
 	if (get_state()==Tango::OFF)
 	{
-	/*----- PROTECTED REGION ID(PowerPMAC_Motor::DisableStateAllowed) ENABLED START -----*/
+	/*----- PROTECTED REGION ID(PowerPMAC_Motor::DisableServoCtrlStateAllowed) ENABLED START -----*/
 	
-	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::DisableStateAllowed
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::DisableServoCtrlStateAllowed
 		return false;
 	}
 	return true;

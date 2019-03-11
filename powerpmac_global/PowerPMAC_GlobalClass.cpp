@@ -222,6 +222,24 @@ CORBA::Any *RebootClass::execute(Tango::DeviceImpl *device, TANGO_UNUSED(const C
 	return new CORBA::Any();
 }
 
+//--------------------------------------------------------
+/**
+ * method : 		ForceReconnectClass::execute()
+ * description : 	method to trigger the execution of the command.
+ *
+ * @param	device	The device on which the command must be executed
+ * @param	in_any	The command input data
+ *
+ *	returns The command output data (packed in the Any object)
+ */
+//--------------------------------------------------------
+CORBA::Any *ForceReconnectClass::execute(Tango::DeviceImpl *device, TANGO_UNUSED(const CORBA::Any &in_any))
+{
+	cout2 << "ForceReconnectClass::execute(): arrived" << endl;
+	((static_cast<PowerPMAC_Global *>(device))->force_reconnect());
+	return new CORBA::Any();
+}
+
 
 //===================================================================
 //	Properties management
@@ -831,6 +849,15 @@ void PowerPMAC_GlobalClass::command_factory()
 			"",
 			Tango::OPERATOR);
 	command_list.push_back(pRebootCmd);
+
+	//	Command ForceReconnect
+	ForceReconnectClass	*pForceReconnectCmd =
+		new ForceReconnectClass("ForceReconnect",
+			Tango::DEV_VOID, Tango::DEV_VOID,
+			"",
+			"",
+			Tango::OPERATOR);
+	command_list.push_back(pForceReconnectCmd);
 
 	/*----- PROTECTED REGION ID(PowerPMAC_GlobalClass::command_factory_after) ENABLED START -----*/
 	

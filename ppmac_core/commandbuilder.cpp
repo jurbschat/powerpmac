@@ -217,11 +217,11 @@ namespace ppmac::cmd {
 	// coord commands
 
 	std::string CoordMoveAxis(CoordID coord, const std::string& axis, double pos) {
-		return fmt::format("&{} pcx {}{}", coord, axis, pos);
+		return fmt::format("&{} cx rapid abs {}{}", coord, axis, pos);
 	}
 
 	std::string CoordMoveAxisLinear(CoordID coord, const std::string& axis, double pos, int32_t ta, int32_t ts, int32_t f) {
-		return fmt::format("&{} pcx linear ta{} ts{} f{} {}{}", coord, ta, ts, f, axis, pos);
+		return fmt::format("&{} cx rapid abs ta{} ts{} f{} {}{}", coord, ta, ts, f, axis, pos);
 	}
 
 	std::string CoordGetPositions(CoordID  coord, const std::string& axis) {

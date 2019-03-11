@@ -31,9 +31,11 @@
 //        (Program Obviously used to Generate tango Object)
 //=============================================================================
 #include <tango.h>
+#include "coreinterface.h"
 
 int main(int argc,char *argv[])
 {
+	ppmac::GetCoreObject();
 	try
 	{
 		// Initialise the device server
@@ -63,5 +65,6 @@ int main(int argc,char *argv[])
 		cout << "Exiting" << endl;
 	}
 	Tango::Util::instance()->server_cleanup();
+	ppmac::FreeCore();
 	return(0);
 }

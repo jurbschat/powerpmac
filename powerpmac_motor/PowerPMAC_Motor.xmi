@@ -65,8 +65,8 @@
       <excludedStates>OFF</excludedStates>
       <excludedStates>MOVING</excludedStates>
     </commands>
-    <commands name="Enable" description="" execMethod="enable" displayLevel="EXPERT" polledPeriod="0" isDynamic="false">
-      <argin description="">
+    <commands name="EnableServoCtrl" description="" execMethod="enable_servo_ctrl" displayLevel="EXPERT" polledPeriod="0" isDynamic="false">
+      <argin description="starts motor servo tasks and monitoring">
         <type xsi:type="pogoDsl:VoidType"/>
       </argin>
       <argout description="">
@@ -76,8 +76,8 @@
       <excludedStates>ON</excludedStates>
       <excludedStates>MOVING</excludedStates>
     </commands>
-    <commands name="Disable" description="" execMethod="disable" displayLevel="EXPERT" polledPeriod="0" isDynamic="false">
-      <argin description="">
+    <commands name="DisableServoCtrl" description="" execMethod="disable_servo_ctrl" displayLevel="EXPERT" polledPeriod="0" isDynamic="false">
+      <argin description="stops motor servo tasks and monitoring">
         <type xsi:type="pogoDsl:VoidType"/>
       </argin>
       <argout description="">

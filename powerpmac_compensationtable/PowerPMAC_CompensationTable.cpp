@@ -171,17 +171,18 @@ void PowerPMAC_CompensationTable::init_device()
 	*attr_TargetMotor_read = 0;
 	*attr_From_read = 0;
 	*attr_To_read = 0;
+	started = false;
 
 	ppmac::CoreInterface& ci = ppmac::GetCoreObject();
-	connectionEstablished = ci.Signals().ConnectionEstablished().connect([this](){
+	connectionEstablished = ci.Signals().ConnectionEstablished([this](){
 		StartCompensationTables();
 	});
 
-	connectionLost = ci.Signals().ConnectionLost().connect([this](){
+	connectionLost = ci.Signals().ConnectionLost([this](){
 		StopCompensationTables();
 	});
 
-	stateChanged = ci.Signals().CompTableChanged(tableID).connect([this](bool enable){
+	stateChanged = ci.Signals().CompTableChanged(tableID, [this](bool enable){
 		if(enable) {
 			StartCompensationTables();
 		} else {

@@ -567,11 +567,18 @@ namespace ppmac {
 		// queried by the core
 	};
 
-	struct PlcInfo {
+	enum class PmacExecutableType {
+		PLC,
+		PROG,
+		SUBPROG
+	};
+
+	struct PmacExecutableInfo {
 		std::string name;
 		int32_t id;
-		bool active;
-		bool running;
+		PmacExecutableType type;
+		//bool active;
+		//bool running;
 	};
 
 	struct GlobalInfo {
@@ -585,8 +592,6 @@ namespace ppmac {
 		std::string firmware;
 		std::string cpuType;
 		int64_t cpuFrequency;
-		// plcs are currently directly queried and not updated by the core
-		std::vector<PlcInfo> plcs;
 		int32_t activeCompensationTables;
 		int32_t prevActiveCompensationTables;
 	};

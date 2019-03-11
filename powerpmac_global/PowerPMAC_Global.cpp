@@ -66,6 +66,7 @@
 //  ExecuteCommand  |  execute_command
 //  Reset           |  reset
 //  Reboot          |  reboot
+//  ForceReconnect  |  force_reconnect
 //================================================================
 
 //================================================================
@@ -216,11 +217,11 @@ void PowerPMAC_Global::init_device()
 		dumpCommunication
 	});
 
-	connectionEstablished = ci.Signals().ConnectionEstablished().connect([this](){
+	connectionEstablished = ci.Signals().ConnectionEstablished([this](){
 		StartGlobal();
 	});
 
-	connectionLost = ci.Signals().ConnectionLost().connect([this](){
+	connectionLost = ci.Signals().ConnectionLost([this](){
 		StopGlobal();
 	});
 
@@ -906,6 +907,27 @@ void PowerPMAC_Global::reboot()
 	}
 	
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Global::reboot
+}
+//--------------------------------------------------------
+/**
+ *	Command ForceReconnect related method
+ *	Description: 
+ *
+ */
+//--------------------------------------------------------
+void PowerPMAC_Global::force_reconnect()
+{
+	DEBUG_STREAM << "PowerPMAC_Global::ForceReconnect()  - " << device_name << endl;
+	/*----- PROTECTED REGION ID(PowerPMAC_Global::force_reconnect) ENABLED START -----*/
+
+	try {
+		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
+		ci.ForceReconnect();
+	} catch (ppmac::RuntimeError& e) {
+		tu::TranslateException(e);
+	}
+	
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Global::force_reconnect
 }
 //--------------------------------------------------------
 /**

@@ -173,11 +173,11 @@ void PowerPMAC_PLC::init_device()
 
 	ppmac::CoreInterface& ci = ppmac::GetCoreObject();
 
-	connectionEstablished = ci.Signals().ConnectionEstablished().connect([this](){
+	connectionEstablished = ci.Signals().ConnectionEstablished([this](){
 		StartPLC();
 	});
 
-	connectionLost = ci.Signals().ConnectionLost().connect([this](){
+	connectionLost = ci.Signals().ConnectionLost([this](){
 		StopPLC();
 	});
 

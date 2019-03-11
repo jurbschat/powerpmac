@@ -181,11 +181,11 @@ void PowerPMAC_IO::init_device()
 
 	ppmac::CoreInterface& ci = ppmac::GetCoreObject();
 
-	connectionEstablished = ci.Signals().ConnectionEstablished().connect([this](){
+	connectionEstablished = ci.Signals().ConnectionEstablished([this](){
 		set_state(Tango::ON);
 	});
 
-	connectionLost = ci.Signals().ConnectionLost().connect([this](){
+	connectionLost = ci.Signals().ConnectionLost([this](){
 		set_state(Tango::OFF);
 	});
 

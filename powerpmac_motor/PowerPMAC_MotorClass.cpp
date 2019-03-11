@@ -206,7 +206,7 @@ CORBA::Any *CalibrateClass::execute(Tango::DeviceImpl *device, TANGO_UNUSED(cons
 
 //--------------------------------------------------------
 /**
- * method : 		EnableClass::execute()
+ * method : 		EnableServoCtrlClass::execute()
  * description : 	method to trigger the execution of the command.
  *
  * @param	device	The device on which the command must be executed
@@ -215,16 +215,16 @@ CORBA::Any *CalibrateClass::execute(Tango::DeviceImpl *device, TANGO_UNUSED(cons
  *	returns The command output data (packed in the Any object)
  */
 //--------------------------------------------------------
-CORBA::Any *EnableClass::execute(Tango::DeviceImpl *device, TANGO_UNUSED(const CORBA::Any &in_any))
+CORBA::Any *EnableServoCtrlClass::execute(Tango::DeviceImpl *device, TANGO_UNUSED(const CORBA::Any &in_any))
 {
-	cout2 << "EnableClass::execute(): arrived" << endl;
-	((static_cast<PowerPMAC_Motor *>(device))->enable());
+	cout2 << "EnableServoCtrlClass::execute(): arrived" << endl;
+	((static_cast<PowerPMAC_Motor *>(device))->enable_servo_ctrl());
 	return new CORBA::Any();
 }
 
 //--------------------------------------------------------
 /**
- * method : 		DisableClass::execute()
+ * method : 		DisableServoCtrlClass::execute()
  * description : 	method to trigger the execution of the command.
  *
  * @param	device	The device on which the command must be executed
@@ -233,10 +233,10 @@ CORBA::Any *EnableClass::execute(Tango::DeviceImpl *device, TANGO_UNUSED(const C
  *	returns The command output data (packed in the Any object)
  */
 //--------------------------------------------------------
-CORBA::Any *DisableClass::execute(Tango::DeviceImpl *device, TANGO_UNUSED(const CORBA::Any &in_any))
+CORBA::Any *DisableServoCtrlClass::execute(Tango::DeviceImpl *device, TANGO_UNUSED(const CORBA::Any &in_any))
 {
-	cout2 << "DisableClass::execute(): arrived" << endl;
-	((static_cast<PowerPMAC_Motor *>(device))->disable());
+	cout2 << "DisableServoCtrlClass::execute(): arrived" << endl;
+	((static_cast<PowerPMAC_Motor *>(device))->disable_servo_ctrl());
 	return new CORBA::Any();
 }
 
@@ -856,23 +856,23 @@ void PowerPMAC_MotorClass::command_factory()
 			Tango::OPERATOR);
 	command_list.push_back(pCalibrateCmd);
 
-	//	Command Enable
-	EnableClass	*pEnableCmd =
-		new EnableClass("Enable",
+	//	Command EnableServoCtrl
+	EnableServoCtrlClass	*pEnableServoCtrlCmd =
+		new EnableServoCtrlClass("EnableServoCtrl",
 			Tango::DEV_VOID, Tango::DEV_VOID,
-			"",
+			"starts motor servo tasks and monitoring",
 			"",
 			Tango::EXPERT);
-	command_list.push_back(pEnableCmd);
+	command_list.push_back(pEnableServoCtrlCmd);
 
-	//	Command Disable
-	DisableClass	*pDisableCmd =
-		new DisableClass("Disable",
+	//	Command DisableServoCtrl
+	DisableServoCtrlClass	*pDisableServoCtrlCmd =
+		new DisableServoCtrlClass("DisableServoCtrl",
 			Tango::DEV_VOID, Tango::DEV_VOID,
-			"",
+			"stops motor servo tasks and monitoring",
 			"",
 			Tango::EXPERT);
-	command_list.push_back(pDisableCmd);
+	command_list.push_back(pDisableServoCtrlCmd);
 
 	//	Command Stop
 	StopClass	*pStopCmd =

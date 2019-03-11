@@ -6,10 +6,9 @@
 #include "stopwatch.h"
 #include "udpsink.h"
 #include "uuid.h"
-#include <spdlog/spdlog.h>
+#include "threading.h"
+#include "events.h"
 #include <spdlog/sinks/stdout_color_sinks.h>
-#include <signal.h>
-#include <stdlib.h>
 
 namespace ppmac {
 
@@ -18,8 +17,10 @@ namespace ppmac {
 		remotePort(0),
 		remoteShell(this),
 		stateUpdater(*this, remoteShell),
-		keepConnectionAlive(false),
-		runDeadTimer(true)
+		coreShouldRun(false),
+		runDeadTimer(true),
+		isConnected(false),
+		shutdownStarted(false)
 	{
 		ErrorHandlingSetup();
 		LoggingSetup();
@@ -27,11 +28,12 @@ namespace ppmac {
 	}
 
 	Core::~Core() {
+		remoteShell.Disconnect();
 		signalHandler.Clear();
 		stateUpdater.Stop();
-		keepConnectionAlive = false;
-		if(remoteShellKeepAlive.joinable()) {
-			remoteShellKeepAlive.join();
+		coreShouldRun = false;
+		if(coreThread.joinable()) {
+			coreThread.join();
 		}
 		runDeadTimer = false;
 		if(deadTimerThread.joinable()) {
@@ -52,171 +54,122 @@ namespace ppmac {
 	}
 
 	void Core::SetupDeadTimer() {
-		deadTimerThread = std::thread([this](){
+		deadTimerThread = MakeThread("DeadTimer", [this](){
 			DeadTimerRunner();
 		});
 	}
 
+	void Core::EsOnConnectionEstablished(const ConnectionEstablishedEvent& e) {}
+	void Core::EsOnConnectionLost(const ConnectionLostEvent& e) {}
+	void Core::EsOnMotorStateChanged(const MotorStateChangedEvent& e) {}
+	void Core::EsOnMotorCtrlChanged(const MotorCtrlChangedEvent& e) {}
+	void Core::EsOnCoordStateChanged(const CoordStateChangedEvent& e) {}
+	void Core::EsOnCoordAxisChanged(const CoordAxisChangedEvent& e) {}
+	void Core::EsOnCompensationTablesChanged(const CompensationTableChangedEvent& e) {}
+	void Core::EsOnStateupdaterInitialized(const StateUpdaterInitializedEvent& e) {}
+
+	void Core::SetupEventHandling() {
+		eventSystem.Connect(this, &Core::EsOnConnectionEstablished);
+		eventSystem.Connect(this, &Core::EsOnConnectionLost);
+		eventSystem.Connect(this, &Core::EsOnMotorStateChanged);
+		eventSystem.Connect(this, &Core::EsOnMotorCtrlChanged);
+		eventSystem.Connect(this, &Core::EsOnCoordStateChanged);
+		eventSystem.Connect(this, &Core::EsOnCoordAxisChanged);
+		eventSystem.Connect(this, &Core::EsOnCompensationTablesChanged);
+		eventSystem.Connect(this, &Core::EsOnStateupdaterInitialized);
+	}
+
 	void Core::Initialize(InitObject init) {
+		std::lock_guard<std::mutex> lock(coreMutex);
 		if(remoteShell.IsConnected()) {
+			SPDLOG_INFO("the core can only be initialized once, please restart the device server if required");
 			return;
 		}
+		SPDLOG_INFO("initializing core");
 		// this sink sends the log lines as udp messages to a graylog host
 		if(!init.logginHost.empty() && init.loggingPort != 0) {
 			try{
-				auto udpSink = std::make_shared<udp_sink_mt>(init.logginHost, init.loggingPort);
-				udpSink->set_pattern("[%Y-%m-%d %H:%M:%S.%e] [" + uuid::GetProgramLifetimeUUID() + "] [%l] [%t] [%@] %v");
-				spdlog::default_logger()->sinks().push_back(udpSink);
-				SPDLOG_DEBUG("initializing udp logging form: {}", udpSink->GetHost());
+				auto sink = std::make_shared<udp_sink_mt>(init.logginHost, init.loggingPort);
+				sink->set_pattern("[%Y-%m-%d %H:%M:%S.%e] [" + uuid::GetProgramLifetimeUUID() + "] [%l] [%t] [%@] %v");
+				spdlog::default_logger()->sinks().push_back(sink);
+				udpSink = sink.get();
+				SPDLOG_DEBUG("enable udp logging to : {}", sink->GetHost());
 			}
 			catch(const std::exception& e) {
-				SPDLOG_WARN("unable to create udp sink: {}", e.what());
+				SPDLOG_WARN("unable to create udp logger, error: {}", e.what());
 			}
 		}
 		config::dumpAllCommunication = init.dumpCommunication;
 		remoteHost = init.host;
 		remotePort = init.port;
-		keepConnectionAlive = true;
-		remoteShellKeepAlive = std::thread([this](){
-			KeepAliveRunner();
+		coreShouldRun = true;
+		coreThread = MakeThread("Core", [this](){
+			CoreRunner();
 		});
-		stateUpdater.Start();
 	}
 
-	RemoteShellErrorCode Core::SetupRemoteShell(const std::string& host, int port) {
+	void Core::ForceReconnect() {
+		remoteShell.Disconnect();
+	}
+
+	es::TSEventSystem& Core::GetEventSystem() {
+		return eventSystem;
+	}
+
+	RemoteShellErrorCode Core::InitializePmacConnection(const std::string &host, int port) {
 		auto connect = remoteShell.Connect(host, port);
 		if(connect != RemoteShellErrorCode::Ok) {
 			return connect;
 		}
-		SPDLOG_DEBUG("Connection established, starting 'gpascii -2 -f'");
-		auto gpa = remoteShell.ChannelWrite("gpascii -2");
-		if(gpa != RemoteShellErrorCode::Ok) {
-			return gpa;
+		SPDLOG_DEBUG("ssh channel setup complete");
+		// read motd and stuff
+		remoteShell.ChannelConsume();
+		SPDLOG_DEBUG("retrieving plc list'");
+		auto plc = remoteShell.ChannelWriteConsume("cat /var/ftp/usrflash/Database/pp_prog.sym", std::chrono::seconds(1));
+		if(!plc) {
+			return plc.error();
 		}
+		stateUpdater.SetPLC(*plc);
+		SPDLOG_DEBUG("starting 'gpascii -2 -f'");
+		// start gpascii and read its startup message
+		auto gpa = remoteShell.ChannelWriteConsume("gpascii -2 -f", std::chrono::seconds(1));
+		if(!gpa) {
+			return gpa.error();
+		}
+		std::this_thread::sleep_for(std::chrono::milliseconds{250});
 		SPDLOG_DEBUG("setting echo mode to 7");
-		auto cons = remoteShell.ChannelConsume(std::chrono::seconds(1));
-		if(!cons) {
-			return cons.error();
-		}
+		// set echomode to 7 this will return only the result without the command
+		// e.g. "Motor[1].Pos" returns now "12.54" not "Motor[1].Pos=12.54"
 		auto echo = remoteShell.ChannelWriteRead("echo7");
-		// did we get an error? then disconnect
 		if(!echo) {
 			return echo.error();
 		}
-
 		return RemoteShellErrorCode::Ok;
 	}
 
-	void Core::KeepAliveRunner()
+	void Core::CoreRunner()
 	{
-		while(keepConnectionAlive)
+		while(coreShouldRun)
 		{
 			if(remoteShell.IsConnected()) {
-				std::this_thread::sleep_for(std::chrono::seconds{1});
+				std::this_thread::sleep_for(std::chrono::seconds{10});
 				continue;
 			}
 			SPDLOG_INFO("trying to connect to {}:{}", remoteHost, remotePort);
-			auto res = SetupRemoteShell(remoteHost, remotePort);
-			if(res == RemoteShellErrorCode::Ok) {
-				SPDLOG_DEBUG("remote shell setup complete!");
-			} else {
+			auto res = InitializePmacConnection(remoteHost, remotePort);
+			if(res != RemoteShellErrorCode::Ok) {
 				SPDLOG_ERROR("unable to create remote shell, error: {}", wise_enum::to_string(res));
 				std::this_thread::sleep_for(std::chrono::seconds{1});
+				continue;
+			}
+			stateUpdater.SetupInitialState();
+			while(coreShouldRun) {
+				if(remoteShell.IsConnected()) {
+					stateUpdater.ManualUpdate();
+				}
+				eventSystem.ProcessQueue();
 			}
 		}
-	}
-
-	bool Core::IsConnected() {
-		return remoteShell.IsConnected();
-	}
-
-	SignalHandler& Core::Signals() {
-		return signalHandler;
-	}
-
-	void Core::OnConnectionEstablished() {
-		SPDLOG_INFO("connection to {}:{} established", remoteHost, remotePort);
-		signalHandler.ConnectionEstablished()();
-	}
-
-	void Core::OnConnectionLost() {
-		//stateUpdater.Stop();
-		SPDLOG_ERROR("connection to { }:{} lost", remoteHost, remotePort);
-		signalHandler.ConnectionLost()();
-		AddDeadTimer(std::chrono::seconds{0}, [this](){
-			stateUpdater.Stop();
-		});
-	}
-
-	void Core::OnMotorStateChanged(MotorID motorID, uint64_t newState, uint64_t changes) {
-		// this is actually quite stupid that we need to make revalue refs out if this
-		// but i have no time to fix it and it doesnt do anything here, same for the other handlers
-		signalHandler.StatusChanged(motorID)(std::move(newState), std::move(changes));
-	}
-
-	void Core::OnMotorCtrlChanged(MotorID motorID, uint64_t newState, uint64_t changes) {
-		signalHandler.CtrlChanged(motorID)(std::move(newState), std::move(changes));
-	}
-
-	void Core::OnCoordStateChanged(CoordID coordID, uint64_t newState, uint64_t changes) {
-		signalHandler.StatusChanged(coordID)(std::move(newState), std::move(changes));
-	}
-
-	void Core::OnCoordAxisChanged(CoordID coordID, uint32_t availableAxis) {
-		signalHandler.CoordChanged(coordID)(std::move(availableAxis));
-	}
-
-	void Core::OnCompensationTablesChanged(CompensationTableID compensationTable, bool active) {
-		signalHandler.CompTableChanged(compensationTable)(std::move(active));
-	}
-
-	void Core::OnStateupdaterInitialized() {
-		AddDeadTimer(std::chrono::seconds{0}, [this](){
-			OnConnectionEstablished();
-		});
-	}
-
-	std::string Core::ExecuteCommand(const std::string& str) {
-		auto result = remoteShell.ChannelWriteRead(str);
-		if(!result){
-			THROW_RUNTIME_ERROR("command '{}' stopped with error {}", str, wise_enum::to_string(result.error()));
-		}
-		if(parser::detail::CheckForError(*result)) {
-			THROW_RUNTIME_ERROR("command '{}' returned '{}'", str, *result);
-		}
-		return *result;
-	}
-
-	std::string Core::ExecuteCommandConsume(const std::string& str, std::chrono::milliseconds timeout) {
-		auto result = remoteShell.ChannelWriteConsume(str, timeout);
-		if(!result){
-			THROW_RUNTIME_ERROR("command '{}' stopped with error {}", str, wise_enum::to_string(result.error()));
-		}
-		if(parser::detail::CheckForError(*result)) {
-			THROW_RUNTIME_ERROR("command '{}' returned '{}'", str, *result);
-		}
-		return *result;
-	}
-
-	MotorInfo Core::GetMotorInfo(MotorID motor) {
-		return stateUpdater.GetMotorInfo(motor);
-	}
-
-	IOInfo Core::GetIoInfo(IoID port)
-	{
-		return stateUpdater.GetIoInfo(port);
-	}
-
-	GlobalInfo Core::GetGlobalInfo() {
-		return stateUpdater.GetGlobalInfo();
-	}
-
-	CoordInfo Core::GetCoordInfo(CoordID coord) {
-		return stateUpdater.GetCoordInfo(coord);
-	}
-
-	std::vector<CoordAxisDefinitionInfo> Core::GetMotorAxisDefinitions(CoordID id) {
-		return stateUpdater.GetMotorAxisDefinitions(id);
 	}
 
 	void Core::DeadTimerRunner() {
@@ -234,6 +187,83 @@ namespace ppmac {
 		}
 	}
 
+	void Core::EventSystemRunner() {
+		while(true) {
+			eventSystem.ProcessQueue();
+		}
+	}
+
+	bool Core::IsConnected() {
+		//std::lock_guard<std::mutex> lock(coreMutex);
+		return isConnected;
+	}
+
+	SignalHandler& Core::Signals() {
+		return signalHandler;
+	}
+
+	std::string Core::ExecuteCommand(const std::string& str) {
+		std::lock_guard<std::mutex> lock(coreMutex);
+		auto result = remoteShell.ChannelWriteRead(str);
+		if(!result){
+			THROW_RUNTIME_ERROR("command '{}' stopped with error {}", str, wise_enum::to_string(result.error()));
+		}
+		if(parser::detail::CheckForError(*result)) {
+			THROW_RUNTIME_ERROR("command '{}' returned '{}'", str, *result);
+		}
+		return *result;
+	}
+
+	std::string Core::ExecuteCommandConsume(const std::string& str, std::chrono::milliseconds timeout) {
+		std::lock_guard<std::mutex> lock(coreMutex);
+		auto result = remoteShell.ChannelWriteConsume(str, timeout);
+		if(!result){
+			THROW_RUNTIME_ERROR("command '{}' stopped with error {}", str, wise_enum::to_string(result.error()));
+		}
+		if(parser::detail::CheckForError(*result)) {
+			THROW_RUNTIME_ERROR("command '{}' returned '{}'", str, *result);
+		}
+		return *result;
+	}
+
+	MotorInfo Core::GetMotorInfo(MotorID motor) {
+		std::lock_guard<std::mutex> lock(coreMutex);
+		return stateUpdater.GetMotorInfoAndStartTimer(motor);
+	}
+
+	IOInfo Core::GetIoInfo(IoID port) {
+		std::lock_guard<std::mutex> lock(coreMutex);
+		return stateUpdater.GetIoInfoAndStartTimer(port);
+	}
+
+	GlobalInfo Core::GetGlobalInfo() {
+		std::lock_guard<std::mutex> lock(coreMutex);
+		return stateUpdater.GetGlobalInfoAndStartTimer();
+	}
+
+	CoordInfo Core::GetCoordInfo(CoordID coord) {
+		std::lock_guard<std::mutex> lock(coreMutex);
+		return stateUpdater.GetCoordInfoAndStartTimer(coord);
+	}
+
+	std::vector<CoordAxisDefinitionInfo> Core::GetMotorAxisDefinitions(CoordID id) {
+		std::lock_guard<std::mutex> lock(coreMutex);
+		return stateUpdater.GetMotorAxisDefinitions(id);
+	}
+
+	PmacExecutableInfo Core::GetPlcInfo(int32_t id) const {
+		auto info = stateUpdater.GetPlcInfo(id);
+		if(info) {
+			return *info;
+		}
+		return PmacExecutableInfo{};
+	}
+
+	int32_t Core::GetPlcCount() const {
+		return stateUpdater.GetPlcCount();
+	}
+
+
 	HandleType Core::AddDeadTimer(std::chrono::microseconds timeout, std::function<void()> callback) {
 		std::lock_guard<std::mutex> lock(deadTimerMutex);
 		return deadTimer.AddTimer(UpdateTime{timeout, callback});
@@ -242,5 +272,49 @@ namespace ppmac {
 	void Core::RemoveDeadTimer(ppmac::HandleType handle) {
 		std::lock_guard<std::mutex> lock(deadTimerMutex);
 		deadTimer.RemoveTimer(handle);
+	}
+
+
+	void Core::OnConnectionEstablished() {
+		isConnected = true;
+		SPDLOG_INFO("network initialisation for {}:{} complete", remoteHost, remotePort);
+		signalHandler.RunConnectionEstablished();
+	}
+
+	void Core::OnConnectionLost() {
+		isConnected = false;
+		SPDLOG_ERROR("connection to {}:{} lost", remoteHost, remotePort);
+		AddDeadTimer(std::chrono::seconds{0}, [this](){
+			stateUpdater.Stop();
+			signalHandler.RunConnectionLost();
+		});
+	}
+
+	void Core::OnMotorStateChanged(MotorID motorID, uint64_t newState, uint64_t changes) {
+		// this is actually quite stupid that we need to make revalue refs out if this
+		// but i have no time to fix it and it doesnt do anything here, same for the other handlers
+		signalHandler.RunStatusChanged(motorID, newState, changes);
+	}
+
+	void Core::OnMotorCtrlChanged(MotorID motorID, uint64_t newState, uint64_t changes) {
+		signalHandler.RunCtrlChanged(motorID, newState, changes);
+	}
+
+	void Core::OnCoordStateChanged(CoordID coordID, uint64_t newState, uint64_t changes) {
+		signalHandler.RunStatusChanged(coordID, newState, changes);
+	}
+
+	void Core::OnCoordAxisChanged(CoordID coordID, uint32_t availableAxis) {
+		signalHandler.RunCoordChanged(coordID, availableAxis);
+	}
+
+	void Core::OnCompensationTablesChanged(CompensationTableID compensationTable, bool active) {
+		signalHandler.RunCompTableChanged(compensationTable, active);
+	}
+
+	void Core::OnStateupdaterInitialized() {
+		AddDeadTimer(std::chrono::seconds{0}, [this](){
+			OnConnectionEstablished();
+		});
 	}
 }

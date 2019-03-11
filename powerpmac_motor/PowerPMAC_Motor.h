@@ -320,19 +320,19 @@ public:
 	virtual void calibrate();
 	virtual bool is_Calibrate_allowed(const CORBA::Any &any);
 	/**
-	 *	Command Enable related method
+	 *	Command EnableServoCtrl related method
 	 *	Description: 
 	 *
 	 */
-	virtual void enable();
-	virtual bool is_Enable_allowed(const CORBA::Any &any);
+	virtual void enable_servo_ctrl();
+	virtual bool is_EnableServoCtrl_allowed(const CORBA::Any &any);
 	/**
-	 *	Command Disable related method
+	 *	Command DisableServoCtrl related method
 	 *	Description: 
 	 *
 	 */
-	virtual void disable();
-	virtual bool is_Disable_allowed(const CORBA::Any &any);
+	virtual void disable_servo_ctrl();
+	virtual bool is_DisableServoCtrl_allowed(const CORBA::Any &any);
 	/**
 	 *	Command Stop related method
 	 *	Description: 

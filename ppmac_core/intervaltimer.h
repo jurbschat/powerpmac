@@ -83,6 +83,10 @@ namespace ppmac {
 			}
 		}
 
+		void Clear() {
+			updateTimes.clear();
+		}
+
 		stdext::slot_map<UpdateTime>& GetUpdateTimers() {
 			return updateTimes;
 		}

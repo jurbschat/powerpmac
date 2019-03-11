@@ -81,7 +81,7 @@ namespace ppmac {
 	 * Channel read reads a message that is terminated by the 0x06 terminator which is the terminator the pmac uses.
 	 */
 	stdext::expected<std::string, RemoteShellErrorCode> RemoteShell::ChannelRead(std::chrono::milliseconds timeout) {
-		std::lock_guard<std::mutex> guard(readWriteMtx);
+		std::lock_guard<mutex_type> guard(readWriteMtx);
 		return ReadUntilTerminator(timeout);
 	}
 
@@ -89,7 +89,7 @@ namespace ppmac {
 	 * Consume simply reads everything it can get untill the timeout is reached.
 	 */
 	stdext::expected<std::string, RemoteShellErrorCode> RemoteShell::ChannelConsume(std::chrono::milliseconds timeout) {
-		std::lock_guard<std::mutex> guard(readWriteMtx);
+		std::lock_guard<mutex_type> guard(readWriteMtx);
 		return Consume(timeout);
 	}
 
@@ -97,7 +97,7 @@ namespace ppmac {
 	 * Sends a command to the server
 	 */
 	RemoteShellErrorCode RemoteShell::ChannelWrite(const std::string& str, std::chrono::milliseconds timeout) {
-		std::lock_guard<std::mutex> guard(readWriteMtx);
+		std::lock_guard<mutex_type> guard(readWriteMtx);
 		return Write(str, timeout);
 	}
 
@@ -108,7 +108,7 @@ namespace ppmac {
 	 * before receiving.
 	 */
 	stdext::expected<std::string, RemoteShellErrorCode> RemoteShell::ChannelWriteRead(const std::string& str, std::chrono::milliseconds timeout) {
-		std::lock_guard<std::mutex> guard(readWriteMtx);
+		std::lock_guard<mutex_type> guard(readWriteMtx);
 		auto writeRes = Write(str, timeout);
 		if(writeRes == RemoteShellErrorCode::Ok) {
 			auto readRes = ReadUntilTerminator(timeout);
@@ -131,7 +131,7 @@ namespace ppmac {
 	}
 
 	stdext::expected<std::string, RemoteShellErrorCode> RemoteShell::ChannelWriteConsume(const std::string& str, std::chrono::milliseconds timeout) {
-		std::lock_guard<std::mutex> guard(readWriteMtx);
+		std::lock_guard<mutex_type> guard(readWriteMtx);
 		auto writeRes = Write(str, timeout);
 		if(writeRes == RemoteShellErrorCode::Ok) {
 			auto readRes = Consume(timeout);
@@ -161,7 +161,7 @@ namespace ppmac {
 	 * Connect to a remote host and setup the ssh connection
 	 */
 	RemoteShellErrorCode RemoteShell::Connect(std::string host_, int port_) {
-		std::lock_guard<std::mutex> guard(readWriteMtx);
+		std::lock_guard<mutex_type> guard(readWriteMtx);
 		host = host_;
 		port = port_;
 		sock = socket(AF_INET, SOCK_STREAM, 0);
@@ -181,6 +181,7 @@ namespace ppmac {
 			//SPDLOG_DEBUG("failed to connect to {}:{}", host, port);
 			return RemoteShellErrorCode::ConnectionRefused;
 		}
+		SPDLOG_INFO("connection to {}:{} established", host_, port_);
 		int val[]{1};
 		setsockopt(sock, IPPROTO_TCP, TCP_NODELAY, val, sizeof(int));
 		auto shellResult = SetupShell();
@@ -189,7 +190,6 @@ namespace ppmac {
 			return shellResult;
 		}
 		connected = true;
-		SPDLOG_DEBUG("connection to pmac established");
 		return RemoteShellErrorCode::Ok;
 	}
 
@@ -197,14 +197,13 @@ namespace ppmac {
 	 * Close the ssh connection and the socket
 	 */
 	void RemoteShell::Disconnect() {
-		std::lock_guard<std::mutex> guard(readWriteMtx);
+		std::lock_guard<mutex_type> guard(readWriteMtx);
 		channel.reset();
 		session.reset();
 		CloseSocket();
 		connected = false;
 		consecutiveTimeouts=0;
 		SPDLOG_DEBUG("connection to pmac closed");
-		core->OnConnectionLost();
 	}
 
 	void RemoteShell::CloseSocket() {
@@ -309,6 +308,26 @@ namespace ppmac {
 		return stdext::make_unexpected(result);
 	}
 
+	stdext::expected<std::string, RemoteShellErrorCode> RemoteShell::Execute(const std::string& str, std::chrono::milliseconds timeout) {
+		if(!connected) {
+			SPDLOG_DEBUG("unable to execute on channel if not connected");
+			return stdext::make_unexpected(RemoteShellErrorCode::ConnectionIsClosed);
+		}
+
+		int rc = 0;
+		StopWatch<> sw(true);
+		do {
+			rc = libssh2_channel_exec(channel.get(), str.c_str());
+			auto tmp = sw.Elapsed();
+			if(timeout > time::zero && tmp > timeout) {
+				SPDLOG_DEBUG("execute command timeout");
+				return stdext::make_unexpected(RemoteShellErrorCode::CommandTimeout);
+			}
+		} while(rc == LIBSSH2_ERROR_EAGAIN);
+
+		return "";
+	}
+
 	RemoteShellErrorCode RemoteShell::SetupShell() {
 		auto session_ = std::unique_ptr<LIBSSH2_SESSION, void(*)(LIBSSH2_SESSION* sess)>{libssh2_session_init(), [](LIBSSH2_SESSION* sess){
 			libssh2_session_disconnect(sess, "Normal Shutdown, Thank you for playing");
@@ -369,16 +388,18 @@ namespace ppmac {
 	void RemoteShell::AddTimeout() {
 		consecutiveTimeouts++;
 		SPDLOG_DEBUG("timeouts: {}", consecutiveTimeouts);
-		if(consecutiveTimeouts >= 5) {
+		if(consecutiveTimeouts >= 1) {
 			SPDLOG_DEBUG("more than 5 consecutive read timeouts, closing connection");
 			Disconnect();
 		}
 	}
 
 	void RemoteShell::ResetTimeouts() {
-		if(consecutiveTimeouts != 0) {
-			SPDLOG_DEBUG("resetting timeouts");
-		}
 		consecutiveTimeouts = 0;
+	}
+
+	void RemoteShell::CloseConnection() {
+		Disconnect();
+		core->OnConnectionLost();
 	}
 }

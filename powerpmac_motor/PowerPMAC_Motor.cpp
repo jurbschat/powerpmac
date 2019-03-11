@@ -60,8 +60,8 @@
 //  Phase             |  phase
 //  Home              |  home
 //  Calibrate         |  calibrate
-//  Enable            |  enable
-//  Disable           |  disable
+//  EnableServoCtrl   |  enable_servo_ctrl
+//  DisableServoCtrl  |  disable_servo_ctrl
 //  Stop              |  stop
 //  Kill              |  kill
 //  ActivateAndReset  |  activate_and_reset
@@ -206,19 +206,19 @@ void PowerPMAC_Motor::init_device()
 
 	ppmac::CoreInterface& ci = ppmac::GetCoreObject();
 
-	connectionEstablished = ci.Signals().ConnectionEstablished().connect([this](){
+	connectionEstablished = ci.Signals().ConnectionEstablished([this](){
 		StartMotor();
 	});
 
-	connectionLost = ci.Signals().ConnectionLost().connect([this](){
+	connectionLost = ci.Signals().ConnectionLost([this](){
 		StopMotor();
 	});
 
-	motorStateChanged = ci.Signals().StatusChanged(motorID).connect([this](uint64_t newValue, uint64_t changed){
+	motorStateChanged = ci.Signals().StatusChanged(motorID, [this](uint64_t newValue, uint64_t changed){
 		MotorStateChanged(newValue, changed);
 	});
 
-	motorCtrlChanged = ci.Signals().CtrlChanged(motorID).connect([this](uint64_t newValue, uint64_t changed){
+	motorCtrlChanged = ci.Signals().CtrlChanged(motorID, [this](uint64_t newValue, uint64_t changed){
 		MotorCtrlChanged(newValue, changed);
 	});
 
@@ -995,35 +995,45 @@ void PowerPMAC_Motor::calibrate()
 }
 //--------------------------------------------------------
 /**
- *	Command Enable related method
+ *	Command EnableServoCtrl related method
  *	Description: 
  *
  */
 //--------------------------------------------------------
-void PowerPMAC_Motor::enable()
+void PowerPMAC_Motor::enable_servo_ctrl()
 {
-	DEBUG_STREAM << "PowerPMAC_Motor::Enable()  - " << device_name << endl;
-	/*----- PROTECTED REGION ID(PowerPMAC_Motor::enable) ENABLED START -----*/
+	DEBUG_STREAM << "PowerPMAC_Motor::EnableServoCtrl()  - " << device_name << endl;
+	/*----- PROTECTED REGION ID(PowerPMAC_Motor::enable_servo_ctrl) ENABLED START -----*/
 
-	StartMotor();
+	try {
+		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
+		ci.ExecuteCommand(ppmac::cmd::MotorSetServoControl(motorID, true));
+	} catch (ppmac::RuntimeError& e) {
+		tu::TranslateException(e);
+	}
 	
-	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::enable
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::enable_servo_ctrl
 }
 //--------------------------------------------------------
 /**
- *	Command Disable related method
+ *	Command DisableServoCtrl related method
  *	Description: 
  *
  */
 //--------------------------------------------------------
-void PowerPMAC_Motor::disable()
+void PowerPMAC_Motor::disable_servo_ctrl()
 {
-	DEBUG_STREAM << "PowerPMAC_Motor::Disable()  - " << device_name << endl;
-	/*----- PROTECTED REGION ID(PowerPMAC_Motor::disable) ENABLED START -----*/
+	DEBUG_STREAM << "PowerPMAC_Motor::DisableServoCtrl()  - " << device_name << endl;
+	/*----- PROTECTED REGION ID(PowerPMAC_Motor::disable_servo_ctrl) ENABLED START -----*/
 
-	StopMotor();
+	try {
+		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
+		ci.ExecuteCommand(ppmac::cmd::MotorSetServoControl(motorID, false));
+	} catch (ppmac::RuntimeError& e) {
+		tu::TranslateException(e);
+	}
 	
-	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::disable
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Motor::disable_servo_ctrl
 }
 //--------------------------------------------------------
 /**
@@ -1113,7 +1123,7 @@ void PowerPMAC_Motor::StartMotor() {
 		return;
 	}
 	started = true;
-	//fmt::print("starting motor {}\n", motorIndex);
+	fmt::print("starting motor {}\n", motorIndex);
 	try {
 		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
 		auto motorInfo = ci.GetMotorInfo(motorID);
@@ -1170,7 +1180,7 @@ void PowerPMAC_Motor::StopMotor() {
 		return;
 	}
 	started = false;
-	fmt::print("stopping motor {}", motorIndex);
+	fmt::print("stopping motor {}\n", motorIndex);
 	try {
 		if(disableHardLimits) {
 			// restore the limits if the device goes down
