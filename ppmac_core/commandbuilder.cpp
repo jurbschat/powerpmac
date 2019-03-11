@@ -96,7 +96,7 @@ namespace ppmac::cmd {
 	}
 
 	std::string MotorSetServoControl(MotorID motor, bool enable) {
-		return fmt::format("Motor[{}].ServoCtrl={}", motor, static_cast<int>(enable));
+		return fmt::format("Motor[{}].ServoCtrl={}", motor, (enable ? 1 : 0));
 	}
 	std::string MotorGetServoControl(MotorID motor) {
 		return fmt::format("Motor[{}].ServoCtrl", motor);
@@ -167,11 +167,11 @@ namespace ppmac::cmd {
 	}
 
 	std::string GlobalSetAbortAll(bool abort) {
-		return fmt::format("Sys.AbortAll={}", static_cast<int>(abort));
+		return fmt::format("Sys.AbortAll={}", (abort ? 1 : 0));
 	}
 
 	std::string GlobalSetBrickLVMonitoring(bool mode) {
-		return fmt::format("BrickLV.Monitor={}", static_cast<int>(mode));
+		return fmt::format("BrickLV.Monitor={}", (mode ? 1 : 0));
 	}
 
 	std::string GlobalGetBrickLVMonitoring() {

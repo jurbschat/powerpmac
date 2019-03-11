@@ -66,7 +66,7 @@
 //  ExecuteCommand  |  execute_command
 //  Reset           |  reset
 //  Reboot          |  reboot
-//  ForceReconnect  |  force_reconnect
+//  ReloadPLC       |  reload_plc
 //================================================================
 
 //================================================================
@@ -824,13 +824,13 @@ Tango::DevString PowerPMAC_Global::reset_amp()
 
 	try {
 		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
-		ci.ExecuteCommand(ppmac::cmd::GlobalSetBrickLVMonitoring(0));
-		auto restartResult = ci.ExecuteCommandConsume(ppmac::cmd::GlobalResetBrickLVAmp(), std::chrono::milliseconds{3000});
+		ci.ExecuteCommand(ppmac::cmd::GlobalSetBrickLVMonitoring(false));
+		auto restartResult = ci.ExecuteCommandConsume(ppmac::cmd::GlobalResetBrickLVAmp(), std::chrono::milliseconds{2000});
 		restartResult.erase(std::remove_if(restartResult.begin(), restartResult.end(),
 			[](char c) {
 				return !std::isprint(c);
 			}), restartResult.end());
-		ci.ExecuteCommand(ppmac::cmd::GlobalSetBrickLVMonitoring(1));
+		ci.ExecuteCommand(ppmac::cmd::GlobalSetBrickLVMonitoring(true));
 		auto monitoringResult = ci.ExecuteCommand(ppmac::cmd::GlobalGetBrickLVMonitoring());
 		tu::SetStringValue(&argout, fmt::format("Reset: {}\nMonitor: {}", restartResult, monitoringResult), true);
 	} catch (ppmac::RuntimeError& e) {
@@ -910,24 +910,24 @@ void PowerPMAC_Global::reboot()
 }
 //--------------------------------------------------------
 /**
- *	Command ForceReconnect related method
+ *	Command ReloadPLC related method
  *	Description: 
  *
  */
 //--------------------------------------------------------
-void PowerPMAC_Global::force_reconnect()
+void PowerPMAC_Global::reload_plc()
 {
-	DEBUG_STREAM << "PowerPMAC_Global::ForceReconnect()  - " << device_name << endl;
-	/*----- PROTECTED REGION ID(PowerPMAC_Global::force_reconnect) ENABLED START -----*/
+	DEBUG_STREAM << "PowerPMAC_Global::ReloadPLC()  - " << device_name << endl;
+	/*----- PROTECTED REGION ID(PowerPMAC_Global::reload_plc) ENABLED START -----*/
 
 	try {
 		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
-		ci.ForceReconnect();
+		ci.ReloadPLC();
 	} catch (ppmac::RuntimeError& e) {
 		tu::TranslateException(e);
 	}
 	
-	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Global::force_reconnect
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Global::reload_plc
 }
 //--------------------------------------------------------
 /**
@@ -949,7 +949,7 @@ void PowerPMAC_Global::add_dynamic_commands()
 
 void PowerPMAC_Global::StartGlobal() {
 	ppmac::CoreInterface& ci = ppmac::GetCoreObject();
-	ci.ExecuteCommand(ppmac::cmd::GlobalSetBrickLVMonitoring(0));
+	ci.ExecuteCommand(ppmac::cmd::GlobalSetBrickLVMonitoring(true));
 	set_state(Tango::ON);
 }
 

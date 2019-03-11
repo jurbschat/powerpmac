@@ -88,7 +88,7 @@
       <excludedStates>OFF</excludedStates>
       <excludedStates>FAULT</excludedStates>
     </commands>
-    <commands name="ForceReconnect" description="" execMethod="force_reconnect" displayLevel="OPERATOR" polledPeriod="0" isDynamic="false">
+    <commands name="ReloadPLC" description="" execMethod="reload_plc" displayLevel="OPERATOR" polledPeriod="0" isDynamic="false">
       <argin description="">
         <type xsi:type="pogoDsl:VoidType"/>
       </argin>

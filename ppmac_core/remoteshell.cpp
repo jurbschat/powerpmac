@@ -62,14 +62,13 @@ namespace ppmac {
 		};
 	}
 
-	RemoteShell::RemoteShell(CoreNotifyInterface* core)
+	RemoteShell::RemoteShell()
 		: host(),
 		port(0),
 		sock(0),
 		connected(false),
 		session(nullptr, [](auto){}),
-		channel(nullptr, [](auto){}),
-		core(core)
+		channel(nullptr, [](auto){})
 	{}
 
 	RemoteShell::~RemoteShell() {
@@ -396,10 +395,5 @@ namespace ppmac {
 
 	void RemoteShell::ResetTimeouts() {
 		consecutiveTimeouts = 0;
-	}
-
-	void RemoteShell::CloseConnection() {
-		Disconnect();
-		core->OnConnectionLost();
 	}
 }

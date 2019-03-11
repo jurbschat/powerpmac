@@ -321,41 +321,12 @@ namespace ppmac {
 		}
 
 		void RunRemoteUpdateTimer();
-		/*void UpdateCacheIfElapsed(DataRequestType type) {
-			DataRequestInfo& info = lastRequestTimes[type];
-			auto now = clock::now();
-			//SPDLOG_DEBUG("checking if type {} needs an update time left: {}", (int)type, std::chrono::duration_cast<std::chrono::milliseconds>(now - (info.lastUpdate + info.updateInterval)).count());
-			if(now >= info.lastUpdate + info.updateInterval) {
-				switch (type) {
-					case DataRequestType::Motor:
-						UpdateMotorValues();
-						break;
-					case DataRequestType::Global:
-						UpdateGeneralInfo();
-						break;
-					case DataRequestType::Coord:
-						UpdateCoordValues();
-						break;
-					case DataRequestType::IO:
-						break;
-				}
-				// we dont want to use the previus now as the update may took
-				// some time and we want the cache to be set current NOW and not at the time
-				// where we checked IF it should be updated
-				info.lastUpdate = clock::now();
-			} else {
-				SPDLOG_DEBUG("update skipped through caching");
-			}
-		}*/
 		void CreateUpdateTimer(DataRequestType type);
 		void RemoveElapsedUpdateTimers();
 		void CallUpdateFunctionByRequestType(DataRequestType type);
 
 		CoreNotifyInterface& core;
 		RemoteShell& rs;
-		bool shouldUpdate;
-		bool running;
-		std::thread updateThread;
 		struct PmacData {
 			std::vector<MotorInfo> motors;
 			std::vector<IOInfo> ios;
@@ -365,10 +336,7 @@ namespace ppmac {
 		std::vector<PmacExecutableInfo> plcs;
 		std::unordered_map<DataRequestType, DataRequestInfo> lastRequestTimes;
 		IntervalTimer updateIntervals;
-		std::mutex stateMutex;
-		TicketSpinLock sl;
 		bool motorOrCoordOutOfSync;
-		bool updateOnce;
 	};
 
 }

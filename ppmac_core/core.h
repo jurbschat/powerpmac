@@ -11,10 +11,7 @@
 #include "stateupdater.h"
 #include "signalhandler.h"
 #include "libs/sigs.h"
-//#include "libs/blockingconcurrentqueue.h"
 #include "pmac/defines.h"
-#include "eventsystem/globaleventsystem.h"
-#include "events.h"
 
 #include <mutex>
 #include <atomic>
@@ -31,6 +28,8 @@ class UdpSink;
 class Core : public CoreInterface, public CoreNotifyInterface
 {
 public:
+	using mutex_type = TicketSpinLock;
+
 	Core();
 	virtual ~Core();
 	void Initialize(InitObject init);
@@ -45,42 +44,27 @@ public:
 	GlobalInfo GetGlobalInfo();
 	CoordInfo GetCoordInfo(CoordID coord);
 	std::vector<CoordAxisDefinitionInfo> GetMotorAxisDefinitions(CoordID id);
-	PmacExecutableInfo GetPlcInfo(int32_t id) const;
-	int32_t GetPlcCount() const;
+	PmacExecutableInfo GetPlcInfo(int32_t id);
+	int32_t GetPlcCount();
 
 	SignalHandler& Signals();
 	HandleType AddDeadTimer(std::chrono::microseconds timeout, std::function<void()> callback);
 	void RemoveDeadTimer(HandleType handle);
-	void ForceReconnect();
-	es::TSEventSystem& GetEventSystem();
+	void ReloadPLC();
 private:
-	void EsOnConnectionEstablished(const ConnectionEstablishedEvent& e);
-	void EsOnConnectionLost(const ConnectionLostEvent& e);
-	void EsOnMotorStateChanged(const MotorStateChangedEvent& e);
-	void EsOnMotorCtrlChanged(const MotorCtrlChangedEvent& e);
-	void EsOnCoordStateChanged(const CoordStateChangedEvent& e);
-	void EsOnCoordAxisChanged(const CoordAxisChangedEvent& e);
-	void EsOnCompensationTablesChanged(const CompensationTableChangedEvent& e);
-	void EsOnStateupdaterInitialized(const StateUpdaterInitializedEvent& e);
-
 	void LoggingSetup();
 	void ErrorHandlingSetup();
-	void SetupDeadTimer();
-	void SetupEventHandling();
-	void MainLoop();
 	RemoteShellErrorCode InitializePmacConnection(const std::string &host, int port);
 	void CoreRunner();
-	void DeadTimerRunner();
-	void EventSystemRunner();
 
-	void OnConnectionEstablished();
-	void OnConnectionLost();
 	void OnMotorStateChanged(MotorID motorID, uint64_t newState, uint64_t changes);
 	void OnMotorCtrlChanged(MotorID motorID, uint64_t newState, uint64_t changes);
 	void OnCoordStateChanged(CoordID coordID, uint64_t newState, uint64_t changes);
 	void OnCoordAxisChanged(CoordID coordID, uint32_t availableAxis);
 	void OnCompensationTablesChanged(CompensationTableID compensationTable, bool active);
-	void OnStateupdaterInitialized();
+
+	void UpdateDeadTimers();
+	void ExecuteEvents();
 
 	UdpSink* udpSink;
 	std::string remoteHost;
@@ -88,17 +72,13 @@ private:
 	RemoteShell remoteShell;
 	StateUpdater stateUpdater;
 	SignalHandler signalHandler;
-	bool coreShouldRun;
-	std::thread coreThread;
-	bool runDeadTimer;
-	std::thread deadTimerThread;
-	std::mutex deadTimerMutex;
-	std::mutex coreMutex;
 	IntervalTimer deadTimer;
-	bool isConnected;
-	bool shutdownStarted;
-	es::TSEventSystem eventSystem;
-	//std::thread esRunner;
+	TicketSpinLock coreTsl;
+	std::atomic<bool> coreShouldRun;
+	std::atomic<bool> isConnected;
+	std::mutex deadTimerMutex;
+	std::thread coreThread;
+	std::vector<std::function<void()>> events;
 };
 
 }

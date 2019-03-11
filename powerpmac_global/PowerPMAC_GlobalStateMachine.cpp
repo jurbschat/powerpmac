@@ -448,16 +448,16 @@ bool PowerPMAC_Global::is_Reboot_allowed(TANGO_UNUSED(const CORBA::Any &any))
 
 //--------------------------------------------------------
 /**
- *	Method      : PowerPMAC_Global::is_ForceReconnect_allowed()
- *	Description : Execution allowed for ForceReconnect attribute
+ *	Method      : PowerPMAC_Global::is_ReloadPLC_allowed()
+ *	Description : Execution allowed for ReloadPLC attribute
  */
 //--------------------------------------------------------
-bool PowerPMAC_Global::is_ForceReconnect_allowed(TANGO_UNUSED(const CORBA::Any &any))
+bool PowerPMAC_Global::is_ReloadPLC_allowed(TANGO_UNUSED(const CORBA::Any &any))
 {
-	//	Not any excluded states for ForceReconnect command.
-	/*----- PROTECTED REGION ID(PowerPMAC_Global::ForceReconnectStateAllowed) ENABLED START -----*/
+	//	Not any excluded states for ReloadPLC command.
+	/*----- PROTECTED REGION ID(PowerPMAC_Global::ReloadPLCStateAllowed) ENABLED START -----*/
 	
-	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Global::ForceReconnectStateAllowed
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Global::ReloadPLCStateAllowed
 	return true;
 }
 

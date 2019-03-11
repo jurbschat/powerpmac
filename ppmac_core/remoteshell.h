@@ -43,7 +43,7 @@ namespace ppmac {
 	class RemoteShell
 	{
 	public:
-		RemoteShell(CoreNotifyInterface* core);
+		RemoteShell();
 
 		~RemoteShell();
 
@@ -110,7 +110,6 @@ namespace ppmac {
 		void SetupWriteBuffer(const std::string &data, char terminator, std::vector<char> &buffer);
 		void AddTimeout();
 		void ResetTimeouts();
-		void CloseConnection();
 
 		std::string host;
 		int port;
@@ -123,7 +122,6 @@ namespace ppmac {
 		std::vector<char> writeBuffer;
 		ReceiveBuffer messageBuffer;
 		mutex_type readWriteMtx;
-		CoreNotifyInterface* core;
 	};
 }
 

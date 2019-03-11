@@ -29,11 +29,8 @@ namespace ppmac {
 	StateUpdater::StateUpdater(CoreNotifyInterface& core, RemoteShell& rs)
 		: core(core),
 		rs(rs),
-		shouldUpdate(true),
-		running(false),
 		state{},
-		motorOrCoordOutOfSync(true),
-		updateOnce(false)
+		motorOrCoordOutOfSync(true)
 	{
 		state.motors.resize(MAX_MOTORS);
 		state.ios.resize(MAX_PORTS);
@@ -48,40 +45,7 @@ namespace ppmac {
 		lastRequestTimes[DataRequestType::IO] =             MakeDataRequestInfo(std::chrono::milliseconds{100}, std::chrono::seconds{10});
 	}
 
-	StateUpdater::~StateUpdater() {
-		Stop();
-	}
-
-	void StateUpdater::Start() {
-		if(running) {
-			return;
-		}
-		shouldUpdate = true;
-		motorOrCoordOutOfSync = true;
-		updateOnce = false;
-		running = true; // we want to instantly be in the "running mode", even if the thread needs some time to start
-		updateThread = MakeThread("StateUpdater", [this](){
-			RunRemoteUpdateTimer();
-		});
-	}
-
-	void StateUpdater::Stop() {
-		if(!running) {
-			return;
-		}
-		updateIntervals.Clear();
-		shouldUpdate = false;
-		if (updateThread.joinable()) {
-			updateThread.join();
-		}
-	}
-
-	/*void Halt() {
-		if(!running) {
-			return;
-		}
-		shouldUpdate = false;
-	}*/
+	StateUpdater::~StateUpdater() {}
 
 	MotorInfo StateUpdater::GetMotorInfoAndStartTimer(MotorID id) {
 		int32_t idx = int32_t(id);
@@ -198,7 +162,6 @@ namespace ppmac {
 	};*/
 
 	void StateUpdater::UpdateGeneralInfo() {
-		std::lock_guard<std::mutex> lock(stateMutex);
 		auto query = query::GeneralGetInfo(stdext::span<GlobalInfo>(&state.global, 1));
 		auto result = rs.ChannelWriteRead(query.command);
 		if(result) {
@@ -218,7 +181,6 @@ namespace ppmac {
 	}
 
 	void StateUpdater::UpdateSecondaryGeneralInfo() {
-		std::lock_guard<std::mutex> lock(stateMutex);
 		auto query = query::GeneralGetInfo(stdext::span<GlobalInfo>(&state.global, 1));
 		auto result = rs.ChannelWriteRead(query.command);
 		if(result) {
@@ -246,7 +208,6 @@ namespace ppmac {
 	}
 
 	void StateUpdater::UpdateMotorValues() {
-		std::lock_guard<std::mutex> lock(stateMutex);
 		if(state.global.maxMotors == 0) {
 			return;
 		}
@@ -290,7 +251,6 @@ namespace ppmac {
 	}
 
 	void StateUpdater::UpdateMotorSecondaryValues() {
-		std::lock_guard<std::mutex> lock(stateMutex);
 		auto query = query::MotorGetSecondaryValues(stdext::make_span(state.motors), 0, state.global.maxMotors - 1);
 		auto result = rs.ChannelWriteRead(query.command);
 		if(result) {
@@ -316,7 +276,6 @@ namespace ppmac {
 	}
 
 	void StateUpdater::UpdateCoordValues() {
-		std::lock_guard<std::mutex> lock(stateMutex);
 		if(state.global.maxCoords == 0) {
 			return;
 		}
@@ -378,7 +337,7 @@ namespace ppmac {
 		}
 	}
 
-	void StateUpdater::RunRemoteUpdateTimer() {
+	/*void StateUpdater::RunRemoteUpdateTimer() {
 		while(shouldUpdate) {
 			if(rs.IsConnected()) {
 				if(!updateOnce) {
@@ -408,7 +367,7 @@ namespace ppmac {
 			}
 		} // end
 		running = false;
-	}
+	}*/
 
 	bool StateUpdater::ManualUpdate() {
 		// we need the max motors count to know how many we need to update
@@ -419,46 +378,17 @@ namespace ppmac {
 				return false;
 			}
 		}
-		std::lock_guard<TicketSpinLock> lock(sl);
 		try {
 			updateIntervals.Update();
 		} catch(std::exception& e) {
-			SPDLOG_ERROR("exception in update state timer:\n{}", StringifyException(std::current_exception(), 4, '>'));
+			SPDLOG_ERROR("exception in state update:\n{}", StringifyException(std::current_exception(), 4, '>'));
 		}
 		RemoveElapsedUpdateTimers();
 		return true;
 	}
 
-	/*void UpdateCacheIfElapsed(DataRequestType type) {
-		DataRequestInfo& info = lastRequestTimes[type];
-		auto now = clock::now();
-		//SPDLOG_DEBUG("checking if type {} needs an update time left: {}", (int)type, std::chrono::duration_cast<std::chrono::milliseconds>(now - (info.lastUpdate + info.updateInterval)).count());
-		if(now >= info.lastUpdate + info.updateInterval) {
-			switch (type) {
-				case DataRequestType::Motor:
-					UpdateMotorValues();
-					break;
-				case DataRequestType::Global:
-					UpdateGeneralInfo();
-					break;
-				case DataRequestType::Coord:
-					UpdateCoordValues();
-					break;
-				case DataRequestType::IO:
-					break;
-			}
-			// we dont want to use the previus now as the update may took
-			// some time and we want the cache to be set current NOW and not at the time
-			// where we checked IF it should be updated
-			info.lastUpdate = clock::now();
-		} else {
-			SPDLOG_DEBUG("update skipped through caching");
-		}
-	}*/
-
 	// will be called from the "GetMotor|Coord|etc.." functions
 	void StateUpdater::CreateUpdateTimer(DataRequestType type) {
-		std::lock_guard<TicketSpinLock> lock(sl);
 		if(!rs.IsConnected()) {
 			return;
 		}
@@ -495,7 +425,6 @@ namespace ppmac {
 		UpdateGeneralInfo();
 		CreateUpdateTimer(DataRequestType::MotorSecondary);
 		CreateUpdateTimer(DataRequestType::GlobalSecondary);
-		updateOnce = true;
 	}
 
 	void StateUpdater::CallUpdateFunctionByRequestType(DataRequestType type) {

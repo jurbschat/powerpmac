@@ -70,7 +70,7 @@ int main() {
 			/*if(i % 3 == 0) {
 				ci->ForceReconnect();
 			}*/
-			if(i == 3) {
+			if(i == 10) {
 				goto out;
 			}
 		}

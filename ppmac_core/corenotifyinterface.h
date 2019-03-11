@@ -10,14 +10,11 @@
 namespace ppmac {
 
 	struct CoreNotifyInterface {
-		virtual void OnConnectionEstablished() = 0;
-		virtual void OnConnectionLost() = 0;
 		virtual void OnMotorStateChanged(MotorID motorIndex, uint64_t newState, uint64_t changes) = 0;
 		virtual void OnMotorCtrlChanged(MotorID motorIndex, uint64_t newState, uint64_t changes) = 0;
 		virtual void OnCoordStateChanged(CoordID coordIndex, uint64_t newState, uint64_t changes) = 0;
 		virtual void OnCoordAxisChanged(CoordID coordIndex, uint32_t availableAxis) = 0;
 		virtual void OnCompensationTablesChanged(CompensationTableID compensationTable, bool active) = 0;
-		virtual void OnStateupdaterInitialized() = 0;
 	};
 
 }

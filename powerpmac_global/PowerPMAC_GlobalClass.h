@@ -308,11 +308,11 @@ public:
 	{return (static_cast<PowerPMAC_Global *>(dev))->is_Reboot_allowed(any);}
 };
 
-//	Command ForceReconnect class definition
-class ForceReconnectClass : public Tango::Command
+//	Command ReloadPLC class definition
+class ReloadPLCClass : public Tango::Command
 {
 public:
-	ForceReconnectClass(const char   *name,
+	ReloadPLCClass(const char   *name,
 	               Tango::CmdArgType in,
 				   Tango::CmdArgType out,
 				   const char        *in_desc,
@@ -320,15 +320,15 @@ public:
 				   Tango::DispLevel  level)
 	:Command(name,in,out,in_desc,out_desc, level)	{};
 
-	ForceReconnectClass(const char   *name,
+	ReloadPLCClass(const char   *name,
 	               Tango::CmdArgType in,
 				   Tango::CmdArgType out)
 	:Command(name,in,out)	{};
-	~ForceReconnectClass() {};
+	~ReloadPLCClass() {};
 	
 	virtual CORBA::Any *execute (Tango::DeviceImpl *dev, const CORBA::Any &any);
 	virtual bool is_allowed (Tango::DeviceImpl *dev, const CORBA::Any &any)
-	{return (static_cast<PowerPMAC_Global *>(dev))->is_ForceReconnect_allowed(any);}
+	{return (static_cast<PowerPMAC_Global *>(dev))->is_ReloadPLC_allowed(any);}
 };
 
 

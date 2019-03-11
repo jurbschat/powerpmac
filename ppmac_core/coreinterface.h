@@ -42,15 +42,15 @@ namespace ppmac {
 
 		virtual std::string ExecuteCommand(const std::string& str) = 0;
 		virtual std::string ExecuteCommandConsume(const std::string& str, std::chrono::milliseconds timeout) = 0;
-		virtual void ForceReconnect() = 0;
+		virtual void ReloadPLC() = 0;
 
 		virtual MotorInfo GetMotorInfo(MotorID motor) = 0;
 		virtual IOInfo GetIoInfo(IoID io) = 0;
 		virtual GlobalInfo GetGlobalInfo() = 0;
 		virtual CoordInfo GetCoordInfo(CoordID coord) = 0;
 		virtual std::vector<CoordAxisDefinitionInfo> GetMotorAxisDefinitions(CoordID id) = 0;
-		virtual PmacExecutableInfo GetPlcInfo(int32_t id) const = 0;
-		virtual int32_t GetPlcCount() const = 0;
+		virtual PmacExecutableInfo GetPlcInfo(int32_t id) = 0;
+		virtual int32_t GetPlcCount() = 0;
 
 		virtual SignalHandler& Signals() = 0;
 

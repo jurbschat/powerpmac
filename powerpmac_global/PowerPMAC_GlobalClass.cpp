@@ -224,7 +224,7 @@ CORBA::Any *RebootClass::execute(Tango::DeviceImpl *device, TANGO_UNUSED(const C
 
 //--------------------------------------------------------
 /**
- * method : 		ForceReconnectClass::execute()
+ * method : 		ReloadPLCClass::execute()
  * description : 	method to trigger the execution of the command.
  *
  * @param	device	The device on which the command must be executed
@@ -233,10 +233,10 @@ CORBA::Any *RebootClass::execute(Tango::DeviceImpl *device, TANGO_UNUSED(const C
  *	returns The command output data (packed in the Any object)
  */
 //--------------------------------------------------------
-CORBA::Any *ForceReconnectClass::execute(Tango::DeviceImpl *device, TANGO_UNUSED(const CORBA::Any &in_any))
+CORBA::Any *ReloadPLCClass::execute(Tango::DeviceImpl *device, TANGO_UNUSED(const CORBA::Any &in_any))
 {
-	cout2 << "ForceReconnectClass::execute(): arrived" << endl;
-	((static_cast<PowerPMAC_Global *>(device))->force_reconnect());
+	cout2 << "ReloadPLCClass::execute(): arrived" << endl;
+	((static_cast<PowerPMAC_Global *>(device))->reload_plc());
 	return new CORBA::Any();
 }
 
@@ -850,14 +850,14 @@ void PowerPMAC_GlobalClass::command_factory()
 			Tango::OPERATOR);
 	command_list.push_back(pRebootCmd);
 
-	//	Command ForceReconnect
-	ForceReconnectClass	*pForceReconnectCmd =
-		new ForceReconnectClass("ForceReconnect",
+	//	Command ReloadPLC
+	ReloadPLCClass	*pReloadPLCCmd =
+		new ReloadPLCClass("ReloadPLC",
 			Tango::DEV_VOID, Tango::DEV_VOID,
 			"",
 			"",
 			Tango::OPERATOR);
-	command_list.push_back(pForceReconnectCmd);
+	command_list.push_back(pReloadPLCCmd);
 
 	/*----- PROTECTED REGION ID(PowerPMAC_GlobalClass::command_factory_after) ENABLED START -----*/
 	
