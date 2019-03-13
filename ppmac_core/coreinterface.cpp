@@ -6,11 +6,20 @@
 #include "core.h"
 
 #include <iostream>
+#include <memory>
 
 namespace ppmac
 {
+	std::unique_ptr<Core> core;
+
 	CoreInterface& GetCoreObject() {
-		static Core core;
-		return core;
+		if(!core) {
+			core = std::make_unique<Core>();
+		}
+		return *core;
+	}
+
+	void FreeCore() {
+		core.release();
 	}
 }

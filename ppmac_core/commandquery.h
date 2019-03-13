@@ -281,7 +281,7 @@ namespace ppmac::query {
 		);
 	}
 
-	inline auto GeneralGetPlcStatus(stdext::span<PlcInfo> data, int32_t first, int32_t last) {
+	/*inline auto GeneralGetPlcStatus(stdext::span<PlcInfo> data, int32_t first, int32_t last) {
 		builder::ValidateIdentifierRange(first, last);
 		boost::container::small_vector<std::tuple<int>, 32> tuples;
 		// we want to include the whole range e.g. 1..2 sould be 1 and 2 not only 1
@@ -303,7 +303,7 @@ namespace ppmac::query {
 				return parser::Split1D(str, boost::is_any_of("\r\n"));
 			}
 		);
-	}
+	}*/
 
 	inline auto MotorGetSecondaryValues(stdext::span<MotorInfo> data, int32_t first, int32_t last) {
 		boost::container::small_vector<std::tuple<int>, 32> tuples;
@@ -324,8 +324,6 @@ namespace ppmac::query {
 			}
 		);
 	}
-
-
 
 	/*
 	 * this query updates all raw motor values. (poition, velocity, following error and motor statuses)

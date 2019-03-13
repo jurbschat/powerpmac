@@ -5,8 +5,11 @@
 #include "coreinterface.h"
 #include "core.h"
 #include "pmac/defines.h"
+#include "threading.h"
 
 int main() {
+
+	ppmac::SetThisThreadName("main");
 
 	ppmac::Core* ci = static_cast<ppmac::Core*>(&ppmac::GetCoreObject());
 	ci->Initialize(ppmac::InitObject{
@@ -19,8 +22,8 @@ int main() {
 	});
 
 	const ppmac::MotorID myMotor = ppmac::MotorID(2);
-	ci->Signals().StatusChanged(myMotor).connect([&](uint64_t newState, uint64_t changed){
-		//uint64_t status = ci->GetMotorInfo(myMotor).status.registerValue;
+	auto s1 = ci->Signals().StatusChanged(myMotor, [&](uint64_t newState, uint64_t changed){
+		//uint64_t status = ci->GetMotorInfoAndStartTimer(myMotor).status.registerValue;
 		(void)changed;
 		if(!ppmac::bits::AllBitsSet(newState, ppmac::motorNeededStatusBits)) {
 			SPDLOG_DEBUG("missing states: " + ppmac::states::GetMotorStateNamesForFlagMatch(newState, ppmac::motorNeededStatusBits, 0x0));
@@ -35,18 +38,26 @@ int main() {
 			SPDLOG_DEBUG("motor error, should fix itselves");
 		}
 	});
-	ci->Signals().CtrlChanged(myMotor).connect([&](uint64_t newState, uint64_t changed){
+	auto s2 = ci->Signals().CtrlChanged(myMotor, [&](uint64_t newState, uint64_t changed){
 		if(ppmac::bits::isSet(changed, ppmac::AuxMotorStatusBits::ServoCtrl)) {
 			SPDLOG_DEBUG("control changed: {}", newState);
 		}
 	});
+	auto s3 = ci->Signals().ConnectionEstablished([&](){
+		SPDLOG_DEBUG("connection established");
+	});
+	auto s4 = ci->Signals().ConnectionLost([&](){
+		SPDLOG_DEBUG("connection lost");
+	});
+	int i = 0;
 	while(true) {
 		while(!ci->IsConnected()) {
 			std::this_thread::sleep_for(std::chrono::milliseconds{500});
 		}
 		while(ci->IsConnected()) {
-			//SPDLOG_DEBUG("uptime: {}", ci->GetGlobalInfo().uptime);
-			//fmt::print("pos: {}\n", ci->GetMotorInfo(ppmac::MotorID::Motor4).position);
+			i++;
+			//SPDLOG_DEBUG("uptime: {}", ci->GetGlobalInfoAndStartTimer().uptime);
+			//fmt::print("pos: {}\n", ci->GetMotorInfoAndStartTimer(ppmac::MotorID::Motor4).position);
 			/*auto coordInfo = ci->GetCoordInfo(ppmac::CoordID::Coord1);
 			for(int i = 0; i < ppmac::AvailableAxis::maxAxis; i++) {
 				if(ppmac::bits::isSet(coordInfo.availableAxis, i)) {
@@ -56,8 +67,17 @@ int main() {
 			auto motorInfo = ci->GetMotorInfo(myMotor);
 			SPDLOG_DEBUG("motor pos {}", motorInfo.position);
 			std::this_thread::sleep_for(std::chrono::milliseconds{500});
+			/*if(i % 3 == 0) {
+				ci->ForceReconnect();
+			}*/
+			if(i == 10) {
+				goto out;
+			}
 		}
 	}
-	std::this_thread::sleep_for(std::chrono::seconds{6000});
+out:
+	SPDLOG_DEBUG("end");
+	ppmac::FreeCore();
+	std::this_thread::sleep_for(std::chrono::seconds{1});
 	return 0;
 }

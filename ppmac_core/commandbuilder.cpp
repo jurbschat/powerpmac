@@ -96,7 +96,7 @@ namespace ppmac::cmd {
 	}
 
 	std::string MotorSetServoControl(MotorID motor, bool enable) {
-		return fmt::format("Motor[{}].ServoCtrl={}", motor, static_cast<int>(enable));
+		return fmt::format("Motor[{}].ServoCtrl={}", motor, (enable ? 1 : 0));
 	}
 	std::string MotorGetServoControl(MotorID motor) {
 		return fmt::format("Motor[{}].ServoCtrl", motor);
@@ -167,11 +167,11 @@ namespace ppmac::cmd {
 	}
 
 	std::string GlobalSetAbortAll(bool abort) {
-		return fmt::format("Sys.AbortAll={}", static_cast<int>(abort));
+		return fmt::format("Sys.AbortAll={}", (abort ? 1 : 0));
 	}
 
 	std::string GlobalSetBrickLVMonitoring(bool mode) {
-		return fmt::format("BrickLV.Monitor={}", static_cast<int>(mode));
+		return fmt::format("BrickLV.Monitor={}", (mode ? 1 : 0));
 	}
 
 	std::string GlobalGetBrickLVMonitoring() {
@@ -217,11 +217,11 @@ namespace ppmac::cmd {
 	// coord commands
 
 	std::string CoordMoveAxis(CoordID coord, const std::string& axis, double pos) {
-		return fmt::format("&{} pcx {}{}", coord, axis, pos);
+		return fmt::format("&{} cx rapid abs {}{}", coord, axis, pos);
 	}
 
 	std::string CoordMoveAxisLinear(CoordID coord, const std::string& axis, double pos, int32_t ta, int32_t ts, int32_t f) {
-		return fmt::format("&{} pcx linear ta{} ts{} f{} {}{}", coord, ta, ts, f, axis, pos);
+		return fmt::format("&{} cx rapid abs ta{} ts{} f{} {}{}", coord, ta, ts, f, axis, pos);
 	}
 
 	std::string CoordGetPositions(CoordID  coord, const std::string& axis) {
@@ -240,8 +240,17 @@ namespace ppmac::cmd {
 		return fmt::format("Coord[{}].NumMotors", coord);
 	}
 
-	std::string SetAxisTransformMatrice(CoordID  coord, int32_t transformMatrice) {
+	std::string CoordSetAxisTransformMatrix(CoordID coord, int32_t transformMatrice) {
 		return fmt::format("&{} tsel {}", coord, transformMatrice);
+	}
+
+	std::string CoordMultiAxisMove(CoordID coord, const std::vector<MultiAxisMoveInfo>& info) {
+		fmt::memory_buffer buffer;
+		fmt::format_to(buffer, "&{} cx linear abs", coord);
+		for(auto& elem : info) {
+			fmt::format_to(buffer, " {}{}", AvailableAxis::MapAxisToChar(elem.axis), elem.pos);
+		}
+		return fmt::to_string(buffer);
 	}
 
 	///////////////////////////////////////////////////////////////
@@ -257,9 +266,13 @@ namespace ppmac::cmd {
 		return fmt::format("CompTable[{}].Target[0]", table);
 	}
 	std::string CompensationTableSetTarget(CompensationTableID table, int32_t target) {
-		return fmt::format("CompTable[{table}].Target[0]=Motor[{motor}].CompPos.a;CompTable[{table}].Target[1]=Motor[{motor}].CompPos2.a;",
+		return fmt::format("CompTable[{table}].Target[0]=Motor[{motor}].CompPos.a;CompTable[{table}].Target[1]=Motor[{motor}].CompPos2.a",
 				fmt::arg("table", table),
 				fmt::arg("motor", target));
+	}
+	std::string CompensationTableResetTarget(CompensationTableID table) {
+		return fmt::format("CompTable[{table}].Target[0]=0;CompTable[{table}].Target[1]=0",
+				fmt::arg("table", table));
 	}
 	std::string CompensationTableGetStartX(CompensationTableID table) {
 		return fmt::format("CompTable[{}].X0[0]", table);

@@ -6,6 +6,7 @@
 #define POWERPMAC_COMMANDBUILDER_H
 
 #include "pmac/defines.h"
+#include "pmac/datastructures.h"
 #include <vector>
 #include <string>
 
@@ -92,7 +93,8 @@ namespace ppmac::cmd {
 	std::string CoordAbortMove(CoordID  coord);
 	std::string CoordRunProgram(CoordID  coord, const std::string& prg);
 	std::string CoordGetAxisCount(CoordID  coord);
-	std::string SetAxisTransformMatrice(CoordID  coord, int32_t transformMatrice);
+	std::string CoordSetAxisTransformMatrix(CoordID coord, int32_t transformMatrice);
+	std::string CoordMultiAxisMove(CoordID coord, const std::vector<MultiAxisMoveInfo>& info);
 
 	///////////////////////////////////////////////////////////////
 	// compensation table setup
@@ -101,6 +103,7 @@ namespace ppmac::cmd {
 	std::string CompensationTableSetSource(CompensationTableID table, int32_t source);
 	std::string CompensationTableGetTarget(CompensationTableID table);
 	std::string CompensationTableSetTarget(CompensationTableID table, int32_t target);
+	std::string CompensationTableResetTarget(CompensationTableID table);
 	std::string CompensationTableGetStartX(CompensationTableID table);
 	std::string CompensationTableSetStartX(CompensationTableID table, int32_t startx);
 	std::string CompensationTableGetDeltaX(CompensationTableID table);

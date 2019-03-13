@@ -125,6 +125,9 @@ void PowerPMAC_IO::delete_device()
 	delete[] attr_RawValue_read;
 	delete[] attr_Value_read;
 	delete[] attr_ScaleFactor_read;
+
+	connectionEstablished.reset();
+	connectionLost.reset();
 }
 
 //--------------------------------------------------------
@@ -181,11 +184,11 @@ void PowerPMAC_IO::init_device()
 
 	ppmac::CoreInterface& ci = ppmac::GetCoreObject();
 
-	connectionEstablished = ci.Signals().ConnectionEstablished().connect([this](){
+	connectionEstablished = ci.Signals().ConnectionEstablished([this](){
 		set_state(Tango::ON);
 	});
 
-	connectionLost = ci.Signals().ConnectionLost().connect([this](){
+	connectionLost = ci.Signals().ConnectionLost([this](){
 		set_state(Tango::OFF);
 	});
 

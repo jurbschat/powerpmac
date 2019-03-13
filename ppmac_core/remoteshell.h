@@ -43,7 +43,7 @@ namespace ppmac {
 	class RemoteShell
 	{
 	public:
-		RemoteShell(CoreNotifyInterface* core);
+		RemoteShell();
 
 		~RemoteShell();
 
@@ -98,9 +98,12 @@ namespace ppmac {
 		bool IsConnected();
 
 	private:
+		using mutex_type = std::recursive_mutex;
+
 		RemoteShellErrorCode Write(const std::string& str, std::chrono::milliseconds timeout);
 		stdext::expected<std::string, RemoteShellErrorCode> ReadUntilTerminator(std::chrono::milliseconds timeout);
 		stdext::expected<std::string, RemoteShellErrorCode> Consume(std::chrono::milliseconds timeout);
+		stdext::expected<std::string, RemoteShellErrorCode> Execute(const std::string& str, std::chrono::milliseconds timeout);
 
 		RemoteShellErrorCode SetupShell();
 		void CloseSocket();
@@ -118,8 +121,7 @@ namespace ppmac {
 		std::vector<char> readBuffer;
 		std::vector<char> writeBuffer;
 		ReceiveBuffer messageBuffer;
-		std::mutex readWriteMtx;
-		CoreNotifyInterface* core;
+		mutex_type readWriteMtx;
 	};
 }
 

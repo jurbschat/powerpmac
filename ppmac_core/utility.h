@@ -167,7 +167,6 @@ namespace ppmac {
 	}
 
 	std::string ExecuteWithReturn(const char* cmd);
-
 }
 
 #endif //POWERPMAC_UTILITY_H

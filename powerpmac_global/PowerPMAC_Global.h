@@ -34,6 +34,7 @@
 #define PowerPMAC_Global_H
 
 #include "libs/sigs.h"
+#include "scopedsignal.h"
 #include <tango.h>
 
 
@@ -48,7 +49,11 @@ namespace PowerPMAC_Global_ns
 {
 /*----- PROTECTED REGION ID(PowerPMAC_Global::Additional Class Declarations) ENABLED START -----*/
 
-//	Additional Class Declarations
+enum AmpState {
+	Ok = 0,
+	OverLoad = 1 << 0,
+	OverCurrent = 1 << 1
+};
 
 /*----- PROTECTED REGION END -----*/	//	PowerPMAC_Global::Additional Class Declarations
 
@@ -59,8 +64,8 @@ class PowerPMAC_Global : public TANGO_BASE_CLASS
 
 //	Add your own data members
 private:
-	sigs::Connection connectionEstablished;
-	sigs::Connection connectionLost;
+	ppmac::ScopedSignal connectionEstablished;
+	ppmac::ScopedSignal connectionLost;
 
 /*----- PROTECTED REGION END -----*/	//	PowerPMAC_Global::Data Members
 
@@ -92,6 +97,7 @@ public:
 	Tango::DevLong	*attr_CpuFrequency_read;
 	Tango::DevString	*attr_Uptime_read;
 	Tango::DevLong	*attr_ActiveCompensationTables_read;
+	Tango::DevBoolean	*attr_BrickLVMonitoring_read;
 	Tango::DevString	*attr_AmpStatus_read;
 
 //	Constructors and destructors
@@ -266,6 +272,16 @@ public:
 	virtual void write_ActiveCompensationTables(Tango::WAttribute &attr);
 	virtual bool is_ActiveCompensationTables_allowed(Tango::AttReqType type);
 /**
+ *	Attribute BrickLVMonitoring related methods
+ *	Description: 
+ *
+ *	Data type:	Tango::DevBoolean
+ *	Attr type:	Scalar
+ */
+	virtual void read_BrickLVMonitoring(Tango::Attribute &attr);
+	virtual void write_BrickLVMonitoring(Tango::WAttribute &attr);
+	virtual bool is_BrickLVMonitoring_allowed(Tango::AttReqType type);
+/**
  *	Attribute AmpStatus related methods
  *	Description: 
  *
@@ -335,7 +351,12 @@ public:
 //	Additional Method prototypes
 	void StartGlobal();
 	void StopGlobal();
-	void SetErrorState();
+	bool GetAmpFailState();
+	std::vector<uint32_t> GetAmpState();
+	bool GetAmpOverTemp();
+	void UpdateAmpState();
+	void SetGlobalState(const std::vector<uint32_t> &states, bool otState);
+	bool HasFailedState(const std::vector<uint32_t>& states);
 
 
 /*----- PROTECTED REGION END -----*/	//	PowerPMAC_Global::Additional Method prototypes

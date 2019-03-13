@@ -1,0 +1,1196 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CMakeRunConfigurationManager" shouldGenerate="true" shouldDeleteObsolete="true">
+    <generated>
+      <config projectName="PowerPMAC" targetName="example-scp" />
+      <config projectName="PowerPMAC" targetName="ppmac_core_profile" />
+      <config projectName="PowerPMAC" targetName="test_hostkey" />
+      <config projectName="PowerPMAC" targetName="example-scp_write_nonblock" />
+      <config projectName="PowerPMAC" targetName="session_fixture" />
+      <config projectName="PowerPMAC" targetName="openssh_fixture" />
+      <config projectName="PowerPMAC" targetName="libssh2" />
+      <config projectName="PowerPMAC" targetName="example-ssh2_agent" />
+      <config projectName="PowerPMAC" targetName="PowerPMAC_Motor" />
+      <config projectName="PowerPMAC" targetName="test_password_auth_succeeds_with_correct_credentials" />
+      <config projectName="PowerPMAC" targetName="example-sftp_write" />
+      <config projectName="PowerPMAC" targetName="fmt" />
+      <config projectName="PowerPMAC" targetName="PowerPMAC_Programs" />
+      <config projectName="PowerPMAC" targetName="example-scp_write" />
+      <config projectName="PowerPMAC" targetName="test_public_key_auth_fails_with_wrong_key" />
+      <config projectName="PowerPMAC" targetName="example-subsystem_netconf" />
+      <config projectName="PowerPMAC" targetName="example-ssh2_exec" />
+      <config projectName="PowerPMAC" targetName="PowerPMAC_IO" />
+      <config projectName="PowerPMAC" targetName="PowerPMAC_CompensationTable" />
+      <config projectName="PowerPMAC" targetName="example-sftp_mkdir" />
+      <config projectName="PowerPMAC" targetName="example-sftp_nonblock" />
+      <config projectName="PowerPMAC" targetName="example-sftp_append" />
+      <config projectName="PowerPMAC" targetName="test_public_key_auth_succeeds_with_correct_encrypted_rsa_key" />
+      <config projectName="PowerPMAC" targetName="example-sftp_write_sliding" />
+      <config projectName="PowerPMAC" targetName="spdlog_headers_for_ide" />
+      <config projectName="PowerPMAC" targetName="ppmac_core" />
+      <config projectName="PowerPMAC" targetName="test_keyboard_interactive_auth_succeeds_with_correct_response" />
+      <config projectName="PowerPMAC" targetName="test_password_auth_fails_with_wrong_password" />
+      <config projectName="PowerPMAC" targetName="runner" />
+      <config projectName="PowerPMAC" targetName="example-sftp" />
+      <config projectName="PowerPMAC" targetName="example-sftpdir_nonblock" />
+      <config projectName="PowerPMAC" targetName="example-sftp_mkdir_nonblock" />
+      <config projectName="PowerPMAC" targetName="test_public_key_auth_succeeds_with_correct_rsa_openssh_key" />
+      <config projectName="PowerPMAC" targetName="example-scp_nonblock" />
+      <config projectName="PowerPMAC" targetName="ppmac_core_test" />
+      <config projectName="PowerPMAC" targetName="example-ssh2" />
+      <config projectName="PowerPMAC" targetName="PowerPMAC_PLC" />
+      <config projectName="PowerPMAC" targetName="test_hostkey_hash" />
+      <config projectName="PowerPMAC" targetName="test_public_key_auth_succeeds_with_correct_dsa_key" />
+      <config projectName="PowerPMAC" targetName="PowerPMAC_CoordinateSystems" />
+      <config projectName="PowerPMAC" targetName="test_keyboard_interactive_auth_fails_with_wrong_response" />
+      <config projectName="PowerPMAC" targetName="PowerPMAC_Global" />
+      <config projectName="PowerPMAC" targetName="example-sftp_RW_nonblock" />
+      <config projectName="PowerPMAC" targetName="test_public_key_auth_succeeds_with_correct_rsa_key" />
+      <config projectName="PowerPMAC" targetName="example-tcpip-forward" />
+      <config projectName="PowerPMAC" targetName="example-direct_tcpip" />
+      <config projectName="PowerPMAC" targetName="example-sftp_write_nonblock" />
+      <config projectName="PowerPMAC" targetName="test_password_auth_fails_with_wrong_username" />
+      <config projectName="PowerPMAC" targetName="example-ssh2_echo" />
+      <config projectName="PowerPMAC" targetName="PowerPMAC" />
+      <config projectName="PowerPMAC" targetName="example-sftpdir" />
+    </generated>
+  </component>
+  <component name="CMakeSettings" AUTO_RELOAD="true">
+    <configurations>
+      <configuration PROFILE_NAME="Debug" CONFIG_NAME="Debug" BUILD_OPTIONS="-j8" />
+      <configuration PROFILE_NAME="Release" CONFIG_NAME="Release" BUILD_OPTIONS="-j8" />
+      <configuration PROFILE_NAME="RelWithDebInfo" CONFIG_NAME="RelWithDebInfo" BUILD_OPTIONS="-j8" />
+      <configuration PROFILE_NAME="MinSizeRel" CONFIG_NAME="MinSizeRel" BUILD_OPTIONS="-j8" />
+      <configuration PROFILE_NAME="Debug-clang" CONFIG_NAME="Debug" TOOLCHAIN_NAME="clang" BUILD_OPTIONS="-j8" />
+      <configuration PROFILE_NAME="Release-clang" CONFIG_NAME="Release" TOOLCHAIN_NAME="clang" BUILD_OPTIONS="-j8" />
+    </configurations>
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="86bf7024-fa58-4975-aae9-6702d578be40" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/ppmac_core/locking.cpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ppmac_core/locking.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ppmac_core/stateupdater.cpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ppmac_core/threading.cpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ppmac_core/threading.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CMakeLists.txt.user" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeLists.txt.user" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ppmac_core/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/ppmac_core/CMakeLists.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ppmac_core/commandbuilder.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/ppmac_core/commandbuilder.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ppmac_core/commandquery.h" beforeDir="false" afterPath="$PROJECT_DIR$/ppmac_core/commandquery.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ppmac_core/core.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/ppmac_core/core.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ppmac_core/core.h" beforeDir="false" afterPath="$PROJECT_DIR$/ppmac_core/core.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ppmac_core/intervaltimer.h" beforeDir="false" afterPath="$PROJECT_DIR$/ppmac_core/intervaltimer.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ppmac_core/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/ppmac_core/main.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ppmac_core/remoteshell.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/ppmac_core/remoteshell.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ppmac_core/remoteshell.h" beforeDir="false" afterPath="$PROJECT_DIR$/ppmac_core/remoteshell.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ppmac_core/stateupdater.h" beforeDir="false" afterPath="$PROJECT_DIR$/ppmac_core/stateupdater.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ppmac_core/utility.h" beforeDir="false" afterPath="$PROJECT_DIR$/ppmac_core/utility.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/type_safe-master/external/debug_assert/.clang-format" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/type_safe-master/external/debug_assert/.gitignore" beforeDir="false" />
+    </list>
+    <ignored path="$PROJECT_DIR$/cmake-build-debug/" />
+    <ignored path="$PROJECT_DIR$/cmake-build-release/" />
+    <ignored path="$PROJECT_DIR$/cmake-build-relwithdebinfo/" />
+    <ignored path="$PROJECT_DIR$/cmake-build-minsizerel/" />
+    <ignored path="$PROJECT_DIR$/cmake-build-debug-clang/" />
+    <ignored path="$PROJECT_DIR$/cmake-build-release-clang/" />
+    <ignored path="$PROJECT_DIR$/cmake-build-debug-clang-1/" />
+    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="DatabaseView">
+    <option name="SHOW_INTERMEDIATE" value="true" />
+    <option name="GROUP_DATA_SOURCES" value="true" />
+    <option name="GROUP_SCHEMA" value="true" />
+    <option name="GROUP_CONTENTS" value="false" />
+    <option name="SORT_POSITIONED" value="false" />
+    <option name="SHOW_EMPTY_GROUPS" value="false" />
+    <option name="AUTO_SCROLL_FROM_SOURCE" value="false" />
+    <option name="HIDDEN_KINDS">
+      <set />
+    </option>
+    <expand />
+    <select />
+  </component>
+  <component name="ExecutionTargetManager" SELECTED_TARGET="CMakeBuildProfile:Debug" />
+  <component name="FileEditorManager">
+    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/ppmac_core/core.cpp">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="4">
+              <caret line="73" column="13" lean-forward="true" selection-start-line="73" selection-start-column="13" selection-end-line="73" selection-end-column="13" />
+              <folding>
+                <element signature="e#43#60#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/ppmac_core/coreinterface.cpp">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="180">
+              <caret line="12" selection-start-line="12" selection-end-line="12" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/ppmac_core/udpsink.cpp">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="975">
+              <caret line="65" column="55" selection-start-line="65" selection-start-column="55" selection-end-line="65" selection-end-column="55" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/ppmac_core/stateupdater.h">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="945">
+              <caret line="63" column="19" selection-start-line="63" selection-start-column="19" selection-end-line="63" selection-end-column="19" />
+              <folding>
+                <element signature="e#113#137#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/ppmac_core/stateupdater.cpp">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="484">
+              <caret line="50" lean-forward="true" selection-start-line="50" selection-end-line="50" />
+              <folding>
+                <element signature="e#43#68#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file:///usr/include/c++/6/chrono">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="2625">
+              <caret line="175" selection-start-line="175" selection-end-line="175" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/ppmac_core/main.cpp">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="165">
+              <caret line="11" selection-start-line="11" selection-end-line="11" />
+              <folding>
+                <element signature="e#43#69#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file:///usr/include/c++/6/thread">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="4830">
+              <caret line="322" selection-start-line="322" selection-end-line="322" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+    </leaf>
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="CMakeLists.txt" />
+      </list>
+    </option>
+  </component>
+  <component name="FindInProjectRecents">
+    <findStrings>
+      <find>StartMotor</find>
+      <find>StartCompensationTables</find>
+      <find>write_Ta</find>
+      <find>Exec</find>
+      <find>UpdateState</find>
+      <find>PollNewState</find>
+      <find>invalid CompensationTableID</find>
+      <find>motor</find>
+      <find>MotorID</find>
+      <find>CoordID</find>
+      <find>CompensationTableID</find>
+      <find>init cal</find>
+      <find>starting motor</find>
+      <find>_type_safe_default_assertions</find>
+      <find>main.cpp</find>
+      <find>static_cast&lt;ppmac::</find>
+      <find>static_cast&lt;int&gt;\((.*?)\)</find>
+      <find>setbri</find>
+      <find>bool</find>
+      <find>attr_Firmware_read</find>
+      <find>plcIndex</find>
+      <find>motor pos</find>
+      <find>DeadTimerRunner</find>
+      <find>MakeThread</find>
+      <find>std::thread(</find>
+      <find>std::mutex</find>
+      <find>deadTimerMutex</find>
+      <find>std::lock_guard&lt;std::mutex&gt; lock(coreMutex);</find>
+      <find>sl.</find>
+      <find>_shell</find>
+    </findStrings>
+    <replaceStrings>
+      <replace>PowerPMAC_Motor</replace>
+      <replace>PowerPMAC_IO</replace>
+      <replace>PowerPMAC_Global</replace>
+      <replace>GENERICDELETER</replace>
+      <replace>RemoteShell</replace>
+      <replace>from_enum</replace>
+      <replace>1ull &lt;&lt;</replace>
+      <replace>int</replace>
+      <replace>MotorID</replace>
+      <replace>double</replace>
+      <replace>sl =</replace>
+      <replace>PowerPMAC_CompensationTable</replace>
+      <replace>\tstatic std::string</replace>
+      <replace>set_state</replace>
+      <replace>$0</replace>
+      <replace>$1</replace>
+      <replace>plcId</replace>
+      <replace>mutex_type</replace>
+      <replace>//std::lock_guard&lt;std::mutex&gt; lock(coreMutex);</replace>
+    </replaceStrings>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="IdeDocumentHistory">
+    <option name="CHANGED_PATHS">
+      <list>
+        <option value="$PROJECT_DIR$/tangoutil.cpp" />
+        <option value="$PROJECT_DIR$/ppmac_core/resultparser.h" />
+        <option value="$PROJECT_DIR$/ppmac_core/throw.h" />
+        <option value="$PROJECT_DIR$/ppmac_core/exception.cpp" />
+        <option value="$PROJECT_DIR$/ppmac_core/throw.cpp" />
+        <option value="$PROJECT_DIR$/powerpmac_coordinatesystems/PowerPMAC_CoordinateSystems.h" />
+        <option value="$PROJECT_DIR$/powerpmac_coordinatesystems/MyAttribute.cpp" />
+        <option value="$PROJECT_DIR$/powerpmac_coordinatesystems/MyAttribute.h" />
+        <option value="$PROJECT_DIR$/powerpmac_motor/executehelper.h" />
+        <option value="$PROJECT_DIR$/executehelper.h" />
+        <option value="$PROJECT_DIR$/powerpmac_compensationtable/PowerPMAC_CompensationTable.h" />
+        <option value="$PROJECT_DIR$/powerpmac_global/PowerPMAC_Global.cpp" />
+        <option value="$PROJECT_DIR$/main.cpp" />
+        <option value="$PROJECT_DIR$/CMakeLists.txt" />
+        <option value="$PROJECT_DIR$/ppmac_core/pmac/datastructures.h" />
+        <option value="$PROJECT_DIR$/ppmac_core/signalhandler.h" />
+        <option value="$PROJECT_DIR$/ppmac_core/pmac/defines.cpp" />
+        <option value="$PROJECT_DIR$/powerpmac_motor/PowerPMAC_Motor.cpp" />
+        <option value="$PROJECT_DIR$/ppmac_core/pmac/datastructures.cpp" />
+        <option value="$PROJECT_DIR$/powerpmac_compensationtable/PowerPMAC_CompensationTable.cpp" />
+        <option value="$PROJECT_DIR$/powerpmac_coordinatesystems/PowerPMAC_CoordinateSystems.cpp" />
+        <option value="$PROJECT_DIR$/ppmac_core/pmac/defines.h" />
+        <option value="$PROJECT_DIR$/powerpmac_plc/PowerPMAC_PLC.h" />
+        <option value="$PROJECT_DIR$/ppmac_core/commandbuilder.h" />
+        <option value="$PROJECT_DIR$/ppmac_core/corenotifyinterface.h" />
+        <option value="$PROJECT_DIR$/powerpmac_plc/PowerPMAC_PLC.cpp" />
+        <option value="$PROJECT_DIR$/ppmac_core/pmac/enumadapt.h" />
+        <option value="$PROJECT_DIR$/powerpmac_programs/CMakeLists.txt" />
+        <option value="$PROJECT_DIR$/powerpmac_compensationtable/CMakeLists.txt" />
+        <option value="$PROJECT_DIR$/powerpmac_coordinatesystems/CMakeLists.txt" />
+        <option value="$PROJECT_DIR$/powerpmac_global/CMakeLists.txt" />
+        <option value="$PROJECT_DIR$/powerpmac_io/CMakeLists.txt" />
+        <option value="$PROJECT_DIR$/powerpmac_motor/CMakeLists.txt" />
+        <option value="$PROJECT_DIR$/powerpmac_plc/CMakeLists.txt" />
+        <option value="$PROJECT_DIR$/ppmac_core/commandquery.h" />
+        <option value="$PROJECT_DIR$/ppmac_core/commandquery.cpp" />
+        <option value="$PROJECT_DIR$/ppmac_core/locking.cpp" />
+        <option value="$PROJECT_DIR$/ppmac_core/utility.h" />
+        <option value="$PROJECT_DIR$/ppmac_core/threading.cpp" />
+        <option value="$PROJECT_DIR$/ppmac_core/threading.h" />
+        <option value="$PROJECT_DIR$/ppmac_core/main.cpp" />
+        <option value="$PROJECT_DIR$/ppmac_core/intervaltimer.h" />
+        <option value="$PROJECT_DIR$/ppmac_core/CMakeLists.txt" />
+        <option value="$PROJECT_DIR$/ppmac_core/locking.h" />
+        <option value="$PROJECT_DIR$/ppmac_core/remoteshell.h" />
+        <option value="$PROJECT_DIR$/ppmac_core/remoteshell.cpp" />
+        <option value="$PROJECT_DIR$/ppmac_core/core.h" />
+        <option value="$PROJECT_DIR$/ppmac_core/stateupdater.h" />
+        <option value="$PROJECT_DIR$/ppmac_core/stateupdater.cpp" />
+        <option value="$PROJECT_DIR$/ppmac_core/core.cpp" />
+        <option value="$PROJECT_DIR$/ppmac_core/commandbuilder.cpp" />
+      </list>
+    </option>
+  </component>
+  <component name="OCFindUsagesOptions" text="true" ivars="false" properties="true" derivedClasses="false" />
+  <component name="ProjectFrameBounds" extendedState="6">
+    <option name="x" value="10" />
+    <option name="y" value="11" />
+    <option name="width" value="1573" />
+    <option name="height" value="990" />
+  </component>
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectView">
+    <navigator proportions="" version="1">
+      <foldersAlwaysOnTop value="true" />
+    </navigator>
+    <panes>
+      <pane id="Scope" />
+      <pane id="ProjectPane">
+        <subPane>
+          <expand>
+            <path>
+              <item name="PowerPMAC" type="b2602c69:ProjectViewProjectNode" />
+              <item name="ppmac" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="PowerPMAC" type="b2602c69:ProjectViewProjectNode" />
+              <item name="ppmac" type="462c0819:PsiDirectoryNode" />
+              <item name="powerpmac_compensationtable" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="PowerPMAC" type="b2602c69:ProjectViewProjectNode" />
+              <item name="ppmac" type="462c0819:PsiDirectoryNode" />
+              <item name="powerpmac_coordinatesystems" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="PowerPMAC" type="b2602c69:ProjectViewProjectNode" />
+              <item name="ppmac" type="462c0819:PsiDirectoryNode" />
+              <item name="powerpmac_global" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="PowerPMAC" type="b2602c69:ProjectViewProjectNode" />
+              <item name="ppmac" type="462c0819:PsiDirectoryNode" />
+              <item name="powerpmac_io" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="PowerPMAC" type="b2602c69:ProjectViewProjectNode" />
+              <item name="ppmac" type="462c0819:PsiDirectoryNode" />
+              <item name="powerpmac_motor" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="PowerPMAC" type="b2602c69:ProjectViewProjectNode" />
+              <item name="ppmac" type="462c0819:PsiDirectoryNode" />
+              <item name="powerpmac_plc" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="PowerPMAC" type="b2602c69:ProjectViewProjectNode" />
+              <item name="ppmac" type="462c0819:PsiDirectoryNode" />
+              <item name="powerpmac_programs" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="PowerPMAC" type="b2602c69:ProjectViewProjectNode" />
+              <item name="ppmac" type="462c0819:PsiDirectoryNode" />
+              <item name="ppmac_core" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="PowerPMAC" type="b2602c69:ProjectViewProjectNode" />
+              <item name="ppmac" type="462c0819:PsiDirectoryNode" />
+              <item name="ppmac_core" type="462c0819:PsiDirectoryNode" />
+              <item name="pmac" type="462c0819:PsiDirectoryNode" />
+            </path>
+          </expand>
+          <select />
+        </subPane>
+      </pane>
+    </panes>
+  </component>
+  <component name="PropertiesComponent">
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="com.intellij.ide.scratch.LRUPopupBuilder$1/New Scratch File" value="Python&#10;TEXT&#10;ObjectiveC" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/cmake-build-debug" />
+    <property name="nodejs_package_manager_path" value="npm" />
+    <property name="restartRequiresConfirmation" value="false" />
+    <property name="settings.editor.selected.configurable" value="preferences.keymap" />
+  </component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$" />
+      <recent name="$PROJECT_DIR$/ppmac_core" />
+    </key>
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/powerpmac_compensationtable" />
+      <recent name="$PROJECT_DIR$/powerpmac_plc" />
+      <recent name="$PROJECT_DIR$/powerPMAC_ssh-master" />
+      <recent name="$PROJECT_DIR$" />
+      <recent name="$PROJECT_DIR$/powerpmac_programs" />
+    </key>
+  </component>
+  <component name="RunAnythingCache">
+    <option name="myCommands">
+      <command value="copy" />
+    </option>
+  </component>
+  <component name="RunDashboard">
+    <option name="ruleStates">
+      <list>
+        <RuleState>
+          <option name="name" value="ConfigurationTypeDashboardGroupingRule" />
+        </RuleState>
+        <RuleState>
+          <option name="name" value="StatusDashboardGroupingRule" />
+        </RuleState>
+      </list>
+    </option>
+  </component>
+  <component name="RunManager" selected="Application.ppmac_core_profile">
+    <configuration name="All in ppmac_core_test" type="CMakeCatchTestRunConfigurationType" factoryName="Catch Test" nameIsGenerated="true" PASS_PARENT_ENVS_2="true" PROJECT_NAME="PowerPMAC" TARGET_NAME="ppmac_core_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="PowerPMAC" RUN_TARGET_NAME="ppmac_core_test" TEST_MODE="SUITE_TEST">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+        <option name="BeforeTestRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="PowerPMAC" type="CMakeRunConfiguration" factoryName="Application" PROGRAM_PARAMS="PowerPMAC" PASS_PARENT_ENVS_2="true" PROJECT_NAME="PowerPMAC" TARGET_NAME="PowerPMAC" CONFIG_NAME="Release" RUN_TARGET_PROJECT_NAME="PowerPMAC" RUN_TARGET_NAME="PowerPMAC">
+      <envs>
+        <env name="TANGO_HOST" value="haspp11oh:10000" />
+      </envs>
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="PowerPMAC_CompensationTable" type="CMakeRunConfiguration" factoryName="Application" PROGRAM_PARAMS="lol rofl" PASS_PARENT_ENVS_2="true" PROJECT_NAME="PowerPMAC" TARGET_NAME="PowerPMAC_CompensationTable" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="PowerPMAC" RUN_TARGET_NAME="PowerPMAC">
+      <envs>
+        <env name="TANGO_HOST" value="hasp11oh:10000" />
+      </envs>
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" PROGRAM_PARAMS="lol rofl" PASS_PARENT_ENVS_2="true" PROJECT_NAME="PowerPMAC" TARGET_NAME="PowerPMAC" CONFIG_NAME="Release" RUN_TARGET_PROJECT_NAME="PowerPMAC" RUN_TARGET_NAME="PowerPMAC">
+      <envs>
+        <env name="TANGO_HOST" value="hasp11oh:10000" />
+      </envs>
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="ppmac_core_profile" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="PowerPMAC" TARGET_NAME="ppmac_core_profile" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="PowerPMAC" RUN_TARGET_NAME="ppmac_core_profile">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="ppmac_core_test" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="PowerPMAC" TARGET_NAME="ppmac_core_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="PowerPMAC" RUN_TARGET_NAME="ppmac_core_test">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="scratch" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="ppmac" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$APPLICATION_CONFIG_DIR$/scratches" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$APPLICATION_CONFIG_DIR$/scratches/scratch.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <list>
+      <item itemvalue="Application.ppmac_core_test" />
+      <item itemvalue="Application.PowerPMAC" />
+      <item itemvalue="Application.PowerPMAC_CompensationTable" />
+      <item itemvalue="Application.ppmac_core_profile" />
+      <item itemvalue="Catch.All in ppmac_core_test" />
+      <item itemvalue="Python.scratch" />
+    </list>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Python.scratch" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="86bf7024-fa58-4975-aae9-6702d578be40" name="Default Changelist" comment="" />
+      <created>1547048828429</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1547048828429</updated>
+      <workItem from="1547048831105" duration="248003000" />
+      <workItem from="1548679890669" duration="112715000" />
+      <workItem from="1549031219817" duration="82061000" />
+      <workItem from="1549556722900" duration="67989000" />
+      <workItem from="1550049364535" duration="25549000" />
+      <workItem from="1550149275578" duration="1478000" />
+      <workItem from="1550151904114" duration="31386000" />
+      <workItem from="1550246156571" duration="24675000" />
+      <workItem from="1550565577640" duration="16653000" />
+      <workItem from="1550845425395" duration="8594000" />
+      <workItem from="1551088397130" duration="52825000" />
+      <workItem from="1551281486894" duration="8721000" />
+      <workItem from="1551290489593" duration="10775000" />
+      <workItem from="1551358755829" duration="306000" />
+      <workItem from="1551363785465" duration="37828000" />
+      <workItem from="1551714362350" duration="68658000" />
+      <workItem from="1551972627716" duration="389000" />
+      <workItem from="1551973216223" duration="330000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TestHistory">
+    <history-entry file="All_in_PowerPMAC - 2019.01.28 at 12h 09m 28s.xml">
+      <configuration name="All in PowerPMAC" configurationId="CMakeCatchTestRunConfigurationType" />
+    </history-entry>
+    <history-entry file="All_in_PowerPMAC - 2019.01.28 at 12h 09m 41s.xml">
+      <configuration name="All in PowerPMAC" configurationId="CMakeCatchTestRunConfigurationType" />
+    </history-entry>
+    <history-entry file="All_in_ppmac_core_test - 2019.01.28 at 12h 26m 52s.xml">
+      <configuration name="All in ppmac_core_test" configurationId="CMakeCatchTestRunConfigurationType" />
+    </history-entry>
+    <history-entry file="All_in_ppmac_core_test - 2019.01.28 at 12h 27m 15s.xml">
+      <configuration name="All in ppmac_core_test" configurationId="CMakeCatchTestRunConfigurationType" />
+    </history-entry>
+    <history-entry file="All_in_ppmac_core_test - 2019.01.28 at 12h 35m 15s.xml">
+      <configuration name="All in ppmac_core_test" configurationId="CMakeCatchTestRunConfigurationType" />
+    </history-entry>
+    <history-entry file="All_in_ppmac_core_test - 2019.01.28 at 12h 35m 46s.xml">
+      <configuration name="All in ppmac_core_test" configurationId="CMakeCatchTestRunConfigurationType" />
+    </history-entry>
+    <history-entry file="All_in_ppmac_core_test - 2019.01.28 at 12h 37m 38s.xml">
+      <configuration name="All in ppmac_core_test" configurationId="CMakeCatchTestRunConfigurationType" />
+    </history-entry>
+    <history-entry file="All_in_ppmac_core_test - 2019.01.28 at 12h 39m 14s.xml">
+      <configuration name="All in ppmac_core_test" configurationId="CMakeCatchTestRunConfigurationType" />
+    </history-entry>
+    <history-entry file="All_in_ppmac_core_test - 2019.01.28 at 12h 41m 55s.xml">
+      <configuration name="All in ppmac_core_test" configurationId="CMakeCatchTestRunConfigurationType" />
+    </history-entry>
+  </component>
+  <component name="TimeTrackingManager">
+    <option name="totallyTimeSpent" value="798935000" />
+  </component>
+  <component name="ToolWindowManager">
+    <frame x="0" y="0" width="1920" height="1164" extended-state="6" />
+    <editor active="true" />
+    <layout>
+      <window_info id="Favorites" order="0" side_tool="true" />
+      <window_info content_ui="combo" id="Project" order="1" sideWeight="0.5179558" visible="true" weight="0.19156884" />
+      <window_info anchor="bottom" id="Version Control" order="0" weight="0.3291506" />
+      <window_info anchor="bottom" id="Terminal" order="1" weight="0.3291506" />
+      <window_info anchor="bottom" id="Event Log" order="2" sideWeight="0.32497332" side_tool="true" weight="0.30019304" />
+      <window_info anchor="bottom" id="Database Changes" order="3" />
+      <window_info anchor="bottom" id="Messages" order="4" sideWeight="0.49839914" weight="0.3407336" />
+      <window_info anchor="bottom" id="Message" order="5" />
+      <window_info anchor="bottom" id="Find" order="6" weight="0.23359074" />
+      <window_info anchor="bottom" id="Run" order="7" sideWeight="0.4994664" weight="0.2972973" />
+      <window_info active="true" anchor="bottom" id="Debug" order="8" sideWeight="0.67502666" visible="true" weight="0.33783785" />
+      <window_info anchor="bottom" id="Cvs" order="9" weight="0.25" />
+      <window_info anchor="bottom" id="CMake" order="10" weight="0.32722008" />
+      <window_info anchor="bottom" id="Inspection" order="11" weight="0.4" />
+      <window_info anchor="bottom" id="TODO" order="12" />
+      <window_info anchor="bottom" id="CPU Profiler" order="13" sideWeight="0.76040554" weight="0.21718147" />
+      <window_info anchor="right" id="Database" order="0" weight="0.32977587" />
+      <window_info anchor="right" id="Commander" internal_type="SLIDING" order="1" type="SLIDING" weight="0.4" />
+      <window_info anchor="right" id="Ant Build" order="2" weight="0.25" />
+      <window_info anchor="right" content_ui="combo" id="Hierarchy" order="3" weight="0.25" />
+      <window_info anchor="right" id="Structure" order="4" sideWeight="0.4820442" visible="true" weight="0.12326574" />
+    </layout>
+    <layout-to-restore>
+      <window_info id="Favorites" order="0" side_tool="true" />
+      <window_info active="true" content_ui="combo" id="Project" order="1" sideWeight="0.5179558" visible="true" weight="0.18996799" />
+      <window_info anchor="bottom" id="Version Control" order="0" weight="0.3291506" />
+      <window_info anchor="bottom" id="Terminal" order="1" weight="0.3291506" />
+      <window_info anchor="bottom" id="Event Log" order="2" sideWeight="0.32497332" side_tool="true" weight="0.30019304" />
+      <window_info anchor="bottom" id="Database Changes" order="3" />
+      <window_info anchor="bottom" id="Messages" order="4" sideWeight="0.49839914" weight="0.28474903" />
+      <window_info anchor="bottom" id="Message" order="5" />
+      <window_info anchor="bottom" id="Find" order="6" weight="0.23359074" />
+      <window_info anchor="bottom" id="Run" order="7" sideWeight="0.4994664" weight="0.2972973" />
+      <window_info anchor="bottom" id="Debug" order="8" sideWeight="0.67502666" visible="true" weight="0.2818533" />
+      <window_info anchor="bottom" id="Cvs" order="9" weight="0.25" />
+      <window_info anchor="bottom" id="CMake" order="10" weight="0.32722008" />
+      <window_info anchor="bottom" id="Inspection" order="11" weight="0.4" />
+      <window_info anchor="bottom" id="TODO" order="12" />
+      <window_info anchor="bottom" id="CPU Profiler" order="13" sideWeight="0.76040554" weight="0.21718147" />
+      <window_info anchor="right" id="Database" order="0" weight="0.32977587" />
+      <window_info anchor="right" id="Commander" internal_type="SLIDING" order="1" type="SLIDING" weight="0.4" />
+      <window_info anchor="right" id="Ant Build" order="2" weight="0.25" />
+      <window_info anchor="right" content_ui="combo" id="Hierarchy" order="3" weight="0.25" />
+      <window_info anchor="right" id="Structure" order="4" sideWeight="0.4820442" visible="true" weight="0.120064035" />
+    </layout-to-restore>
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="1" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <ignored-roots>
+      <path value="$PROJECT_DIR$/type_safe-master" />
+    </ignored-roots>
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <breakpoint type="CidrExceptionBreakpoint">
+          <dependency master-id="0" />
+          <properties />
+          <option name="timeStamp" value="175" />
+        </breakpoint>
+        <breakpoint type="CidrExceptionBreakpoint">
+          <dependency id="0" />
+          <properties />
+          <option name="timeStamp" value="275" />
+        </breakpoint>
+      </breakpoints>
+      <breakpoints-dialog>
+        <breakpoints-dialog>
+          <selected-grouping-rules>
+            <grouping-rule id="by-file" />
+          </selected-grouping-rules>
+        </breakpoints-dialog>
+      </breakpoints-dialog>
+      <default-breakpoints>
+        <breakpoint type="CidrExceptionBreakpoint">
+          <dependency master-id="0" />
+          <option name="description" value="lol" />
+          <option name="group" value="l" />
+          <properties />
+          <group>l</group>
+          <description>lol</description>
+        </breakpoint>
+        <breakpoint type="python-exception">
+          <properties notifyOnTerminate="true" exception="BaseException">
+            <option name="notifyOnTerminate" value="true" />
+          </properties>
+        </breakpoint>
+      </default-breakpoints>
+    </breakpoint-manager>
+  </component>
+  <component name="debuggerHistoryManager">
+    <expressions id="evaluateCodeFragment">
+      <expression>
+        <expression-string>str.size() - sent</expression-string>
+        <language-id>ObjectiveC</language-id>
+        <evaluation-mode>CODE_FRAGMENT</evaluation-mode>
+      </expression>
+    </expressions>
+    <expressions id="watch">
+      <expression>
+        <expression-string>coordId</expression-string>
+        <language-id>ObjectiveC</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>device_name</expression-string>
+        <language-id>ObjectiveC</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>*syscom, 20</expression-string>
+        <language-id>ObjectiveC</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>*syscom</expression-string>
+        <language-id>ObjectiveC</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>syscom</expression-string>
+        <language-id>ObjectiveC</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>state &amp; check</expression-string>
+        <language-id>ObjectiveC</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>ppmac::config::dumpAllCommunication</expression-string>
+        <language-id>ObjectiveC</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>ppmac::dumpAllCommunication</expression-string>
+        <language-id>ObjectiveC</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>dumpAllCommunication</expression-string>
+        <language-id>ObjectiveC</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>var</expression-string>
+        <language-id>ObjectiveC</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+    </expressions>
+    <expressions id="evaluateExpression">
+      <expression>
+        <expression-string>static_cast&lt;_CR&gt;(__d.count()) * static_cast&lt;_CR&gt;(_CF::num)</expression-string>
+        <language-id>ObjectiveC</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>restartResult</expression-string>
+        <language-id>ObjectiveC</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>config-&gt;length()</expression-string>
+        <language-id>ObjectiveC</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>what[1]</expression-string>
+        <language-id>ObjectiveC</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>what[2]</expression-string>
+        <language-id>ObjectiveC</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>what[3]</expression-string>
+        <language-id>ObjectiveC</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>what[0]</expression-string>
+        <language-id>ObjectiveC</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>what</expression-string>
+        <language-id>ObjectiveC</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>what.empty()</expression-string>
+        <language-id>ObjectiveC</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+    </expressions>
+  </component>
+  <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/powerpmac_coordinatesystems/PowerPMAC_CoordinateSystems.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="405">
+          <caret line="62" column="43" lean-forward="true" selection-start-line="62" selection-start-column="43" selection-end-line="62" selection-end-column="43" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ppmac_core/pmac/datastructures.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="330">
+          <caret line="25" column="51" selection-start-line="25" selection-start-column="51" selection-end-line="25" selection-end-column="51" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ppmac_core/signalhandler.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="105">
+          <caret line="7" selection-start-line="7" selection-end-line="7" />
+          <folding>
+            <element signature="e#112#137#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ppmac_core/coreinterface.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="135">
+          <caret line="9" selection-start-line="9" selection-end-line="9" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/powerpmac_coordinatesystems/PowerPMAC_CoordinateSystems.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="434">
+          <caret line="163" column="7" selection-start-line="163" selection-start-column="7" selection-end-line="163" selection-end-column="7" />
+          <folding>
+            <element signature="e#1567#1593#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/powerpmac_compensationtable/PowerPMAC_CompensationTable.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="175">
+          <caret line="154" column="26" selection-start-line="154" selection-start-column="26" selection-end-line="154" selection-end-column="26" />
+          <folding>
+            <element signature="e#1568#1595#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ppmac_core/commandbuilder.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="508">
+          <caret line="108" column="98" selection-start-line="108" selection-start-column="98" selection-end-line="108" selection-end-column="98" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ppmac_core/corenotifyinterface.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="270">
+          <caret line="18" column="68" selection-start-line="18" selection-start-column="68" selection-end-line="18" selection-end-column="68" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/powerpmac_plc/PowerPMAC_PLC.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="284">
+          <caret line="36" column="25" selection-start-line="36" selection-start-column="25" selection-end-line="36" selection-end-column="25" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/powerpmac_global/PowerPMAC_Global.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="310">
+          <caret line="567" column="9" selection-start-line="567" selection-start-column="9" selection-end-line="567" selection-end-column="57" />
+          <folding>
+            <element signature="e#1524#1553#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/powerpmac_programs/CMakeLists.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="135">
+          <caret line="9" column="72" selection-start-line="9" selection-start-column="70" selection-end-line="9" selection-end-column="86" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/powerpmac_plc/CMakeLists.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="135">
+          <caret line="9" column="86" selection-start-line="9" selection-start-column="86" selection-end-line="9" selection-end-column="86" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/powerpmac_motor/CMakeLists.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="135">
+          <caret line="9" column="86" selection-start-line="9" selection-start-column="86" selection-end-line="9" selection-end-column="86" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/powerpmac_io/CMakeLists.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="135">
+          <caret line="9" column="86" selection-start-line="9" selection-start-column="86" selection-end-line="9" selection-end-column="86" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/powerpmac_global/CMakeLists.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="135">
+          <caret line="9" column="86" selection-start-line="9" selection-start-column="86" selection-end-line="9" selection-end-column="86" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/powerpmac_coordinatesystems/CMakeLists.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="165">
+          <caret line="11" column="86" selection-start-line="11" selection-start-column="86" selection-end-line="11" selection-end-column="86" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/powerpmac_compensationtable/CMakeLists.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="135">
+          <caret line="9" column="86" selection-start-line="9" selection-start-column="86" selection-end-line="9" selection-end-column="86" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ppmac_core/pmac/enumadapt.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="345">
+          <caret line="23" selection-start-line="23" selection-end-line="24" />
+          <folding>
+            <element signature="e#104#131#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/powerpmac_plc/PowerPMAC_PLC.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="459">
+          <caret line="169" column="55" selection-start-line="169" selection-start-column="55" selection-end-line="169" selection-end-column="55" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ppmac_core/udpsink.h">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ppmac_core/commandquery.cpp" />
+    <entry file="file://$PROJECT_DIR$/ppmac_core/stopwatch.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="373">
+          <caret line="48" column="8" selection-start-line="48" selection-start-column="8" selection-end-line="48" selection-end-column="8" />
+          <folding>
+            <element signature="e#183#283#0" expanded="true" />
+            <element signature="e#994#1024#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ppmac_core/commandquery.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="516">
+          <caret line="313" column="26" selection-start-line="313" selection-start-column="26" selection-end-line="313" selection-end-column="26" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ppmac_core/receivebuffer.h">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ppmac_core/resultparser.h">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ppmac_core/resultparser.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-167" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ppmac_core/utility.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="120">
+          <caret line="11" column="16" selection-start-line="11" selection-start-column="16" selection-end-line="11" selection-end-column="16" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ppmac_core/utility.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="539">
+          <caret line="168" column="51" selection-start-line="168" selection-start-column="51" selection-end-line="168" selection-end-column="51" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ppmac_core/threading.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="165">
+          <caret line="11" column="5" selection-start-line="11" selection-start-column="5" selection-end-line="11" selection-end-column="5" />
+          <folding>
+            <element signature="e#43#65#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ppmac_core/pmac/defines.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="195">
+          <caret line="13" column="11" selection-start-line="13" selection-start-column="11" selection-end-line="13" selection-end-column="11" />
+          <folding>
+            <element signature="e#100#118#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ppmac_core/threading.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="225">
+          <caret line="15" column="35" lean-forward="true" selection-start-line="15" selection-start-column="35" selection-end-line="15" selection-end-column="35" />
+          <folding>
+            <element signature="e#132#144#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ppmac_core/libs/blockingconcurrentqueue.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="214">
+          <caret line="419" lean-forward="true" selection-start-line="419" selection-end-line="419" />
+          <folding>
+            <element signature="e#2635#11986#0" />
+            <element signature="e#12280#12340#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ppmac_core/intervaltimer.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="238">
+          <caret line="68" selection-start-line="68" selection-end-line="68" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///usr/include/c++/6/functional">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="238">
+          <caret line="2126" selection-start-line="2126" selection-end-line="2126" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ppmac_core/CMakeLists.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="195">
+          <caret line="13" column="47" selection-start-line="13" selection-start-column="47" selection-end-line="13" selection-end-column="47" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ppmac_core/locking.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="330">
+          <caret line="22" selection-start-line="22" selection-end-line="22" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///usr/include/c++/6/bits/std_mutex.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="13">
+          <caret line="85" column="8" selection-start-line="85" selection-start-column="8" selection-end-line="85" selection-end-column="8" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ppmac_core/locking.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="358">
+          <caret line="31" column="6" selection-start-line="31" selection-start-column="6" selection-end-line="31" selection-end-column="6" />
+          <folding>
+            <element signature="e#43#60#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///usr/include/libssh2.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="238">
+          <caret line="766" column="8" selection-start-line="766" selection-start-column="8" selection-end-line="766" selection-end-column="8" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ppmac_core/core.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="358">
+          <caret line="46" column="44" selection-start-line="46" selection-start-column="44" selection-end-line="46" selection-end-column="44" />
+          <folding>
+            <element signature="e#104#130#0" expanded="true" />
+            <element signature="e#309#334#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ppmac_core/remoteshell.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="209">
+          <caret line="75" column="60" selection-start-line="75" selection-start-column="60" selection-end-line="75" selection-end-column="60" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ppmac_core/remoteshell.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="209">
+          <caret line="132" column="69" selection-start-line="132" selection-start-column="69" selection-end-line="132" selection-end-column="69" />
+          <folding>
+            <element signature="e#7699#8768#0" />
+            <element signature="e#8771#9550#0" />
+            <element signature="e#11851#12102#0" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ppmac_core/commandbuilder.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="174">
+          <caret line="223" column="46" selection-start-line="223" selection-start-column="46" selection-end-line="223" selection-end-column="46" />
+          <folding>
+            <element signature="e#42#69#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ppmac_core/coreinterface.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="180">
+          <caret line="12" selection-start-line="12" selection-end-line="12" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ppmac_core/udpsink.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="975">
+          <caret line="65" column="55" selection-start-line="65" selection-start-column="55" selection-end-line="65" selection-end-column="55" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ppmac_core/stateupdater.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="945">
+          <caret line="63" column="19" selection-start-line="63" selection-start-column="19" selection-end-line="63" selection-end-column="19" />
+          <folding>
+            <element signature="e#113#137#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///usr/include/c++/6/chrono">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2625">
+          <caret line="175" selection-start-line="175" selection-end-line="175" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ppmac_core/main.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="165">
+          <caret line="11" selection-start-line="11" selection-end-line="11" />
+          <folding>
+            <element signature="e#43#69#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///usr/include/c++/6/thread">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="4830">
+          <caret line="322" selection-start-line="322" selection-end-line="322" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ppmac_core/stateupdater.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="484">
+          <caret line="50" lean-forward="true" selection-start-line="50" selection-end-line="50" />
+          <folding>
+            <element signature="e#43#68#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ppmac_core/core.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="4">
+          <caret line="73" column="13" lean-forward="true" selection-start-line="73" selection-start-column="13" selection-end-line="73" selection-end-column="13" />
+          <folding>
+            <element signature="e#43#60#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+  </component>
+  <component name="masterDetails">
+    <states>
+      <state key="ScopeChooserConfigurable.UI">
+        <settings>
+          <splitter-proportions>
+            <option name="proportions">
+              <list>
+                <option value="0.20448549" />
+              </list>
+            </option>
+          </splitter-proportions>
+        </settings>
+      </state>
+    </states>
+  </component>
+</project>

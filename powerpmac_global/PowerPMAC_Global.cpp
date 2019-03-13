@@ -82,6 +82,7 @@
 //  CpuFrequency              |  Tango::DevLong	Scalar
 //  Uptime                    |  Tango::DevString	Scalar
 //  ActiveCompensationTables  |  Tango::DevLong	Scalar
+//  BrickLVMonitoring         |  Tango::DevBoolean	Scalar
 //  AmpStatus                 |  Tango::DevString	Spectrum  ( max = 8)
 //================================================================
 
@@ -152,7 +153,11 @@ void PowerPMAC_Global::delete_device()
 	delete[] attr_CpuFrequency_read;
 	delete[] attr_Uptime_read;
 	delete[] attr_ActiveCompensationTables_read;
+	delete[] attr_BrickLVMonitoring_read;
 	delete[] attr_AmpStatus_read;
+
+	connectionEstablished.reset();
+	connectionLost.reset();
 }
 
 //--------------------------------------------------------
@@ -185,6 +190,7 @@ void PowerPMAC_Global::init_device()
 	attr_CpuFrequency_read = new Tango::DevLong[1];
 	attr_Uptime_read = new Tango::DevString[1];
 	attr_ActiveCompensationTables_read = new Tango::DevLong[1];
+	attr_BrickLVMonitoring_read = new Tango::DevBoolean[1];
 	attr_AmpStatus_read = new Tango::DevString[8];
 	//	No longer if mandatory property not set. 
 	if (mandatoryNotDefined)
@@ -209,18 +215,18 @@ void PowerPMAC_Global::init_device()
 	// we set the power pmac address and start the automatic
 	// connect/reconnect machinery.
 	ci.Initialize(ppmac::InitObject{
-		host,
-		port,
-		loggingHost,
-		loggingPort,
-		dumpCommunication
+			host,
+			port,
+			loggingHost,
+			loggingPort,
+			dumpCommunication
 	});
 
-	connectionEstablished = ci.Signals().ConnectionEstablished().connect([this](){
+	connectionEstablished = ci.Signals().ConnectionEstablished([this](){
 		StartGlobal();
 	});
 
-	connectionLost = ci.Signals().ConnectionLost().connect([this](){
+	connectionLost = ci.Signals().ConnectionLost([this](){
 		StopGlobal();
 	});
 
@@ -673,7 +679,7 @@ void PowerPMAC_Global::read_Uptime(Tango::Attribute &attr)
 		int32_t minutes = seconds / 60;
 		int32_t hours = minutes / 60;
 		int32_t days = hours / 24;
-		std::string timeString = fmt::format("{}D {}:{}:{}", days, (hours%24), (minutes%60), (seconds%60));
+		std::string timeString = fmt::format("{}D {:02}:{:02}:{:02}", days, (hours%24), (minutes%60), (seconds%60));
 		tu::SetStringValue(attr_Uptime_read, timeString);
 		attr.set_value(attr_Uptime_read);
 	} catch (ppmac::RuntimeError& e) {
@@ -700,9 +706,8 @@ void PowerPMAC_Global::read_ActiveCompensationTables(Tango::Attribute &attr)
 
 	try {
 		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
-		int32_t activeTableCount = tu::ParseInt32(ci.ExecuteCommand(ppmac::cmd::GlobalGetActiveCompensationTableCount()));
+		Tango::DevLong activeTableCount = tu::ParseInt32(ci.ExecuteCommand(ppmac::cmd::GlobalGetActiveCompensationTableCount()));
 		attr.set_value(&activeTableCount);
-
 	} catch (ppmac::RuntimeError& e) {
 		tu::TranslateException(e);
 	}
@@ -738,6 +743,63 @@ void PowerPMAC_Global::write_ActiveCompensationTables(Tango::WAttribute &attr)
 }
 //--------------------------------------------------------
 /**
+ *	Read attribute BrickLVMonitoring related method
+ *	Description: 
+ *
+ *	Data type:	Tango::DevBoolean
+ *	Attr type:	Scalar
+ */
+//--------------------------------------------------------
+void PowerPMAC_Global::read_BrickLVMonitoring(Tango::Attribute &attr)
+{
+	DEBUG_STREAM << "PowerPMAC_Global::read_BrickLVMonitoring(Tango::Attribute &attr) entering... " << endl;
+	/*----- PROTECTED REGION ID(PowerPMAC_Global::read_BrickLVMonitoring) ENABLED START -----*/
+	//	Set the attribute value
+
+	try {
+		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
+		Tango::DevBoolean monitoring = tu::ParseInt32(ci.ExecuteCommand(ppmac::cmd::GlobalGetBrickLVMonitoring()));
+		attr.set_value(&monitoring);
+	} catch (ppmac::RuntimeError& e) {
+		tu::TranslateException(e);
+	}
+
+	// we use this to "poll" the amp state if jive is open
+	// this is not nice but works
+	// UpdateAmpState();
+	
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Global::read_BrickLVMonitoring
+}
+//--------------------------------------------------------
+/**
+ *	Write attribute BrickLVMonitoring related method
+ *	Description: 
+ *
+ *	Data type:	Tango::DevBoolean
+ *	Attr type:	Scalar
+ */
+//--------------------------------------------------------
+void PowerPMAC_Global::write_BrickLVMonitoring(Tango::WAttribute &attr)
+{
+	DEBUG_STREAM << "PowerPMAC_Global::write_BrickLVMonitoring(Tango::WAttribute &attr) entering... " << endl;
+	//	Retrieve write value
+	Tango::DevBoolean	w_val;
+	attr.get_write_value(w_val);
+	/*----- PROTECTED REGION ID(PowerPMAC_Global::write_BrickLVMonitoring) ENABLED START -----*/
+
+	try {
+		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
+		ci.ExecuteCommand(ppmac::cmd::GlobalSetBrickLVMonitoring(w_val));
+	} catch (ppmac::RuntimeError& e) {
+		tu::TranslateException(e);
+	}
+
+	UpdateAmpState();
+	
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Global::write_BrickLVMonitoring
+}
+//--------------------------------------------------------
+/**
  *	Read attribute AmpStatus related method
  *	Description: 
  *
@@ -751,42 +813,37 @@ void PowerPMAC_Global::read_AmpStatus(Tango::Attribute &attr)
 	/*----- PROTECTED REGION ID(PowerPMAC_Global::read_AmpStatus) ENABLED START -----*/
 	//	Set the attribute value
 
+	std::vector<uint32_t> stateList;
 	try {
-		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
-		int32_t monitorStatus = tu::ParseInt32(ci.ExecuteCommand(ppmac::cmd::GlobalGetBrickLVMonitoring()));
-		if(monitorStatus != 1) {
-			tu::SetStringValue(&attr_AmpStatus_read[0], "BrickLV monitoring is disabled");
-			attr.set_value(attr_AmpStatus_read, 1);
-			return;
-		}
-
+		stateList = GetAmpState();
 	} catch (ppmac::RuntimeError& e) {
 		tu::TranslateException(e);
 	}
 
-	for(int i = 0; i < 8; i++) {
-		try {
-			ppmac::CoreInterface& ci = ppmac::GetCoreObject();
-			auto overCurrentStatus = tu::ParseInt32(ci.ExecuteCommand(ppmac::cmd::GlobalGetAmpChannelOverCurrent(i)));
-			auto overLoadStatus = tu::ParseInt32(ci.ExecuteCommand(ppmac::cmd::GlobalGetAmpChannelOverLoad(i)));
-			std::set<std::string> states;
-			if(overCurrentStatus) {
-				states.insert("OverCurrent");
-			}
-			if(overLoadStatus) {
-				states.insert("OverLoad");
-			}
-			if(!states.empty()) {
-				tu::SetStringValue(&attr_AmpStatus_read[i], fmt::format("Chan[{}]: {}", i, states));
-			} else {
-				tu::SetStringValue(&attr_AmpStatus_read[i], fmt::format("Chan[{}]: Ok", i));
-			}
-		} catch (ppmac::RuntimeError& e) {
-			tu::TranslateException(e);
-		}
-		attr.set_value(attr_AmpStatus_read, 8);
+	SetGlobalState(stateList, GetAmpOverTemp());
+
+	if(stateList.empty()) {
+		tu::SetStringValue(&attr_AmpStatus_read[0], "BrickLV monitoring is disabled");
+		attr.set_value(attr_AmpStatus_read, stateList.size());
+		return;
 	}
 
+	for(size_t i = 0; i < stateList.size(); i++) {
+		const auto& s = stateList[i];
+		std::set<std::string> states;
+		if(s & AmpState::OverCurrent) {
+			states.insert("OverCurrent");
+		}
+		if(s & AmpState::OverLoad) {
+			states.insert("OverLoad");
+		}
+		if(!states.empty()) {
+			tu::SetStringValue(&attr_AmpStatus_read[i], fmt::format("Chan[{}]: {}", i, states));
+		} else {
+			tu::SetStringValue(&attr_AmpStatus_read[i], fmt::format("Chan[{}]: Ok", i));
+		}
+	}
+	attr.set_value(attr_AmpStatus_read, stateList.size());
 	
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Global::read_AmpStatus
 }
@@ -823,18 +880,20 @@ Tango::DevString PowerPMAC_Global::reset_amp()
 
 	try {
 		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
-		ci.ExecuteCommand(ppmac::cmd::GlobalSetBrickLVMonitoring(0));
-		auto restartResult = ci.ExecuteCommandConsume(ppmac::cmd::GlobalResetBrickLVAmp(), std::chrono::milliseconds{3000});
+		ci.ExecuteCommand(ppmac::cmd::GlobalSetBrickLVMonitoring(false));
+		auto restartResult = ci.ExecuteCommandConsume(ppmac::cmd::GlobalResetBrickLVAmp(), std::chrono::milliseconds{2000});
 		restartResult.erase(std::remove_if(restartResult.begin(), restartResult.end(),
 			[](char c) {
 				return !std::isprint(c);
 			}), restartResult.end());
-		ci.ExecuteCommand(ppmac::cmd::GlobalSetBrickLVMonitoring(1));
+		ci.ExecuteCommand(ppmac::cmd::GlobalSetBrickLVMonitoring(true));
 		auto monitoringResult = ci.ExecuteCommand(ppmac::cmd::GlobalGetBrickLVMonitoring());
 		tu::SetStringValue(&argout, fmt::format("Reset: {}\nMonitor: {}", restartResult, monitoringResult), true);
 	} catch (ppmac::RuntimeError& e) {
 		tu::TranslateException(e);
 	}
+
+	UpdateAmpState();
 	
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Global::reset_amp
 	return argout;
@@ -927,19 +986,67 @@ void PowerPMAC_Global::add_dynamic_commands()
 
 void PowerPMAC_Global::StartGlobal() {
 	ppmac::CoreInterface& ci = ppmac::GetCoreObject();
-	ci.ExecuteCommand(ppmac::cmd::GlobalSetBrickLVMonitoring(0));
-	set_state(Tango::ON);
+	ci.ExecuteCommand(ppmac::cmd::GlobalSetBrickLVMonitoring(true));
+	UpdateAmpState();
 }
 
 void PowerPMAC_Global::StopGlobal() {
 	set_state(Tango::OFF);
+	set_status(Tango::StatusNotSet);
 }
 
-void PowerPMAC_Global::SetErrorState() {
-	// get global error states and set them as
-	// string message
-	auto msg = fmt::format("", 1);
-	set_status(msg.c_str());
+void PowerPMAC_Global::UpdateAmpState() {
+	auto stateList = GetAmpState();
+	auto otState = GetAmpOverTemp();
+	SetGlobalState(stateList, otState);
+}
+
+void PowerPMAC_Global::SetGlobalState(const std::vector<uint32_t> &states, bool otState) {
+	if(otState || HasFailedState(states)) {
+		set_state(Tango::FAULT);
+		set_status("AmpFault");
+	}
+	else {
+		set_state(Tango::ON);
+		set_status(Tango::StatusNotSet);
+	}
+}
+
+std::vector<uint32_t> PowerPMAC_Global::GetAmpState() {
+	std::vector<uint32_t> out;
+	ppmac::CoreInterface& ci = ppmac::GetCoreObject();
+	bool monitorStatus = tu::ParseInt32(ci.ExecuteCommand(ppmac::cmd::GlobalGetBrickLVMonitoring()));
+	if(monitorStatus != true) {
+		return out;
+	}
+	for(int i = 0; i < 8; i++) {
+		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
+		auto overCurrentStatus = tu::ParseInt32(ci.ExecuteCommand(ppmac::cmd::GlobalGetAmpChannelOverCurrent(i)));
+		auto overLoadStatus = tu::ParseInt32(ci.ExecuteCommand(ppmac::cmd::GlobalGetAmpChannelOverLoad(i)));
+		uint32_t state = 0;
+		if(overLoadStatus) {
+			state |= AmpState::OverLoad;
+		}
+		if(overCurrentStatus) {
+			state |= AmpState::OverCurrent;
+		}
+		out.push_back(state);
+	}
+	return out;
+}
+
+bool PowerPMAC_Global::GetAmpOverTemp() {
+	ppmac::CoreInterface& ci = ppmac::GetCoreObject();
+	return ci.GetGlobalInfo().brickOvertemp;
+}
+
+bool PowerPMAC_Global::HasFailedState(const std::vector<uint32_t>& states) {
+	for(auto& s : states) {
+		if(s != AmpState::Ok) {
+			return true;
+		}
+	}
+	return false;
 }
 
 /*----- PROTECTED REGION END -----*/	//	PowerPMAC_Global::namespace_ending

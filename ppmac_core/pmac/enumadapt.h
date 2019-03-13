@@ -166,4 +166,12 @@ WISE_ENUM_ADAPT(ppmac::MotorUnitShort,
 		arcs,
 		Reserved);
 
+
+WISE_ENUM_ADAPT(ppmac::PmacExecutableType,
+	INVALID,
+	PLC,
+	PROG,
+	SUBPROG);
+
+
 #endif //POWERPMAC_ENUMADAPT_H

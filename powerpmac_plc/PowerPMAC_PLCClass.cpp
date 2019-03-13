@@ -432,30 +432,6 @@ void PowerPMAC_PLCClass::attribute_factory(vector<Tango::Attr *> &att_list)
 	//	Not Memorized
 	att_list.push_back(name);
 
-	//	Attribute : Id
-	IdAttrib	*id = new IdAttrib();
-	Tango::UserDefaultAttrProp	id_prop;
-	//	description	not set for Id
-	//	label	not set for Id
-	//	unit	not set for Id
-	//	standard_unit	not set for Id
-	//	display_unit	not set for Id
-	//	format	not set for Id
-	//	max_value	not set for Id
-	//	min_value	not set for Id
-	//	max_alarm	not set for Id
-	//	min_alarm	not set for Id
-	//	max_warning	not set for Id
-	//	min_warning	not set for Id
-	//	delta_t	not set for Id
-	//	delta_val	not set for Id
-	
-	id->set_default_properties(id_prop);
-	//	Not Polled
-	id->set_disp_level(Tango::OPERATOR);
-	//	Not Memorized
-	att_list.push_back(id);
-
 	//	Attribute : Active
 	ActiveAttrib	*active = new ActiveAttrib();
 	Tango::UserDefaultAttrProp	active_prop;

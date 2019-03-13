@@ -727,6 +727,30 @@ void PowerPMAC_GlobalClass::attribute_factory(vector<Tango::Attr *> &att_list)
 	//	Not Memorized
 	att_list.push_back(activecompensationtables);
 
+	//	Attribute : BrickLVMonitoring
+	BrickLVMonitoringAttrib	*bricklvmonitoring = new BrickLVMonitoringAttrib();
+	Tango::UserDefaultAttrProp	bricklvmonitoring_prop;
+	//	description	not set for BrickLVMonitoring
+	//	label	not set for BrickLVMonitoring
+	//	unit	not set for BrickLVMonitoring
+	//	standard_unit	not set for BrickLVMonitoring
+	//	display_unit	not set for BrickLVMonitoring
+	//	format	not set for BrickLVMonitoring
+	//	max_value	not set for BrickLVMonitoring
+	//	min_value	not set for BrickLVMonitoring
+	//	max_alarm	not set for BrickLVMonitoring
+	//	min_alarm	not set for BrickLVMonitoring
+	//	max_warning	not set for BrickLVMonitoring
+	//	min_warning	not set for BrickLVMonitoring
+	//	delta_t	not set for BrickLVMonitoring
+	//	delta_val	not set for BrickLVMonitoring
+	
+	bricklvmonitoring->set_default_properties(bricklvmonitoring_prop);
+	//	Not Polled
+	bricklvmonitoring->set_disp_level(Tango::OPERATOR);
+	//	Not Memorized
+	att_list.push_back(bricklvmonitoring);
+
 	//	Attribute : AmpStatus
 	AmpStatusAttrib	*ampstatus = new AmpStatusAttrib();
 	Tango::UserDefaultAttrProp	ampstatus_prop;

@@ -36,6 +36,7 @@
 #include "coreinterface.h"
 #include "commandbuilder.h"
 #include "../tangoutil.h"
+#include "resultparser.h"
 #include <fmt/format.h>
 #include <PowerPMAC_CoordinateSystems.h>
 #include <PowerPMAC_CoordinateSystemsClass.h>
@@ -58,6 +59,7 @@
 //  Status            |  Inherited (no method)
 //  Abort             |  abort
 //  RunMotionProgram  |  run_motion_program
+//  MultiAxisMove     |  multi_axis_move
 //================================================================
 
 //================================================================
@@ -127,6 +129,11 @@ void PowerPMAC_CoordinateSystems::delete_device()
 	delete[] attr_NumAxis_read;
 	delete[] attr_CoordStates_read;
 	delete[] attr_AxisMapping_read;
+
+	connectionEstablished.reset();
+	connectionLost.reset();
+	statusChanged.reset();
+	coordChanged.reset();
 }
 
 //--------------------------------------------------------
@@ -160,23 +167,24 @@ void PowerPMAC_CoordinateSystems::init_device()
 	*attr_NumAxis_read = 0;
 	*attr_CoordStates_read = nullptr;
 	std::fill(attr_AxisMapping_read, attr_AxisMapping_read + 26, nullptr);
+	started=false;
 
 	coordId = ppmac::CoordID(coordinateIndex);
 
 	ppmac::CoreInterface& ci = ppmac::GetCoreObject();
 
-	connectionEstablished = ci.Signals().ConnectionEstablished().connect([this](){
+	connectionEstablished = ci.Signals().ConnectionEstablished([this](){
 		StartCoordinateSystem();
 	});
 
-	connectionLost = ci.Signals().ConnectionLost().connect([this](){
+	connectionLost = ci.Signals().ConnectionLost([this](){
 		StopCoordinateSystem();
 	});
 
-	statusChanged = ci.Signals().StatusChanged(coordId).connect([this](uint64_t newState, uint64_t changed){
+	statusChanged = ci.Signals().StatusChanged(coordId, [this](uint64_t newState, uint64_t changed){
 		CoordinateStateChanged(newState, changed);
 	});
-	coordChanged = ci.Signals().CoordChanged(coordId).connect([this](uint32_t axis){
+	coordChanged = ci.Signals().CoordChanged(coordId, [this](uint32_t axis){
 		CoordinateSystemChanged(axis);
 	});
 
@@ -456,6 +464,31 @@ void PowerPMAC_CoordinateSystems::run_motion_program(Tango::DevString argin)
 }
 //--------------------------------------------------------
 /**
+ *	Command MultiAxisMove related method
+ *	Description: 
+ *
+ *	@param argin 
+ */
+//--------------------------------------------------------
+void PowerPMAC_CoordinateSystems::multi_axis_move(Tango::DevString argin)
+{
+	DEBUG_STREAM << "PowerPMAC_CoordinateSystems::MultiAxisMove()  - " << device_name << endl;
+	/*----- PROTECTED REGION ID(PowerPMAC_CoordinateSystems::multi_axis_move) ENABLED START -----*/
+
+	try {
+		auto mam = ppmac::parser::ParseMultiAxisMove(argin);
+		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
+		//TODO: validate axis names ot just ignore them? currently we simply ignore them
+		auto cmd = ppmac::cmd::CoordMultiAxisMove(coordId, mam);
+		ci.ExecuteCommand(cmd);
+	} catch (ppmac::RuntimeError& e) {
+		tu::TranslateException(e);
+	}
+	
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_CoordinateSystems::multi_axis_move
+}
+//--------------------------------------------------------
+/**
  *	Method      : PowerPMAC_CoordinateSystems::add_dynamic_commands()
  *	Description : Create the dynamic commands if any
  *                for specified device.
@@ -499,9 +532,9 @@ void PowerPMAC_CoordinateSystems::StopCoordinateSystem() {
 		return;
 	}
 	started = false;
-	fmt::print("stopping coord {}\n", coordinateIndex);
+	//fmt::print("stopping coord {}\n", coordinateIndex);
 	for(auto& it : attribs) {
-		remove_attribute(it.second.get());
+		remove_attribute(it.second);
 	}
 	attribs.clear();
 }
@@ -535,14 +568,16 @@ void PowerPMAC_CoordinateSystems::UpdateAxisToMatchCurrent(int32_t axis) {
 		bool isSet = ppmac::bits::isSet(axis, i);
 		auto it = attribs.find(i);
 		if(isSet && it == attribs.end()) {
-			auto attrib = std::make_unique<MyAttrib>(i, ppmac::AvailableAxis::MapAxisToString(i));
+			auto attribName = ppmac::AvailableAxis::MapAxisToString(i);
+			// tango deletes the attrib prt we pass...
+			MyAttrib* attrib = new MyAttrib(i, attribName);
 			Tango::UserDefaultAttrProp	prop;
 			attrib->set_default_properties(prop);
 			attrib->set_disp_level(Tango::OPERATOR);
-			add_attribute(attrib.get());
-			attribs[i] = std::move(attrib);
+			add_attribute(attrib);
+			attribs[i] = attribName;
 		} else if(!isSet && it != attribs.end()) {
-			remove_attribute(it->second.get());
+			remove_attribute(it->second);
 			attribs.erase(it);
 		}
 	}

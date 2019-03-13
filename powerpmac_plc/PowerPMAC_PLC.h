@@ -34,6 +34,7 @@
 #define PowerPMAC_PLC_H
 
 #include "libs/sigs.h"
+#include "scopedsignal.h"
 #include "pmac/defines.h"
 #include <tango.h>
 
@@ -58,8 +59,8 @@ class PowerPMAC_PLC : public TANGO_BASE_CLASS
 
 /*----- PROTECTED REGION ID(PowerPMAC_PLC::Data Members) ENABLED START -----*/
 
-	sigs::Connection connectionEstablished;
-	sigs::Connection connectionLost;
+	ppmac::ScopedSignal connectionEstablished;
+	ppmac::ScopedSignal connectionLost;
 	struct {
 		bool running;
 		bool active;
@@ -78,7 +79,6 @@ public:
 //	Attribute data members
 public:
 	Tango::DevString	*attr_Name_read;
-	Tango::DevLong	*attr_Id_read;
 	Tango::DevBoolean	*attr_Active_read;
 	Tango::DevBoolean	*attr_Running_read;
 
@@ -155,15 +155,6 @@ public:
  */
 	virtual void read_Name(Tango::Attribute &attr);
 	virtual bool is_Name_allowed(Tango::AttReqType type);
-/**
- *	Attribute Id related methods
- *	Description: 
- *
- *	Data type:	Tango::DevLong
- *	Attr type:	Scalar
- */
-	virtual void read_Id(Tango::Attribute &attr);
-	virtual bool is_Id_allowed(Tango::AttReqType type);
 /**
  *	Attribute Active related methods
  *	Description: 

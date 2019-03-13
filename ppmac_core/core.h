@@ -8,11 +8,10 @@
 #include "coreinterface.h"
 #include "corenotifyinterface.h"
 #include "remoteshell.h"
-//#include "libs/slot_map.h"
-#include "libs/sigs.h"
-#include "pmac/defines.h"
 #include "stateupdater.h"
 #include "signalhandler.h"
+#include "libs/sigs.h"
+#include "pmac/defines.h"
 
 #include <mutex>
 #include <atomic>
@@ -20,17 +19,22 @@
 #include <map>
 #include <cstdint>
 #include <string>
-//#include <thread>
+#include <thread>
 
 namespace ppmac {
+
+class UdpSink;
 
 class Core : public CoreInterface, public CoreNotifyInterface
 {
 public:
+	using mutex_type = TicketSpinLock;
+
 	Core();
 	virtual ~Core();
 	void Initialize(InitObject init);
 	bool IsConnected();
+	void StopCoreThread();
 
 	// pmac logic
 	std::string ExecuteCommand(const std::string& str);
@@ -41,6 +45,8 @@ public:
 	GlobalInfo GetGlobalInfo();
 	CoordInfo GetCoordInfo(CoordID coord);
 	std::vector<CoordAxisDefinitionInfo> GetMotorAxisDefinitions(CoordID id);
+	PmacExecutableInfo GetPlcInfo(int32_t id);
+	int32_t GetPlcCount();
 
 	SignalHandler& Signals();
 	HandleType AddDeadTimer(std::chrono::microseconds timeout, std::function<void()> callback);
@@ -48,31 +54,34 @@ public:
 private:
 	void LoggingSetup();
 	void ErrorHandlingSetup();
-	void SetupDeadTimer();
-	void MainLoop();
-	RemoteShellErrorCode SetupRemoteShell(const std::string &host, int port);
-	void KeepAliveRunner();
-	void OnConnectionEstablished();
-	void OnConnectionLost();
+	RemoteShellErrorCode InitializePmacConnection(const std::string &host, int port);
+	void CoreRunner();
+
 	void OnMotorStateChanged(MotorID motorID, uint64_t newState, uint64_t changes);
 	void OnMotorCtrlChanged(MotorID motorID, uint64_t newState, uint64_t changes);
 	void OnCoordStateChanged(CoordID coordID, uint64_t newState, uint64_t changes);
 	void OnCoordAxisChanged(CoordID coordID, uint32_t availableAxis);
 	void OnCompensationTablesChanged(CompensationTableID compensationTable, bool active);
-	void OnStateupdaterInitialized();
-	void DeadTimerRunner();
+
+	void UpdateDeadTimers();
+	void ExecuteEvents();
 
 	std::string remoteHost;
 	int remotePort;
 	RemoteShell remoteShell;
 	StateUpdater stateUpdater;
 	SignalHandler signalHandler;
-	bool keepConnectionAlive;
-	std::thread remoteShellKeepAlive;
-	bool runDeadTimer;
-	std::thread deadTimerThread;
-	std::mutex deadTimerMutex;
 	IntervalTimer deadTimer;
+	TicketSpinLock coreTsl;
+	std::mutex initMtx;
+	std::atomic<bool> coreShouldRun;
+	std::atomic<bool> isConnected;
+	std::atomic_flag isCoreStartupInProcess;
+	std::mutex deadTimerMutex;
+	std::thread coreThread;
+	std::vector<std::function<void()>> events;
+	UdpSink* udpSink;
+	InitObject lastInit;
 };
 
 }

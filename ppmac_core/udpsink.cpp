@@ -41,7 +41,7 @@ namespace ppmac {
 			return ss.str();
 		}
 		catch(const std::exception& e) {
-			fmt::print(stderr, "unable to get hostname: {}", e.what());
+			fmt::print(stderr, "unable to get hostname: {}\n", e.what());
 		}
 		return "unknown";
 	}

@@ -32,15 +32,18 @@ add_library(ppmac_core STATIC coreinterface.cpp
         receivebuffer.cpp
         utility.cpp
         test-main.cpp
-        pmac/defines.cpp
-        pmac/datastructures.cpp
         exception.cpp
         udpsink.cpp
         uuid.cpp
         commandbuilder.cpp
         resultparser.cpp
         config.cpp
-        throw.cpp)
+        throw.cpp
+        stateupdater.cpp
+        locking.cpp
+        threading.cpp
+        pmac/defines.cpp
+        pmac/datastructures.cpp)
 
 target_include_directories(ppmac_core SYSTEM PRIVATE ../fmt-5.3.0/include ../spdlog-1.3.0/include ../wise_enum-master ../catch2-master/single_include ../type_safe-master/include ../type_safe-master/external/debug_assert)
 target_link_libraries(ppmac_core PRIVATE stdc++ fmt spdlog ssh2 boost_system boost_regex pthread dl)
