@@ -148,6 +148,24 @@ PowerPMAC_CompensationTableClass *PowerPMAC_CompensationTableClass::instance()
 //===================================================================
 //	Command execution method calls
 //===================================================================
+//--------------------------------------------------------
+/**
+ * method : 		ResetTargetClass::execute()
+ * description : 	method to trigger the execution of the command.
+ *
+ * @param	device	The device on which the command must be executed
+ * @param	in_any	The command input data
+ *
+ *	returns The command output data (packed in the Any object)
+ */
+//--------------------------------------------------------
+CORBA::Any *ResetTargetClass::execute(Tango::DeviceImpl *device, TANGO_UNUSED(const CORBA::Any &in_any))
+{
+	cout2 << "ResetTargetClass::execute(): arrived" << endl;
+	((static_cast<PowerPMAC_CompensationTable *>(device))->reset_target());
+	return new CORBA::Any();
+}
+
 
 //===================================================================
 //	Properties management
@@ -500,6 +518,15 @@ void PowerPMAC_CompensationTableClass::command_factory()
 	
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_CompensationTableClass::command_factory_before
 
+
+	//	Command ResetTarget
+	ResetTargetClass	*pResetTargetCmd =
+		new ResetTargetClass("ResetTarget",
+			Tango::DEV_VOID, Tango::DEV_VOID,
+			"",
+			"",
+			Tango::OPERATOR);
+	command_list.push_back(pResetTargetCmd);
 
 	/*----- PROTECTED REGION ID(PowerPMAC_CompensationTableClass::command_factory_after) ENABLED START -----*/
 	

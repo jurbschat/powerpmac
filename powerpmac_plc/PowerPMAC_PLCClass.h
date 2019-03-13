@@ -67,19 +67,6 @@ public:
 		{return (static_cast<PowerPMAC_PLC *>(dev))->is_Name_allowed(ty);}
 };
 
-//	Attribute Id class definition
-class IdAttrib: public Tango::Attr
-{
-public:
-	IdAttrib():Attr("Id",
-			Tango::DEV_LONG, Tango::READ) {};
-	~IdAttrib() {};
-	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
-		{(static_cast<PowerPMAC_PLC *>(dev))->read_Id(att);}
-	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
-		{return (static_cast<PowerPMAC_PLC *>(dev))->is_Id_allowed(ty);}
-};
-
 //	Attribute Active class definition
 class ActiveAttrib: public Tango::Attr
 {

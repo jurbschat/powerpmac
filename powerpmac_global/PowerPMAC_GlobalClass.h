@@ -199,6 +199,21 @@ public:
 		{return (static_cast<PowerPMAC_Global *>(dev))->is_ActiveCompensationTables_allowed(ty);}
 };
 
+//	Attribute BrickLVMonitoring class definition
+class BrickLVMonitoringAttrib: public Tango::Attr
+{
+public:
+	BrickLVMonitoringAttrib():Attr("BrickLVMonitoring",
+			Tango::DEV_BOOLEAN, Tango::READ_WRITE) {};
+	~BrickLVMonitoringAttrib() {};
+	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
+		{(static_cast<PowerPMAC_Global *>(dev))->read_BrickLVMonitoring(att);}
+	virtual void write(Tango::DeviceImpl *dev,Tango::WAttribute &att)
+		{(static_cast<PowerPMAC_Global *>(dev))->write_BrickLVMonitoring(att);}
+	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
+		{return (static_cast<PowerPMAC_Global *>(dev))->is_BrickLVMonitoring_allowed(ty);}
+};
+
 //	Attribute AmpStatus class definition
 class AmpStatusAttrib: public Tango::SpectrumAttr
 {
@@ -306,29 +321,6 @@ public:
 	virtual CORBA::Any *execute (Tango::DeviceImpl *dev, const CORBA::Any &any);
 	virtual bool is_allowed (Tango::DeviceImpl *dev, const CORBA::Any &any)
 	{return (static_cast<PowerPMAC_Global *>(dev))->is_Reboot_allowed(any);}
-};
-
-//	Command ReloadPLC class definition
-class ReloadPLCClass : public Tango::Command
-{
-public:
-	ReloadPLCClass(const char   *name,
-	               Tango::CmdArgType in,
-				   Tango::CmdArgType out,
-				   const char        *in_desc,
-				   const char        *out_desc,
-				   Tango::DispLevel  level)
-	:Command(name,in,out,in_desc,out_desc, level)	{};
-
-	ReloadPLCClass(const char   *name,
-	               Tango::CmdArgType in,
-				   Tango::CmdArgType out)
-	:Command(name,in,out)	{};
-	~ReloadPLCClass() {};
-	
-	virtual CORBA::Any *execute (Tango::DeviceImpl *dev, const CORBA::Any &any);
-	virtual bool is_allowed (Tango::DeviceImpl *dev, const CORBA::Any &any)
-	{return (static_cast<PowerPMAC_Global *>(dev))->is_ReloadPLC_allowed(any);}
 };
 
 

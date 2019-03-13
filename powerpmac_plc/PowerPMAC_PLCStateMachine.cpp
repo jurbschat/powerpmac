@@ -66,22 +66,6 @@ bool PowerPMAC_PLC::is_Name_allowed(TANGO_UNUSED(Tango::AttReqType type))
 
 //--------------------------------------------------------
 /**
- *	Method      : PowerPMAC_PLC::is_Id_allowed()
- *	Description : Execution allowed for Id attribute
- */
-//--------------------------------------------------------
-bool PowerPMAC_PLC::is_Id_allowed(TANGO_UNUSED(Tango::AttReqType type))
-{
-
-	//	Not any excluded states for Id attribute in read access.
-	/*----- PROTECTED REGION ID(PowerPMAC_PLC::IdStateAllowed_READ) ENABLED START -----*/
-	
-	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_PLC::IdStateAllowed_READ
-	return true;
-}
-
-//--------------------------------------------------------
-/**
  *	Method      : PowerPMAC_PLC::is_Active_allowed()
  *	Description : Execution allowed for Active attribute
  */

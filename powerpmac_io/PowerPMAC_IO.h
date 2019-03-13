@@ -34,6 +34,7 @@
 #define PowerPMAC_IO_H
 
 #include "libs/sigs.h"
+#include "scopedsignal.h"
 #include <tango.h>
 
 
@@ -59,8 +60,8 @@ class PowerPMAC_IO : public TANGO_BASE_CLASS
 
 //	Add your own data members
 private:
-	sigs::Connection connectionEstablished;
-	sigs::Connection connectionLost;
+	ppmac::ScopedSignal connectionEstablished;
+	ppmac::ScopedSignal connectionLost;
 	bool isWritable;
 	float analogScaleFactor;
 /*----- PROTECTED REGION END -----*/	//	PowerPMAC_IO::Data Members

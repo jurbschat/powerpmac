@@ -35,6 +35,7 @@
 
 #include <tango.h>
 #include "libs/sigs.h"
+#include "scopedsignal.h"
 #include "pmac/defines.h"
 
 
@@ -58,12 +59,11 @@ class PowerPMAC_CompensationTable : public TANGO_BASE_CLASS
 
 /*----- PROTECTED REGION ID(PowerPMAC_CompensationTable::Data Members) ENABLED START -----*/
 
-	sigs::Connection connectionEstablished;
-	sigs::Connection connectionLost;
-	sigs::Connection stateChanged;
+	ppmac::ScopedSignal connectionEstablished;
+	ppmac::ScopedSignal connectionLost;
+	ppmac::ScopedSignal stateChanged;
 	ppmac::CompensationTableID tableID;
 	std::vector<double> compensationTable;
-	bool started;
 
 /*----- PROTECTED REGION END -----*/	//	PowerPMAC_CompensationTable::Data Members
 
@@ -223,6 +223,13 @@ public:
 
 //	Command related methods
 public:
+	/**
+	 *	Command ResetTarget related method
+	 *	Description: 
+	 *
+	 */
+	virtual void reset_target();
+	virtual bool is_ResetTarget_allowed(const CORBA::Any &any);
 
 
 	//--------------------------------------------------------

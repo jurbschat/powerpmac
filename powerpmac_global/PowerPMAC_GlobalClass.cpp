@@ -222,24 +222,6 @@ CORBA::Any *RebootClass::execute(Tango::DeviceImpl *device, TANGO_UNUSED(const C
 	return new CORBA::Any();
 }
 
-//--------------------------------------------------------
-/**
- * method : 		ReloadPLCClass::execute()
- * description : 	method to trigger the execution of the command.
- *
- * @param	device	The device on which the command must be executed
- * @param	in_any	The command input data
- *
- *	returns The command output data (packed in the Any object)
- */
-//--------------------------------------------------------
-CORBA::Any *ReloadPLCClass::execute(Tango::DeviceImpl *device, TANGO_UNUSED(const CORBA::Any &in_any))
-{
-	cout2 << "ReloadPLCClass::execute(): arrived" << endl;
-	((static_cast<PowerPMAC_Global *>(device))->reload_plc());
-	return new CORBA::Any();
-}
-
 
 //===================================================================
 //	Properties management
@@ -745,6 +727,30 @@ void PowerPMAC_GlobalClass::attribute_factory(vector<Tango::Attr *> &att_list)
 	//	Not Memorized
 	att_list.push_back(activecompensationtables);
 
+	//	Attribute : BrickLVMonitoring
+	BrickLVMonitoringAttrib	*bricklvmonitoring = new BrickLVMonitoringAttrib();
+	Tango::UserDefaultAttrProp	bricklvmonitoring_prop;
+	//	description	not set for BrickLVMonitoring
+	//	label	not set for BrickLVMonitoring
+	//	unit	not set for BrickLVMonitoring
+	//	standard_unit	not set for BrickLVMonitoring
+	//	display_unit	not set for BrickLVMonitoring
+	//	format	not set for BrickLVMonitoring
+	//	max_value	not set for BrickLVMonitoring
+	//	min_value	not set for BrickLVMonitoring
+	//	max_alarm	not set for BrickLVMonitoring
+	//	min_alarm	not set for BrickLVMonitoring
+	//	max_warning	not set for BrickLVMonitoring
+	//	min_warning	not set for BrickLVMonitoring
+	//	delta_t	not set for BrickLVMonitoring
+	//	delta_val	not set for BrickLVMonitoring
+	
+	bricklvmonitoring->set_default_properties(bricklvmonitoring_prop);
+	//	Not Polled
+	bricklvmonitoring->set_disp_level(Tango::OPERATOR);
+	//	Not Memorized
+	att_list.push_back(bricklvmonitoring);
+
 	//	Attribute : AmpStatus
 	AmpStatusAttrib	*ampstatus = new AmpStatusAttrib();
 	Tango::UserDefaultAttrProp	ampstatus_prop;
@@ -849,15 +855,6 @@ void PowerPMAC_GlobalClass::command_factory()
 			"",
 			Tango::OPERATOR);
 	command_list.push_back(pRebootCmd);
-
-	//	Command ReloadPLC
-	ReloadPLCClass	*pReloadPLCCmd =
-		new ReloadPLCClass("ReloadPLC",
-			Tango::DEV_VOID, Tango::DEV_VOID,
-			"",
-			"",
-			Tango::OPERATOR);
-	command_list.push_back(pReloadPLCCmd);
 
 	/*----- PROTECTED REGION ID(PowerPMAC_GlobalClass::command_factory_after) ENABLED START -----*/
 	

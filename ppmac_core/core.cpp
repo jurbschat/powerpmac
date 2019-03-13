@@ -16,19 +16,18 @@ namespace ppmac {
 		remotePort(0),
 		stateUpdater(*this, remoteShell),
 		coreShouldRun(false),
-		isConnected(false)
+		isConnected(false),
+		isCoreStartupInProcess(ATOMIC_FLAG_INIT),
+		udpSink(nullptr)
 	{
 		ErrorHandlingSetup();
 		LoggingSetup();
 	}
 
 	Core::~Core() {
-		remoteShell.Disconnect();
+		StopCoreThread();
 		signalHandler.Clear();
-		coreShouldRun = false;
-		if(coreThread.joinable()) {
-			coreThread.join();
-		}
+		remoteShell.Disconnect();
 	}
 
 	void Core::LoggingSetup() {
@@ -44,10 +43,23 @@ namespace ppmac {
 	}
 
 	void Core::Initialize(InitObject init) {
-		std::lock_guard<mutex_type> lock(coreTsl);
-		if(remoteShell.IsConnected()) {
-			SPDLOG_INFO("the core can only be initialized once, please restart the device server if required");
+		//SPDLOG_DEBUG("+++++ trying to lock");
+		SPDLOG_DEBUG("+++++ Initialize()");
+		if(isCoreStartupInProcess.test_and_set(std::memory_order_acquire)) {
+			SPDLOG_WARN("initialize already in progress, ignoring initialize call");
 			return;
+		}
+		SPDLOG_DEBUG("+++++ lock in progress");
+		//SPDLOG_DEBUG("+++++ locked");
+		//SPDLOG_DEBUG("+++++ stopping core");
+		StopCoreThread();
+		//SPDLOG_DEBUG("+++++ core stopped");
+		if(udpSink) {
+			auto& sinks = spdlog::default_logger()->sinks();
+			sinks.erase(std::remove_if(sinks.begin(), sinks.end(), [this](auto& elem){
+				return elem.get() == udpSink;
+			}), sinks.end());
+			udpSink = nullptr;
 		}
 		SPDLOG_INFO("initializing core");
 		// this sink sends the log lines as udp messages to a graylog host
@@ -67,9 +79,20 @@ namespace ppmac {
 		remoteHost = init.host;
 		remotePort = init.port;
 		coreShouldRun = true;
-		coreThread = MakeThread("Core", [this](){
+		//SPDLOG_DEBUG("+++++ MakeThread for core");
+		coreThread = MakeThread("Core", [&, this](){
 			CoreRunner();
 		});
+		//SPDLOG_DEBUG("+++++ MakeThread for core done");
+		lastInit = init;
+		//SPDLOG_DEBUG("+++++ init finished");
+	}
+
+	void Core::StopCoreThread() {
+		coreShouldRun = false;
+		if(coreThread.joinable()) {
+			coreThread.join();
+		}
 	}
 
 	RemoteShellErrorCode Core::InitializePmacConnection(const std::string &host, int port) {
@@ -79,17 +102,19 @@ namespace ppmac {
 		}
 		SPDLOG_DEBUG("ssh channel setup complete");
 		// read motd and stuff
-		remoteShell.ChannelConsume();
+		remoteShell.ChannelConsume(std::chrono::milliseconds(500));
 		SPDLOG_DEBUG("retrieving plc list'");
-		auto plc = remoteShell.ChannelWriteConsume("cat /var/ftp/usrflash/Database/pp_prog.sym", std::chrono::seconds(1));
+		auto plc = remoteShell.ChannelWriteConsume("cat /var/ftp/usrflash/Database/pp_prog.sym", std::chrono::milliseconds(250));
 		if(!plc) {
+			remoteShell.Disconnect();
 			return plc.error();
 		}
 		stateUpdater.SetPLC(*plc);
 		SPDLOG_DEBUG("starting 'gpascii -2 -f'");
 		// start gpascii and read its startup message
-		auto gpa = remoteShell.ChannelWriteConsume("gpascii -2 -f", std::chrono::seconds(1));
+		auto gpa = remoteShell.ChannelWriteConsume("gpascii -2 -f", std::chrono::milliseconds(250));
 		if(!gpa) {
+			remoteShell.Disconnect();
 			return gpa.error();
 		}
 		std::this_thread::sleep_for(std::chrono::milliseconds{250});
@@ -98,15 +123,15 @@ namespace ppmac {
 		// e.g. "Motor[1].Pos" returns now "12.54" not "Motor[1].Pos=12.54"
 		auto echo = remoteShell.ChannelWriteRead("echo7");
 		if(!echo) {
+			remoteShell.Disconnect();
 			return echo.error();
 		}
 		return RemoteShellErrorCode::Ok;
 	}
 
-	void Core::CoreRunner()
-	{
-		while(coreShouldRun)
-		{
+	void Core::CoreRunner() {
+		//SPDLOG_DEBUG("+++++ entering core runner");
+		while(coreShouldRun) {
 			{
 				std::lock_guard<mutex_type> lock(coreTsl);
 				SPDLOG_INFO("trying to connect to {}:{}", remoteHost, remotePort);
@@ -116,14 +141,17 @@ namespace ppmac {
 					std::this_thread::sleep_for(std::chrono::seconds{3});
 					continue;
 				}
+				stateUpdater.SetupInitialState();
 			}
 			try {
-				{
-					std::lock_guard<mutex_type> lock(coreTsl);
-					stateUpdater.SetupInitialState();
-				}
 				isConnected = true;
+				//SPDLOG_DEBUG("+++++ calling connection estbalished");
 				signalHandler.RunConnectionEstablished();
+				//SPDLOG_DEBUG("+++++ calling connection estbalished done");
+				// only after here init is allowed to be called again
+				isCoreStartupInProcess.clear(std::memory_order_release);
+				//SPDLOG_DEBUG("+++++ released");
+				SPDLOG_DEBUG("+++++ lock released");
 				while(remoteShell.IsConnected() && coreShouldRun) {
 					{
 						std::lock_guard<mutex_type> lock(coreTsl);
@@ -131,15 +159,17 @@ namespace ppmac {
 					}
 					UpdateDeadTimers();
 					ExecuteEvents();
-					std::this_thread::sleep_for(std::chrono::milliseconds{500});
 				}
 			} catch (const std::exception&) {
 				SPDLOG_WARN("exception in core thread, stopping connection:\n{}", StringifyException(std::current_exception(), 4, '>'));
 			}
 			isConnected = false;
 			SPDLOG_ERROR("connection to {}:{} lost", remoteHost, remotePort);
+			//SPDLOG_DEBUG("+++++ calling connection lost");
 			signalHandler.RunConnectionLost();
+			//SPDLOG_DEBUG("+++++ calling connection lost done");
 		}
+		SPDLOG_DEBUG("core thread finished", remoteHost, remotePort);
 	}
 
 	void Core::UpdateDeadTimers() {
@@ -221,7 +251,7 @@ namespace ppmac {
 		if(info) {
 			return *info;
 		}
-		return PmacExecutableInfo{};
+		return PmacExecutableInfo{ "", 0, PmacExecutableType::INVALID };
 	}
 
 	int32_t Core::GetPlcCount() {
@@ -237,10 +267,6 @@ namespace ppmac {
 	void Core::RemoveDeadTimer(ppmac::HandleType handle) {
 		std::lock_guard<std::mutex> lock(deadTimerMutex);
 		deadTimer.RemoveTimer(handle);
-	}
-
-	void Core::ReloadPLC() {
-
 	}
 
 	void Core::OnMotorStateChanged(MotorID motorID, uint64_t newState, uint64_t changes) {

@@ -46,4 +46,32 @@ namespace ppmac::parser {
 		}
 		return CoordAxisDefinitionInfo{};
 	}
+
+	std::vector<MultiAxisMoveInfo> ParseMultiAxisMove(const std::string& str) {
+		std::vector<MultiAxisMoveInfo> out;
+		boost::regex rgx(R"(([a-zA-Z])([+-]?\d+(?:(?:\.\d+))?)?)");
+		boost::smatch what;
+		std::string::const_iterator start = str.begin();
+		std::string::const_iterator end = str.end();
+		while(boost::regex_search(start, end, what, rgx)) {
+			std::string axisName = what[1];
+			if(!what[2].matched) {
+				THROW_RUNTIME_ERROR("axis '{}' has no position definition", axisName);
+			}
+			int32_t axisNumber = AvailableAxis::MapNameToAxis(axisName[0]);
+			double pos = DoubleParser::convert(what[2]);
+			out.push_back(MultiAxisMoveInfo{ axisNumber, pos });
+			start = what[0].second;
+		}
+		std::sort(out.begin(), out.end(), [](auto& lhs, auto& rhs){
+			return lhs.axis < rhs.axis;
+		});
+		auto it = std::adjacent_find( out.begin(), out.end(), [](auto& lhs, auto& rhs){
+			return lhs.axis == rhs.axis;
+		});
+		if(it != out.end()) {
+			THROW_RUNTIME_ERROR("multiple definitions of axis '{}'", AvailableAxis::MapAxisToChar(it->axis));
+		}
+		return out;
+	}
 }

@@ -36,6 +36,7 @@
 #include "config.h"
 #include "pmac/defines.h"
 #include "libs/sigs.h"
+#include "scopedsignal.h"
 #include <tango.h>
 
 
@@ -62,10 +63,10 @@ class PowerPMAC_Motor : public TANGO_BASE_CLASS
 //	Add your own data members
 private:
 	ppmac::MotorID motorID;
-	sigs::Connection connectionEstablished;
-	sigs::Connection connectionLost;
-	sigs::Connection motorStateChanged;
-	sigs::Connection motorCtrlChanged;
+	ppmac::ScopedSignal connectionEstablished;
+	ppmac::ScopedSignal connectionLost;
+	ppmac::ScopedSignal motorStateChanged;
+	ppmac::ScopedSignal motorCtrlChanged;
 	uint64_t lastMotorState;
 	std::string hardLimitAddress;
 	ppmac::HandleType movingTimerHandle;

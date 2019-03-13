@@ -222,6 +222,7 @@ namespace ppmac::parser {
 	}
 
 	CoordAxisDefinitionInfo ParseCoordAxisQueryResult(const std::string& str);
+	std::vector<MultiAxisMoveInfo> ParseMultiAxisMove(const std::string& str);
 
 }
 

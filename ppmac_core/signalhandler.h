@@ -7,6 +7,7 @@
 
 #include "pmac/defines.h"
 #include "libs/sigs.h"
+#include "scopedsignal.h"
 
 #include <map>
 #include <cstdint>
@@ -18,37 +19,94 @@ namespace ppmac {
 		template<typename T>
 		auto ConnectionEstablished(T t) {
 			std::lock_guard<std::mutex> lock(sigMutex);
-			return connectionEstablished.connect(t);
+			auto conn = connectionEstablished.connect(t);
+			auto autoSignal = ScopedSignal(conn, [this](sigs::Connection c){
+				RemoveConnectionEstablished(c);
+			});
+			return autoSignal;
 		}
 		template<typename T>
 		auto ConnectionLost(T t) {
 			std::lock_guard<std::mutex> lock(sigMutex);
-			return connectionLost.connect(t);
+			auto conn = connectionLost.connect(t);
+			auto autoSignal = ScopedSignal(conn, [this](sigs::Connection c){
+				RemoveConnectionLost(c);
+			});
+			return autoSignal;
 		}
 		template<typename T>
 		auto StatusChanged(MotorID id, T t) {
 			std::lock_guard<std::mutex> lock(sigMutex);
-			return motorStatusChanged[id].connect(t);
+			auto conn = motorStatusChanged[id].connect(t);
+			auto autoSignal = ScopedSignal(conn, [id, this](sigs::Connection c){
+				RemoveStatusChanged(id, c);
+			});
+			return autoSignal;
 		}
 		template<typename T>
 		auto CtrlChanged(MotorID id, T t) {
 			std::lock_guard<std::mutex> lock(sigMutex);
-			return motorCtrlChanged[id].connect(t);
+			auto conn = motorCtrlChanged[id].connect(t);
+			auto autoSignal = ScopedSignal(conn, [id, this](sigs::Connection c){
+				RemoveCtrlChanged(id, c);
+			});
+			return autoSignal;
 		}
 		template<typename T>
 		auto StatusChanged(CoordID id, T t) {
 			std::lock_guard<std::mutex> lock(sigMutex);
-			return coordStatusChanged[id].connect(t);
+			auto conn = coordStatusChanged[id].connect(t);
+			auto autoSignal = ScopedSignal(conn, [id, this](sigs::Connection c){
+				RemoveStatusChanged(id, c);
+			});
+			return autoSignal;
 		}
 		template<typename T>
 		auto CoordChanged(CoordID id, T t) {
 			std::lock_guard<std::mutex> lock(sigMutex);
-			return coordChanged[id].connect(t);
+			auto conn = coordChanged[id].connect(t);
+			auto autoSignal = ScopedSignal(conn, [id, this](sigs::Connection c){
+				RemoveCoordChanged(id,c);
+			});
+			return autoSignal;
 		}
 		template<typename T>
 		auto CompTableChanged(CompensationTableID id, T t) {
 			std::lock_guard<std::mutex> lock(sigMutex);
-			return compTableStatusChanged[id].connect(t);
+			auto conn = compTableStatusChanged[id].connect(t);
+			auto autoSignal = ScopedSignal(conn, [id, this](sigs::Connection c){
+				RemoveCompTableChanged(id,c);
+			});
+			return autoSignal;
+		}
+
+		void RemoveConnectionEstablished(sigs::Connection c) {
+			std::lock_guard<std::mutex> lock(sigMutex);
+			connectionEstablished.disconnect(c);
+		}
+		void RemoveConnectionLost(sigs::Connection c) {
+			std::lock_guard<std::mutex> lock(sigMutex);
+			connectionLost.disconnect(c);
+		}
+		void RemoveStatusChanged(MotorID motorID, sigs::Connection c) {
+			std::lock_guard<std::mutex> lock(sigMutex);
+			motorStatusChanged[motorID].disconnect(c);
+		}
+		void RemoveCtrlChanged(MotorID motorID, sigs::Connection c) {
+			std::lock_guard<std::mutex> lock(sigMutex);
+			motorCtrlChanged[motorID].disconnect(c);
+		}
+		void RemoveStatusChanged(CoordID coordID, sigs::Connection c) {
+			std::lock_guard<std::mutex> lock(sigMutex);
+			coordStatusChanged[coordID].disconnect(c);
+		}
+		void RemoveCoordChanged(CoordID coordID, sigs::Connection c) {
+			std::lock_guard<std::mutex> lock(sigMutex);
+			coordChanged[coordID].disconnect(c);
+		}
+		void RemoveCompTableChanged(CompensationTableID compensationTableID, sigs::Connection c) {
+			std::lock_guard<std::mutex> lock(sigMutex);
+			compTableStatusChanged[compensationTableID].disconnect(c);
 		}
 		void Clear() {
 			std::lock_guard<std::mutex> lock(sigMutex);
@@ -99,7 +157,6 @@ namespace ppmac {
 		std::map<CoordID, sigs::Signal<void(uint32_t axis)>> coordChanged;
 		std::map<CompensationTableID, sigs::Signal<void(bool enabled)>> compTableStatusChanged;
 	};
-
 }
 
 #endif //POWERPMAC_SIGNALHANDLER_H

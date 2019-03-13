@@ -153,7 +153,7 @@ namespace ppmac {
 
 			constexpr size_t packSize = std::tuple_size<decltype(query.pointers.memberPointer)>::value;
 			if(parseResult.size() % packSize != 0) {
-				THROW_RUNTIME_ERROR("unable to match data to query, {} is not a multiple of {}",
+				THROW_RUNTIME_ERROR("unable to match data to query ({} is not a multiple of {})",
 						parseResult.size(),
 						packSize);
 			}

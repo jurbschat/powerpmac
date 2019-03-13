@@ -99,6 +99,32 @@ private:
 
 using Connection = std::shared_ptr<ConnectionBase>;
 
+class ScopedConnection {
+public:
+    ScopedConnection() {}
+    ScopedConnection(Connection c)
+    : c(c)
+    {}
+    ScopedConnection(const ScopedConnection& c) = delete;
+    ScopedConnection(ScopedConnection&& c) = default;
+    ScopedConnection& operator=(const ScopedConnection& c) = delete;
+    ScopedConnection& operator=(ScopedConnection&& c) = default;
+    ~ScopedConnection() {
+        release();
+    }
+    void release(){
+      if(c) {
+        c->disconnect();
+      }
+      c = nullptr;
+    }
+	Connection Get() {
+    	return c;
+    }
+private:
+    Connection c;
+};
+
 namespace {
 
 /// VoidableFunction is used internally to generate a function type depending on whether the return
@@ -307,7 +333,9 @@ private:
   Connection makeConnection()
   {
     auto conn = std::make_shared<ConnectionBase>();
-    conn->deleter = [this, conn] { this->disconnect(conn); };
+    conn->deleter = [this, conn] {
+        this->disconnect(conn);
+    };
     return conn;
   }
 

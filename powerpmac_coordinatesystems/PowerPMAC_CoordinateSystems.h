@@ -34,6 +34,7 @@
 #define PowerPMAC_CoordinateSystems_H
 
 #include "libs/sigs.h"
+#include "scopedsignal.h"
 #include "pmac/defines.h"
 #include "config.h"
 #include "MyAttribute.h"
@@ -60,11 +61,11 @@ class PowerPMAC_CoordinateSystems : public TANGO_BASE_CLASS
 	// this is bound to exists but cant be a reference as pogo regenerates the
 	// initializer list on each run. yeah who needs an initializer list...
 	ppmac::CoordID coordId;
-	sigs::Connection connectionEstablished;
-	sigs::Connection connectionLost;
-	sigs::Connection statusChanged;
-	sigs::Connection coordChanged;
-	std::map<int32_t, std::unique_ptr<MyAttrib>> attribs;
+	ppmac::ScopedSignal connectionEstablished;
+	ppmac::ScopedSignal connectionLost;
+	ppmac::ScopedSignal statusChanged;
+	ppmac::ScopedSignal coordChanged;
+	std::map<int32_t, std::string> attribs;
 	ppmac::HandleType movingTimerHandle;
 	uint64_t lastCoordState;
 	bool started;
@@ -205,6 +206,14 @@ public:
 	 */
 	virtual void run_motion_program(Tango::DevString argin);
 	virtual bool is_RunMotionProgram_allowed(const CORBA::Any &any);
+	/**
+	 *	Command MultiAxisMove related method
+	 *	Description: 
+	 *
+	 *	@param argin 
+	 */
+	virtual void multi_axis_move(Tango::DevString argin);
+	virtual bool is_MultiAxisMove_allowed(const CORBA::Any &any);
 
 
 	//--------------------------------------------------------

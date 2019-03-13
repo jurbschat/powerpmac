@@ -516,7 +516,7 @@ namespace ppmac {
 			Z = (1 << 25)
 		};
 		const int32_t maxAxis = 26;
-		// inline to suppress warning
+
 		static inline int32_t MapNameToAxis(char axis) {
 			if(axis >= 'A' && axis <= 'Z') {
 				return axis - 'A';
@@ -526,7 +526,6 @@ namespace ppmac {
 			return -1;
 		};
 
-		// inline to suppress warning
 		static inline char MapAxisToChar(int32_t axis) {
 			if(axis >= 0 && axis < 26) {
 				return 'A' + static_cast<char>(axis);
@@ -535,13 +534,30 @@ namespace ppmac {
 		};
 
 		static inline const char* MapAxisToString(int32_t axis) {
-			const char* axisNames[] = {  "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M",
+			const char* const axisNames[] = {  "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M",
 										 "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"  };
 			if(axis >= 0 && axis < static_cast<int32_t>(sizeof(axisNames))) {
 				return axisNames[axis];
 			}
 			return "";
 		};
+
+		/*static inline TYPE MapAxisToEnum(char axis) {
+			if(axis >= 'A' && axis <= 'Z') {
+				return axis - 'A';
+			} else if(axis >= 'a' && axis <= 'z') {
+				return axis - 'a';
+			}
+			return -1;
+		};
+		static inline int32_t MapEnumToAxis(TYPE value) {
+			if(axis >= 'A' && axis <= 'Z') {
+				return axis - 'A';
+			} else if(axis >= 'a' && axis <= 'z') {
+				return axis - 'a';
+			}
+			return -1;
+		};*/
 	}
 
 	// we only support coordinate systems with up to 8 axis
@@ -562,13 +578,19 @@ namespace ppmac {
 		int32_t motorId;
 	};
 
+	struct MultiAxisMoveInfo {
+		int32_t axis;
+		double pos;
+	};
+
 	struct IOInfo {
 		// ios are currently directly queried by the device server and are not
 		// queried by the core
 	};
 
 	enum class PmacExecutableType {
-		PLC,
+		INVALID = -1,
+		PLC = 0,
 		PROG,
 		SUBPROG
 	};
@@ -577,8 +599,6 @@ namespace ppmac {
 		std::string name;
 		int32_t id;
 		PmacExecutableType type;
-		//bool active;
-		//bool running;
 	};
 
 	struct GlobalInfo {

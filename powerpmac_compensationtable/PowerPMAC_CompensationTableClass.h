@@ -130,6 +130,33 @@ public:
 };
 
 
+//=========================================
+//	Define classes for commands
+//=========================================
+//	Command ResetTarget class definition
+class ResetTargetClass : public Tango::Command
+{
+public:
+	ResetTargetClass(const char   *name,
+	               Tango::CmdArgType in,
+				   Tango::CmdArgType out,
+				   const char        *in_desc,
+				   const char        *out_desc,
+				   Tango::DispLevel  level)
+	:Command(name,in,out,in_desc,out_desc, level)	{};
+
+	ResetTargetClass(const char   *name,
+	               Tango::CmdArgType in,
+				   Tango::CmdArgType out)
+	:Command(name,in,out)	{};
+	~ResetTargetClass() {};
+	
+	virtual CORBA::Any *execute (Tango::DeviceImpl *dev, const CORBA::Any &any);
+	virtual bool is_allowed (Tango::DeviceImpl *dev, const CORBA::Any &any)
+	{return (static_cast<PowerPMAC_CompensationTable *>(dev))->is_ResetTarget_allowed(any);}
+};
+
+
 /**
  *	The PowerPMAC_CompensationTableClass singleton definition
  */

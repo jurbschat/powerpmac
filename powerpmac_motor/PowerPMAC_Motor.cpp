@@ -151,6 +151,11 @@ void PowerPMAC_Motor::delete_device()
 	delete[] attr_CwLimitFault_read;
 	delete[] attr_CcwLimitFault_read;
 	delete[] attr_MotorStates_read;
+
+	connectionEstablished.reset();
+	connectionLost.reset();
+	motorStateChanged.reset();
+	motorCtrlChanged.reset();
 }
 
 //--------------------------------------------------------
@@ -1123,7 +1128,7 @@ void PowerPMAC_Motor::StartMotor() {
 		return;
 	}
 	started = true;
-	fmt::print("starting motor {}\n", motorIndex);
+	//fmt::print("starting motor {}\n", motorIndex);
 	try {
 		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
 		auto motorInfo = ci.GetMotorInfo(motorID);
@@ -1180,7 +1185,7 @@ void PowerPMAC_Motor::StopMotor() {
 		return;
 	}
 	started = false;
-	fmt::print("stopping motor {}\n", motorIndex);
+	//fmt::print("stopping motor {}\n", motorIndex);
 	try {
 		if(disableHardLimits) {
 			// restore the limits if the device goes down

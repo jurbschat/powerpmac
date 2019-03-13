@@ -180,7 +180,7 @@ namespace ppmac {
 			//SPDLOG_DEBUG("failed to connect to {}:{}", host, port);
 			return RemoteShellErrorCode::ConnectionRefused;
 		}
-		SPDLOG_INFO("connection to {}:{} established", host_, port_);
+		SPDLOG_INFO("remote shell connected to {}:{}", host_, port_);
 		int val[]{1};
 		setsockopt(sock, IPPROTO_TCP, TCP_NODELAY, val, sizeof(int));
 		auto shellResult = SetupShell();
@@ -197,12 +197,12 @@ namespace ppmac {
 	 */
 	void RemoteShell::Disconnect() {
 		std::lock_guard<mutex_type> guard(readWriteMtx);
-		channel.reset();
-		session.reset();
+		channel = nullptr;
+		session = nullptr;
 		CloseSocket();
 		connected = false;
 		consecutiveTimeouts=0;
-		SPDLOG_DEBUG("connection to pmac closed");
+		SPDLOG_DEBUG("remote shell disconnected");
 	}
 
 	void RemoteShell::CloseSocket() {

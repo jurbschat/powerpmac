@@ -42,7 +42,6 @@ namespace ppmac {
 
 		virtual std::string ExecuteCommand(const std::string& str) = 0;
 		virtual std::string ExecuteCommandConsume(const std::string& str, std::chrono::milliseconds timeout) = 0;
-		virtual void ReloadPLC() = 0;
 
 		virtual MotorInfo GetMotorInfo(MotorID motor) = 0;
 		virtual IOInfo GetIoInfo(IoID io) = 0;

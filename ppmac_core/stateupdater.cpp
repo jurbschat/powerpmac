@@ -124,6 +124,7 @@ namespace ppmac {
 		else {
 			programs.pop_back();
 		}
+		plcs.clear();
 		for(auto& s : programs) {
 			boost::regex rgx(R"(^\W*(\w+)\W+(\w+)\W+(\w+)\W+(\w+)\W*$)");
 			boost::smatch what;
@@ -143,23 +144,6 @@ namespace ppmac {
 			}
 		}
 	}
-
-	/*MotorUnit GetMotorUnit(MotorID id) {
-		auto cmd = cmd::detail::MotorGetUnit(static_cast<int32_t>(id));
-		auto result = rs.ChannelWriteRead(cmd);
-		if(result) {
-			try {
-				auto unitAsInt = parser::IntParser::convert(*result);
-				return static_cast<MotorUnit>(unitAsInt);
-			} catch (const std::exception &) {
-				RETHROW_RUNTIME_ERROR("unable to query motor unit:\nquery: '{}'\nresult: '{}'", cmd, *result);
-			}
-		}
-		else {
-			SPDLOG_ERROR("unable to get motor unit result, channel error: {}", wise_enum::to_string(result.error()));
-		}
-		return MotorUnit::None;
-	};*/
 
 	void StateUpdater::UpdateGeneralInfo() {
 		auto query = query::GeneralGetInfo(stdext::span<GlobalInfo>(&state.global, 1));

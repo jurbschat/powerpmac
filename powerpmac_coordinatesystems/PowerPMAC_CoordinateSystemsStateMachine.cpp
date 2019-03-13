@@ -157,6 +157,21 @@ bool PowerPMAC_CoordinateSystems::is_RunMotionProgram_allowed(TANGO_UNUSED(const
 	return true;
 }
 
+//--------------------------------------------------------
+/**
+ *	Method      : PowerPMAC_CoordinateSystems::is_MultiAxisMove_allowed()
+ *	Description : Execution allowed for MultiAxisMove attribute
+ */
+//--------------------------------------------------------
+bool PowerPMAC_CoordinateSystems::is_MultiAxisMove_allowed(TANGO_UNUSED(const CORBA::Any &any))
+{
+	//	Not any excluded states for MultiAxisMove command.
+	/*----- PROTECTED REGION ID(PowerPMAC_CoordinateSystems::MultiAxisMoveStateAllowed) ENABLED START -----*/
+	
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_CoordinateSystems::MultiAxisMoveStateAllowed
+	return true;
+}
+
 
 /*----- PROTECTED REGION ID(PowerPMAC_CoordinateSystems::PowerPMAC_CoordinateSystemsStateAllowed.AdditionalMethods) ENABLED START -----*/
 

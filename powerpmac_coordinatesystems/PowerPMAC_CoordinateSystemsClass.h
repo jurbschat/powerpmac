@@ -143,6 +143,29 @@ public:
 	{return (static_cast<PowerPMAC_CoordinateSystems *>(dev))->is_RunMotionProgram_allowed(any);}
 };
 
+//	Command MultiAxisMove class definition
+class MultiAxisMoveClass : public Tango::Command
+{
+public:
+	MultiAxisMoveClass(const char   *name,
+	               Tango::CmdArgType in,
+				   Tango::CmdArgType out,
+				   const char        *in_desc,
+				   const char        *out_desc,
+				   Tango::DispLevel  level)
+	:Command(name,in,out,in_desc,out_desc, level)	{};
+
+	MultiAxisMoveClass(const char   *name,
+	               Tango::CmdArgType in,
+				   Tango::CmdArgType out)
+	:Command(name,in,out)	{};
+	~MultiAxisMoveClass() {};
+	
+	virtual CORBA::Any *execute (Tango::DeviceImpl *dev, const CORBA::Any &any);
+	virtual bool is_allowed (Tango::DeviceImpl *dev, const CORBA::Any &any)
+	{return (static_cast<PowerPMAC_CoordinateSystems *>(dev))->is_MultiAxisMove_allowed(any);}
+};
+
 
 /**
  *	The PowerPMAC_CoordinateSystemsClass singleton definition

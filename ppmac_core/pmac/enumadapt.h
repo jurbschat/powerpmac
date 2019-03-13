@@ -168,6 +168,7 @@ WISE_ENUM_ADAPT(ppmac::MotorUnitShort,
 
 
 WISE_ENUM_ADAPT(ppmac::PmacExecutableType,
+	INVALID,
 	PLC,
 	PROG,
 	SUBPROG);

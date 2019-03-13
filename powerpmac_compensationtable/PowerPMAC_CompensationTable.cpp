@@ -60,6 +60,7 @@
 //================================================================
 //  State         |  Inherited (no method)
 //  Status        |  Inherited (no method)
+//  ResetTarget   |  reset_target
 //================================================================
 
 //================================================================
@@ -133,6 +134,10 @@ void PowerPMAC_CompensationTable::delete_device()
 	delete[] attr_From_read;
 	delete[] attr_To_read;
 	delete[] attr_CompensationTable_read;
+
+	connectionEstablished.reset();
+	connectionLost.reset();
+	stateChanged.reset();
 }
 
 //--------------------------------------------------------
@@ -171,7 +176,6 @@ void PowerPMAC_CompensationTable::init_device()
 	*attr_TargetMotor_read = 0;
 	*attr_From_read = 0;
 	*attr_To_read = 0;
-	started = false;
 
 	ppmac::CoreInterface& ci = ppmac::GetCoreObject();
 	connectionEstablished = ci.Signals().ConnectionEstablished([this](){
@@ -629,6 +633,27 @@ void PowerPMAC_CompensationTable::add_dynamic_attributes()
 
 //--------------------------------------------------------
 /**
+ *	Command ResetTarget related method
+ *	Description: 
+ *
+ */
+//--------------------------------------------------------
+void PowerPMAC_CompensationTable::reset_target()
+{
+	DEBUG_STREAM << "PowerPMAC_CompensationTable::ResetTarget()  - " << device_name << endl;
+	/*----- PROTECTED REGION ID(PowerPMAC_CompensationTable::reset_target) ENABLED START -----*/
+
+	try {
+		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
+		ci.ExecuteCommand(ppmac::cmd::CompensationTableResetTarget(tableID));
+	} catch (ppmac::RuntimeError& e) {
+		tu::TranslateException(e);
+	}
+	
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_CompensationTable::reset_target
+}
+//--------------------------------------------------------
+/**
  *	Method      : PowerPMAC_CompensationTable::add_dynamic_commands()
  *	Description : Create the dynamic commands if any
  *                for specified device.
@@ -707,17 +732,12 @@ int32_t PowerPMAC_CompensationTable::GetTargetMotor() {
 	if(boost::regex_search(result, what, rgx)) {
 		int32_t target = tu::ParseInt32(what[1]);
 		return target;
-	} else {
-		fmt::print("invalid compensation table target: '{}', expected 'Motor[x].CompPos.a'\n", result);
 	}
 	return -1;
 }
 
 void PowerPMAC_CompensationTable::StartCompensationTables() {
-	if(started) {
-		return;
-	}
-	started = true;
+
 	int32_t enabledCompTables = tu::ExecuteCommand<int32_t>(ppmac::GetCoreObject(), ppmac::cmd::GlobalGetActiveCompensationTableCount());
 	if(enabledCompTables == 0) {
 		set_state(Tango::OFF);
@@ -754,13 +774,10 @@ void PowerPMAC_CompensationTable::StartCompensationTables() {
 		startX,
 		to,
 		compensationTable));*/
+	set_status(Tango::StatusNotSet);
 	set_state(Tango::ON);
 }
 void PowerPMAC_CompensationTable::StopCompensationTables() {
-	if(!started) {
-		return;
-	}
-	started = false;
 	set_state(Tango::OFF);
 }
 

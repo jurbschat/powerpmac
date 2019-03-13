@@ -338,6 +338,45 @@ bool PowerPMAC_Global::is_ActiveCompensationTables_allowed(TANGO_UNUSED(Tango::A
 
 //--------------------------------------------------------
 /**
+ *	Method      : PowerPMAC_Global::is_BrickLVMonitoring_allowed()
+ *	Description : Execution allowed for BrickLVMonitoring attribute
+ */
+//--------------------------------------------------------
+bool PowerPMAC_Global::is_BrickLVMonitoring_allowed(TANGO_UNUSED(Tango::AttReqType type))
+{
+	//	Check access type.
+	if ( type!=Tango::READ_REQ )
+	{
+		//	Compare device state with not allowed states for WRITE 
+		if (get_state()==Tango::OFF)
+		{
+		/*----- PROTECTED REGION ID(PowerPMAC_Global::BrickLVMonitoringStateAllowed_WRITE) ENABLED START -----*/
+		
+		/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Global::BrickLVMonitoringStateAllowed_WRITE
+			return false;
+		}
+		return true;
+	}
+	else
+
+	//	Check access type.
+	if ( type==Tango::READ_REQ )
+	{
+		//	Compare device state with not allowed states for READ 
+		if (get_state()==Tango::OFF)
+		{
+		/*----- PROTECTED REGION ID(PowerPMAC_Global::BrickLVMonitoringStateAllowed_READ) ENABLED START -----*/
+		
+		/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Global::BrickLVMonitoringStateAllowed_READ
+			return false;
+		}
+		return true;
+	}
+	return true;
+}
+
+//--------------------------------------------------------
+/**
  *	Method      : PowerPMAC_Global::is_AmpStatus_allowed()
  *	Description : Execution allowed for AmpStatus attribute
  */
@@ -375,8 +414,7 @@ bool PowerPMAC_Global::is_AmpStatus_allowed(TANGO_UNUSED(Tango::AttReqType type)
 bool PowerPMAC_Global::is_ResetAmp_allowed(TANGO_UNUSED(const CORBA::Any &any))
 {
 	//	Compare device state with not allowed states.
-	if (get_state()==Tango::OFF ||
-		get_state()==Tango::FAULT)
+	if (get_state()==Tango::OFF)
 	{
 	/*----- PROTECTED REGION ID(PowerPMAC_Global::ResetAmpStateAllowed) ENABLED START -----*/
 	
@@ -395,8 +433,7 @@ bool PowerPMAC_Global::is_ResetAmp_allowed(TANGO_UNUSED(const CORBA::Any &any))
 bool PowerPMAC_Global::is_ExecuteCommand_allowed(TANGO_UNUSED(const CORBA::Any &any))
 {
 	//	Compare device state with not allowed states.
-	if (get_state()==Tango::OFF ||
-		get_state()==Tango::FAULT)
+	if (get_state()==Tango::OFF)
 	{
 	/*----- PROTECTED REGION ID(PowerPMAC_Global::ExecuteCommandStateAllowed) ENABLED START -----*/
 	
@@ -415,8 +452,7 @@ bool PowerPMAC_Global::is_ExecuteCommand_allowed(TANGO_UNUSED(const CORBA::Any &
 bool PowerPMAC_Global::is_Reset_allowed(TANGO_UNUSED(const CORBA::Any &any))
 {
 	//	Compare device state with not allowed states.
-	if (get_state()==Tango::OFF ||
-		get_state()==Tango::FAULT)
+	if (get_state()==Tango::OFF)
 	{
 	/*----- PROTECTED REGION ID(PowerPMAC_Global::ResetStateAllowed) ENABLED START -----*/
 	
@@ -435,29 +471,13 @@ bool PowerPMAC_Global::is_Reset_allowed(TANGO_UNUSED(const CORBA::Any &any))
 bool PowerPMAC_Global::is_Reboot_allowed(TANGO_UNUSED(const CORBA::Any &any))
 {
 	//	Compare device state with not allowed states.
-	if (get_state()==Tango::OFF ||
-		get_state()==Tango::FAULT)
+	if (get_state()==Tango::OFF)
 	{
 	/*----- PROTECTED REGION ID(PowerPMAC_Global::RebootStateAllowed) ENABLED START -----*/
 	
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Global::RebootStateAllowed
 		return false;
 	}
-	return true;
-}
-
-//--------------------------------------------------------
-/**
- *	Method      : PowerPMAC_Global::is_ReloadPLC_allowed()
- *	Description : Execution allowed for ReloadPLC attribute
- */
-//--------------------------------------------------------
-bool PowerPMAC_Global::is_ReloadPLC_allowed(TANGO_UNUSED(const CORBA::Any &any))
-{
-	//	Not any excluded states for ReloadPLC command.
-	/*----- PROTECTED REGION ID(PowerPMAC_Global::ReloadPLCStateAllowed) ENABLED START -----*/
-	
-	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_Global::ReloadPLCStateAllowed
 	return true;
 }
 

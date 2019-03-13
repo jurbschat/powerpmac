@@ -34,6 +34,7 @@ public:
 	virtual ~Core();
 	void Initialize(InitObject init);
 	bool IsConnected();
+	void StopCoreThread();
 
 	// pmac logic
 	std::string ExecuteCommand(const std::string& str);
@@ -50,7 +51,6 @@ public:
 	SignalHandler& Signals();
 	HandleType AddDeadTimer(std::chrono::microseconds timeout, std::function<void()> callback);
 	void RemoveDeadTimer(HandleType handle);
-	void ReloadPLC();
 private:
 	void LoggingSetup();
 	void ErrorHandlingSetup();
@@ -66,7 +66,6 @@ private:
 	void UpdateDeadTimers();
 	void ExecuteEvents();
 
-	UdpSink* udpSink;
 	std::string remoteHost;
 	int remotePort;
 	RemoteShell remoteShell;
@@ -74,11 +73,15 @@ private:
 	SignalHandler signalHandler;
 	IntervalTimer deadTimer;
 	TicketSpinLock coreTsl;
+	std::mutex initMtx;
 	std::atomic<bool> coreShouldRun;
 	std::atomic<bool> isConnected;
+	std::atomic_flag isCoreStartupInProcess;
 	std::mutex deadTimerMutex;
 	std::thread coreThread;
 	std::vector<std::function<void()>> events;
+	UdpSink* udpSink;
+	InitObject lastInit;
 };
 
 }

@@ -65,7 +65,6 @@
 //  Attributes managed are:
 //================================================================
 //  Name     |  Tango::DevString	Scalar
-//  Id       |  Tango::DevLong	Scalar
 //  Active   |  Tango::DevBoolean	Scalar
 //  Running  |  Tango::DevBoolean	Scalar
 //================================================================
@@ -128,9 +127,12 @@ void PowerPMAC_PLC::delete_device()
 	
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_PLC::delete_device
 	delete[] attr_Name_read;
-	delete[] attr_Id_read;
 	delete[] attr_Active_read;
 	delete[] attr_Running_read;
+
+
+	connectionEstablished.reset();
+	connectionLost.reset();
 }
 
 //--------------------------------------------------------
@@ -153,7 +155,6 @@ void PowerPMAC_PLC::init_device()
 	get_device_property();
 	
 	attr_Name_read = new Tango::DevString[1];
-	attr_Id_read = new Tango::DevLong[1];
 	attr_Active_read = new Tango::DevBoolean[1];
 	attr_Running_read = new Tango::DevBoolean[1];
 	//	No longer if mandatory property not set. 
@@ -163,7 +164,6 @@ void PowerPMAC_PLC::init_device()
 	/*----- PROTECTED REGION ID(PowerPMAC_PLC::init_device) ENABLED START -----*/
 
 	*attr_Name_read = nullptr;
-	*attr_Id_read = -1;
 	*attr_Active_read = false;
 	*attr_Running_read = false;
 
@@ -325,27 +325,21 @@ void PowerPMAC_PLC::read_Name(Tango::Attribute &attr)
 	DEBUG_STREAM << "PowerPMAC_PLC::read_Name(Tango::Attribute &attr) entering... " << endl;
 	/*----- PROTECTED REGION ID(PowerPMAC_PLC::read_Name) ENABLED START -----*/
 	//	Set the attribute value
-	attr.set_value(attr_Name_read);
+
+	try {
+		ppmac::CoreInterface& ci = ppmac::GetCoreObject();
+		auto plcInfo = ci.GetPlcInfo(plcIndex);
+		if(plcInfo.type != ppmac::PmacExecutableType::INVALID) {
+			tu::SetStringValue(attr_Name_read, plcInfo.name);
+		} else {
+			tu::SetStringValue(attr_Name_read, std::to_string(plcIndex));
+		}
+		attr.set_value(attr_Name_read);
+	} catch (ppmac::RuntimeError& e) {
+		tu::TranslateException(e);
+	}
 	
 	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_PLC::read_Name
-}
-//--------------------------------------------------------
-/**
- *	Read attribute Id related method
- *	Description: 
- *
- *	Data type:	Tango::DevLong
- *	Attr type:	Scalar
- */
-//--------------------------------------------------------
-void PowerPMAC_PLC::read_Id(Tango::Attribute &attr)
-{
-	DEBUG_STREAM << "PowerPMAC_PLC::read_Id(Tango::Attribute &attr) entering... " << endl;
-	/*----- PROTECTED REGION ID(PowerPMAC_PLC::read_Id) ENABLED START -----*/
-	//	Set the attribute value
-	attr.set_value(attr_Id_read);
-	
-	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_PLC::read_Id
 }
 //--------------------------------------------------------
 /**
@@ -544,6 +538,23 @@ void PowerPMAC_PLC::UpdateState() {
 		set_state(Tango::OFF);
 	}
 }
+// //--------------------------------------------------------
+// /**
+//  *	Read attribute Id related method
+//  *	Description: 
+//  *
+//  *	Data type:	Tango::DevLong
+//  *	Attr type:	Scalar
+//  */
+// //--------------------------------------------------------
+// void PowerPMAC_PLC::read_Id(Tango::Attribute &attr)
+// {
+// 	DEBUG_STREAM << "PowerPMAC_PLC::read_Id(Tango::Attribute &attr) entering... " << endl;
+// 	//	Set the attribute value
+// 	attr.set_value(attr_Id_read);
+// 	
+// }
+
 
 /*----- PROTECTED REGION END -----*/	//	PowerPMAC_PLC::namespace_ending
 } //	namespace

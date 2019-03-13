@@ -240,8 +240,17 @@ namespace ppmac::cmd {
 		return fmt::format("Coord[{}].NumMotors", coord);
 	}
 
-	std::string SetAxisTransformMatrice(CoordID  coord, int32_t transformMatrice) {
+	std::string CoordSetAxisTransformMatrix(CoordID coord, int32_t transformMatrice) {
 		return fmt::format("&{} tsel {}", coord, transformMatrice);
+	}
+
+	std::string CoordMultiAxisMove(CoordID coord, const std::vector<MultiAxisMoveInfo>& info) {
+		fmt::memory_buffer buffer;
+		fmt::format_to(buffer, "&{} cx linear abs", coord);
+		for(auto& elem : info) {
+			fmt::format_to(buffer, " {}{}", AvailableAxis::MapAxisToChar(elem.axis), elem.pos);
+		}
+		return fmt::to_string(buffer);
 	}
 
 	///////////////////////////////////////////////////////////////
@@ -257,9 +266,13 @@ namespace ppmac::cmd {
 		return fmt::format("CompTable[{}].Target[0]", table);
 	}
 	std::string CompensationTableSetTarget(CompensationTableID table, int32_t target) {
-		return fmt::format("CompTable[{table}].Target[0]=Motor[{motor}].CompPos.a;CompTable[{table}].Target[1]=Motor[{motor}].CompPos2.a;",
+		return fmt::format("CompTable[{table}].Target[0]=Motor[{motor}].CompPos.a;CompTable[{table}].Target[1]=Motor[{motor}].CompPos2.a",
 				fmt::arg("table", table),
 				fmt::arg("motor", target));
+	}
+	std::string CompensationTableResetTarget(CompensationTableID table) {
+		return fmt::format("CompTable[{table}].Target[0]=0;CompTable[{table}].Target[1]=0",
+				fmt::arg("table", table));
 	}
 	std::string CompensationTableGetStartX(CompensationTableID table) {
 		return fmt::format("CompTable[{}].X0[0]", table);

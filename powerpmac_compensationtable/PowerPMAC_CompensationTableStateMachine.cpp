@@ -246,6 +246,21 @@ bool PowerPMAC_CompensationTable::is_CompensationTable_allowed(TANGO_UNUSED(Tang
 //		Commands Allowed Methods
 //=================================================
 
+//--------------------------------------------------------
+/**
+ *	Method      : PowerPMAC_CompensationTable::is_ResetTarget_allowed()
+ *	Description : Execution allowed for ResetTarget attribute
+ */
+//--------------------------------------------------------
+bool PowerPMAC_CompensationTable::is_ResetTarget_allowed(TANGO_UNUSED(const CORBA::Any &any))
+{
+	//	Not any excluded states for ResetTarget command.
+	/*----- PROTECTED REGION ID(PowerPMAC_CompensationTable::ResetTargetStateAllowed) ENABLED START -----*/
+	
+	/*----- PROTECTED REGION END -----*/	//	PowerPMAC_CompensationTable::ResetTargetStateAllowed
+	return true;
+}
+
 
 /*----- PROTECTED REGION ID(PowerPMAC_CompensationTable::PowerPMAC_CompensationTableStateAllowed.AdditionalMethods) ENABLED START -----*/
 

@@ -17,9 +17,7 @@ namespace PowerPMAC_CoordinateSystems_ns
 		~MyAttrib();
 
 		virtual void read(Tango::DeviceImpl *dev, Tango::Attribute &att);
-
 		virtual void write(Tango::DeviceImpl *dev, Tango::WAttribute &att);
-
 		virtual bool is_allowed(Tango::DeviceImpl *dev, Tango::AttReqType ty);
 
 		int32_t axis_;

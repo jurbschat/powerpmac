@@ -125,6 +125,9 @@ void PowerPMAC_IO::delete_device()
 	delete[] attr_RawValue_read;
 	delete[] attr_Value_read;
 	delete[] attr_ScaleFactor_read;
+
+	connectionEstablished.reset();
+	connectionLost.reset();
 }
 
 //--------------------------------------------------------
