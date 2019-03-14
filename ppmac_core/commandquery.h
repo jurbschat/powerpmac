@@ -310,7 +310,7 @@ namespace ppmac::query {
 		for(int i = first; i <= (last - first); i++) {
 			tuples.push_back((std::make_tuple(i)));
 		}
-		fmt::memory_buffer buffer = builder::detail::MakeMultiCommand("Motor[{0}].ServoCtrl;" /* Motor[{0}].PosUnit" */, stdext::make_span(tuples));
+		fmt::memory_buffer buffer = builder::detail::MakeMultiCommand("Motor[{0}].ServoCtrl" /* Motor[{0}].PosUnit" */, stdext::make_span(tuples));
 		return MakeCommandQuery(
 			fmt::to_string(buffer),
 				first, last+1,

@@ -387,7 +387,7 @@ namespace ppmac {
 	void RemoteShell::AddTimeout() {
 		consecutiveTimeouts++;
 		SPDLOG_DEBUG("timeouts: {}", consecutiveTimeouts);
-		if(consecutiveTimeouts >= 1) {
+		if(consecutiveTimeouts >= 5) {
 			SPDLOG_DEBUG("more than 5 consecutive read timeouts, closing connection");
 			Disconnect();
 		}

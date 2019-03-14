@@ -986,7 +986,7 @@ void PowerPMAC_Global::add_dynamic_commands()
 
 void PowerPMAC_Global::StartGlobal() {
 	ppmac::CoreInterface& ci = ppmac::GetCoreObject();
-	ci.ExecuteCommand(ppmac::cmd::GlobalSetBrickLVMonitoring(true));
+	auto res = ci.ExecuteCommandConsume(ppmac::cmd::GlobalSetBrickLVMonitoring(true), std::chrono::milliseconds{2000});
 	UpdateAmpState();
 }
 

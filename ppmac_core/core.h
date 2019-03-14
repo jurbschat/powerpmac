@@ -81,7 +81,6 @@ private:
 	std::thread coreThread;
 	std::vector<std::function<void()>> events;
 	UdpSink* udpSink;
-	InitObject lastInit;
 };
 
 }

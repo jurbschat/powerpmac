@@ -43,17 +43,11 @@ namespace ppmac {
 	}
 
 	void Core::Initialize(InitObject init) {
-		//SPDLOG_DEBUG("+++++ trying to lock");
-		SPDLOG_DEBUG("+++++ Initialize()");
 		if(isCoreStartupInProcess.test_and_set(std::memory_order_acquire)) {
 			SPDLOG_WARN("initialize already in progress, ignoring initialize call");
 			return;
 		}
-		SPDLOG_DEBUG("+++++ lock in progress");
-		//SPDLOG_DEBUG("+++++ locked");
-		//SPDLOG_DEBUG("+++++ stopping core");
 		StopCoreThread();
-		//SPDLOG_DEBUG("+++++ core stopped");
 		if(udpSink) {
 			auto& sinks = spdlog::default_logger()->sinks();
 			sinks.erase(std::remove_if(sinks.begin(), sinks.end(), [this](auto& elem){
@@ -79,13 +73,9 @@ namespace ppmac {
 		remoteHost = init.host;
 		remotePort = init.port;
 		coreShouldRun = true;
-		//SPDLOG_DEBUG("+++++ MakeThread for core");
 		coreThread = MakeThread("Core", [&, this](){
 			CoreRunner();
 		});
-		//SPDLOG_DEBUG("+++++ MakeThread for core done");
-		lastInit = init;
-		//SPDLOG_DEBUG("+++++ init finished");
 	}
 
 	void Core::StopCoreThread() {
@@ -130,9 +120,9 @@ namespace ppmac {
 	}
 
 	void Core::CoreRunner() {
-		//SPDLOG_DEBUG("+++++ entering core runner");
-		while(coreShouldRun) {
-			{
+		while(coreShouldRun)
+		{
+			{   // extra scope
 				std::lock_guard<mutex_type> lock(coreTsl);
 				SPDLOG_INFO("trying to connect to {}:{}", remoteHost, remotePort);
 				auto res = InitializePmacConnection(remoteHost, remotePort);
@@ -143,31 +133,37 @@ namespace ppmac {
 				}
 				stateUpdater.SetupInitialState();
 			}
+			isConnected = true;
 			try {
-				isConnected = true;
-				//SPDLOG_DEBUG("+++++ calling connection estbalished");
 				signalHandler.RunConnectionEstablished();
-				//SPDLOG_DEBUG("+++++ calling connection estbalished done");
-				// only after here init is allowed to be called again
-				isCoreStartupInProcess.clear(std::memory_order_release);
-				//SPDLOG_DEBUG("+++++ released");
-				SPDLOG_DEBUG("+++++ lock released");
-				while(remoteShell.IsConnected() && coreShouldRun) {
-					{
+			} catch (const std::exception&) {
+				SPDLOG_WARN("exception in connection established callback :\n{}", StringifyException(std::current_exception(), 4, '>'));
+				SPDLOG_CRITICAL("we dont know if this is recoverable therefore we must exit");
+				throw;
+			}
+			// only after here init is allowed to be called again
+			isCoreStartupInProcess.clear(std::memory_order_release);
+			while(remoteShell.IsConnected() && coreShouldRun) {
+				try
+				{
+					{   // extra scope
 						std::lock_guard<mutex_type> lock(coreTsl);
 						stateUpdater.ManualUpdate();
 					}
 					UpdateDeadTimers();
 					ExecuteEvents();
+				} catch (const std::exception&) {
+					SPDLOG_WARN("exception in core update loop:\n{}", StringifyException(std::current_exception(), 4, '>'));
 				}
-			} catch (const std::exception&) {
-				SPDLOG_WARN("exception in core thread, stopping connection:\n{}", StringifyException(std::current_exception(), 4, '>'));
 			}
 			isConnected = false;
 			SPDLOG_ERROR("connection to {}:{} lost", remoteHost, remotePort);
-			//SPDLOG_DEBUG("+++++ calling connection lost");
-			signalHandler.RunConnectionLost();
-			//SPDLOG_DEBUG("+++++ calling connection lost done");
+			try {
+				signalHandler.RunConnectionLost();
+			} catch (const std::exception&) {
+				SPDLOG_WARN("exception in connection lost callback :\n{}", StringifyException(std::current_exception(), 4, '>'));
+				SPDLOG_CRITICAL("we dont know if this is recoverable therefore we must exit");
+			}
 		}
 		SPDLOG_DEBUG("core thread finished", remoteHost, remotePort);
 	}

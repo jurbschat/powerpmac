@@ -69,7 +69,7 @@ namespace ppmac::cmd {
 	// resets and reloads the configuration
 	std::string GlobalReset();
 	std::string GlobalSetAbortAll(bool abort);
-	std::string GlobalSetBrickLVMonitoring(bool mode);
+	std::string GlobalSetBrickLVMonitoring(bool mode);  // these commands can return multiple non delemited/multi delemited lines and should be used via consume
 	std::string GlobalGetBrickLVMonitoring();
 	std::string GlobalGetActiveCompensationTableCount();
 	std::string GlobalSetActiveCompensationTableCount(int32_t activeTables);
